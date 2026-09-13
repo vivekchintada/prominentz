@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Resto — A refined dining experience where every detail matters. Discover our seasonal menu, curated gallery, and reserve your table today." />
+  <title>Resto — Refined Dining</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo" id="nav-logo">Resto</a>
+      <nav class="nav__links" id="nav-links" aria-label="Main navigation">
+        <a href="#about" class="nav__link" id="nav-about">About</a>
+        <a href="#gallery" class="nav__link" id="nav-gallery-link">Gallery</a>
+        <a href="#reserve" class="nav__link" id="nav-reserve">Reserve</a>
+      </nav>
+      <a href="#reserve" class="btn btn--outline" id="nav-cta">Book a Table</a>
+      <button class="nav__hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__drawer" id="nav-drawer" aria-hidden="true">
+      <a href="#about" class="nav__drawer-link" id="drawer-about">About</a>
+      <a href="#gallery" class="nav__drawer-link" id="drawer-gallery">Gallery</a>
+      <a href="#reserve" class="nav__drawer-link" id="drawer-reserve">Reserve</a>
+      <a href="#reserve" class="btn btn--dark btn--full" id="drawer-cta">Book a Table</a>
+    </div>
+  </header>
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <img src="assets/hero_dish.png" alt="" class="hero__img" id="hero-img" />
+        <div class="hero__overlay"></div>
+      </div>
+      <div class="hero__content">
+        <p class="hero__eyebrow reveal" id="hero-eyebrow">Est. 2012 &nbsp;&middot;&nbsp; Fine Dining</p>
+        <h1 class="hero__title reveal" id="hero-title">Where every<br /><em>detail</em> matters.</h1>
+        <p class="hero__sub reveal" id="hero-sub">Seasonal ingredients. Considered craft. A table worth remembering.</p>
+        <div class="hero__actions reveal" id="hero-actions">
+          <a href="#reserve" class="btn btn--primary" id="hero-reserve-cta">Reserve a Table</a>
+          <a href="#gallery" class="btn btn--ghost" id="hero-gallery-cta">View Gallery</a>
+        </div>
+      </div>
+      <a href="#about" class="hero__scroll" id="hero-scroll" aria-label="Scroll down">
+        <span class="hero__scroll-line"></span>
+        <span class="hero__scroll-text">Scroll</span>
+      </a>
+    </section>
+    <section class="about" id="about">
+      <div class="container about__grid">
+        <div class="about__text">
+          <p class="section-label reveal" id="about-label">Our Philosophy</p>
+          <h2 class="section-title reveal" id="about-title">Simplicity is<br />the ultimate<br /><em>sophistication.</em></h2>
+          <p class="about__body reveal" id="about-body-1">At Resto, we believe great food begins with restraint &mdash; fewer ingredients, more intention. Our kitchen works directly with local farms and purveyors, changing the menu with the seasons and letting nature guide the plate.</p>
+          <p class="about__body reveal" id="about-body-2">Every dish is a quiet conversation between chef and guest. Come sit at our table.</p>
+          <div class="about__stats reveal" id="about-stats">
+            <div class="stat" id="stat-1"><span class="stat__num" data-target="14">0</span><span class="stat__label">Years of craft</span></div>
+            <div class="stat" id="stat-2"><span class="stat__num" data-target="3">0</span><span class="stat__label">Michelin stars</span></div>
+            <div class="stat" id="stat-3"><span class="stat__num" data-target="40">0</span><span class="stat__label">Local producers</span></div>
+          </div>
+        </div>
+        <div class="about__visual reveal" id="about-visual">
+          <div class="about__img-wrap">
+            <img src="assets/gallery_bread.png" alt="Artisan bread and herbs at Resto" class="about__img" id="about-img" loading="lazy" />
+          </div>
+          <div class="about__accent-card" id="about-accent">
+            <span class="about__accent-num">12</span>
+            <span class="about__accent-text">Curated dishes each season</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="gallery-section" id="gallery">
+      <div class="container gallery-section__header">
+        <p class="section-label reveal" id="gallery-label">The Gallery</p>
+        <h2 class="section-title reveal" id="gallery-title">Captured on the plate.</h2>
+      </div>
+      <div class="gallery" id="gallery-grid" role="list" aria-label="Food gallery">
+        <article class="gallery__item gallery__item--large reveal" id="gitem-1" role="listitem">
+          <div class="gallery__img-wrap">
+            <img src="assets/hero_dish.png" alt="Signature plated dish" loading="lazy" />
+            <div class="gallery__caption"><p class="gallery__caption-title">The Signature</p><p class="gallery__caption-sub">Chef's seasonal creation</p></div>
+          </div>
+        </article>
+        <article class="gallery__item reveal" id="gitem-2" role="listitem" style="--delay:0.1s">
+          <div class="gallery__img-wrap">
+            <img src="assets/gallery_pasta.png" alt="Handmade truffle pasta" loading="lazy" />
+            <div class="gallery__caption"><p class="gallery__caption-title">Handmade Pasta</p><p class="gallery__caption-sub">Truffle &amp; aged parmesan</p></div>
+          </div>
+        </article>
+        <article class="gallery__item reveal" id="gitem-3" role="listitem" style="--delay:0.2s">
+          <div class="gallery__img-wrap">
+            <img src="assets/gallery_dessert.png" alt="Chocolate mousse dessert" loading="lazy" />
+            <div class="gallery__caption"><p class="gallery__caption-title">Dark Chocolate Mousse</p><p class="gallery__caption-sub">Gold leaf &amp; berry coulis</p></div>
+          </div>
+        </article>
+        <article class="gallery__item reveal" id="gitem-4" role="listitem" style="--delay:0.15s">
+          <div class="gallery__img-wrap">
+            <img src="assets/gallery_bread.png" alt="Artisan bread with herbs" loading="lazy" />
+            <div class="gallery__caption"><p class="gallery__caption-title">Bread &amp; Herb Butter</p><p class="gallery__caption-sub">House-baked daily</p></div>
+          </div>
+        </article>
+        <article class="gallery__item gallery__item--wide reveal" id="gitem-5" role="listitem" style="--delay:0.05s">
+          <div class="gallery__img-wrap">
+            <img src="assets/gallery_drinks.png" alt="Signature cocktails" loading="lazy" />
+            <div class="gallery__caption"><p class="gallery__caption-title">Signature Cocktails</p><p class="gallery__caption-sub">Curated bar programme</p></div>
+          </div>
+        </article>
+      </div>
+      <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image lightbox" hidden>
+        <button class="lightbox__close" id="lightbox-close" aria-label="Close">&times;</button>
+        <button class="lightbox__prev" id="lightbox-prev" aria-label="Previous">&#8592;</button>
+        <button class="lightbox__next" id="lightbox-next" aria-label="Next">&#8594;</button>
+        <div class="lightbox__img-wrap"><img src="" alt="" id="lightbox-img" class="lightbox__img" /></div>
+        <p class="lightbox__caption" id="lightbox-caption"></p>
+      </div>
+    </section>
+    <section class="quote-section" id="quote">
+      <div class="container">
+        <blockquote class="quote reveal" id="quote-block">
+          <p class="quote__text">&ldquo;The best restaurants don&rsquo;t just feed you &mdash; they remind you what it means to be fully present.&rdquo;</p>
+          <footer class="quote__attr">&mdash; The Guardian, 2024</footer>
+        </blockquote>
+      </div>
+    </section>
+    <section class="reserve" id="reserve">
+      <div class="container reserve__grid">
+        <div class="reserve__info">
+          <p class="section-label reveal" id="reserve-label">Reservations</p>
+          <h2 class="section-title reveal" id="reserve-title">Reserve your<br /><em>evening.</em></h2>
+          <div class="reserve__details reveal" id="reserve-details">
+            <div class="reserve__detail" id="detail-hours"><span class="reserve__detail-label">Hours</span><span class="reserve__detail-value">Tue &ndash; Sun, 6 pm &ndash; 11 pm</span></div>
+            <div class="reserve__detail" id="detail-location"><span class="reserve__detail-label">Location</span><span class="reserve__detail-value">12 Harbour Lane, New City</span></div>
+            <div class="reserve__detail" id="detail-phone"><span class="reserve__detail-label">Phone</span><span class="reserve__detail-value">+1 (555) 012 3456</span></div>
+          </div>
+        </div>
+        <form class="reserve__form reveal" id="reserve-form" novalidate>
+          <div class="form-group" id="fg-name">
+            <label for="guest-name" class="form-label">Full Name</label>
+            <input type="text" id="guest-name" name="name" class="form-input" placeholder="Jane Smith" required />
+          </div>
+          <div class="form-row" id="fg-row-1">
+            <div class="form-group">
+              <label for="guest-email" class="form-label">Email</label>
+              <input type="email" id="guest-email" name="email" class="form-input" placeholder="jane@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="guest-phone" class="form-label">Phone</label>
+              <input type="tel" id="guest-phone" name="phone" class="form-input" placeholder="+1 555 000 0000" />
+            </div>
+          </div>
+          <div class="form-row" id="fg-row-2">
+            <div class="form-group">
+              <label for="guest-date" class="form-label">Date</label>
+              <input type="date" id="guest-date" name="date" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label for="guest-time" class="form-label">Time</label>
+              <select id="guest-time" name="time" class="form-input" required>
+                <option value="" disabled selected>Select time</option>
+                <option value="18:00">6:00 PM</option>
+                <option value="18:30">6:30 PM</option>
+                <option value="19:00">7:00 PM</option>
+                <option value="19:30">7:30 PM</option>
+                <option value="20:00">8:00 PM</option>
+                <option value="20:30">8:30 PM</option>
+                <option value="21:00">9:00 PM</option>
+                <option value="21:30">9:30 PM</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" id="fg-guests">
+            <label class="form-label">Number of Guests</label>
+            <div class="guest-counter" id="guest-counter">
+              <button type="button" class="counter-btn" id="counter-minus" aria-label="Decrease">&#8722;</button>
+              <span class="counter-val" id="counter-value" aria-live="polite">2</span>
+              <button type="button" class="counter-btn" id="counter-plus" aria-label="Increase">+</button>
+            </div>
+            <input type="hidden" id="guest-count" name="guests" value="2" />
+          </div>
+          <div class="form-group" id="fg-notes">
+            <label for="guest-notes" class="form-label">Special Requests <span class="form-optional">(optional)</span></label>
+            <textarea id="guest-notes" name="notes" class="form-input form-textarea" placeholder="Dietary requirements, occasions, seating preferences..." rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full" id="submit-btn">Confirm Reservation</button>
+          <p class="form-note" id="form-note">We'll confirm your booking via email within 2 hours.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand" id="footer-brand">
+        <span class="footer__logo">Resto</span>
+        <p class="footer__tagline">Refined dining, simply done.</p>
+      </div>
+      <nav class="footer__links" id="footer-nav" aria-label="Footer navigation">
+        <a href="#about" id="footer-about">About</a>
+        <a href="#gallery" id="footer-gallery">Gallery</a>
+        <a href="#reserve" id="footer-reserve">Reserve</a>
+        <a href="mailto:hello@resto.com" id="footer-contact">Contact</a>
+      </nav>
+      <p class="footer__copy" id="footer-copy">&copy; 2026 Resto. All rights reserved.</p>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <span class="toast__icon">&#10003;</span>
+    <span class="toast__msg" id="toast-msg">Reservation confirmed! Check your email.</span>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

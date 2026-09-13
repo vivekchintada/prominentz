@@ -1,0 +1,21 @@
+/* src/styles/glass.css */
+:root {
+  --bg-glass: rgba(255, 255, 255, 0.06);
+  --bg-glass-dark: rgba(0, 0, 0, 0.5);
+  --blur-strength: 12px;
+  --primary-hue: #2563eb;
+  --background-dark: #1C1C1E;
+}
+
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-strength));
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  color: #fff;
+}
+
+.dark .glass {
+  background: var(--bg-glass-dark);
+}

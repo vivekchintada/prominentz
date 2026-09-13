@@ -1,0 +1,165 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { publishEvent, EVENTS } from '@/lib/redis'
+
+export const dynamic = 'force-dynamic'
+
+interface TableOrderPayload {
+  locationId: string
+  tableId: string
+  items: Array<{
+    menuItemId: string
+    quantity: number
+    modifiers?: any
+    specialNote?: string
+  }>
+  guestName?: string
+  guestPhone?: string
+  notes?: string
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body: TableOrderPayload = await req.json()
+    const { locationId, tableId, items, guestName, guestPhone, notes } = body
+
+    if (!locationId || !tableId || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'Missing table ID, location ID, or order items' }, { status: 400 })
+    }
+
+    // Verify table exists
+    const table = await prisma.table.findUnique({
+      where: { id: tableId },
+      include: { location: true },
+    })
+
+    if (!table || table.locationId !== locationId) {
+      return NextResponse.json({ error: 'Table or location not found' }, { status: 404 })
+    }
+
+    // Auto-upsert diner profile if guest phone supplied
+    let customerId: string | undefined = undefined
+    if (guestPhone && guestPhone.trim()) {
+      const c = await prisma.customer.upsert({
+        where: { phone: guestPhone.trim() },
+        update: {
+          name: guestName || undefined,
+        },
+        create: {
+          restaurantId: table.location.restaurantId,
+          name: guestName || 'Table Guest',
+          phone: guestPhone.trim(),
+        },
+      })
+      customerId = c.id
+    }
+
+    // Fetch menu item pricing
+    const menuItemIds = items.map((i) => i.menuItemId)
+    const menuItems = await prisma.menuItem.findMany({
+      where: { id: { in: menuItemIds } },
+    })
+    const menuMap = new Map(menuItems.map((m) => [m.id, m]))
+
+    let subtotal = 0
+    const orderItemsData = items.map((item) => {
+      const mi = menuMap.get(item.menuItemId)
+      const price = Number(mi?.price || 0)
+      subtotal += price * item.quantity
+      return {
+        menuItemId: item.menuItemId,
+        quantity: item.quantity,
+        priceAtOrder: price,
+        modifiers: item.modifiers || [],
+        specialNote: item.specialNote || null,
+        status: 'PENDING' as const,
+      }
+    })
+
+    const tax = subtotal * 0.08
+    const total = subtotal + tax
+
+    // Find default kitchen/server user for online order assignment
+    const defaultServer = await prisma.user.findFirst({
+      where: { restaurantId: table.location.restaurantId },
+    })
+
+    if (!defaultServer) {
+      return NextResponse.json({ error: 'System unconfigured: No staff user available' }, { status: 500 })
+    }
+
+    // Create Order and update Table status
+    const order = await prisma.order.create({
+      data: {
+        tableId,
+        serverId: defaultServer.id,
+        customerId: customerId || null,
+        status: 'SENT_TO_KITCHEN',
+        guestCount: 1,
+        notes: notes ? `QR Order by ${guestName || 'Guest'}: ${notes}` : `QR Order by ${guestName || 'Guest'}`,
+        subtotal,
+        tax,
+        total,
+        items: { create: orderItemsData },
+      },
+      include: {
+        items: { include: { menuItem: true } },
+      },
+    })
+
+    await prisma.table.update({
+      where: { id: tableId },
+      data: { status: 'ACTIVE' },
+    })
+
+    // Group items by KDS station and generate KDS tickets
+    const stationMap = new Map<string, typeof order.items>()
+    order.items.forEach((item) => {
+      const station = item.menuItem.kdsStation
+      const current = stationMap.get(station) || []
+      current.push(item)
+      stationMap.set(station, current)
+    })
+
+    for (const [station, stationItems] of stationMap.entries()) {
+      const ticket = await prisma.kdsTicket.create({
+        data: {
+          orderId: order.id,
+          station: station as any,
+          status: 'NEW',
+          items: {
+            create: stationItems.map((si) => ({
+              menuItemId: si.menuItemId,
+              quantity: si.quantity,
+              modifiers: si.modifiers || [],
+              specialNote: si.specialNote,
+            })),
+          },
+        },
+      })
+
+      await publishEvent(EVENTS.TICKET_STATUS, {
+        ticketId: ticket.id,
+        orderId: order.id,
+        station,
+      })
+    }
+
+    await publishEvent(EVENTS.ORDER_CREATED, {
+      orderId: order.id,
+      tableId,
+      tableName: table.name,
+    })
+
+    return NextResponse.json({
+      success: true,
+      orderId: order.id,
+      tableName: table.name,
+      total: Number(total.toFixed(2)),
+      message: 'Your order has been sent directly to the kitchen!',
+    }, { status: 201 })
+  } catch (error) {
+    console.error('[POST /api/table-order]', error)
+    return NextResponse.json({ error: 'Failed to place table digital order' }, { status: 500 })
+  }
+}

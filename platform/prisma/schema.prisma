@@ -1,0 +1,858 @@
+// Resto AI — Phase 1 Prisma Schema
+// "Each event happens once. Every module reacts automatically."
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── ENUMS ──────────────────────────────────────────────────────────────────
+
+enum PlanTier {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum OrderSource {
+  POS
+  QR_TABLE
+  DELIVERY_DOORDASH
+  DELIVERY_UBEREATS
+  DELIVERY_OTHER
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  SERVER
+  KITCHEN
+}
+
+enum TableStatus {
+  EMPTY
+  ACTIVE
+  PAYING
+  RESERVED
+}
+
+enum OrderStatus {
+  OPEN
+  SENT_TO_KITCHEN
+  PARTIALLY_READY
+  READY
+  PAID
+  HOLD
+  VOIDED
+}
+
+enum OrderItemStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+  SERVED
+}
+
+enum TicketStatus {
+  NEW
+  IN_PROGRESS
+  READY
+  SERVED
+}
+
+enum TicketItemStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+}
+
+enum PaymentMethod {
+  CARD
+  CASH
+  APPLE_PAY
+  GOOGLE_PAY
+  GIFT_CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  VOIDED
+  REFUNDED
+}
+
+enum KdsStation {
+  HOT
+  COLD
+  BAR
+  EXPO
+}
+
+// ─── RESTAURANT & LOCATION ───────────────────────────────────────────────────
+
+model Restaurant {
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  planTier             PlanTier  @default(STARTER)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  onboardingStep       Int       @default(0) // 0=new, 5=complete
+  settings             Json?     @default("{}")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  locations      Location[]
+  users          User[]
+  categories     MenuCategory[]
+  customers      Customer[]
+  loyaltyRewards LoyaltyReward[]
+  coupons        Coupon[]
+  addons         MenuAddon[]
+}
+
+model Location {
+  id             String   @id @default(cuid())
+  restaurantId   String
+  name           String
+  address        String?
+  phone          String?
+  timezone       String   @default("UTC")
+  region         String?  // e.g. "North Region", "West Coast"
+  isHeadquarters Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  restaurant     Restaurant       @relation(fields: [restaurantId], references: [id])
+  tables         Table[]
+  categories     MenuCategory[]
+  kdsStations    KdsStationConfig[]
+  employees      Employee[]
+  inventoryItems InventoryItem[]
+  inventoryAlerts InventoryAlert[]
+  shifts         Shift[]
+  reservations   Reservation[]
+  waitlistEntries WaitlistEntry[]
+  suppliers      Supplier[]
+  purchaseOrders PurchaseOrder[]
+}
+
+// ─── AUTH / USERS ────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  restaurantId String
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  sessions   Session[]
+  orders     Order[]
+  payments   Payment[]
+  voids      Void[]
+  employee   Employee?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ─── MENU ────────────────────────────────────────────────────────────────────
+
+model MenuCategory {
+  id               String   @id @default(cuid())
+  restaurantId     String
+  locationId       String?
+  masterCategoryId String?  // Optional reference if pushed from HQ master category
+  name             String
+  imageUrl         String?
+  displayOrder     Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  restaurant Restaurant  @relation(fields: [restaurantId], references: [id])
+  location   Location?   @relation(fields: [locationId], references: [id])
+  items      MenuItem[]
+}
+
+model MenuItem {
+  id           String     @id @default(cuid())
+  categoryId   String
+  masterItemId String?    // Reference to HQ master item if synced
+  isMasterItem Boolean    @default(false)
+  name         String
+  description  String?
+  price        Decimal    @db.Decimal(10, 2)
+  netPrice     Decimal?   @db.Decimal(10, 2)
+  imageUrl     String?
+  isVeg        Boolean    @default(false)
+  isAvailable  Boolean    @default(true)
+  is86d        Boolean    @default(false)
+  taxRate      Decimal    @db.Decimal(5, 4) @default(0.0)
+  displayOrder Int        @default(0)
+  kdsStation   KdsStation @default(HOT)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  category     MenuCategory     @relation(fields: [categoryId], references: [id])
+  modifiers    MenuModifier[]
+  orderItems   OrderItem[]
+  availability AvailabilityLog[]
+  kdsTicketItems KdsTicketItem[]
+  recipeItems RecipeItem[]
+}
+
+model MenuModifier {
+  id           String   @id @default(cuid())
+  menuItemId   String
+  name         String   // e.g. "Size", "Extras", "Remove"
+  isRequired   Boolean  @default(false)
+  minSelect    Int      @default(0)
+  maxSelect    Int      @default(1)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  menuItem MenuItem          @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  options  ModifierOption[]
+}
+
+model ModifierOption {
+  id              String   @id @default(cuid())
+  modifierId      String
+  name            String   // e.g. "Large", "Extra Cheese", "No Onions"
+  priceAdjustment Decimal  @db.Decimal(10, 2) @default(0.0)
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  modifier MenuModifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+}
+
+model AvailabilityLog {
+  id         String   @id @default(cuid())
+  menuItemId String
+  action     String   // '86D' | 'RESTORED'
+  reason     String?
+  changedBy  String
+  createdAt  DateTime @default(now())
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model MenuAddon {
+  id           String     @id @default(cuid())
+  restaurantId String
+  parentItem   String     // e.g. "Pizza", "Sauce", "Sea Food", "Salad", "Topping", "Side Dish"
+  name         String     // e.g. "Extra Cheese", "Garlic Butter Sauce"
+  price        Decimal    @db.Decimal(10, 2)
+  status       String     @default("ACTIVE") // "ACTIVE" | "INACTIVE"
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+}
+
+model Coupon {
+  id             String    @id @default(cuid())
+  restaurantId   String
+  code           String    // e.g. "SEAFOOD10", "PIZZA20"
+  validCategory  String?   // category name or null for "All Categories"
+  discountType   String    // "PERCENTAGE" | "FIXED"
+  discountAmount Decimal   @db.Decimal(10, 2)
+  startDate      DateTime?
+  endDate        DateTime?
+  pointsCost     Int?      @default(0) // Customer loyalty points required to unlock/redeem
+  pointsReward   Int?      @default(0) // Loyalty points earned when using this coupon
+  status         String    @default("ACTIVE") // "ACTIVE" | "EXPIRED" | "INACTIVE"
+  usageLimit     Int?
+  usageCount     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, code])
+  @@index([restaurantId])
+}
+
+// ─── TABLES ──────────────────────────────────────────────────────────────────
+
+model Table {
+  id         String      @id @default(cuid())
+  locationId String
+  name       String      // e.g. "Table 1", "Bar 3", "Patio 2"
+  capacity   Int
+  status     TableStatus @default(EMPTY)
+  floor      String      @default("1st Floor")
+  shape      String      @default("square") // square | rectangle | round
+  note       String?
+  posX       Int?        // position on table map grid
+  posY       Int?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  location Location @relation(fields: [locationId], references: [id])
+  orders   Order[]
+  reservations Reservation[]
+}
+
+// ─── ORDERS ──────────────────────────────────────────────────────────────────
+
+model Order {
+  id                      String      @id @default(cuid())
+  tableId                 String
+  serverId                String?
+  customerId              String?
+  status                  OrderStatus @default(OPEN)
+  orderSource             OrderSource @default(POS)
+  deliveryPlatformOrderId String?     // External delivery platform order ID
+  guestCount              Int         @default(1)
+  notes                   String?
+  subtotal                Decimal     @db.Decimal(10, 2) @default(0.0)
+  tax                     Decimal     @db.Decimal(10, 2) @default(0.0)
+  total                   Decimal     @db.Decimal(10, 2) @default(0.0)
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+
+  table      Table       @relation(fields: [tableId], references: [id])
+  server     User?       @relation(fields: [serverId], references: [id])
+  customer   Customer?   @relation(fields: [customerId], references: [id])
+  items      OrderItem[]
+  tickets    KdsTicket[]
+  payments   Payment[]
+  events     OrderEvent[]
+}
+
+model OrderItem {
+  id           String          @id @default(cuid())
+  orderId      String
+  menuItemId   String
+  quantity     Int             @default(1)
+  seatNumber   Int             @default(1)
+  priceAtOrder Decimal         @db.Decimal(10, 2)
+  modifiers    Json            @default("[]") // [{modifierName, optionName, priceDelta}]
+  specialNote  String?
+  status       OrderItemStatus @default(PENDING)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  eventType String   // order.created, order.sent_to_kitchen, etc.
+  actorId   String?
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([eventType])
+}
+
+// ─── KDS ─────────────────────────────────────────────────────────────────────
+
+model KdsStationConfig {
+  id         String     @id @default(cuid())
+  locationId String
+  station    KdsStation
+  name       String     // Display name e.g. "Hot Kitchen"
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+
+  location  Location     @relation(fields: [locationId], references: [id])
+}
+
+model KdsTicket {
+  id        String       @id @default(cuid())
+  orderId   String
+  station   KdsStation
+  status    TicketStatus @default(NEW)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  readyAt   DateTime?
+  servedAt  DateTime?
+
+  order Order          @relation(fields: [orderId], references: [id])
+  items KdsTicketItem[]
+}
+
+model KdsTicketItem {
+  id          String           @id @default(cuid())
+  ticketId    String
+  menuItemId  String
+  quantity    Int
+  modifiers   Json             @default("[]")
+  specialNote String?
+  status      TicketItemStatus @default(PENDING)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+
+  ticket KdsTicket @relation(fields: [ticketId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+// ─── PAYMENTS ────────────────────────────────────────────────────────────────
+
+model Payment {
+  id                   String        @id @default(cuid())
+  orderId              String
+  processedBy          String
+  method               PaymentMethod
+  status               PaymentStatus @default(PENDING)
+  subtotal             Decimal       @db.Decimal(10, 2)
+  tax                  Decimal       @db.Decimal(10, 2)
+  tip                  Decimal       @db.Decimal(10, 2) @default(0.0)
+  total                Decimal       @db.Decimal(10, 2)
+  stripePaymentIntentId String?
+  stripeChargeId       String?
+  cashReceived         Decimal?      @db.Decimal(10, 2)
+  cashChange           Decimal?      @db.Decimal(10, 2)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  order      Order          @relation(fields: [orderId], references: [id])
+  processor  User           @relation(fields: [processedBy], references: [id])
+  splits     PaymentSplit[]
+  void       Void?
+  receipt    Receipt?
+}
+
+model PaymentSplit {
+  id        String        @id @default(cuid())
+  paymentId String
+  guestRef  String        // e.g. "Guest 1", "Jane"
+  method    PaymentMethod
+  subtotal  Decimal       @db.Decimal(10, 2)
+  tip       Decimal       @db.Decimal(10, 2) @default(0.0)
+  total     Decimal       @db.Decimal(10, 2)
+  stripePaymentIntentId String?
+  createdAt DateTime      @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+}
+
+model Void {
+  id          String   @id @default(cuid())
+  paymentId   String   @unique
+  voidedBy    String
+  reason      String
+  refundId    String?  // Stripe refund ID
+  refundAmount Decimal? @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+
+  payment  Payment @relation(fields: [paymentId], references: [id])
+  voidedByUser User @relation(fields: [voidedBy], references: [id])
+}
+
+model Receipt {
+  id        String   @id @default(cuid())
+  paymentId String   @unique
+  url       String   // PDF stored in R2
+  sentTo    String?  // email or phone
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+}
+
+// ─── EMPLOYEES (Phase 1 — basic, expanded in Phase 2 for labor mgmt) ─────────
+
+model Employee {
+  id                String    @id @default(cuid())
+  locationId        String
+  userId            String    @unique
+  jobTitle          String?
+  phone             String?
+  hourlyRate        Decimal?  @db.Decimal(10, 2)
+  hireDate          DateTime?
+  emergencyContact  String?   // "Name — Phone"
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  user          User                 @relation(fields: [userId], references: [id])
+  location      Location             @relation(fields: [locationId], references: [id])
+  shifts        Shift[]
+  leaveRequests LeaveRequest[]
+  availability  WorkerAvailability[]
+  tradeRequestsSent     ShiftTradeRequest[] @relation("TradeRequester")
+  tradeRequestsReceived ShiftTradeRequest[] @relation("TradeTarget")
+}
+
+enum AvailabilityType {
+  AVAILABLE
+  UNAVAILABLE
+  PREFERRED
+}
+
+model WorkerAvailability {
+  id         String           @id @default(cuid())
+  employeeId String
+  dayOfWeek  Int              // 0 (Sun) to 6 (Sat)
+  type       AvailabilityType @default(AVAILABLE)
+  startTime  String?          // e.g. "09:00"
+  endTime    String?          // e.g. "17:00"
+  notes      String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+}
+
+// ─── INVENTORY & AUTO-86 (Phase 2 — Week 9) ──────────────────────────────────
+
+enum InventoryTransactionType {
+  STOCK_IN
+  DEPLETION_ORDER
+  WASTE
+  ADJUSTMENT
+}
+
+model InventoryItem {
+  id           String      @id @default(cuid())
+  locationId   String
+  name         String      // e.g. "Beef Patty"
+  unit         String      // e.g. "pcs", "g", "oz"
+  currentStock Float       @default(0.0)
+  minStock     Float       @default(0.0) // alert threshold
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  location     Location    @relation(fields: [locationId], references: [id])
+  recipes      RecipeItem[]
+  transactions InventoryTransaction[]
+  alerts       InventoryAlert[]
+}
+
+model RecipeItem {
+  id              String        @id @default(cuid())
+  menuItemId      String
+  inventoryItemId String
+  quantityRequired Float       // Quantity depleted per menu item sold
+
+  menuItem        MenuItem      @relation(fields: [menuItemId], references: [id])
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@unique([menuItemId, inventoryItemId])
+}
+
+model InventoryTransaction {
+  id              String                 @id @default(cuid())
+  inventoryItemId String
+  type            InventoryTransactionType
+  quantity        Float                  // Positive or negative
+  orderId         String?                // Optional link to order causing depletion
+  actorId         String?                // Optional link to employee modifying stock
+  notes           String?
+  createdAt       DateTime               @default(now())
+
+  inventoryItem   InventoryItem          @relation(fields: [inventoryItemId], references: [id])
+}
+
+model InventoryAlert {
+  id              String   @id @default(cuid())
+  inventoryItemId String
+  locationId      String
+  type            String   // LOW_STOCK | OUT_OF_STOCK | RESTOCKED
+  message         String
+  isRead          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  location        Location      @relation(fields: [locationId], references: [id])
+}
+
+// ─── LABOR MANAGEMENT (Phase 2) ──────────────────────────────────────────────
+
+enum ShiftStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Shift {
+  id             String      @id @default(cuid())
+  employeeId     String
+  locationId     String
+  scheduledStart DateTime?
+  scheduledEnd   DateTime?
+  clockIn        DateTime?
+  clockOut       DateTime?
+  breakMinutes   Int         @default(0)
+  status         ShiftStatus @default(SCHEDULED)
+  role           UserRole    // Role active during this shift
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  employee       Employee            @relation(fields: [employeeId], references: [id])
+  location       Location            @relation(fields: [locationId], references: [id])
+  notes          ShiftNote[]
+  tradeRequests  ShiftTradeRequest[]
+}
+
+model ShiftNote {
+  id        String   @id @default(cuid())
+  shiftId   String
+  note      String
+  createdBy String   // userId
+  createdAt DateTime @default(now())
+
+  shift Shift @relation(fields: [shiftId], references: [id])
+}
+
+// ─── SHIFT SWAPPING & TRADES (Deputy HR) ──────────────────────────────────────
+
+enum TradeStatus {
+  PENDING_PEER
+  PENDING_MANAGER
+  APPROVED
+  DENIED
+  CANCELLED
+}
+
+model ShiftTradeRequest {
+  id               String      @id @default(cuid())
+  shiftId          String
+  requesterId      String
+  targetEmployeeId String?     // optional specific coworker or null for open trade pool
+  status           TradeStatus @default(PENDING_PEER)
+  reason           String?
+  managerNote      String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  shift          Shift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  requester      Employee  @relation("TradeRequester", fields: [requesterId], references: [id])
+  targetEmployee Employee? @relation("TradeTarget", fields: [targetEmployeeId], references: [id])
+}
+
+// ─── LEAVE MANAGEMENT (Phase 2 — Week 4) ─────────────────────────────────────
+
+enum LeaveType {
+  SICK
+  VACATION
+  PERSONAL
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  DENIED
+  CANCELLED
+}
+
+model LeaveRequest {
+  id          String      @id @default(cuid())
+  employeeId  String
+  type        LeaveType
+  status      LeaveStatus @default(PENDING)
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?
+  reviewedBy  String?     // userId of manager who acted
+  reviewNote  String?     // optional manager comment
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+}
+
+// ─── RESERVATIONS (Phase 2) ───────────────────────────────────────────────────
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  SEATED
+  CANCELLED
+  NO_SHOW
+}
+
+model Reservation {
+  id          String            @id @default(cuid())
+  locationId  String
+  tableId     String?
+  guestName   String
+  guestPhone  String
+  guestEmail  String?
+  partySize   Int
+  scheduledAt DateTime
+  status      ReservationStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  location    Location  @relation(fields: [locationId], references: [id])
+  table       Table?    @relation(fields: [tableId], references: [id])
+}
+
+// ─── WAITLIST (Phase 2) ───────────────────────────────────────────────────────
+
+enum WaitlistStatus {
+  WAITING
+  SEATED
+  LEFT
+}
+
+model WaitlistEntry {
+  id              String        @id @default(cuid())
+  locationId      String
+  guestName       String
+  guestPhone      String
+  partySize       Int
+  quotedWaitMins  Int           @default(20)
+  arrivedAt       DateTime      @default(now())
+  seatedAt        DateTime?
+  leftAt          DateTime?
+  status          WaitlistStatus @default(WAITING)
+  createdAt       DateTime      @default(now())
+
+  location        Location      @relation(fields: [locationId], references: [id])
+}
+
+// ─── SUPPLIERS & PURCHASE ORDERS (Phase 2 — Week 9) ───────────────────────────
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+model Supplier {
+  id           String          @id @default(cuid())
+  locationId   String
+  name         String          // Vendor company name e.g. "US Foods", "Metro Wholesalers"
+  contactName  String?
+  email        String?
+  phone        String?
+  leadTimeDays Int             @default(3)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  location       Location        @relation(fields: [locationId], references: [id])
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id          String              @id @default(cuid())
+  locationId  String
+  supplierId  String
+  poNumber    String              @unique // e.g. "PO-2026-001"
+  status      PurchaseOrderStatus @default(DRAFT)
+  totalCost   Decimal             @db.Decimal(10, 2) @default(0.0)
+  orderedAt   DateTime?
+  receivedAt  DateTime?
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  location Location            @relation(fields: [locationId], references: [id])
+  supplier Supplier            @relation(fields: [supplierId], references: [id])
+  items    PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  inventoryItemId String
+  quantity        Float
+  unitCost        Decimal       @db.Decimal(10, 2)
+  totalCost       Decimal       @db.Decimal(10, 2)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+}
+
+// ─── CUSTOMER CRM & LOYALTY (Phase 3 — Module 3) ─────────────────────────────
+
+model Customer {
+  id            String    @id @default(cuid())
+  restaurantId  String
+  name          String
+  phone         String    @unique
+  email         String?
+  pointsBalance Int       @default(0)
+  lifetimeSpend Decimal   @db.Decimal(10, 2) @default(0.0)
+  totalVisits   Int       @default(0)
+  allergyTags   Json      @default("[]") // e.g. ["Peanuts", "Gluten-Free"]
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  restaurant  Restaurant          @relation(fields: [restaurantId], references: [id])
+  orders      Order[]
+  redemptions LoyaltyRedemption[]
+
+  @@index([restaurantId])
+}
+
+model LoyaltyReward {
+  id             String   @id @default(cuid())
+  restaurantId   String
+  name           String   // e.g., "$10 Off Total Check", "Free Dessert"
+  pointsRequired Int
+  discountType   String   @default("FLAT") // 'FLAT' | 'PERCENTAGE'
+  discountAmount Decimal  @db.Decimal(10, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  restaurant  Restaurant          @relation(fields: [restaurantId], references: [id])
+  redemptions LoyaltyRedemption[]
+}
+
+model LoyaltyRedemption {
+  id             String   @id @default(cuid())
+  customerId     String
+  rewardId       String
+  orderId        String?
+  pointsRedeemed Int
+  createdAt      DateTime @default(now())
+
+  customer Customer      @relation(fields: [customerId], references: [id])
+  reward   LoyaltyReward @relation(fields: [rewardId], references: [id])
+}
+
+
+// ─── AUDIT LOG (Phase D — Compliance Trail) ───────────────────────────────────
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  restaurantId String
+  actorId      String   // userId who performed the action
+  actorName    String
+  action       String   // VOID_PAYMENT | EDIT_MENU_ITEM | CREATE_USER | CHANGE_USER_ROLE | VOID_ORDER | COMP_ORDER
+  targetType   String   // Order | Payment | MenuItem | User
+  targetId     String
+  before       Json?    // State snapshot before the change
+  after        Json?    // State snapshot after the change
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  @@index([restaurantId, createdAt])
+  @@index([actorId])
+  @@index([action])
+}

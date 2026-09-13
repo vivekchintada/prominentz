@@ -1,0 +1,56 @@
+// Service Worker for Offline POS Support
+const CACHE_NAME = 'resto-pos-cache-v1'
+
+const STATIC_ASSETS = [
+  '/',
+  '/pos',
+  '/kds',
+  '/manifest.json',
+]
+
+self.addEventListener('install', (event: any) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS)
+    })
+  )
+  ;(self as any).skipWaiting()
+})
+
+self.addEventListener('activate', (event: any) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key)
+          }
+        })
+      )
+    })
+  )
+  ;(self as any).clients.claim()
+})
+
+self.addEventListener('fetch', (event: any) => {
+  if (event.request.method !== 'GET') return
+
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return (
+        cached ||
+        fetch(event.request)
+          .then((response) => {
+            if (response.status === 200 && event.request.url.startsWith('http')) {
+              const clone = response.clone()
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+            }
+            return response
+          })
+          .catch(() => {
+            return caches.match('/pos')
+          })
+      )
+    })
+  )
+})

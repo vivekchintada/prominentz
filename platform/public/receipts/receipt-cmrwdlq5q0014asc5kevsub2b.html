@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipt - Resto AI</title>
+  <style>
+    :root {
+      --color-bg: #0d0d0f;
+      --color-card: #1a1a1d;
+      --color-text: #f5f5f7;
+      --color-text-secondary: #a1a1aa;
+      --color-text-tertiary: #52525b;
+      --color-border: #2a2a2e;
+      --color-brand: #f97316;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .receipt-card {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      box-sizing: border-box;
+    }
+    .receipt-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .receipt-logo {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--color-brand);
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
+    }
+    .receipt-location {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+    }
+    .receipt-meta {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      font-family: monospace;
+      border-bottom: 1px dashed var(--color-border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .receipt-section {
+      border-bottom: 1px dashed var(--color-border);
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+    .receipt-section__title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-tertiary);
+      margin: 0 0 10px 0;
+    }
+    .receipt-item {
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .receipt-item__main {
+      display: flex;
+      justify-content: space-between;
+    }
+    .receipt-item__qty {
+      font-weight: 600;
+      color: var(--color-brand);
+      margin-right: 6px;
+    }
+    .receipt-item__name {
+      flex: 1;
+    }
+    .receipt-item__price {
+      font-family: monospace;
+      font-weight: 500;
+    }
+    .receipt-item__mods {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      padding-left: 24px;
+      margin-top: 2px;
+    }
+    .receipt-item__note {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-style: italic;
+      padding-left: 24px;
+      margin-top: 2px;
+    }
+    .receipt-total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-top: 12px;
+      border-top: 1px solid var(--color-border);
+      padding-top: 12px;
+    }
+    .text-secondary { color: var(--color-text-secondary); }
+    .text-tertiary { color: var(--color-text-tertiary); }
+    .text-brand { color: var(--color-brand); }
+    .text-xs { font-size: 11px; }
+    .footer-msg {
+      text-align: center;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin-top: 25px;
+      line-height: 1.4;
+    }
+    @media print {
+      body { background-color: white; color: black; padding: 0; }
+      .receipt-card { border: none; box-shadow: none; max-width: 100%; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-card">
+    <div class="receipt-header">
+      <div class="receipt-logo">Resto Fine Dining</div>
+      <div class="receipt-location">
+        Harbour Lane<br>
+        12 Harbour Lane, New City<br>
+        Phone: +1 (555) 012 3456
+      </div>
+    </div>
+
+    <div class="receipt-meta">
+      <div class="receipt-row"><span>Date/Time:</span><span>Jul 22, 2026, 11:18 PM</span></div>
+      <div class="receipt-row"><span>Receipt ID:</span><span>cmrwdlq5q0014asc5kevsub2b</span></div>
+      <div class="receipt-row"><span>Order ID:</span><span>cmrwdjf3o0001asc5jxytzx15</span></div>
+      <div class="receipt-row"><span>Server:</span><span>David Server</span></div>
+      <div class="receipt-row"><span>Table:</span><span>Table 3</span></div>
+      <div class="receipt-row"><span>Method:</span><span>CASH</span></div>
+    </div>
+
+    <div class="receipt-section">
+      <h4 class="receipt-section__title">Items</h4>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Bruschetta al Pomodoro</span>
+            <span class="receipt-item__price">$12.00</span>
+          </div>
+          
+          
+        </div>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Tiramisu</span>
+            <span class="receipt-item__price">$13.00</span>
+          </div>
+          
+          
+        </div>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Crème Brûlée</span>
+            <span class="receipt-item__price">$12.00</span>
+          </div>
+          
+          
+        </div>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Old Fashioned</span>
+            <span class="receipt-item__price">$18.00</span>
+          </div>
+          
+          
+        </div>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Aperol Spritz</span>
+            <span class="receipt-item__price">$14.00</span>
+          </div>
+          
+          
+        </div>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Negroni</span>
+            <span class="receipt-item__price">$16.00</span>
+          </div>
+          
+          
+        </div>
+      
+        <div class="receipt-item">
+          <div class="receipt-item__main">
+            <span class="receipt-item__qty">1x</span>
+            <span class="receipt-item__name">Pan-Seared Salmon</span>
+            <span class="receipt-item__price">$38.00</span>
+          </div>
+          
+          
+        </div>
+      
+    </div>
+
+    
+
+    <div class="receipt-section" style="border-bottom: none; margin-bottom: 0;">
+      <div class="receipt-row text-secondary">
+        <span>Subtotal</span>
+        <span>$123.00</span>
+      </div>
+      <div class="receipt-row text-secondary">
+        <span>Tax</span>
+        <span>$9.84</span>
+      </div>
+      <div class="receipt-row text-secondary">
+        <span>Gratuity / Tip</span>
+        <span>$27.06</span>
+      </div>
+      <div class="receipt-row receipt-total">
+        <span>Total</span>
+        <span class="text-brand">$159.90</span>
+      </div>
+      
+      <div class="receipt-row">
+        <span>Cash Tendered</span>
+        <span>$160.00</span>
+      </div>
+      <div class="receipt-row">
+        <span>Change Returned</span>
+        <span class="text-brand">$0.10</span>
+      </div>
+    
+    </div>
+
+    <div class="footer-msg">
+      Thank you for dining with us!<br>
+      Resto AI — Refined Service
+    </div>
+  </div>
+</body>
+</html>
+  

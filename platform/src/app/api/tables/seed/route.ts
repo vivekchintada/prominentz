@@ -1,0 +1,105 @@
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
+  try {
+    const loc = await prisma.location.findFirst({
+      select: { id: true },
+    })
+
+    if (!loc) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+    }
+
+    const tables3rd = [
+      { name: 'Table 1', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 2', capacity: 4, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 3', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'RESERVED', guest: 'John Doe', phone: '+1 555-0303', time: '2026-12-15T10:45:00Z', pax: 4 },
+      { name: 'Table 4', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'RESERVED', guest: 'Emily Parker', phone: '+1 555-0304', time: '2026-11-06T10:40:00Z', pax: 3 },
+      { name: 'Table 5', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'ACTIVE', guest: 'Jacob Morgan', phone: '+1 555-0305', time: '2026-11-03T10:15:00Z', pax: 4 },
+      { name: 'Table 6', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'EMPTY' },
+      { name: 'Table 7', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 8', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'RESERVED', guest: 'Olivia Reed', phone: '+1 555-0308', time: '2026-11-02T10:45:00Z', pax: 8 },
+      { name: 'Table 9', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 10', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'RESERVED', guest: 'Matthew Collins', phone: '+1 555-0310', time: '2026-11-04T10:43:00Z', pax: 3 },
+      { name: 'Table 11', capacity: 4, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 12', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'EMPTY' },
+    ]
+
+    for (const t of tables3rd) {
+      let tbl = await prisma.table.findFirst({
+        where: { locationId: loc.id, name: t.name, floor: t.floor },
+      })
+      if (!tbl) {
+        tbl = await prisma.table.create({
+          data: {
+            locationId: loc.id,
+            name: t.name,
+            capacity: t.capacity,
+            floor: t.floor,
+            shape: t.shape,
+            status: t.status as any,
+          },
+        })
+      } else {
+        await prisma.table.update({
+          where: { id: tbl.id },
+          data: { capacity: t.capacity, shape: t.shape, status: t.status as any },
+        })
+      }
+
+      if (t.guest && t.status === 'RESERVED') {
+        const existingRes = await prisma.reservation.findFirst({
+          where: { tableId: tbl.id, status: 'CONFIRMED' },
+        })
+        if (!existingRes) {
+          await prisma.reservation.create({
+            data: {
+              locationId: loc.id,
+              tableId: tbl.id,
+              guestName: t.guest,
+              guestPhone: t.phone,
+              partySize: t.pax,
+              scheduledAt: new Date(t.time),
+              status: 'CONFIRMED',
+            },
+          })
+        }
+      }
+    }
+
+    const floorsOther = [
+      { name: 'Table 101', capacity: 4, floor: '1st Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 102', capacity: 6, floor: '1st Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 103', capacity: 8, floor: '1st Floor', shape: 'rectangle', status: 'EMPTY' },
+      { name: 'Table 201', capacity: 4, floor: '2nd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 202', capacity: 6, floor: '2nd Floor', shape: 'square', status: 'EMPTY' },
+      { name: 'Table 203', capacity: 10, floor: '2nd Floor', shape: 'rectangle', status: 'EMPTY' },
+    ]
+
+    for (const t of floorsOther) {
+      let tbl = await prisma.table.findFirst({
+        where: { locationId: loc.id, name: t.name, floor: t.floor },
+      })
+      if (!tbl) {
+        await prisma.table.create({
+          data: {
+            locationId: loc.id,
+            name: t.name,
+            capacity: t.capacity,
+            floor: t.floor,
+            shape: t.shape,
+            status: t.status as any,
+          },
+        })
+      }
+    }
+
+    return NextResponse.json({ success: true, message: 'DreamPOS tables seeded successfully' })
+  } catch (error: any) {
+    console.error('[GET /api/tables/seed]', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}

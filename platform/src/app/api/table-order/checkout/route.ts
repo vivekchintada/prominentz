@@ -1,0 +1,214 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { publishEvent, EVENTS } from '@/lib/redis'
+import { recalculateOrderTotals } from '@/lib/orders'
+import type { KdsStation } from '@prisma/client'
+
+// ─── POST /api/table-order/checkout ──────────────────────────────────────────
+// Customer-facing table self-checkout / order placement via QR Code
+// Automatically fires order tickets directly to Kitchen KDS screens!
+export async function POST(req: NextRequest) {
+  try {
+    const { tableId, locationId, items, guestCount = 1, notes, guestName, guestPhone } = await req.json()
+
+    if (!tableId || !locationId || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        { error: 'tableId, locationId, and items array are required' },
+        { status: 400 },
+      )
+    }
+
+    // 1. Verify table exists & belongs to location
+    let table = await prisma.table.findFirst({
+      where: { id: tableId, locationId },
+      include: { location: { select: { id: true, restaurantId: true, name: true } } },
+    })
+
+    if (!table) {
+      // Resilient fallback by tableId
+      table = await prisma.table.findFirst({
+        where: { id: tableId },
+        include: { location: { select: { id: true, restaurantId: true, name: true } } },
+      })
+    }
+
+    if (!table) {
+      return NextResponse.json({ error: 'Table not found' }, { status: 404 })
+    }
+
+    const restaurantId = table.location.restaurantId
+    const effectiveLocationId = table.location.id
+
+    // 2. Link or create CRM Customer if phone number provided
+    let customerId: string | null = null
+    if (guestPhone && guestPhone.trim()) {
+      const cleanPhone = guestPhone.trim()
+      let customer = await prisma.customer.findFirst({
+        where: { restaurantId, phone: cleanPhone },
+      })
+      if (!customer) {
+        customer = await prisma.customer.create({
+          data: {
+            restaurantId,
+            phone: cleanPhone,
+            name: guestName?.trim() || `Guest (${table.name})`,
+          },
+        })
+      }
+      customerId = customer.id
+    }
+
+    // 3. Find existing open order on table or create new one
+    let order = await prisma.order.findFirst({
+      where: { tableId: table.id, status: { in: ['OPEN', 'HOLD', 'PARTIALLY_READY', 'SENT_TO_KITCHEN'] } },
+    })
+
+    if (!order) {
+      order = await prisma.order.create({
+        data: {
+          tableId: table.id,
+          guestCount: Number(guestCount) || 1,
+          status: 'SENT_TO_KITCHEN',
+          customerId: customerId || undefined,
+          notes: notes ? `[QR Self-Order] ${notes}` : '[QR Self-Order]',
+        },
+      })
+
+      // Update table status to ACTIVE
+      await prisma.table.update({
+        where: { id: table.id },
+        data: { status: 'ACTIVE' },
+      })
+
+      await publishEvent(EVENTS.TABLE_STATUS_CHANGED, {
+        tableId: table.id,
+        status: 'ACTIVE',
+        locationId: effectiveLocationId,
+      })
+    } else {
+      // If order already existed, ensure status is updated to SENT_TO_KITCHEN
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: 'SENT_TO_KITCHEN',
+          ...(customerId ? { customerId } : {}),
+        },
+      })
+    }
+
+    // 4. Fetch menu items to resolve prices and KDS stations
+    const menuItemIds = items.map((i: any) => i.menuItemId)
+    const dbMenuItems = await prisma.menuItem.findMany({
+      where: { id: { in: menuItemIds }, isAvailable: true },
+    })
+    const menuMap = new Map(dbMenuItems.map((m) => [m.id, m]))
+
+    // 5. Create OrderItems
+    const createdItems = []
+    for (const item of items) {
+      const dbItem = menuMap.get(item.menuItemId)
+      if (!dbItem) continue
+
+      const orderItem = await prisma.orderItem.create({
+        data: {
+          orderId: order.id,
+          menuItemId: item.menuItemId,
+          quantity: Number(item.quantity) || 1,
+          priceAtOrder: dbItem.price,
+          seatNumber: Number(item.seatNumber) || 1,
+          modifiers: item.modifiers || [],
+          specialNote: item.specialNote || null,
+          status: 'IN_PROGRESS',
+        },
+        include: {
+          menuItem: {
+            select: { name: true, kdsStation: true },
+          },
+        },
+      })
+      createdItems.push(orderItem)
+    }
+
+    if (createdItems.length === 0) {
+      return NextResponse.json({ error: 'No valid available menu items selected' }, { status: 400 })
+    }
+
+    // 6. Group newly ordered items by KDS station (HOT, COLD, BAR, EXPO)
+    const byStation = new Map<KdsStation, typeof createdItems>()
+    for (const item of createdItems) {
+      const station = item.menuItem.kdsStation
+      if (!byStation.has(station)) byStation.set(station, [])
+      byStation.get(station)!.push(item)
+    }
+
+    // 7. Create KDS Tickets and Ticket Items
+    const kdsTickets = []
+    for (const [station, stationItems] of byStation.entries()) {
+      const ticket = await prisma.kdsTicket.create({
+        data: {
+          orderId: order.id,
+          station,
+          status: 'NEW',
+          items: {
+            create: stationItems.map((item) => ({
+              menuItemId: item.menuItemId,
+              quantity: item.quantity,
+              modifiers: item.modifiers as any,
+              specialNote: item.specialNote,
+              status: 'PENDING',
+            })),
+          },
+        },
+        include: {
+          items: {
+            include: { menuItem: { select: { name: true } } },
+          },
+          order: {
+            select: {
+              id: true,
+              createdAt: true,
+              guestCount: true,
+              notes: true,
+              server: { select: { name: true } },
+              table: { select: { name: true } },
+            },
+          },
+        },
+      })
+      kdsTickets.push(ticket)
+    }
+
+    // 8. Recalculate Order Financial Totals
+    const updatedOrder = await recalculateOrderTotals(order.id)
+
+    // 9. Fire Real-time Events to Kitchen KDS & POS Screens
+    await publishEvent(EVENTS.ORDER_SENT_KITCHEN, {
+      orderId: order.id,
+      tableId: table.id,
+      tableName: table.name,
+      guestCount: order.guestCount,
+      ticketCount: kdsTickets.length,
+      tickets: kdsTickets,
+      _locationId: effectiveLocationId,
+    }, effectiveLocationId)
+
+    await publishEvent(EVENTS.ORDER_MODIFIED, {
+      orderId: order.id,
+      tableId: table.id,
+      locationId: effectiveLocationId,
+      action: 'qr_order_fired_to_kds',
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: `Your order for ${table.name} has been fired directly to the kitchen!`,
+      tableName: table.name,
+      total: Number(updatedOrder?.total || 0).toFixed(2),
+      orderId: order.id,
+      ticketsCount: kdsTickets.length,
+    })
+  } catch (error: any) {
+    console.error('[POST /api/table-order/checkout]', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+  }
+}

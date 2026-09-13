@@ -1,0 +1,42 @@
+import type { Metadata, Viewport } from 'next'
+import { MobileNav } from '@/components/mobile/MobileNav'
+
+export const metadata: Metadata = {
+  title: 'Resto AI Manager',
+  description: 'Mobile manager dashboard for Resto AI',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Resto AI',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#2563eb',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
+export default function MobileLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      minHeight: '100dvh',
+      background: '#0A0A0B',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: '-apple-system, SF Pro Display, Inter, sans-serif',
+      maxWidth: 480,
+      margin: '0 auto',
+      position: 'relative',
+    }}>
+      {/* Content area with bottom padding for nav */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 80 }}>
+        {children}
+      </div>
+      <MobileNav />
+    </div>
+  )
+}
