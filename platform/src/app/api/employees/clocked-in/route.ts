@@ -14,10 +14,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let restaurantId = session.user.restaurantId
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id || ''
+      return NextResponse.json({ clockedIn: [], count: 0 })
     }
 
     // Find all ACTIVE shifts or un-clocked-out TimeEntries for this restaurant

@@ -21,7 +21,8 @@ const BACKEND_URL_KEY = '@resto_backend_url'
 const TOKEN_KEY = '@resto_mobile_auth_token'
 const USER_KEY = '@resto_mobile_user_profile'
 
-export const DEFAULT_BACKEND_URL = 'http://192.168.0.187:3000'
+export const DEFAULT_BACKEND_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.187:3000'
 
 class ApiClient {
   private baseURL: string = DEFAULT_BACKEND_URL
@@ -33,7 +34,12 @@ class ApiClient {
   async loadBaseURL(): Promise<string> {
     try {
       const saved = await AsyncStorage.getItem(BACKEND_URL_KEY)
-      if (saved) this.baseURL = saved
+      if (saved && !saved.includes('resto-platform.vercel.app')) {
+        this.baseURL = saved
+      } else {
+        this.baseURL = DEFAULT_BACKEND_URL
+        await AsyncStorage.setItem(BACKEND_URL_KEY, DEFAULT_BACKEND_URL)
+      }
     } catch {}
     return this.baseURL
   }
@@ -71,9 +77,28 @@ class ApiClient {
         let errMessage = `Server error (${response.status})`
         try {
           const errData = await response.json()
-          errMessage = errData.error || errData.message || errMessage
-        } catch {}
-        return { data: null, error: errMessage }
+          if (typeof errData === 'string') {
+            errMessage = errData
+          } else if (errData && typeof errData === 'object') {
+            if (typeof errData.error === 'string') {
+              errMessage = errData.error
+            } else if (errData.error && typeof errData.error.message === 'string') {
+              errMessage = errData.error.message
+            } else if (typeof errData.message === 'string') {
+              errMessage = errData.message
+            } else if (errData.error && typeof errData.error === 'object') {
+              errMessage = (errData.error as any).message || JSON.stringify(errData.error)
+            } else {
+              errMessage = JSON.stringify(errData)
+            }
+          }
+        } catch {
+          try {
+            const text = await response.text()
+            if (text) errMessage = text.slice(0, 150)
+          } catch {}
+        }
+        return { data: null, error: String(errMessage) }
       }
 
       const data = await response.json()
@@ -82,7 +107,7 @@ class ApiClient {
       const isTimeout = err.name === 'AbortError'
       return {
         data: null,
-        error: isTimeout ? 'Connection timed out. Check if backend is running.' : err.message || 'Network request failed',
+        error: isTimeout ? 'Connection timed out. Check if backend is running.' : String(err?.message || 'Network request failed'),
       }
     }
   }

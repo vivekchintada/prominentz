@@ -37,6 +37,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
   const [phone, setPhone]               = useState('')
   const [timezone, setTimezone]         = useState('America/New_York')
   // Step 3
+  const [existingUsers, setExistingUsers] = useState<Array<{ id: string; name: string; email: string; role: string }>>([])
   const [memberName, setMemberName]     = useState('')
   const [memberEmail, setMemberEmail]   = useState('')
   const [memberRole, setMemberRole]     = useState('SERVER')
@@ -45,6 +46,20 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
   const [template, setTemplate]         = useState<Template>('FAST_CASUAL')
   const [seeded, setSeeded]             = useState(false)
   const [seeding, setSeeding]           = useState(false)
+
+  // Pre-load restaurant and staff data
+  useEffect(() => {
+    fetch('/api/onboarding')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          if (data.name) setRestName((prev) => prev || data.name)
+          if (data.locations?.[0]?.name) setLocationName((prev) => prev || data.locations[0].name)
+          if (Array.isArray(data.users)) setExistingUsers(data.users)
+        }
+      })
+      .catch(() => {})
+  }, [])
   // Step 5
   const [tables, setTables] = useState<TableRow[]>([
     { name: 'Table 1', capacity: '4' },
@@ -207,24 +222,96 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
         {/* ── Step 3: Team ── */}
         {step === 3 && (
           <div>
-            <h2 style={styles.cardTitle}>Invite your first team member 👥</h2>
-            <p style={styles.cardSub}>Add a manager, server, or kitchen staff. You can add more later in Settings.</p>
-            <label style={styles.label}>Name</label>
-            <input style={styles.input} value={memberName} onChange={(e) => setMemberName(e.target.value)} placeholder="Alex Johnson" />
-            <label style={styles.label}>Email</label>
-            <input style={styles.input} type="email" value={memberEmail} onChange={(e) => setMemberEmail(e.target.value)} placeholder="alex@restaurant.com" />
-            <label style={styles.label}>Role</label>
-            <select style={styles.select} value={memberRole} onChange={(e) => setMemberRole(e.target.value)}>
-              <option value="MANAGER">Manager</option>
-              <option value="SERVER">Server</option>
-              <option value="KITCHEN">Kitchen</option>
-            </select>
-            <label style={styles.label}>Temporary Password</label>
-            <input style={styles.input} type="password" value={memberPassword} onChange={(e) => setMemberPass(e.target.value)} placeholder="Min. 6 characters" />
+            <h2 style={styles.cardTitle}>Your Operational Staff is Included 👥</h2>
+            <p style={styles.cardSub}>
+              Prominentz includes ready-to-use Manager, Server, and Kitchen accounts for your restaurant. Your team can sign in directly or you can add more members below.
+            </p>
+
+            {/* Core Team Roster Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+              {[
+                { role: 'MANAGER', title: 'Manager', icon: '💼', desc: 'Store management, scheduling & POS supervisor' },
+                { role: 'SERVER',  title: 'Server',  icon: '🍽️', desc: 'Floor ordering, live checks & table servicing' },
+                { role: 'KITCHEN', title: 'Kitchen', icon: '🍳', desc: 'Kitchen Display System (KDS) & line tickets' },
+              ].map((roleInfo) => {
+                const assigned = existingUsers.find((u) => u.role === roleInfo.role)
+                return (
+                  <div
+                    key={roleInfo.role}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 14px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 10,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 24 }}>{roleInfo.icon}</span>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--color-text-primary, #fff)' }}>
+                            {assigned?.name || `${roleInfo.title} Account`}
+                          </span>
+                          <span style={{
+                            fontSize: 10,
+                            fontWeight: 800,
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                            background: 'rgba(91,69,245,0.15)',
+                            color: '#7b68f7',
+                            border: '1px solid rgba(91,69,245,0.3)',
+                          }}>
+                            {roleInfo.role}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary, #888)', marginTop: 2 }}>
+                          {assigned?.email || `${roleInfo.role.toLowerCase()}.${restName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'store'}@resto.app`}
+                        </div>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      ✓ Active
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16, marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', color: 'var(--color-text-primary, #fff)' }}>
+                Invite additional staff member (optional)
+              </h3>
+              <label style={styles.label}>Name</label>
+              <input style={styles.input} value={memberName} onChange={(e) => setMemberName(e.target.value)} placeholder="e.g. Maria Gonzalez" />
+              <label style={styles.label}>Email</label>
+              <input style={styles.input} type="email" value={memberEmail} onChange={(e) => setMemberEmail(e.target.value)} placeholder="maria@restaurant.com" />
+              <label style={styles.label}>Role</label>
+              <select style={styles.select} value={memberRole} onChange={(e) => setMemberRole(e.target.value)}>
+                <option value="SERVER">Server / Waiter</option>
+                <option value="KITCHEN">Kitchen / Line Cook</option>
+                <option value="MANAGER">Assistant Manager</option>
+              </select>
+              <label style={styles.label}>Temporary Password</label>
+              <input style={styles.input} type="password" value={memberPassword} onChange={(e) => setMemberPass(e.target.value)} placeholder="Min. 6 characters" />
+            </div>
+
             <div style={styles.btnRow}>
-              <button style={styles.ghostBtn} onClick={skip} disabled={saving}>Skip for now</button>
-              <button style={styles.primaryBtn} disabled={saving} onClick={() => advance({ memberName, memberEmail, memberRole, memberPassword })}>
-                {saving ? 'Inviting…' : 'Continue →'}
+              <button style={styles.ghostBtn} onClick={skip} disabled={saving}>Skip extra invites</button>
+              <button
+                style={styles.primaryBtn}
+                disabled={saving}
+                onClick={() => {
+                  if (memberName && memberEmail) {
+                    advance({ memberName, memberEmail, memberRole, memberPassword })
+                  } else {
+                    advance({})
+                  }
+                }}
+              >
+                {saving ? 'Saving…' : 'Continue with Team →'}
               </button>
             </div>
           </div>

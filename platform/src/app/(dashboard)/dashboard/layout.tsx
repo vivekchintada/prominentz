@@ -68,6 +68,9 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
           restaurantName={restaurantName}
           userInitials={userInitials}
           userImage={userImage}
+          userName={userName}
+          userEmail={session.user.email ?? ''}
+          userRole={userRole}
         />
 
         {/* ── Horizontal body: sidebar + main content ── */}

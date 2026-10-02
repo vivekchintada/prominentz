@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { auth, signOut } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 
@@ -12,6 +12,11 @@ export default async function MobileDashboardPage() {
 
   const user = session.user
 
+  async function handleSignOut() {
+    'use server'
+    await signOut({ redirectTo: '/login?portal=manager' })
+  }
+
   const employee = await prisma.employee.findFirst({
     where: { userId: user.id, isActive: true },
   })
@@ -21,7 +26,7 @@ export default async function MobileDashboardPage() {
     locationId = loc?.id
   }
 
-  let stats = { openOrders: 0, activeTables: 0, totalTables: 0, todaySales: 0, avgKds: 0 }
+  const stats = { openOrders: 0, activeTables: 0, totalTables: 0, todaySales: 0, avgKds: 0 }
   let recentEvents: any[] = []
 
   if (locationId) {
@@ -68,10 +73,39 @@ export default async function MobileDashboardPage() {
   return (
     <div style={{ padding: '20px 16px' }}>
       {/* Greeting */}
-      <div style={{ marginBottom: 20 }}>
-        <p style={{ margin: 0, fontSize: 13, color: '#8E8E93' }}>Good day,</p>
-        <h1 style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 700, color: '#E5E5EA' }}>{user.name}</h1>
-        <span style={{ fontSize: 11, color: '#5b45f5', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user.role}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div>
+          <p style={{ margin: 0, fontSize: 13, color: '#8E8E93' }}>Good day,</p>
+          <h1 style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 700, color: '#E5E5EA' }}>{user.name}</h1>
+          <span style={{ fontSize: 11, color: '#5b45f5', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user.role}</span>
+        </div>
+
+        <form action={handleSignOut}>
+          <button
+            type="submit"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              color: '#ef4444',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+            title="Sign out of Mobile Dashboard"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span>Sign Out</span>
+          </button>
+        </form>
       </div>
 
       {/* KPI Cards */}

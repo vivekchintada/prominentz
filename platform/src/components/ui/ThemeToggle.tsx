@@ -29,9 +29,11 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     const stored = getStoredTheme()
-    setTheme(stored)
     applyTheme(stored)
-    setMounted(true)
+    requestAnimationFrame(() => {
+      setTheme(stored)
+      setMounted(true)
+    })
   }, [])
 
   const toggle = () => {

@@ -6,12 +6,15 @@ import { PointsLedgerType } from '@prisma/client'
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
+    if (!session?.user?.restaurantId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    if (!restaurantId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions' }, { status: 403 })
+    }
+
+    const restaurantId = session.user.restaurantId
 
     const config = await prisma.loyaltyConfig.findUnique({
       where: { restaurantId },

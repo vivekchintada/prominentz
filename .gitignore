@@ -23,6 +23,8 @@ mobile/.env*
 !.env.example
 !platform/.env.example
 !mobile/.env.example
+!.env.production.example
+!platform/.env.production.example
 
 # Scratch scripts & temporary build artifacts
 platform/scratch/

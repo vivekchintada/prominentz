@@ -94,9 +94,9 @@ export function ServerHostModal({ visible, onClose, onSaved }: ServerHostModalPr
           <View style={styles.quickButtonsRow}>
             <TouchableOpacity
               style={styles.quickChip}
-              onPress={() => setUrl(DEFAULT_BACKEND_URL)}
+              onPress={() => setUrl('http://192.168.0.187:3000')}
             >
-              <Text style={styles.quickChipText}>Current Wi-Fi IP</Text>
+              <Text style={styles.quickChipText}>Wi-Fi PC (192.168.0.187)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -104,6 +104,20 @@ export function ServerHostModal({ visible, onClose, onSaved }: ServerHostModalPr
               onPress={() => setUrl('http://localhost:3000')}
             >
               <Text style={styles.quickChipText}>Localhost</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickChip}
+              onPress={() => setUrl('http://10.0.2.2:3000')}
+            >
+              <Text style={styles.quickChipText}>Emulator</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickChip}
+              onPress={() => setUrl('https://resto-platform.vercel.app')}
+            >
+              <Text style={styles.quickChipText}>Cloud</Text>
             </TouchableOpacity>
           </View>
 

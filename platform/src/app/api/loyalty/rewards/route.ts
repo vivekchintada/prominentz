@@ -8,16 +8,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user?.restaurantId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!restaurantId) {
-      return NextResponse.json({ rewards: [] })
-    }
+    const restaurantId = session.user.restaurantId
 
     // Verify PRO tier access for Loyalty Program
     const { allowed } = await verifyRestaurantPlan(restaurantId, 'PRO')
@@ -43,16 +38,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user?.restaurantId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!restaurantId) {
-      return NextResponse.json({ error: 'No active tenant found' }, { status: 400 })
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions' }, { status: 403 })
     }
+
+    const restaurantId = session.user.restaurantId
 
     // Verify PRO tier access
     const { allowed } = await verifyRestaurantPlan(restaurantId, 'PRO')

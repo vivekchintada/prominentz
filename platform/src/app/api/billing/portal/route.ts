@@ -10,18 +10,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let restaurantId = session.user.restaurantId
-    let restaurant = null
-
-    if (restaurantId) {
-      restaurant = await prisma.restaurant.findUnique({
-        where: { id: restaurantId },
-      })
+    const restaurantId = session.user.restaurantId
+    if (!restaurantId) {
+      return NextResponse.json({ error: 'Restaurant not found for user' }, { status: 404 })
     }
 
-    if (!restaurant) {
-      restaurant = await prisma.restaurant.findFirst()
-    }
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+    })
 
     if (!restaurant) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })

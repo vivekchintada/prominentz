@@ -112,13 +112,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    let restaurantId = session.user.restaurantId
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id ?? ''
-    }
-    if (!restaurantId) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Restaurant not found for user' }, { status: 404 })
     }
 
     const { template = 'FAST_CASUAL' }: { template: Template } = await req.json()

@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions to change logo' }, { status: 403 })
+    }
+
     const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
@@ -26,10 +30,17 @@ export async function POST(req: NextRequest) {
     if (contentType.includes('application/json')) {
       // Accepts { logoUrl: "https://..." } — direct URL paste
       const body = await req.json()
-      logoUrl = body.logoUrl || null
+      const rawUrl = body.logoUrl
+      if (typeof rawUrl === 'string') {
+        const clean = rawUrl.trim()
+        if (clean.startsWith('https://') || clean.startsWith('http://') || clean.startsWith('data:image/')) {
+          logoUrl = clean
+        } else {
+          return NextResponse.json({ error: 'Invalid image URL protocol' }, { status: 400 })
+        }
+      }
     } else if (contentType.includes('multipart/form-data')) {
-      // File upload: read the binary and store as a base64 data-URI
-      // In production, stream this to S3/R2 and store the CDN URL instead
+      // File upload: read binary and store as base64 data-URI
       const formData = await req.formData()
       const file = formData.get('file') as File | null
       if (!file) {
@@ -41,9 +52,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Logo file must be under 2 MB' }, { status: 413 })
       }
 
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
+      // Restrict strictly to safe raster image formats (blocks SVG XSS)
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
       if (!allowedTypes.includes(file.type)) {
-        return NextResponse.json({ error: 'Unsupported file type. Use JPG, PNG, WEBP, or SVG.' }, { status: 415 })
+        return NextResponse.json({ error: 'Unsupported file type. Use JPG, PNG, or WEBP.' }, { status: 415 })
       }
 
       const buffer = await file.arrayBuffer()
@@ -89,6 +101,10 @@ export async function DELETE(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions to delete logo' }, { status: 403 })
+    }
 
     const restaurantId = session.user.restaurantId
     const restaurant = await prisma.restaurant.findUnique({

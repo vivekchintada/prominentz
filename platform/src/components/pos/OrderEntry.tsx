@@ -1327,7 +1327,6 @@ export default function OrderEntry({
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#8b5cf6', fontFamily: 'monospace' }}>⭐ {order.customer.pointsBalance} pts</span>
                     <button onClick={handleUnlinkCustomer} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '12px' }} title="Unlink guest">✕</button>
                   </div>
                 </div>

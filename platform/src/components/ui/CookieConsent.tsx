@@ -22,7 +22,7 @@ export function CookieConsent() {
   })
 
   useEffect(() => {
-    setMounted(true)
+    requestAnimationFrame(() => setMounted(true))
     const stored = localStorage.getItem('prominentz_cookie_consent')
     if (!stored) {
       // Short delay before showing banner for smooth visual entrance

@@ -32,12 +32,11 @@ function mapOrderSource(source: string, tableName?: string | null): 'Dine In' | 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
     }
@@ -290,6 +289,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('[GET /api/invoices]', error)
-    return NextResponse.json({ error: error?.message || 'Failed to load invoices', details: String(error) }, { status: 500 })
+    return NextResponse.json({ error: error?.message || 'Failed to load invoices' }, { status: 500 })
   }
 }

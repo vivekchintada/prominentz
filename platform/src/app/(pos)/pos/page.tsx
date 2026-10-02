@@ -177,7 +177,7 @@ export default async function PosPage() {
   }))
 
   // Format Recent Orders
-  let formattedRecentOrders: RecentOrderCardData[] = recentOrdersRaw.map((o) => {
+  const formattedRecentOrders: RecentOrderCardData[] = recentOrdersRaw.map((o) => {
     const date = new Date(o.createdAt)
     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 

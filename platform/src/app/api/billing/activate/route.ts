@@ -20,21 +20,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan tier' }, { status: 400 })
     }
 
-    let restaurantId = session.user.restaurantId
-    let restaurant = null
-
-    if (restaurantId) {
-      restaurant = await prisma.restaurant.findUnique({
-        where: { id: restaurantId },
-      })
+    if (process.env.NODE_ENV === 'production' && session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Plan activation in production must be completed through Stripe checkout' },
+        { status: 403 }
+      )
     }
+
+    const restaurantId = session.user.restaurantId
+    if (!restaurantId) {
+      return NextResponse.json({ error: 'Restaurant not found for user' }, { status: 404 })
+    }
+
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+    })
 
     if (!restaurant) {
-      restaurant = await prisma.restaurant.findFirst()
-      restaurantId = restaurant?.id || ''
-    }
-
-    if (!restaurant || !restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
     }
 

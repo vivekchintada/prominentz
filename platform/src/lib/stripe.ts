@@ -49,12 +49,17 @@ export async function createPaymentIntent(amountInCents: number, orderId: string
       }
     }
 
-    const intent = await stripe.paymentIntents.create({
-      amount: amountInCents,
-      currency: 'usd',
-      metadata: { orderId },
-      automatic_payment_methods: { enabled: true },
-    })
+    const intent = await stripe.paymentIntents.create(
+      {
+        amount: amountInCents,
+        currency: 'usd',
+        metadata: { orderId },
+        automatic_payment_methods: { enabled: true },
+      },
+      {
+        idempotencyKey: `pi_${orderId}_${amountInCents}`,
+      }
+    )
 
     return {
       id: intent.id,

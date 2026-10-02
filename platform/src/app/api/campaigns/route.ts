@@ -9,12 +9,9 @@ export const dynamic = 'force-dynamic'
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
-    }
-    if (!restaurantId) return NextResponse.json({ campaigns: [] })
+    if (!session?.user?.restaurantId) return NextResponse.json({ campaigns: [] })
+
+    const restaurantId = session.user.restaurantId
 
     const campaigns = await prisma.marketingCampaign.findMany({
       where: { restaurantId },
@@ -33,6 +30,10 @@ export async function POST(req: NextRequest) {
     const session = await auth()
     if (!session?.user?.restaurantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions' }, { status: 403 })
     }
 
     const { title, channel, targetSegment, subject, messageBody, couponId } = await req.json()

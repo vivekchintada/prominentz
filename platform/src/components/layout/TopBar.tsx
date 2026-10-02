@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { signOut } from 'next-auth/react'
 import { useSidebarCollapse } from './SidebarCollapseContext'
 import { NotificationsDropdown } from './NotificationsDropdown'
 
@@ -108,14 +109,41 @@ interface TopBarProps {
   restaurantName?: string
   userInitials?: string
   userImage?: string | null
+  userName?: string
+  userEmail?: string
+  userRole?: string
 }
 
-export default function TopBar({ restaurantName = 'My Restaurant', userInitials = 'U', userImage }: TopBarProps) {
+export default function TopBar({
+  restaurantName = 'My Restaurant',
+  userInitials = 'U',
+  userImage,
+  userName = '',
+  userEmail = '',
+  userRole = '',
+}: TopBarProps) {
   const pathname = usePathname()
   const { toggle } = useSidebarCollapse()
   const [isDark, setIsDark] = useState(true)
   const [showNotifications, setShowNotifications] = useState(false)
   const [hasUnread, setHasUnread] = useState(true)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close user menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showUserMenu])
 
   // Check unread notifications on mount
   useEffect(() => {
@@ -259,14 +287,159 @@ export default function TopBar({ restaurantName = 'My Restaurant', userInitials 
         </div>
 
 
-        {/* User avatar */}
-        <Link href="/dashboard/settings" className="top-bar__avatar" aria-label="User settings">
-          {userImage ? (
-            <img src={userImage} alt="User profile avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-          ) : (
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{userInitials}</span>
+        {/* Direct Sign Out shortcut button */}
+        <button
+          className="top-bar__icon-btn"
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          aria-label="Sign Out"
+          title="Sign Out"
+          style={{ color: '#ef4444' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
+
+        {/* User Profile & Menu Dropdown */}
+        <div style={{ position: 'relative' }} ref={userMenuRef}>
+          <button
+            onClick={() => setShowUserMenu((prev) => !prev)}
+            className="top-bar__avatar"
+            aria-label="User account menu"
+            title={userName ? `${userName} (${userRole})` : 'User profile'}
+            style={{ cursor: 'pointer', border: 'none', padding: 0 }}
+          >
+            {userImage ? (
+              <img src={userImage} alt="User profile avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+            ) : (
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{userInitials}</span>
+            )}
+          </button>
+
+          {showUserMenu && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                width: 240,
+                backgroundColor: 'var(--color-bg-card, #1c1c1e)',
+                border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+                borderRadius: '12px',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+                padding: '12px',
+                zIndex: 1100,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                backdropFilter: 'blur(20px)',
+              }}
+            >
+              <div style={{ padding: '4px 6px 8px', borderBottom: '1px solid var(--color-border, rgba(255,255,255,0.08))' }}>
+                <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--color-text-primary, #fff)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {userName || 'User'}
+                </div>
+                {userEmail && (
+                  <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary, #888)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {userEmail}
+                  </div>
+                )}
+                {userRole && (
+                  <span style={{
+                    display: 'inline-block',
+                    marginTop: '6px',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    background: 'rgba(91,69,245,0.15)',
+                    color: '#7b68f7',
+                    border: '1px solid rgba(91,69,245,0.3)',
+                  }}>
+                    {userRole}
+                  </span>
+                )}
+              </div>
+
+              <Link
+                href="/dashboard/settings"
+                onClick={() => setShowUserMenu(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: 'var(--color-text-primary, #eee)',
+                  textDecoration: 'none',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>Store Settings</span>
+              </Link>
+
+              <Link
+                href="/dashboard/settings/billing"
+                onClick={() => setShowUserMenu(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: 'var(--color-text-primary, #eee)',
+                  textDecoration: 'none',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+                <span>Plan & Billing</span>
+              </Link>
+
+              <div style={{ height: '1px', background: 'var(--color-border, rgba(255,255,255,0.08))', margin: '2px 0' }} />
+
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#ef4444',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  cursor: 'pointer',
+                  width: '100%',
+                  textAlign: 'left',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span>Sign Out</span>
+              </button>
+            </div>
           )}
-        </Link>
+        </div>
       </div>
     </header>
   )

@@ -13,28 +13,23 @@ export async function GET(req: NextRequest) {
 
     let targetLocation: { id: string; restaurantId: string } | null = null
 
-    // 1. If locationIdParam was provided, verify it exists
+    // 1. If locationIdParam was provided, verify it exists and belongs to user's restaurant
     if (locationIdParam) {
       targetLocation = await prisma.location.findUnique({
         where: { id: locationIdParam },
         select: { id: true, restaurantId: true },
       })
+      if (session?.user?.restaurantId && targetLocation && targetLocation.restaurantId !== session.user.restaurantId) {
+        return NextResponse.json({ error: 'Unauthorized location access' }, { status: 403 })
+      }
     }
 
-    // 2. If not found or not provided, resolve by session restaurant or fallback restaurant
-    if (!targetLocation) {
-      let restaurantId = session?.user?.restaurantId
-      if (!restaurantId) {
-        const fallbackRestaurant = await prisma.restaurant.findFirst()
-        restaurantId = fallbackRestaurant?.id
-      }
-
-      if (restaurantId) {
-        targetLocation = await prisma.location.findFirst({
-          where: { restaurantId },
-          select: { id: true, restaurantId: true },
-        })
-      }
+    // 2. If not found or not provided, resolve by session restaurant
+    if (!targetLocation && session?.user?.restaurantId) {
+      targetLocation = await prisma.location.findFirst({
+        where: { restaurantId: session.user.restaurantId },
+        select: { id: true, restaurantId: true },
+      })
     }
 
     if (!targetLocation) {
@@ -182,6 +177,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions to create tables' }, { status: 403 })
+    }
+
     const body = await req.json()
     const { name, capacity, floor, shape, locationId, status } = body
 
@@ -189,24 +192,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Table name and capacity are required' }, { status: 400 })
     }
 
-    let validLocation: { id: string } | null = null
+    let validLocation: { id: string; restaurantId: string } | null = null
 
     if (locationId) {
       validLocation = await prisma.location.findUnique({
         where: { id: locationId },
-        select: { id: true },
+        select: { id: true, restaurantId: true },
       })
+      if (session.user.restaurantId && validLocation && validLocation.restaurantId !== session.user.restaurantId) {
+        return NextResponse.json({ error: 'Unauthorized location access' }, { status: 403 })
+      }
     }
 
-    if (!validLocation) {
-      let restaurantId = session?.user?.restaurantId
-      if (!restaurantId) {
-        const fallbackRestaurant = await prisma.restaurant.findFirst()
-        restaurantId = fallbackRestaurant?.id
-      }
+    if (!validLocation && session.user.restaurantId) {
       validLocation = await prisma.location.findFirst({
-        where: { ...(restaurantId ? { restaurantId } : {}) },
-        select: { id: true },
+        where: { restaurantId: session.user.restaurantId },
+        select: { id: true, restaurantId: true },
       })
     }
 

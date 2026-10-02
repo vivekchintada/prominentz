@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 
 interface NewOrderModalProps {
   isOpen:    boolean
-  tableName: String
+  tableName: string
   onClose:   () => void
   onSubmit:  (guestCount: number, notes: string) => void
 }

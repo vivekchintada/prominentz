@@ -8,15 +8,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-
-    // Resolve restaurant ID from session or fallback for dev/demo testing
-    let restaurantId = session?.user?.restaurantId
-
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({
         summary: { totalLocations: 0, grandTotalRevenue: 0, grandTotalOrders: 0, grandTotalLaborCost: 0, overallLaborPct: 0 },

@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
 const ownerSignupSchema = z.object({
-  signupType:     z.literal('OWNER').default('OWNER'),
-  restaurantName: z.string().min(2).max(100),
-  ownerName:      z.string().min(2).max(100),
-  email:          z.string().email(),
-  password:       z.string().min(6).max(100),
-  locationName:   z.string().min(1).max(100).default('Main Outlet'),
-  phone:          z.string().optional().nullable(),
+  signupType:      z.literal('OWNER').default('OWNER'),
+  restaurantName:  z.string().min(2).max(100),
+  ownerName:       z.string().min(2).max(100),
+  email:           z.string().email(),
+  password:        z.string().min(6).max(100),
+  locationName:    z.string().min(1).max(100).default('Main Outlet'),
+  phone:           z.string().optional().nullable(),
+  managerName:     z.string().optional(),
+  managerEmail:    z.string().email().optional(),
+  managerPassword: z.string().min(4).optional(),
+  serverName:      z.string().optional(),
+  serverEmail:     z.string().email().optional(),
+  serverPassword:  z.string().min(4).optional(),
+  kitchenName:     z.string().optional(),
+  kitchenEmail:    z.string().email().optional(),
+  kitchenPassword: z.string().min(4).optional(),
 })
 
 const staffSignupSchema = z.object({
@@ -27,6 +37,12 @@ const staffSignupSchema = z.object({
 // Dynamic Multi-Tenant Registration Endpoint (Owner Restaurant Setup & Staff Onboarding)
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown-ip'
+    const rl = await rateLimit(`auth:signup:${ip}`, 5, 600)
+    if (!rl.allowed) {
+      return rateLimitResponse(rl.retryAfterSec)
+    }
+
     const body = await req.json()
     const signupType = body.signupType === 'STAFF' ? 'STAFF' : 'OWNER'
 
@@ -183,6 +199,72 @@ export async function POST(req: NextRequest) {
         },
       })
 
+      // 4b. Automatically provision Manager, Server, and Kitchen operational accounts for this restaurant
+      const managerEmail = (parsed.data.managerEmail?.trim().toLowerCase()) || `manager.${slug}@resto.app`
+      const serverEmail  = (parsed.data.serverEmail?.trim().toLowerCase())  || `server.${slug}@resto.app`
+      const kitchenEmail = (parsed.data.kitchenEmail?.trim().toLowerCase()) || `kitchen.${slug}@resto.app`
+
+      const managerPassHash = parsed.data.managerPassword ? await bcrypt.hash(parsed.data.managerPassword, 10) : passwordHash
+      const serverPassHash  = parsed.data.serverPassword  ? await bcrypt.hash(parsed.data.serverPassword, 10)  : passwordHash
+      const kitchenPassHash = parsed.data.kitchenPassword ? await bcrypt.hash(parsed.data.kitchenPassword, 10) : passwordHash
+
+      // 1. Manager Account & Employee
+      const managerUser = await tx.user.create({
+        data: {
+          restaurantId: restaurant.id,
+          email:        managerEmail,
+          name:         parsed.data.managerName?.trim() || `${restaurantName} Manager`,
+          passwordHash: managerPassHash,
+          role:         'MANAGER',
+        },
+      })
+      await tx.employee.create({
+        data: {
+          locationId: location.id,
+          userId:     managerUser.id,
+          jobTitle:   'Store Operations Manager',
+          isActive:   true,
+        },
+      })
+
+      // 2. Server Account & Employee
+      const serverUser = await tx.user.create({
+        data: {
+          restaurantId: restaurant.id,
+          email:        serverEmail,
+          name:         parsed.data.serverName?.trim() || `${restaurantName} Server`,
+          passwordHash: serverPassHash,
+          role:         'SERVER',
+        },
+      })
+      await tx.employee.create({
+        data: {
+          locationId: location.id,
+          userId:     serverUser.id,
+          jobTitle:   'Floor Server / Waiter',
+          isActive:   true,
+        },
+      })
+
+      // 3. Kitchen Account & Employee
+      const kitchenUser = await tx.user.create({
+        data: {
+          restaurantId: restaurant.id,
+          email:        kitchenEmail,
+          name:         parsed.data.kitchenName?.trim() || `${restaurantName} Kitchen`,
+          passwordHash: kitchenPassHash,
+          role:         'KITCHEN',
+        },
+      })
+      await tx.employee.create({
+        data: {
+          locationId: location.id,
+          userId:     kitchenUser.id,
+          jobTitle:   'Head Chef / Kitchen Line',
+          isActive:   true,
+        },
+      })
+
       // 5. Seed default Menu Categories
       const appetizers = await tx.menuCategory.create({
         data: { restaurantId: restaurant.id, locationId: location.id, name: 'Starters & Appetizers', displayOrder: 1 },
@@ -224,13 +306,13 @@ export async function POST(req: NextRequest) {
         ],
       })
 
-      return { restaurant, location, user }
+      return { restaurant, location, user, managerUser, serverUser, kitchenUser }
     })
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Restaurant SaaS account created successfully',
+        message: 'Restaurant SaaS account created successfully with Manager, Server, and Kitchen teams.',
         restaurant: {
           id:   result.restaurant.id,
           name: result.restaurant.name,
@@ -241,6 +323,29 @@ export async function POST(req: NextRequest) {
           email: result.user.email,
           role:  result.user.role,
         },
+        starterAccounts: [
+          {
+            role: 'MANAGER',
+            portal: 'Manager Console',
+            email: result.managerUser.email,
+            name: result.managerUser.name,
+            loginUrl: `/login?portal=manager&email=${encodeURIComponent(result.managerUser.email)}`,
+          },
+          {
+            role: 'SERVER',
+            portal: 'Server Floor Terminal',
+            email: result.serverUser.email,
+            name: result.serverUser.name,
+            loginUrl: `/login?portal=server&email=${encodeURIComponent(result.serverUser.email)}`,
+          },
+          {
+            role: 'KITCHEN',
+            portal: 'Kitchen Display (KDS)',
+            email: result.kitchenUser.email,
+            name: result.kitchenUser.name,
+            loginUrl: `/login?portal=kitchen&email=${encodeURIComponent(result.kitchenUser.email)}`,
+          },
+        ],
       },
       { status: 201 }
     )

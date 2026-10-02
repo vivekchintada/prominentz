@@ -31,16 +31,28 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get('stripe-signature')
 
   let event: Stripe.Event
-  try {
-    if (webhookSecret && signature) {
-      event = stripe.webhooks.constructEvent(Buffer.from(rawBody), signature, webhookSecret)
-    } else {
-      // Direct JSON parsing for development testing
-      event = JSON.parse(Buffer.from(rawBody).toString('utf-8'))
+  if (process.env.NODE_ENV === 'production') {
+    if (!webhookSecret || !signature) {
+      console.error('[Stripe Webhook] Rejected webhook in production: missing secret or signature')
+      return NextResponse.json({ error: 'Missing webhook signature configuration' }, { status: 400 })
     }
-  } catch (err: any) {
-    console.error('[Stripe Webhook] Signature verification failed:', err.message)
-    return NextResponse.json({ error: 'Webhook signature invalid: ' + err.message }, { status: 400 })
+    try {
+      event = stripe.webhooks.constructEvent(Buffer.from(rawBody), signature, webhookSecret)
+    } catch (err: any) {
+      console.error('[Stripe Webhook] Signature verification failed:', err.message)
+      return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 })
+    }
+  } else {
+    try {
+      if (webhookSecret && signature) {
+        event = stripe.webhooks.constructEvent(Buffer.from(rawBody), signature, webhookSecret)
+      } else {
+        event = JSON.parse(Buffer.from(rawBody).toString('utf-8'))
+      }
+    } catch (err: any) {
+      console.error('[Stripe Webhook] Dev parsing failed:', err.message)
+      return NextResponse.json({ error: 'Webhook parsing failed' }, { status: 400 })
+    }
   }
 
   if (process.env.NODE_ENV !== 'production') {

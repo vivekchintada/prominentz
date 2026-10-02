@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { signOut } from 'next-auth/react'
 import { UpgradeModal } from '@/components/ui/UpgradeModal'
 import { NAV_ITEMS, hasPlanAccess, PlanTier } from '@/lib/plans'
 import { useSidebarCollapse } from './SidebarCollapseContext'
@@ -296,6 +297,23 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
             </button>
           )
         })}
+
+        {/* Spacer to push Sign Out to the bottom */}
+        <div style={{ marginTop: 'auto' }} />
+
+        <button
+          className="sidebar-rail__btn"
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          title="Sign Out"
+          aria-label="Sign Out"
+          style={{ color: '#ef4444' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
       </div>
 
       {/* ── TIER 2: Text Panel (collapses) ── */}
@@ -390,6 +408,35 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
             })
           })()}
         </nav>
+
+        {/* Panel bottom sign out action */}
+        <div style={{ marginTop: 'auto', padding: '12px 14px', borderTop: '0.5px solid var(--color-border, rgba(255,255,255,0.08))' }}>
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              cursor: 'pointer',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              textAlign: 'left',
+              transition: 'background 0.15s ease',
+            }}
+            title="Sign out of dashboard"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span style={{ fontWeight: 600, fontSize: '12px' }}>Sign Out</span>
+          </button>
+        </div>
       </div>
 
       {/* Upgrade modal */}

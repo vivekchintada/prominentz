@@ -72,6 +72,38 @@ function CloudIcon({ size, strokeColor }: { size: number; strokeColor: string })
   )
 }
 
+function PillWordmark({ pillBg, pillDim }: { pillBg: string; pillDim: { h: number; radius: number; padH: number; fontSize: number } }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: pillBg,
+        borderRadius: pillDim.radius,
+        paddingLeft: pillDim.padH,
+        paddingRight: pillDim.padH,
+        height: pillDim.h,
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          color: '#ffffff',
+          fontFamily: "'Inter','Helvetica Neue',Arial,sans-serif",
+          fontWeight: 800,
+          fontSize: pillDim.fontSize,
+          letterSpacing: '-0.04em',
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        prominentz
+      </span>
+    </span>
+  )
+}
+
 export function ProminentzLogo({
   variant = 'full',
   size = 'md',
@@ -83,36 +115,6 @@ export function ProminentzLogo({
   const dim = SIZE_MAP[size]
   const strokeColor = inverse ? '#ffffff' : color
   const pillBg = inverse ? 'rgba(255,255,255,0.15)' : color
-
-  const PillWordmark = () => (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: pillBg,
-        borderRadius: dim.pill.radius,
-        paddingLeft: dim.pill.padH,
-        paddingRight: dim.pill.padH,
-        height: dim.pill.h,
-        flexShrink: 0,
-      }}
-    >
-      <span
-        style={{
-          color: '#ffffff',
-          fontFamily: "'Inter','Helvetica Neue',Arial,sans-serif",
-          fontWeight: 800,
-          fontSize: dim.pill.fontSize,
-          letterSpacing: '-0.04em',
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        prominentz
-      </span>
-    </span>
-  )
 
   if (variant === 'icon') {
     return (
@@ -128,7 +130,7 @@ export function ProminentzLogo({
   if (variant === 'wordmark') {
     return (
       <span className={className} style={{ display: 'inline-flex', ...style }}>
-        <PillWordmark />
+        <PillWordmark pillBg={pillBg} pillDim={dim.pill} />
       </span>
     )
   }
@@ -147,7 +149,7 @@ export function ProminentzLogo({
       }}
     >
       <CloudIcon size={dim.icon} strokeColor={strokeColor} />
-      <PillWordmark />
+      <PillWordmark pillBg={pillBg} pillDim={dim.pill} />
     </span>
   )
 }

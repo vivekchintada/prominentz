@@ -35,6 +35,7 @@ function SignupForm() {
 
   const [error, setError]                   = useState<string | null>(null)
   const [loading, setLoading]               = useState(false)
+  const [createdData, setCreatedData]       = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -89,9 +90,13 @@ function SignupForm() {
         throw new Error(data.error || 'Failed to create account')
       }
 
-      // Registration successful -> redirect to login with query param and pre-selected role
-      const targetRole = accountType === 'OWNER' ? 'owner' : staffRole.toLowerCase()
-      router.push(`/login?registered=true&portal=${targetRole}&email=${encodeURIComponent(email)}`)
+      if (accountType === 'OWNER' && data.starterAccounts) {
+        setCreatedData(data)
+        return
+      }
+
+      // Staff registration -> redirect to login with query param
+      router.push(`/login?registered=true&portal=${staffRole.toLowerCase()}&email=${encodeURIComponent(email)}`)
     } catch (err: any) {
       setError(err.message || 'An unexpected registration error occurred.')
     } finally {
@@ -268,6 +273,107 @@ function SignupForm() {
               </div>
             )}
 
+            {createdData ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '42px', marginBottom: '6px' }}>🎉</div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', margin: 0 }}>
+                    {createdData.restaurant?.name} is Ready!
+                  </h2>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '6px 0 0' }}>
+                    Your restaurant SaaS account and core team roles have been created with your master password:
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {/* Owner */}
+                  <div style={{
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    background: 'rgba(91, 69, 245, 0.12)',
+                    border: '1px solid rgba(91, 69, 245, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '14px' }}>👑</span>
+                        <span style={{ fontWeight: 700, fontSize: '13px', color: '#fff' }}>Owner & General Manager</span>
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>
+                        {createdData.user?.email}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#7b68f7', fontWeight: 700 }}>
+                      Dashboard Console
+                    </span>
+                  </div>
+
+                  {/* Starter Staff Accounts (Manager, Server, Kitchen) */}
+                  {createdData.starterAccounts?.map((acc: any) => (
+                    <div
+                      key={acc.role}
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: '10px',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '14px' }}>
+                            {acc.role === 'MANAGER' ? '💼' : acc.role === 'SERVER' ? '🍽️' : '🍳'}
+                          </span>
+                          <span style={{ fontWeight: 700, fontSize: '13px', color: '#fff' }}>
+                            {acc.name}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>
+                          {acc.email}
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(91, 69, 245, 0.15)',
+                        color: '#7b68f7',
+                        border: '1px solid rgba(91, 69, 245, 0.3)',
+                      }}>
+                        {acc.portal}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  fontSize: '11px',
+                  color: '#34d399',
+                  textAlign: 'center',
+                }}>
+                  🔑 All operational accounts are pre-configured with the master password you just set.
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => router.push(`/login?registered=true&portal=owner&email=${encodeURIComponent(createdData.user?.email || email)}`)}
+                  className={styles.submitBtn}
+                  style={{ marginTop: '8px' }}
+                >
+                  Proceed to Owner Sign In →
+                </button>
+              </div>
+            ) : (
             <form onSubmit={handleSignup} className={styles.form}>
               {/* ── OWNER REGISTRATION FIELDS ── */}
               {accountType === 'OWNER' && (
@@ -446,6 +552,28 @@ function SignupForm() {
                 />
               </div>
 
+              {/* Starter Staff Inclusion Notice */}
+              {accountType === 'OWNER' && (
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  background: 'rgba(91, 69, 245, 0.08)',
+                  border: '1px solid rgba(91, 69, 245, 0.25)',
+                  marginTop: '12px',
+                  marginBottom: '16px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '15px' }}>✨</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#7b68f7' }}>
+                      Included Core Operational Staff
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.45 }}>
+                    Your restaurant automatically includes pre-configured <strong>Manager</strong>, <strong>Server</strong>, and <strong>Kitchen</strong> operational accounts using your master password so your floor, kitchen, and management teams can start immediately.
+                  </p>
+                </div>
+              )}
+
               <button type="submit" className={styles.submitBtn} disabled={loading}>
                 {loading
                   ? 'Creating Account...'
@@ -454,6 +582,7 @@ function SignupForm() {
                   : `Complete ${staffRole} Registration →`}
               </button>
             </form>
+            )}
 
             <div className={styles.footerRow}>
               <span>Already have an account? </span>

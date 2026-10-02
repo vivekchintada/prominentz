@@ -7,12 +7,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
+    if (!session?.user?.restaurantId) {
+      return NextResponse.json({ config: null })
     }
-    if (!restaurantId) return NextResponse.json({ config: null })
+
+    const restaurantId = session.user.restaurantId
 
     let config = await prisma.loyaltyConfig.findUnique({
       where: { restaurantId },

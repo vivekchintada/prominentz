@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { signOut } from 'next-auth/react'
 import { UrbanPiperIntegration } from './Integrations/UrbanPiperIntegration'
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
@@ -550,8 +551,38 @@ export function SettingsClient() {
             <span style={{ color: '#5b45f5', display: 'flex', alignItems: 'center', fontSize: '15px' }}>
               🛍️
             </span>
-            Online Ordering ↗
           </a>
+
+          {/* Sign Out Action in Settings Sidebar */}
+          <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 14px',
+                borderRadius: '10px',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                backgroundColor: 'rgba(239, 68, 68, 0.06)',
+                color: '#ef4444',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                textAlign: 'left',
+                width: '100%',
+                transition: 'all 150ms ease',
+              }}
+              title="Sign out of account"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              <span>Sign Out</span>
+            </button>
+          </div>
         </aside>
 
         {/* ─── Right Content Area ──────────────────────────────────────────── */}

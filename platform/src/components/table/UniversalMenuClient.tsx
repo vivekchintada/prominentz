@@ -471,7 +471,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
                 />
 
                 <label style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', display: 'block', marginBottom: '6px' }}>
-                  Phone Number (For Loyalty Points ⭐)
+                  Phone Number (Optional)
                 </label>
                 <input
                   type="tel"

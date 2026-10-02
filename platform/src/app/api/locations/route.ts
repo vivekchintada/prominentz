@@ -9,15 +9,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    
-    // Resolve restaurant ID from session or fallback for dev/demo testing
-    let restaurantId = session?.user?.restaurantId
-
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ locations: [] })
     }
@@ -55,15 +51,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (session.user.role && !['OWNER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Only owners and admins can create locations' }, { status: 403 })
+    }
+
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
-      return NextResponse.json({ error: 'No active restaurant tenant' }, { status: 400 })
+      return NextResponse.json({ error: 'No active restaurant tenant found for user' }, { status: 400 })
     }
 
     // Verify PRO tier access

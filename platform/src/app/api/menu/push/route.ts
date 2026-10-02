@@ -12,21 +12,37 @@ interface MenuPushRequest {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions to push menus' }, { status: 403 })
+    }
+
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
-      return NextResponse.json({ error: 'No active restaurant tenant' }, { status: 400 })
+      return NextResponse.json({ error: 'No active restaurant tenant found' }, { status: 400 })
     }
 
     const { targetLocationIds, masterMenuItemIds }: MenuPushRequest = await req.json()
 
     if (!Array.isArray(targetLocationIds) || targetLocationIds.length === 0) {
       return NextResponse.json({ error: 'Target locations required' }, { status: 400 })
+    }
+
+    // Verify all target locations belong to user's restaurant tenant
+    const validLocations = await prisma.location.findMany({
+      where: {
+        id: { in: targetLocationIds },
+        restaurantId,
+      },
+      select: { id: true },
+    })
+    const validLocationIds = validLocations.map((l) => l.id)
+
+    if (validLocationIds.length === 0) {
+      return NextResponse.json({ error: 'No valid locations found for this restaurant' }, { status: 400 })
     }
 
     // Fetch master menu categories/items for this tenant
@@ -44,8 +60,8 @@ export async function POST(req: NextRequest) {
 
     let syncedCount = 0
 
-    // Loop through each target store location
-    for (const targetLocId of targetLocationIds) {
+    // Loop through each verified store location
+    for (const targetLocId of validLocationIds) {
       for (const masterCat of masterCategories) {
         // Find or create category at target location
         let targetCat = await prisma.menuCategory.findFirst({

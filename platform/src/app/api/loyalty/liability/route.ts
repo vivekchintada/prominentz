@@ -8,12 +8,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
+    if (!session?.user?.restaurantId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    if (!restaurantId) return NextResponse.json({ error: 'No restaurant found' }, { status: 400 })
+
+    const restaurantId = session.user.restaurantId
 
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)

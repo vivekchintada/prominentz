@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { MobileNav } from '@/components/mobile/MobileNav'
+import { MobileHeader } from '@/components/mobile/MobileHeader'
 
 export const metadata: Metadata = {
   title: 'Prominentz Manager',
@@ -32,6 +33,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       margin: '0 auto',
       position: 'relative',
     }}>
+      <MobileHeader />
       {/* Content area with bottom padding for nav */}
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 80 }}>
         {children}

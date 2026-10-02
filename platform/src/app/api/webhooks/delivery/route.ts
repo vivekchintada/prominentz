@@ -50,15 +50,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         normalized = rawBody as NormalizedDeliveryOrder
     }
 
-    // Resolve the first active location + a "DELIVERY" table placeholder
+    // Strict multi-tenant location routing: require locationId or restaurantId
+    const locationId = searchParams.get('locationId') || req.headers.get('x-location-id')
+    const restaurantId = searchParams.get('restaurantId') || req.headers.get('x-restaurant-id')
+
+    if (!locationId && !restaurantId) {
+      return NextResponse.json(
+        { error: 'Missing locationId or restaurantId parameter for multi-tenant delivery routing' },
+        { status: 400 }
+      )
+    }
+
     const location = await prisma.location.findFirst({
+      where: {
+        ...(locationId ? { id: locationId } : {}),
+        ...(restaurantId ? { restaurantId } : {}),
+      },
       include: {
         tables: { where: { name: { contains: 'Delivery' } }, take: 1 },
       },
     })
 
     if (!location) {
-      return NextResponse.json({ error: 'No active restaurant location found' }, { status: 404 })
+      return NextResponse.json({ error: 'Active restaurant location not found for tenant' }, { status: 404 })
     }
 
     // Use existing Delivery table or create one

@@ -7,11 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
-    }
+    const restaurantId = session?.user?.restaurantId
 
     if (!restaurantId) {
       return NextResponse.json(['1st Floor', '2nd Floor', '3rd Floor'])
@@ -40,6 +36,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (session.user.role && !['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Insufficient permissions' }, { status: 403 })
+    }
+
     const body = await req.json()
     const { floorName, locationId } = body
 
@@ -47,23 +51,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Floor name is required' }, { status: 400 })
     }
 
-    let validLocation: { id: string } | null = null
+    let validLocation: { id: string; restaurantId: string } | null = null
     if (locationId) {
       validLocation = await prisma.location.findUnique({
         where: { id: locationId },
-        select: { id: true },
+        select: { id: true, restaurantId: true },
       })
+      if (session.user.restaurantId && validLocation && validLocation.restaurantId !== session.user.restaurantId) {
+        return NextResponse.json({ error: 'Unauthorized location access' }, { status: 403 })
+      }
     }
 
-    if (!validLocation) {
-      let restaurantId = session?.user?.restaurantId
-      if (!restaurantId) {
-        const fallback = await prisma.restaurant.findFirst()
-        restaurantId = fallback?.id
-      }
+    if (!validLocation && session.user.restaurantId) {
       validLocation = await prisma.location.findFirst({
-        where: { ...(restaurantId ? { restaurantId } : {}) },
-        select: { id: true },
+        where: { restaurantId: session.user.restaurantId },
+        select: { id: true, restaurantId: true },
       })
     }
 

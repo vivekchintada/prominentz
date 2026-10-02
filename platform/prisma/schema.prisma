@@ -393,6 +393,9 @@ model Table {
   location Location @relation(fields: [locationId], references: [id])
   orders   Order[]
   reservations Reservation[]
+
+  @@index([locationId])
+  @@index([locationId, status])
 }
 
 // ─── ORDERS ──────────────────────────────────────────────────────────────────
@@ -450,6 +453,8 @@ model Order {
   @@index([onlineStatus, scheduledFor])
   @@index([createdAt, fulfilmentType])
   @@index([status, createdAt])
+  @@index([tableId])
+  @@index([tableId, status])
 }
 
 model OrderItem {
@@ -558,6 +563,10 @@ model Payment {
   splits     PaymentSplit[]
   void       Void?
   receipt    Receipt?
+
+  @@index([orderId])
+  @@index([status, createdAt])
+  @@index([stripePaymentIntentId])
 }
 
 model PaymentSplit {

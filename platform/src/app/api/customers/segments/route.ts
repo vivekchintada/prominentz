@@ -8,12 +8,12 @@ export const dynamic = 'force-dynamic'
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    if (!restaurantId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const restaurantId = session.user.restaurantId
+    if (!restaurantId) return NextResponse.json({ error: 'No active tenant found' }, { status: 400 })
 
     const { allowed } = await verifyRestaurantPlan(restaurantId, 'PRO')
     if (!allowed) {

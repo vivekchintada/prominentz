@@ -81,11 +81,11 @@ export const DEFAULT_SETTINGS = {
 export async function GET() {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
     }
@@ -170,11 +170,15 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    if (session.user.role && !['OWNER', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden: Only owners and admins can update settings' }, { status: 403 })
+    }
+
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
     }
@@ -191,6 +195,9 @@ export async function PATCH(req: NextRequest) {
       section,
       sectionData,
     } = body
+
+    // Security Gate: Only system admins may manually override plan tier directly
+    const allowedPlanTier = (session.user.role === 'ADMIN' && planTier) ? planTier : undefined
 
     const existingRestaurant = await prisma.restaurant.findUnique({
       where: { id: restaurantId },
@@ -220,7 +227,7 @@ export async function PATCH(req: NextRequest) {
       where: { id: restaurantId },
       data: {
         ...(updatedStoreName ? { name: updatedStoreName } : {}),
-        ...(planTier ? { planTier } : {}),
+        ...(allowedPlanTier ? { planTier: allowedPlanTier } : {}),
         settings: currentSettings,
       },
     })

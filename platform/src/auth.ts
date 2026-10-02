@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { UserRole } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 const nextAuthInstance = NextAuth({
   ...authConfig,
@@ -113,11 +114,24 @@ export async function auth(...args: any[]): Promise<any> {
     }
 
     if (token) {
-      // Direct user ID token: mobile_jwt_<userId>_<timestamp>
+      // Direct user ID token: mobile_jwt_<userId>_<timestamp>_<signature>
       if (token.startsWith('mobile_jwt_')) {
         const parts = token.split('_')
         const userId = parts[2]
+        const timestampStr = parts[3]
+        const signature = parts[4]
+
         if (userId) {
+          // If signature and timestamp are present, verify cryptographic authenticity & freshness
+          if (signature && timestampStr) {
+            const secret = process.env.NEXTAUTH_SECRET || 'resto_auth_secret_production_key_32_characters'
+            const expectedSig = crypto.createHmac('sha256', secret).update(`${userId}_${timestampStr}`).digest('hex')
+            const isExpired = Date.now() - Number(timestampStr) > 30 * 24 * 60 * 60 * 1000
+            if (signature !== expectedSig || isExpired) {
+              return null
+            }
+          }
+
           const dbUser = await prisma.user.findUnique({
             where: { id: userId },
             select: { id: true, name: true, email: true, role: true, restaurantId: true, isActive: true },

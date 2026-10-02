@@ -31,14 +31,6 @@ interface OrderData {
   table: { name: string }
   items: OrderItem[]
   originalSubtotal?: number
-  coupon?: {
-    code: string
-    discountType: string
-    discountAmount: number
-    discountVal?: number
-    pointsCost?: number | null
-    pointsReward?: number | null
-  } | null
 }
 
 interface CheckoutModalProps {
@@ -47,15 +39,6 @@ interface CheckoutModalProps {
   onComplete: () => void
   order: OrderData
   showToast: (message: string, variant?: any) => void
-  initialCoupon?: {
-    code: string
-    discountType: string
-    discountAmount: number
-    discountVal?: number
-    pointsCost?: number | null
-    pointsReward?: number | null
-  } | null
-  onCouponChange?: (coupon: any | null) => void
 }
 
 interface SplitShare {
@@ -75,24 +58,10 @@ export default function CheckoutModal({
   onComplete,
   order,
   showToast,
-  initialCoupon = null,
-  onCouponChange,
 }: CheckoutModalProps) {
   const [tipPercentage, setTipPercentage] = useState<number | 'custom'>(0)
   const [customTip, setCustomTip] = useState<number>(0)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'CARD' | 'SPLIT' | 'QR'>('CASH')
-
-  // Coupon state in checkout
-  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(initialCoupon || order.coupon || null)
-  const [couponInput, setCouponInput] = useState('')
-  const [couponLoading, setCouponLoading] = useState(false)
-
-  // Keep coupon in sync if initialCoupon changes
-  useEffect(() => {
-    if (initialCoupon !== undefined) {
-      setAppliedCoupon(initialCoupon)
-    }
-  }, [initialCoupon])
 
   // Cash payment state
   const [cashReceived, setCashReceived] = useState<string>('')
@@ -119,66 +88,14 @@ export default function CheckoutModal({
   const [isSendingReceipt, setIsSendingReceipt] = useState(false)
   const [isFinishing, setIsFinishing] = useState(false)
 
-  // Subtotal & Discount calculations
+  // Subtotal & Tax calculations
   const rawSubtotal = Number(order.originalSubtotal ?? order.subtotal)
-  const couponDiscount = appliedCoupon
-    ? appliedCoupon.discountType === 'PERCENTAGE'
-      ? Number(((rawSubtotal * Number(appliedCoupon.discountAmount)) / 100).toFixed(2))
-      : Math.min(Number(appliedCoupon.discountAmount), rawSubtotal)
-    : 0
-
-  const subtotal = Math.max(0, Number((rawSubtotal - couponDiscount).toFixed(2)))
+  const subtotal = rawSubtotal
   const tax = Number((subtotal * 0.10).toFixed(2))
 
   // Calculate tip and totals based on active settings
   const tipAmount = tipPercentage === 'custom' ? customTip : Number(((subtotal * tipPercentage) / 100).toFixed(2))
   const finalTotal = Number((subtotal + tax + tipAmount).toFixed(2))
-
-  // Apply coupon in checkout modal
-  const handleApplyCoupon = async () => {
-    const code = couponInput.trim().toUpperCase()
-    if (!code) return
-    setCouponLoading(true)
-    try {
-      const res = await fetch('/api/coupons/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          subtotal: rawSubtotal,
-          orderSubtotal: rawSubtotal,
-          allowCashierOverride: true,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.valid) {
-        throw new Error(data.error || data.message || 'Invalid coupon')
-      }
-      const disc = Number(data.discount ?? data.coupon?.calculatedDiscount ?? 0)
-      const newCoupon = {
-        code: data.coupon.code,
-        discountType: data.coupon.discountType,
-        discountAmount: Number(data.coupon.discountAmount),
-        discountVal: disc,
-        pointsCost: data.coupon.pointsCost,
-        pointsReward: data.coupon.pointsReward,
-      }
-      setAppliedCoupon(newCoupon)
-      onCouponChange?.(newCoupon)
-      setCouponInput('')
-      showToast(data.message || `Coupon ${data.coupon.code} applied! -$${disc.toFixed(2)}`, 'success')
-    } catch (err: any) {
-      showToast(err.message || 'Failed to apply coupon', 'error')
-    } finally {
-      setCouponLoading(false)
-    }
-  }
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null)
-    onCouponChange?.(null)
-    showToast('Coupon removed', 'info')
-  }
 
   // Set up split shares when splitCount or order changes
   useEffect(() => {
@@ -264,8 +181,6 @@ export default function CheckoutModal({
           cashReceived: activeMethod === 'CASH' ? parseFloat(cashReceived) : undefined,
           cashChange: activeMethod === 'CASH' ? cashChange : undefined,
           stripePaymentIntentId,
-          couponCode: appliedCoupon?.code || undefined,
-          couponDiscount: couponDiscount > 0 ? couponDiscount : undefined,
         }),
       })
 
@@ -476,20 +391,8 @@ export default function CheckoutModal({
                 <span>Items Subtotal:</span>
                 <span>${rawSubtotal.toFixed(2)}</span>
               </div>
-              {appliedCoupon && (
-                <div className="flex justify-between text-sm mb-1" style={{ color: '#16a34a' }}>
-                  <span>Coupon Discount ({appliedCoupon.code}):</span>
-                  <span className="font-bold">-${couponDiscount.toFixed(2)}</span>
-                </div>
-              )}
-              {appliedCoupon?.pointsCost ? (
-                <div className="flex justify-between text-sm mb-1" style={{ color: '#eab308' }}>
-                  <span>Loyalty Points Redeemed:</span>
-                  <span className="font-bold">-{appliedCoupon.pointsCost} pts</span>
-                </div>
-              ) : null}
               <div className="flex justify-between text-sm mb-1">
-                <span>Net Subtotal:</span>
+                <span>Subtotal:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm mb-1">
@@ -554,97 +457,13 @@ export default function CheckoutModal({
         ) : (
           /* PAYMENT FORM PANEL */
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            {/* Order Totals Summary with Coupon Integration */}
+            {/* Order Totals Summary */}
             <div className="card" style={{ background: 'var(--color-bg-raised)', padding: 'var(--space-4)' }}>
               <div className="flex justify-between text-sm text-secondary mb-1">
                 <span>Items Subtotal:</span>
                 <span>${rawSubtotal.toFixed(2)}</span>
               </div>
 
-              {appliedCoupon ? (
-                <div
-                  className="flex justify-between items-center text-sm my-1"
-                  style={{
-                    color: '#16a34a',
-                    background: 'rgba(34, 197, 94, 0.08)',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(34, 197, 94, 0.25)',
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold">🎟️ Coupon ({appliedCoupon.code})</span>
-                    {appliedCoupon.pointsCost ? (
-                      <span className="text-xs font-semibold" style={{ color: '#eab308' }}>
-                        ⭐ {appliedCoupon.pointsCost} pts
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold">-${couponDiscount.toFixed(2)}</span>
-                    <button
-                      type="button"
-                      onClick={handleRemoveCoupon}
-                      title="Remove coupon"
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#ef4444',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        fontSize: '13px',
-                        padding: '0 2px',
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex gap-2 my-2" style={{ alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    placeholder="Have a coupon? e.g. SEAFOOD10"
-                    className="input"
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleApplyCoupon()
-                      }
-                    }}
-                    style={{
-                      flex: 1,
-                      padding: '6px 10px',
-                      fontSize: '12px',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleApplyCoupon}
-                    disabled={couponLoading || !couponInput.trim()}
-                    className="btn btn--secondary btn--sm"
-                    style={{
-                      padding: '6px 14px',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {couponLoading ? '...' : 'Apply Coupon'}
-                  </button>
-                </div>
-              )}
-
-              {appliedCoupon && (
-                <div className="flex justify-between text-sm text-secondary mb-1">
-                  <span>Discounted Subtotal:</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-              )}
 
               <div className="flex justify-between text-sm text-secondary mb-1">
                 <span>Sales Tax (10%):</span>

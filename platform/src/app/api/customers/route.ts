@@ -8,13 +8,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ customers: [] })
     }
@@ -61,15 +59,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    let restaurantId = session?.user?.restaurantId
-
-    if (!restaurantId) {
-      const fallbackRestaurant = await prisma.restaurant.findFirst()
-      restaurantId = fallbackRestaurant?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const restaurantId = session.user.restaurantId
     if (!restaurantId) {
-      return NextResponse.json({ error: 'No active tenant found' }, { status: 400 })
+      return NextResponse.json({ error: 'No active tenant found for user' }, { status: 400 })
     }
 
     // Verify PRO tier access

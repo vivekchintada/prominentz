@@ -48,10 +48,6 @@ export default function OrderStatementModal({
   const cashReceived = payment?.cashReceived ? Number(payment.cashReceived) : null
   const cashChange = payment?.cashChange ? Number(payment.cashChange) : null
 
-  // Extract coupon info from order notes if present
-  const couponMatch = order.notes?.match(/Coupon:\s*([A-Za-z0-9_-]+)(?:\s*\(-?\$?([\d.]+)\))?/i)
-  const couponCode = couponMatch ? couponMatch[1] : null
-  const couponDiscountAmount = couponMatch && couponMatch[2] ? parseFloat(couponMatch[2]) : null
 
   const handlePrint = () => {
     window.print()
@@ -269,14 +265,8 @@ export default function OrderStatementModal({
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
               <span>Subtotal</span>
-              <span style={{ fontWeight: 600 }}>${(subtotal + (couponDiscountAmount || 0)).toFixed(2)}</span>
+              <span style={{ fontWeight: 600 }}>${subtotal.toFixed(2)}</span>
             </div>
-            {couponCode && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
-                <span>Coupon Discount ({couponCode})</span>
-                <span style={{ fontWeight: 600 }}>{couponDiscountAmount ? `-$${couponDiscountAmount.toFixed(2)}` : 'Applied'}</span>
-              </div>
-            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
               <span>Tax (10%)</span>
               <span style={{ fontWeight: 600 }}>${tax.toFixed(2)}</span>

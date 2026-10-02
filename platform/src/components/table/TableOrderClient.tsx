@@ -707,7 +707,6 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
   }, 0)
   const tax = subtotal * 0.08
   const total = subtotal + tax
-  const loyaltyPoints = Math.floor(subtotal * 10)
 
   const handleSubmitOrder = async () => {
     if (cart.length === 0) return
@@ -799,11 +798,6 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               <span style={{ fontSize: '17px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>${Number(orderSuccess.total || 0).toFixed(2)}</span>
             </div>
           </div>
-          {loyaltyPoints > 0 && (
-            <div style={{ backgroundColor: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: '#f59e0b', fontWeight: 700 }}>
-              ⭐ You earned {loyaltyPoints} loyalty points on this order!
-            </div>
-          )}
           <button onClick={() => setOrderSuccess(null)} style={{ width: '100%', padding: '14px', backgroundColor: accentColor, color: '#fff', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: 800, cursor: 'pointer' }}>
             ➕ Order More
           </button>
@@ -1105,7 +1099,6 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px' }}>{totalItemCount}</span>
               <div>
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#fff' }}>View Order</div>
-                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.75)' }}>⭐ {loyaltyPoints} pts earned</div>
               </div>
             </div>
             <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', fontFamily: 'monospace' }}>${total.toFixed(2)} →</div>
@@ -1154,18 +1147,10 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 ))
               )}
 
-              {/* Loyalty preview */}
-              {cart.length > 0 && (
-                <div style={{ padding: '10px 14px', borderRadius: '12px', backgroundColor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: '13px', color: '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>⭐</span>
-                  <span>This order earns you <strong>{loyaltyPoints} loyalty points</strong></span>
-                </div>
-              )}
-
               {/* Guest info */}
               <div style={{ marginTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <input type="text" placeholder="👤 Your name (Optional)" value={guestName} onChange={(e) => setGuestName(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
-                <input type="tel" placeholder="📱 Phone for loyalty points (Optional)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
+                <input type="tel" placeholder="📱 Phone number (Optional)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
                 <input type="text" placeholder="⚠️ Allergies / Kitchen notes" value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
               </div>
 

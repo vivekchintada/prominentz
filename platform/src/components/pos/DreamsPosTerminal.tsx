@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { signOut } from 'next-auth/react'
 import ThemeToggle from '../ui/ThemeToggle'
 import ModifierSelector from './ModifierSelector'
 import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
@@ -143,18 +144,6 @@ export function DreamsPosTerminal({
   const [selectedTable, setSelectedTable] = useState<TableData | null>(initialTables[0] || null)
   const [selectedWaiter, setSelectedWaiter] = useState<string>(currentUser.name || 'Sarah Manager')
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>({ name: 'Liam O\'Connor', phone: '+1 234-567-8901' })
-
-  // Coupon & Loyalty Points State
-  const [couponInput, setCouponInput] = useState('')
-  const [couponLoading, setCouponLoading] = useState(false)
-  const [appliedCoupon, setAppliedCoupon] = useState<{
-    code: string
-    discountType: 'PERCENTAGE' | 'FIXED'
-    discountAmount: number
-    discountVal: number
-    pointsCost?: number | null
-    pointsReward?: number | null
-  } | null>(null)
 
   // Cart Items (starts empty — user adds from the dish grid)
   const [cart, setCart] = useState<CartItem[]>([])
@@ -296,8 +285,6 @@ export function DreamsPosTerminal({
     setCart([])
     setSentItems([])
     setSelectedTable(tables[0] || null)
-    setAppliedCoupon(null)
-    setCouponInput('')
     showToast('Started fresh empty check', 'info')
   }
 
@@ -319,39 +306,6 @@ export function DreamsPosTerminal({
       setActiveOrderId(order.id)
       setActiveOrderStatus(order.status)
       setOrderNumber(`#${order.id.slice(-5).toUpperCase()}`)
-
-      // Check if order notes contain an applied coupon code
-      const couponMatch = order.notes?.match(/Coupon:\s*([A-Za-z0-9_-]+)/i)
-      if (couponMatch && couponMatch[1]) {
-        const cCode = couponMatch[1].trim().toUpperCase()
-        fetch('/api/coupons/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: cCode,
-            orderSubtotal: Number(order.subtotal || 0),
-            subtotal: Number(order.subtotal || 0),
-            allowCashierOverride: true,
-          }),
-        })
-          .then((r) => r.json())
-          .then((d) => {
-            if (d.valid && d.coupon) {
-              setAppliedCoupon({
-                code: d.coupon.code,
-                discountType: d.coupon.discountType,
-                discountAmount: Number(d.coupon.discountAmount),
-                discountVal: Number(d.discount ?? d.coupon.calculatedDiscount ?? 0),
-                pointsCost: d.coupon.pointsCost,
-                pointsReward: d.coupon.pointsReward,
-              })
-            }
-          })
-          .catch(() => {})
-      } else {
-        setAppliedCoupon(null)
-      }
-      setCouponInput('')
 
       if (order.notes?.includes('Take Away')) setOrderType('Take Away')
       else if (order.notes?.includes('Delivery')) setOrderType('Delivery')
@@ -582,18 +536,9 @@ export function DreamsPosTerminal({
   const cartSubtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const sentSubtotal = sentItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const subtotal = cartSubtotal + sentSubtotal
-
-  // Coupon Discount Calculation
-  const couponDiscount = appliedCoupon
-    ? appliedCoupon.discountType === 'PERCENTAGE'
-      ? Number(((subtotal * appliedCoupon.discountAmount) / 100).toFixed(2))
-      : Math.min(appliedCoupon.discountAmount, subtotal)
-    : 0
-
-  const discountedSubtotal = Math.max(0, subtotal - couponDiscount)
   const taxRate = 0.10 // 10% tax
-  const tax = Number((discountedSubtotal * taxRate).toFixed(2))
-  const total = Number((discountedSubtotal + tax).toFixed(2))
+  const tax = Number((subtotal * taxRate).toFixed(2))
+  const total = Number((subtotal + tax).toFixed(2))
   const totalItemCount = cart.reduce((sum, item) => sum + item.quantity, 0) + sentItems.reduce((sum, item) => sum + item.quantity, 0)
 
   // Add Item to Cart
@@ -672,53 +617,6 @@ export function DreamsPosTerminal({
     }
     setIsNoteOpen(false)
     setActiveCartIndexForNote(null)
-  }
-
-  // Apply coupon / loyalty points discount
-  const handleApplyCoupon = async (codeOverride?: string) => {
-    const code = (codeOverride || couponInput).trim().toUpperCase()
-    if (!code) return
-    setCouponLoading(true)
-    try {
-      const res = await fetch('/api/coupons/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          subtotal,
-          orderSubtotal: subtotal,
-          customerId: selectedCustomer?.id,
-          allowCashierOverride: true,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.valid) {
-        throw new Error(data.error || data.message || 'Invalid coupon')
-      }
-      const discVal = Number(data.discount ?? data.coupon?.calculatedDiscount ?? 0)
-      setAppliedCoupon({
-        code: data.coupon.code,
-        discountType: data.coupon.discountType,
-        discountAmount: Number(data.coupon.discountAmount),
-        discountVal: discVal,
-        pointsCost: data.coupon.pointsCost,
-        pointsReward: data.coupon.pointsReward,
-      })
-      setCouponInput('')
-      showToast(
-        data.message || `Coupon ${data.coupon.code} applied! -$${discVal.toFixed(2)}${data.coupon.pointsCost ? ` (${data.coupon.pointsCost} loyalty pts redeemed)` : ''}`,
-        'success'
-      )
-    } catch (err: any) {
-      showToast(err.message || 'Failed to apply coupon', 'error')
-    } finally {
-      setCouponLoading(false)
-    }
-  }
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null)
-    showToast('Coupon removed', 'info')
   }
 
   // Item Form Modal for adding custom dishes with pictures
@@ -973,7 +871,7 @@ export function DreamsPosTerminal({
             </Link>
           )}
 
-          {/* User Profile Avatar */}
+          {/* User Profile Avatar & Sign Out */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div
               style={{
@@ -988,9 +886,36 @@ export function DreamsPosTerminal({
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
+              title={currentUser.name}
             >
               {currentUser.name ? currentUser.name.slice(0, 2).toUpperCase() : 'SM'}
             </div>
+
+            <button
+              onClick={() => signOut({ callbackUrl: '/login?portal=owner' })}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                color: '#ef4444',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              title="Sign Out of POS"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </header>
@@ -1751,80 +1676,6 @@ export function DreamsPosTerminal({
           {/* Cart Footer: Summary & Actions */}
 
           <div className="dream-cart-footer">
-            {/* Promo / Coupon & Loyalty Points Section */}
-            {activeOrderStatus !== 'PAID' && (
-              <div style={{ marginBottom: 10, padding: '8px 10px', background: 'var(--color-bg-raised, #f8fafc)', borderRadius: 10, border: '1px solid var(--color-border, #e2e8f0)' }}>
-                {appliedCoupon ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: '#16a34a', background: 'rgba(34, 197, 94, 0.12)', padding: '2px 8px', borderRadius: 6 }}>
-                        🎟️ {appliedCoupon.code}
-                      </span>
-                      {appliedCoupon.pointsCost ? (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#eab308' }}>
-                          ⭐ {appliedCoupon.pointsCost} pts
-                        </span>
-                      ) : null}
-                      <span style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>
-                        (-${couponDiscount.toFixed(2)})
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleRemoveCoupon}
-                      title="Remove Coupon"
-                      style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: '0 4px' }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <input
-                      type="text"
-                      placeholder="Coupon / Loyalty code..."
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleApplyCoupon()
-                        }
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: '6px 10px',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        letterSpacing: '0.05em',
-                        borderRadius: 6,
-                        border: '1px solid var(--color-border, #cbd5e1)',
-                        background: 'var(--color-bg, #ffffff)',
-                        color: 'var(--color-text-primary, #0f172a)',
-                        outline: 'none',
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleApplyCoupon()}
-                      disabled={couponLoading || !couponInput.trim()}
-                      style={{
-                        padding: '6px 12px',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        borderRadius: 6,
-                        border: 'none',
-                        background: '#5b45f5',
-                        color: '#fff',
-                        cursor: couponLoading || !couponInput.trim() ? 'not-allowed' : 'pointer',
-                        opacity: couponLoading || !couponInput.trim() ? 0.6 : 1,
-                      }}
-                    >
-                      {couponLoading ? '...' : 'Apply'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Payment Summary */}
 
@@ -1845,18 +1696,6 @@ export function DreamsPosTerminal({
                 <span>Sub Total</span>
                 <strong>${subtotal.toFixed(2)}</strong>
               </div>
-              {appliedCoupon && (
-                <div className="dream-pay-row" style={{ color: '#16a34a' }}>
-                  <span>Discount ({appliedCoupon.code})</span>
-                  <strong>-${couponDiscount.toFixed(2)}</strong>
-                </div>
-              )}
-              {appliedCoupon?.pointsCost ? (
-                <div className="dream-pay-row" style={{ color: '#eab308', fontSize: 11 }}>
-                  <span>⭐ Loyalty Points Redeemed</span>
-                  <strong>-{appliedCoupon.pointsCost} pts</strong>
-                </div>
-              ) : null}
               <div className="dream-pay-row">
                 <span>Tax (10%)</span>
                 <strong>${tax.toFixed(2)}</strong>
@@ -2283,18 +2122,6 @@ export function DreamsPosTerminal({
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              {appliedCoupon && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
-                  <span>Discount ({appliedCoupon.code})</span>
-                  <span>-${couponDiscount.toFixed(2)}</span>
-                </div>
-              )}
-              {appliedCoupon?.pointsCost ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#b45309' }}>
-                  <span>⭐ Loyalty Points Redeemed</span>
-                  <span>-{appliedCoupon.pointsCost} pts</span>
-                </div>
-              ) : null}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Tax (10%)</span>
                 <span>${tax.toFixed(2)}</span>
@@ -2348,9 +2175,9 @@ export function DreamsPosTerminal({
             id: activeOrderId || `temp-${Date.now()}`,
             tableId: selectedTable?.id || 'table-1',
             guestCount: 2,
-            notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})` : null,
+            notes: null,
             originalSubtotal: subtotal,
-            subtotal: discountedSubtotal,
+            subtotal,
             tax,
             total,
             status: activeOrderStatus || 'OPEN',
@@ -2364,8 +2191,6 @@ export function DreamsPosTerminal({
               menuItem: { name: i.name },
             })),
           }}
-          initialCoupon={appliedCoupon}
-          onCouponChange={(c) => setAppliedCoupon(c)}
           onClose={() => setIsCheckoutOpen(false)}
           onComplete={() => {
             showToast(`Payment completed for Order ${orderNumber}!`, 'success')
@@ -2374,8 +2199,6 @@ export function DreamsPosTerminal({
             setSentItems([])
             setActiveOrderId(null)
             setActiveOrderStatus(null)
-            setAppliedCoupon(null)
-            setCouponInput('')
             setOrderNumber(`#${Math.random().toString(36).substr(2, 5).toUpperCase()}`)
             fetchRecentOrders()
             fetchOpenOrders()
