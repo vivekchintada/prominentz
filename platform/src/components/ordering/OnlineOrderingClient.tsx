@@ -221,22 +221,13 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
     setError('')
   }
 
-  const fillDemoCard = () => {
-    setCardDetails({
-      number: '4242 •••• •••• 4242',
-      expiry: '12 / 28',
-      cvc: '888',
-      zip: '94105',
-    })
-  }
-
   const placeOrder = async () => {
     setBusy(true)
     setError('')
     setPaymentFailure(null)
 
     if (paymentMethod === 'CARD' && !cardDetails.number.trim()) {
-      setError('Please enter your card number or click "Fill Demo Card"')
+      setError('Please enter your card number')
       setBusy(false)
       return
     }
@@ -705,13 +696,6 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
                     <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>
                       Card Details
                     </span>
-                    <button
-                      type="button"
-                      onClick={fillDemoCard}
-                      style={{ background: 'transparent', border: 'none', color: '#60a5fa', fontSize: '11px', cursor: 'pointer', fontWeight: 700 }}
-                    >
-                      ⚡ Fill Demo Card
-                    </button>
                   </div>
                   <input
                     className={styles.formInput}

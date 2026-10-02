@@ -35,17 +35,10 @@ export default function DashboardLivePanel() {
       if (kpiRes.ok) setKpi(await kpiRes.json())
       if (menuRes.ok) {
         const salesData = await menuRes.json().catch(() => null)
-        if (salesData?.topItems) {
+        if (salesData?.topItems && salesData.topItems.length > 0) {
           setTopItems(salesData.topItems.slice(0, 5))
         } else {
-          // Fallback realistic top items for demonstration if report api is quiet
-          setTopItems([
-            { name: 'Truffle Burger & Fries', category: 'Mains', quantity: 38, revenue: 836 },
-            { name: 'Wild Mushroom Pasta', category: 'Mains', quantity: 24, revenue: 528 },
-            { name: 'Crispy Calamari', category: 'Starters', quantity: 19, revenue: 266 },
-            { name: 'Craft IPA Pint', category: 'Beverages', quantity: 45, revenue: 360 },
-            { name: 'Espresso Tiramisu', category: 'Desserts', quantity: 14, revenue: 168 },
-          ])
+          setTopItems([])
         }
       }
     } catch (err) {
@@ -88,39 +81,45 @@ export default function DashboardLivePanel() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          {topItems.map((item, idx) => {
-            const pct = Math.round((item.quantity / maxQty) * 100)
-            return (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-sm)' }}>
-                  <span style={{ fontWeight: 700 }}>
-                    {idx + 1}. {item.name}
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
-                    {item.quantity} sold <span style={{ color: 'var(--brand)', marginLeft: 6 }}>(${item.revenue})</span>
-                  </span>
-                </div>
-                <div
-                  style={{
-                    height: 6,
-                    borderRadius: 3,
-                    background: 'rgba(255,255,255,0.06)',
-                    overflow: 'hidden',
-                  }}
-                >
+          {topItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 'var(--space-8) var(--space-4)', color: 'var(--color-text-secondary)', fontSize: 'var(--text-xs)' }}>
+              No orders placed yet today. Live dish popularity will populate automatically.
+            </div>
+          ) : (
+            topItems.map((item, idx) => {
+              const pct = Math.round((item.quantity / maxQty) * 100)
+              return (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-sm)' }}>
+                    <span style={{ fontWeight: 700 }}>
+                      {idx + 1}. {item.name}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
+                      {item.quantity} sold <span style={{ color: 'var(--brand)', marginLeft: 6 }}>(${item.revenue})</span>
+                    </span>
+                  </div>
                   <div
                     style={{
-                      height: '100%',
-                      width: `${pct}%`,
-                      background: 'var(--brand-gradient)',
+                      height: 6,
                       borderRadius: 3,
-                      transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      background: 'rgba(255,255,255,0.06)',
+                      overflow: 'hidden',
                     }}
-                  />
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${pct}%`,
+                        background: 'var(--brand-gradient)',
+                        borderRadius: 3,
+                        transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
       </div>
 

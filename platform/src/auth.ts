@@ -120,9 +120,9 @@ export async function auth(...args: any[]): Promise<any> {
         if (userId) {
           const dbUser = await prisma.user.findUnique({
             where: { id: userId },
-            select: { id: true, name: true, email: true, role: true, restaurantId: true },
+            select: { id: true, name: true, email: true, role: true, restaurantId: true, isActive: true },
           })
-          if (dbUser) {
+          if (dbUser && dbUser.isActive) {
             return {
               user: {
                 id: dbUser.id,
@@ -133,47 +133,6 @@ export async function auth(...args: any[]): Promise<any> {
               },
             }
           }
-        }
-      }
-
-      // Role-based demo token: mobile_demo_jwt_<role>_<timestamp>
-      if (token.startsWith('mobile_demo_jwt_') || token.includes('demo')) {
-        let role: UserRole = 'OWNER'
-        if (token.includes('server')) role = 'SERVER'
-        if (token.includes('kitchen') || token.includes('chef')) role = 'KITCHEN'
-
-        const firstResto = await prisma.restaurant.findFirst()
-        const demoUser = await prisma.user.findFirst({
-          where: { role, restaurantId: firstResto?.id },
-        })
-
-        return {
-          user: {
-            id: demoUser?.id || `demo_${role.toLowerCase()}`,
-            name: demoUser?.name || `${role} Operator`,
-            email: demoUser?.email || `${role.toLowerCase()}@resto.ai`,
-            role,
-            restaurantId: firstResto?.id || 'demo_resto_1',
-          },
-        }
-      }
-    }
-
-    // 3. Fallback for mobile client connecting to local backend dev instance
-    if (isMobileClient) {
-      const firstResto = await prisma.restaurant.findFirst()
-      if (firstResto) {
-        const fallbackUser = await prisma.user.findFirst({
-          where: { restaurantId: firstResto.id },
-        })
-        return {
-          user: {
-            id: fallbackUser?.id || 'mobile_user_default',
-            name: fallbackUser?.name || 'Mobile Operator',
-            email: fallbackUser?.email || 'owner@resto.ai',
-            role: (fallbackUser?.role || 'OWNER') as UserRole,
-            restaurantId: firstResto.id,
-          },
         }
       }
     }

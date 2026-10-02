@@ -37,27 +37,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 3. Fallback to default location
     if (!targetLocation) {
-      let restaurant = await prisma.restaurant.findFirst()
-      if (!restaurant) {
-        restaurant = await prisma.restaurant.create({
-          data: {
-            name: 'Demo Restaurant',
-            slug: 'demo-restaurant',
-            planTier: 'ENTERPRISE',
-          },
-        })
-      }
-      targetLocation = await prisma.location.create({
-        data: {
-          restaurantId: restaurant.id,
-          name: 'Main Dining Room',
-          address: '100 Main St',
-          timezone: 'America/New_York',
-        },
-        select: { id: true, restaurantId: true },
-      })
+      return NextResponse.json({ tables: [], count: 0 })
     }
 
     // Tables are strictly managed by customer/location setup — no auto-seeding of ghost tables

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    if (user) {
+    if (user && user.isActive) {
       let isPasswordValid = false
       if (password && user.passwordHash) {
         try {
@@ -42,13 +42,8 @@ export async function POST(req: NextRequest) {
         } catch {}
       }
 
-      // Allow demo password fallback if password matches 'password123' or 'resto123'
-      if (!isPasswordValid && (password === 'password123' || password === 'resto123' || password === 'demo')) {
-        isPasswordValid = true
-      }
-
       if (isPasswordValid) {
-        const locationId = user.employee?.locationId || user.restaurant?.locations?.[0]?.id || 'loc_default'
+        const locationId = user.employee?.locationId || user.restaurant?.locations?.[0]?.id || ''
         const locationName = user.employee?.location?.name || user.restaurant?.locations?.[0]?.name || 'Main Dining Room'
 
         return NextResponse.json({
@@ -60,44 +55,12 @@ export async function POST(req: NextRequest) {
             email: user.email,
             role: user.role,
             restaurantId: user.restaurantId,
-            restaurantName: user.restaurant?.name || 'Prominentz Bistro',
+            restaurantName: user.restaurant?.name || 'Restaurant',
             locationId,
             locationName,
           },
         })
       }
-    }
-
-    // Role-based instant demo user fallback if database does not contain this specific user yet
-    const fallbackRoles: Record<string, { name: string; role: 'OWNER' | 'SERVER' | 'KITCHEN' }> = {
-      'owner@prominentz.com': { name: 'Alex Rivera (Owner)', role: 'OWNER' },
-      'server@prominentz.com': { name: 'Marco Silva (Floor Lead)', role: 'SERVER' },
-      'chef@prominentz.com': { name: 'Chef Gordon (Head Chef)', role: 'KITCHEN' },
-      'owner@resto.ai': { name: 'Alex Rivera (Owner)', role: 'OWNER' },
-      'server@resto.ai': { name: 'Marco Silva (Floor Lead)', role: 'SERVER' },
-      'chef@resto.ai': { name: 'Chef Gordon (Head Chef)', role: 'KITCHEN' },
-    }
-
-    if (fallbackRoles[cleanEmail]) {
-      const demoInfo = fallbackRoles[cleanEmail]
-      const firstResto = await prisma.restaurant.findFirst({
-        include: { locations: { take: 1 } },
-      })
-
-      return NextResponse.json({
-        success: true,
-        token: `mobile_demo_jwt_${demoInfo.role.toLowerCase()}_${Date.now()}`,
-        user: {
-          id: `demo_${demoInfo.role.toLowerCase()}`,
-          name: demoInfo.name,
-          email: cleanEmail,
-          role: demoInfo.role,
-          restaurantId: firstResto?.id || 'resto_demo_1',
-          restaurantName: firstResto?.name || 'Prominentz Bistro',
-          locationId: firstResto?.locations?.[0]?.id || 'loc_main',
-          locationName: firstResto?.locations?.[0]?.name || 'Main Dining Room',
-        },
-      })
     }
 
     return NextResponse.json(

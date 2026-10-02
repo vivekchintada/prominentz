@@ -855,11 +855,11 @@ export default function CheckoutModal({
                   <div className="flex flex-col items-center py-8 gap-3">
                     <div className="spinner" style={{ width: '40px', height: '40px' }} />
                     <span className="font-semibold text-brand">Authorizing with Stripe Terminal...</span>
-                    <span className="text-secondary text-xs">Simulating presentation of VISA ending in 4242</span>
+                    <span className="text-secondary text-xs">Waiting for card presentation / chip insertion...</span>
                   </div>
                 ) : (
                   <>
-                    <label className="label">Swipe Card Simulator (Demo Mode)</label>
+                    <label className="label">Card Payment Details</label>
                     <div className="card flex flex-col gap-3" style={{ background: 'var(--color-bg-raised)', padding: 'var(--space-4)' }}>
                       <div>
                         <span className="text-xs text-secondary">Cardholder Name</span>
