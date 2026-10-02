@@ -22,6 +22,7 @@ function LoginForm() {
   const [email, setEmail]               = useState(searchParams.get('email') || '')
   const [password, setPassword]         = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showKeypad, setShowKeypad]     = useState(false)
   const [error, setError]               = useState<string | null>(null)
   const [loading, setLoading]           = useState(false)
   const router = useRouter()
@@ -335,6 +336,70 @@ function LoginForm() {
                   </button>
                 </div>
               </div>
+
+              {/* Touch PIN Keypad for Server and Kitchen */}
+              {(activePortal === 'SERVER' || activePortal === 'KITCHEN') && (
+                <div style={{ marginTop: '-4px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowKeypad(!showKeypad)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#a594fd',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      padding: '2px 0',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🔢</span>
+                    <span>{showKeypad ? 'Hide Touch Keypad' : 'Show Touch PIN Keypad (Tablet/POS)'}</span>
+                  </button>
+
+                  {showKeypad && (
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '6px',
+                        marginTop: '8px',
+                        padding: '10px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'CLR', '0', '⌫'].map((k) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => {
+                            if (k === '⌫') setPassword((prev) => prev.slice(0, -1))
+                            else if (k === 'CLR') setPassword('')
+                            else setPassword((prev) => (prev.length < 8 ? prev + k : prev))
+                          }}
+                          style={{
+                            padding: '12px 0',
+                            fontSize: k === 'CLR' || k === '⌫' ? '12px' : '16px',
+                            fontWeight: 700,
+                            borderRadius: '8px',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            backgroundColor: k === 'CLR' || k === '⌫' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.08)',
+                            color: '#ffffff',
+                            cursor: 'pointer',
+                            transition: 'all 100ms ease',
+                          }}
+                        >
+                          {k}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <button type="submit" className={styles.submitBtn} disabled={loading}>
                 {loading

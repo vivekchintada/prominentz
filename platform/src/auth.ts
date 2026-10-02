@@ -54,12 +54,17 @@ const nextAuthInstance = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
         token.role = user.role
         token.restaurantId = user.restaurantId
         token.locationId = (user as any).locationId
+      }
+      if (trigger === 'update' && session?.user) {
+        if (session.user.role) token.role = session.user.role
+        if (session.user.restaurantId) token.restaurantId = session.user.restaurantId
+        if (session.user.locationId) token.locationId = session.user.locationId
       }
       return token
     },

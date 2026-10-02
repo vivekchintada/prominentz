@@ -420,6 +420,10 @@ export default function SaaSLandingClient() {
             <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
             <Link href="/portals">Workspaces</Link>
+            <Link href="/owners">Owners</Link>
+            <Link href="/managers">Managers</Link>
+            <Link href="/servers">Servers</Link>
+            <Link href="/kitchen">Kitchen</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/terms">Terms of Service</Link>
             <button

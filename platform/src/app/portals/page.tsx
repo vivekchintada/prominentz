@@ -24,8 +24,9 @@ export default function PortalsPage() {
         'Menu Engineering & Master Catalog Publishing',
         'AI Operations Forecasting & Audit Tools',
       ],
+      landingUrl: '/portals/owner',
       signInUrl: '/login?portal=owner',
-      signUpUrl: '/signup',
+      signUpUrl: '/signup?role=owner',
       signUpLabel: 'Register New Restaurant (14-Day Free Trial)',
       primaryActionLabel: 'Open Owner Console →',
     },
@@ -43,6 +44,7 @@ export default function PortalsPage() {
         'Live Floor Occupancy & VIP Reservations',
         'Daily Inventory Waste & Variance Logging',
       ],
+      landingUrl: '/portals/manager',
       signInUrl: '/login?portal=manager',
       signUpUrl: '/signup?role=manager',
       signUpLabel: 'Onboard as Store Manager',
@@ -62,6 +64,7 @@ export default function PortalsPage() {
         'Table-Side Cash & Card Payment Settlement',
         'Live Server Tips & Daily Sales Summary',
       ],
+      landingUrl: '/portals/server',
       signInUrl: '/login?portal=server',
       signUpUrl: '/signup?role=server',
       signUpLabel: 'Join as Floor Server',
@@ -81,6 +84,7 @@ export default function PortalsPage() {
         'One-Tap Item Recall & Ticket Bumping',
         'Automatic 86 Dish Depletion Alerts',
       ],
+      landingUrl: '/portals/kitchen',
       signInUrl: '/login?portal=kitchen',
       signUpUrl: '/signup?role=kitchen',
       signUpLabel: 'Onboard Kitchen Cook',
@@ -184,7 +188,29 @@ export default function PortalsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <Link
+                  href={p.landingUrl}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    textDecoration: 'none',
+                    marginBottom: '4px',
+                  }}
+                >
+                  <span>Explore Role Tour</span>
+                  <span style={{ color: p.color }}>→</span>
+                </Link>
+
                 <Link
                   href={p.signInUrl}
                   style={{
@@ -193,7 +219,7 @@ export default function PortalsPage() {
                     padding: '12px 16px',
                     borderRadius: '10px',
                     backgroundColor: p.color,
-                    color: '#ffffff',
+                    color: p.role === 'SERVER' || p.role === 'KITCHEN' ? '#000000' : '#ffffff',
                     fontWeight: 700,
                     fontSize: '13px',
                     textDecoration: 'none',

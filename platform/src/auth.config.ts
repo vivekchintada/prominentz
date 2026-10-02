@@ -10,7 +10,7 @@ export const authConfig = {
       const isAuthPage = nextUrl.pathname.startsWith('/login')
       const userRole = auth?.user?.role
 
-      // Public diner / marketing routes
+      // Public diner / marketing / portals routes
       const isPublicRoute =
         nextUrl.pathname === '/' ||
         nextUrl.pathname.startsWith('/table') ||
@@ -19,7 +19,12 @@ export const authConfig = {
         nextUrl.pathname.startsWith('/signup') ||
         nextUrl.pathname.startsWith('/pricing') ||
         nextUrl.pathname.startsWith('/terms') ||
-        nextUrl.pathname.startsWith('/privacy')
+        nextUrl.pathname.startsWith('/privacy') ||
+        nextUrl.pathname.startsWith('/portals') ||
+        nextUrl.pathname.startsWith('/owners') ||
+        nextUrl.pathname.startsWith('/managers') ||
+        nextUrl.pathname.startsWith('/servers') ||
+        nextUrl.pathname.startsWith('/kitchen')
 
       if (isPublicRoute) {
         return true
@@ -59,6 +64,7 @@ export const authConfig = {
         token.id = user.id
         token.role = user.role
         token.restaurantId = user.restaurantId
+        token.locationId = (user as any).locationId
       }
       return token
     },
@@ -67,6 +73,7 @@ export const authConfig = {
         session.user.id = token.id as string
         session.user.role = token.role as any
         session.user.restaurantId = token.restaurantId as string
+        ;(session.user as any).locationId = token.locationId as string
       }
       return session
     },

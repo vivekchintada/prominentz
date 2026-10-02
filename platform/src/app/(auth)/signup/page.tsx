@@ -1,12 +1,17 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import styles from '../login/page.module.css'
 
-export default function SignupPage() {
-  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>('OWNER')
+function SignupForm() {
+  const searchParams = useSearchParams()
+  const initialRoleParam = searchParams.get('role')?.toUpperCase()
+
+  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>(
+    ['MANAGER', 'SERVER', 'KITCHEN'].includes(initialRoleParam || '') ? 'STAFF' : 'OWNER'
+  )
 
   // Owner fields
   const [restaurantName, setRestaurantName] = useState('')
@@ -15,11 +20,15 @@ export default function SignupPage() {
 
   // Staff fields
   const [staffName, setStaffName]           = useState('')
-  const [staffRole, setStaffRole]           = useState<'MANAGER' | 'SERVER' | 'KITCHEN'>('SERVER')
-  const [restaurantCode, setRestaurantCode] = useState('')
+  const [staffRole, setStaffRole]           = useState<'MANAGER' | 'SERVER' | 'KITCHEN'>(
+    ['MANAGER', 'SERVER', 'KITCHEN'].includes(initialRoleParam || '')
+      ? (initialRoleParam as 'MANAGER' | 'SERVER' | 'KITCHEN')
+      : 'SERVER'
+  )
+  const [restaurantCode, setRestaurantCode] = useState(searchParams.get('code') || '')
 
   // Shared fields
-  const [email, setEmail]                   = useState('')
+  const [email, setEmail]                   = useState(searchParams.get('email') || '')
   const [password, setPassword]             = useState('')
   const [showPassword, setShowPassword]     = useState(false)
   const [phone, setPhone]                   = useState('')
@@ -27,6 +36,16 @@ export default function SignupPage() {
   const [error, setError]                   = useState<string | null>(null)
   const [loading, setLoading]               = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    const r = searchParams.get('role')?.toUpperCase()
+    if (r === 'OWNER') {
+      setAccountType('OWNER')
+    } else if (r && ['MANAGER', 'SERVER', 'KITCHEN'].includes(r)) {
+      setAccountType('STAFF')
+      setStaffRole(r as 'MANAGER' | 'SERVER' | 'KITCHEN')
+    }
+  }, [searchParams])
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -446,5 +465,13 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#07090e' }} />}>
+      <SignupForm />
+    </Suspense>
   )
 }
