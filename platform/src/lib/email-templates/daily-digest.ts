@@ -21,7 +21,7 @@ export function generateDailyDigestHtml(data: DailyDigestData): string {
     .map(
       (item, i) => `
       <tr style="border-bottom: 1px solid #2C2C2E;">
-        <td style="padding: 10px 16px; color: #3b82f6; font-weight: 600;">#${i + 1}</td>
+        <td style="padding: 10px 16px; color: #7b68f7; font-weight: 600;">#${i + 1}</td>
         <td style="padding: 10px 16px; color: #E5E5EA;">${item.name}</td>
         <td style="padding: 10px 16px; color: #8E8E93; text-align: center;">${item.qty}x</td>
         <td style="padding: 10px 16px; color: #30D158; text-align: right;">${fmt(item.revenue)}</td>
@@ -53,7 +53,7 @@ export function generateDailyDigestHtml(data: DailyDigestData): string {
 
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#2563eb 0%,#3b82f6 100%);border-radius:16px 16px 0 0;padding:32px 40px;">
+            <td style="background:linear-gradient(135deg,#5b45f5 0%,#7b68f7 100%);border-radius:16px 16px 0 0;padding:32px 40px;">
               <div style="font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.5px;">
                 Resto <span style="opacity:0.7;">AI</span>
               </div>
@@ -130,7 +130,7 @@ export function generateDailyDigestHtml(data: DailyDigestData): string {
           <tr>
             <td style="background:#111113;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#48484A;">
-                Sent by Resto AI &middot; <a href="#" style="color:#2563eb;text-decoration:none;">View Dashboard</a>
+                Sent by Prominentz &middot; <a href="#" style="color:#5b45f5;text-decoration:none;">View Dashboard</a>
               </p>
             </td>
           </tr>

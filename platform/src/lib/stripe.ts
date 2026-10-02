@@ -1,30 +1,39 @@
 import Stripe from 'stripe'
 import { PlanTier } from './plans'
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key_12345'
+const rawStripeSecret = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key_12345'
+const isTestOrMockKey =
+  !rawStripeSecret ||
+  rawStripeSecret.includes('mock_key') ||
+  rawStripeSecret.includes('REPLACE_ME') ||
+  rawStripeSecret.startsWith('sk_test_REPLACE')
 
-export const stripe = new Stripe(stripeSecretKey, {
+export function isMockStripe(): boolean {
+  return isTestOrMockKey
+}
+
+export const stripe = new Stripe(isTestOrMockKey ? 'sk_test_mock_dummy_key' : rawStripeSecret, {
   apiVersion: '2023-10-16' as any,
 })
 
 export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; priceId: string; description: string }> = {
   STARTER: {
-    name: 'Starter Plan',
-    amount: 49,
-    priceId: process.env.STRIPE_PRICE_STARTER || 'price_starter_tier',
-    description: '1 Location, Core POS & KDS, Digital Menu, 5 Staff Accounts, End-of-Day Z-Reports',
+    name: 'Basic Plan',
+    amount: 40,
+    priceId: process.env.STRIPE_PRICE_BASIC || process.env.STRIPE_PRICE_STARTER || 'price_basic_tier',
+    description: 'Core POS & KDS, Table Floor Management, Digital Menu & QR Studio, Staff Accounts, End-of-Day Reports',
   },
   PRO: {
-    name: 'Professional Plan',
+    name: 'Professional Plan (In Development)',
     amount: 129,
     priceId: process.env.STRIPE_PRICE_PRO || 'price_pro_tier',
-    description: 'Multi-Location Outlets, Table QR Studio, Guest CRM & Loyalty, Inventory Depletion, UrbanPiper Aggregators, RestoIQ AI',
+    description: 'Advanced AI Intelligence, Guest CRM & Loyalty Engine (Coming Soon)',
   },
   ENTERPRISE: {
-    name: 'Professional Plan',
+    name: 'Enterprise',
     amount: 129,
-    priceId: process.env.STRIPE_PRICE_PRO || 'price_pro_tier',
-    description: 'Multi-Location Outlets, Table QR Studio, Guest CRM & Loyalty, Inventory Depletion, UrbanPiper Aggregators, RestoIQ AI',
+    priceId: process.env.STRIPE_PRICE_ENTERPRISE || 'price_enterprise_tier',
+    description: 'Multi-Location Outlets, Dedicated Infrastructure and Custom SLA',
   },
 }
 
@@ -33,7 +42,7 @@ export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; pric
  */
 export async function createPaymentIntent(amountInCents: number, orderId: string) {
   try {
-    if (stripeSecretKey?.includes('mock_key')) {
+    if (isMockStripe()) {
       return {
         id: `pi_mock_${Math.random().toString(36).substr(2, 9)}`,
         client_secret: `pi_mock_secret_${Math.random().toString(36).substr(2, 9)}`,
@@ -62,7 +71,7 @@ export async function createPaymentIntent(amountInCents: number, orderId: string
  */
 export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInCents?: number) {
   try {
-    if (stripeSecretKey?.includes('mock_key') || chargeIdOrPaymentIntentId.startsWith('pi_mock_')) {
+    if (isMockStripe() || chargeIdOrPaymentIntentId.startsWith('pi_mock_')) {
       return {
         id: `re_mock_${Math.random().toString(36).substr(2, 9)}`,
         amount: amountInCents ?? 0,
@@ -100,9 +109,9 @@ export async function createSubscriptionCheckoutSession({
   planTier: PlanTier
   returnUrl: string
 }) {
-  const planInfo = PLAN_PRICING[planTier] || PLAN_PRICING.PRO
+  const planInfo = PLAN_PRICING[planTier] || PLAN_PRICING.STARTER
 
-  if (stripeSecretKey?.includes('mock_key')) {
+  if (isMockStripe()) {
     // Simulated Checkout Session URL for fast local development & demos
     return {
       url: `${returnUrl}?session_id=cs_mock_${Math.random().toString(36).substring(2, 9)}&plan=${planTier}&success=true`,
@@ -119,7 +128,7 @@ export async function createSubscriptionCheckoutSession({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Resto AI — ${planInfo.name}`,
+            name: `Prominentz — ${planInfo.name}`,
             description: planInfo.description,
           },
           unit_amount: planInfo.amount * 100,
@@ -155,7 +164,7 @@ export async function createBillingPortalSession({
   customerId: string
   returnUrl: string
 }) {
-  if (stripeSecretKey?.includes('mock_key') || !customerId || customerId.startsWith('cus_mock_')) {
+  if (isMockStripe() || !customerId || customerId.startsWith('cus_mock_')) {
     return {
       url: `${returnUrl}?portal_simulated=true`,
     }

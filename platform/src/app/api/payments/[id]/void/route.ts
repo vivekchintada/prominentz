@@ -102,6 +102,14 @@ export async function POST(
       }),
     ])
 
+    // Reverse any loyalty points awarded for this order
+    try {
+      const { reverseOrderPoints } = await import('@/lib/customer-crm')
+      await reverseOrderPoints(payment.orderId, `Void payment #${paymentId}: ${reason}`)
+    } catch (pointsErr) {
+      console.error('[Void] Points reversal error:', pointsErr)
+    }
+
     // Log event
     await prisma.orderEvent.create({
       data: {

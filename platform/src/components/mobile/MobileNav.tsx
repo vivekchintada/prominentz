@@ -53,7 +53,7 @@ export function MobileNav() {
             <span style={{
               fontSize: 10,
               fontWeight: isActive ? 700 : 500,
-              color: isActive ? '#2563eb' : '#8E8E93',
+              color: isActive ? '#5b45f5' : '#8E8E93',
               letterSpacing: '0.2px',
             }}>
               {item.label}
@@ -64,7 +64,7 @@ export function MobileNav() {
                 top: 0,
                 width: 32,
                 height: 2,
-                background: 'linear-gradient(90deg, #2563eb, #3b82f6)',
+                background: 'linear-gradient(90deg, #5b45f5, #7b68f7)',
                 borderRadius: '0 0 2px 2px',
               }} />
             )}

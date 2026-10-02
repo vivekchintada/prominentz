@@ -60,54 +60,7 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // Check if we need to seed the standard DreamPOS multi-floor tables (Table 1 to Table 12 across 1st, 2nd, 3rd Floor)
-    const existingTablesCount = await prisma.table.count({
-      where: { locationId: targetLocation.id },
-    })
-
-    if (existingTablesCount < 6) {
-      // Seed tables matching Screenshot 1 layout
-      const dreamPosTables = [
-        { name: 'Table 1', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 2', capacity: 4, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 3', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'RESERVED' },
-        { name: 'Table 4', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'RESERVED' },
-        { name: 'Table 5', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'ACTIVE' },
-        { name: 'Table 6', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'EMPTY' },
-        { name: 'Table 7', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 8', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'RESERVED' },
-        { name: 'Table 9', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 10', capacity: 6, floor: '3rd Floor', shape: 'square', status: 'RESERVED' },
-        { name: 'Table 11', capacity: 4, floor: '3rd Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 12', capacity: 10, floor: '3rd Floor', shape: 'rectangle', status: 'EMPTY' },
-
-        // 1st Floor tables
-        { name: 'Table 101', capacity: 4, floor: '1st Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 102', capacity: 6, floor: '1st Floor', shape: 'square', status: 'ACTIVE' },
-        { name: 'Table 103', capacity: 4, floor: '1st Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 104', capacity: 8, floor: '1st Floor', shape: 'rectangle', status: 'RESERVED' },
-
-        // 2nd Floor tables
-        { name: 'Table 201', capacity: 6, floor: '2nd Floor', shape: 'square', status: 'EMPTY' },
-        { name: 'Table 202', capacity: 10, floor: '2nd Floor', shape: 'rectangle', status: 'ACTIVE' },
-        { name: 'Table 203', capacity: 4, floor: '2nd Floor', shape: 'square', status: 'EMPTY' },
-      ]
-
-      for (const t of dreamPosTables) {
-        await prisma.table.create({
-          data: {
-            locationId: targetLocation.id,
-            name: t.name,
-            capacity: t.capacity,
-            floor: t.floor,
-            shape: t.shape,
-            status: t.status as any,
-          },
-        })
-      }
-    }
-
-    // Build filter
+    // Tables are strictly managed by customer/location setup — no auto-seeding of ghost tables
     const whereClause: any = { locationId: targetLocation.id }
     if (floorParam && floorParam !== 'all' && floorParam !== 'All Floors') {
       whereClause.floor = floorParam
@@ -207,6 +160,7 @@ export async function GET(req: NextRequest) {
         name: t.name,
         capacity: t.capacity,
         status: t.status,
+        locationId: t.locationId,        // ← was missing — needed by QR Studio & mobile menu URLs
         floor: t.floor || '1st Floor',
         shape: t.shape || 'square',
         note: t.note,

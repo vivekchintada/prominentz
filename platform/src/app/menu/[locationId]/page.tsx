@@ -7,7 +7,7 @@ interface MenuPageProps {
 }
 
 export const metadata = {
-  title: 'Digital Dine-In Menu & Table Ordering | Resto AI',
+  title: 'Digital Dine-In Menu & Table Ordering | Prominentz',
 }
 
 export default async function UniversalMenuPage({ params }: MenuPageProps) {

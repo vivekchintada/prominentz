@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import OrdersView from '@/components/dashboard/OrdersView'
 
-export const metadata = { title: 'Orders | Resto AI' }
+export const metadata = { title: 'Orders | Prominentz' }
 
 export default async function OrdersPage() {
   const session = await auth()

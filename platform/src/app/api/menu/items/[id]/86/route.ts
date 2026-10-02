@@ -17,8 +17,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Servers can also 86 an item in the field
-    if (!['OWNER', 'MANAGER', 'SERVER'].includes(session.user.role)) {
+    // Kitchen staff and servers can also 86 an item in the field
+    if (!['OWNER', 'MANAGER', 'SERVER', 'KITCHEN'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

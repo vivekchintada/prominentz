@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
             locationId,
           },
         },
-        ...(!includeServed ? { status: { not: 'SERVED' } } : {}),
+        ...(!includeServed ? { status: { notIn: ['SERVED', 'VOIDED'] } } : {}),
         ...(station && station !== 'ALL' ? { station: station as KdsStation } : {}),
       },
       include: {

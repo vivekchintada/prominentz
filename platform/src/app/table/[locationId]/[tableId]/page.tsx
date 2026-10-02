@@ -8,7 +8,7 @@ interface TableOrderPageProps {
 }
 
 export const metadata = {
-  title: 'Table Digital Menu & Ordering | Resto AI',
+  title: 'Table Digital Menu & Ordering | Prominentz',
 }
 
 export default async function TableOrderPage({ params }: TableOrderPageProps) {

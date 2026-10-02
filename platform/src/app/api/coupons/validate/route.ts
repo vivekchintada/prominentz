@@ -53,6 +53,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ valid: false, error: 'Coupon usage limit reached', message: 'Coupon usage limit reached' }, { status: 400 })
     }
 
+    // Minimum order amount check
+    if (coupon.minimumOrderAmount && orderSubtotal < Number(coupon.minimumOrderAmount)) {
+      const msg = `Minimum order amount of $${Number(coupon.minimumOrderAmount).toFixed(2)} required for this coupon.`
+      return NextResponse.json({ valid: false, error: msg, message: msg }, { status: 400 })
+    }
+
+    // Channel restriction check (e.g. POS, ONLINE, QR)
+    const orderChannel = body.channel || 'POS'
+    if (coupon.channels && Array.isArray(coupon.channels)) {
+      const allowedChannels = coupon.channels as string[]
+      if (!allowedChannels.includes(orderChannel)) {
+        const msg = `Coupon is only valid for ${allowedChannels.join(', ')} orders.`
+        return NextResponse.json({ valid: false, error: msg, message: msg }, { status: 400 })
+      }
+    }
+
+    // Per-customer usage limit check
+    if (customerId && coupon.perCustomerLimit && coupon.perCustomerLimit > 0) {
+      const customerOrdersUsingCoupon = await prisma.order.count({
+        where: {
+          customerId,
+          notes: { contains: coupon.code },
+        },
+      })
+      if (customerOrdersUsingCoupon >= coupon.perCustomerLimit) {
+        const msg = `You have already redeemed this coupon the maximum allowed times (${coupon.perCustomerLimit}).`
+        return NextResponse.json({ valid: false, error: msg, message: msg }, { status: 400 })
+      }
+    }
+
     // Category check (if coupon specifies a valid category)
     if (coupon.validCategory && coupon.validCategory !== 'All Categories') {
       if (categoryName && !categoryName.toLowerCase().includes(coupon.validCategory.toLowerCase())) {

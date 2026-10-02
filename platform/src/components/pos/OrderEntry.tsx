@@ -221,7 +221,7 @@ export default function OrderEntry({
                 name: 'Main Location',
                 address: null,
                 phone: null,
-                restaurant: { name: 'Resto AI' },
+                restaurant: { name: 'Prominentz' },
               },
             },
             server: {
@@ -347,7 +347,7 @@ export default function OrderEntry({
   const handlePrintGuestCheck = () => {
     if (!order) return
 
-    const restaurantName = order.table.location?.restaurant?.name || 'Resto AI'
+    const restaurantName = order.table.location?.restaurant?.name || 'Prominentz'
     const locationName = order.table.location?.name || 'Main Location'
     const address = order.table.location?.address || ''
     const phone = order.table.location?.phone || ''
@@ -499,7 +499,7 @@ export default function OrderEntry({
 
           <div class="footer">
             Thank you for dining with us!<br>
-            Resto AI Platform
+            Prominentz Platform
           </div>
         </div>
         <script>
@@ -1083,7 +1083,7 @@ export default function OrderEntry({
                           position: 'absolute',
                           top: '16px',
                           left: '16px',
-                          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                          background: 'linear-gradient(135deg, #7b68f7, #5b45f5)',
                           color: '#fff',
                           fontSize: '10px',
                           fontWeight: 800,
@@ -1705,8 +1705,8 @@ export default function OrderEntry({
                 height: '42px',
                 fontSize: '14px',
                 fontWeight: 800,
-                background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-                boxShadow: '0 2px 12px rgba(37,99,235,0.3)',
+                background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
+                boxShadow: '0 2px 12px rgba(91,69,245,0.3)',
               }}
             >
               💵 Settle Check (${Number(order.total).toFixed(2)})

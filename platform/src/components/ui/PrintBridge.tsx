@@ -117,7 +117,7 @@ export function PrintBridge({
             ${receiptData.tip ? `<div class="flex"><span>Tip</span><span>$${receiptData.tip.toFixed(2)}</span></div>` : ''}
             <div class="line"></div>
             <div class="flex bold total"><span>TOTAL</span><span>$${receiptData.total.toFixed(2)}</span></div>
-            <div style="text-align:center;margin-top:20px;font-size:10px;color:#888;">Powered by Resto AI</div>
+            <div style="text-align:center;margin-top:20px;font-size:10px;color:#888;">Powered by Prominentz</div>
             <script>
               window.onload = function() { window.print(); window.close(); }
             </script>

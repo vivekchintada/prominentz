@@ -192,7 +192,7 @@ export async function GET(req: NextRequest) {
     // Avatar color palettes
     const AVATAR_COLORS = [
       '#ef4444', '#f97316', '#f59e0b', '#10b981', '#06b6d4',
-      '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6',
+      '#7b68f7', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6',
     ]
 
     // Format into Invoices

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import ReportsClient from '@/components/dashboard/ReportsClient'
 import { PageHeader } from '@/components/ui/PageHeader'
 
-export const metadata = { title: 'Sales & Analytics | Resto AI' }
+export const metadata = { title: 'Sales & Analytics | Prominentz' }
 
 export default async function ReportsPage() {
   const session = await auth()

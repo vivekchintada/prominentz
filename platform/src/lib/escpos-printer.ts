@@ -108,7 +108,7 @@ export function buildKotEscposBuffer(data: KotPrintData): Buffer {
   }
 
   commands += ESCPOS.LINE
-  commands += ESCPOS.ALIGN_CENTER + `Resto AI Automated Kitchen Dispatch\n`
+  commands += ESCPOS.ALIGN_CENTER + `Prominentz Automated Kitchen Dispatch\n`
   commands += ESCPOS.FEED_3
   commands += ESCPOS.CUT_PARTIAL
 
@@ -159,7 +159,7 @@ export function buildReceiptEscposBuffer(data: ReceiptPrintData): Buffer {
   commands += ESCPOS.LINE
   commands += ESCPOS.ALIGN_CENTER
   commands += `Thank you for dining with us!\n`
-  commands += `Powered by Resto AI\n`
+  commands += `Powered by Prominentz\n`
   commands += ESCPOS.DRAWER_KICK // kick cash drawer open
   commands += ESCPOS.FEED_3
   commands += ESCPOS.CUT_FULL

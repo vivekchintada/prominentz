@@ -12,7 +12,7 @@ const TeamClient = dynamic(() => import('@/components/dashboard/TeamClient'), {
   ),
 })
 
-export const metadata = { title: 'Staff & Labor Management | Resto AI' }
+export const metadata = { title: 'Staff & Labor Management | Prominentz' }
 
 export default async function TeamPage() {
   const session = await auth()

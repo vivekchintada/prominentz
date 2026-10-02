@@ -176,7 +176,7 @@ export async function PATCH(
 // ─── DELETE /api/orders/:id ───────────────────────────────────────────────────
 // Voids an open order. OWNER / MANAGER only. Frees the table.
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -199,34 +199,86 @@ export async function DELETE(
         { status: 409 },
       )
     }
+    if (existing.status === 'VOIDED') {
+      return NextResponse.json({ error: 'Order is already voided' }, { status: 409 })
+    }
 
-    // Void order + free table in one transaction
+    // Parse optional void reason from body (gracefully ignore if missing)
+    let voidReason = 'No reason provided'
+    try {
+      const body = await req.json().catch(() => ({}))
+      if (body?.reason) voidReason = String(body.reason)
+    } catch {}
+
+    // ── Atomic void: order + all kitchen rows + table ──────────────────────────
     await prisma.$transaction([
+      // 1. Mark the order itself as VOIDED
       prisma.order.update({
         where: { id },
+        data:  { status: 'VOIDED', voidedAt: new Date() },
+      }),
+
+      // 2. Mark every order item as VOIDED so server UI reflects the cancel
+      prisma.orderItem.updateMany({
+        where: { orderId: id },
         data:  { status: 'VOIDED' },
       }),
+
+      // 3. Mark every KDS ticket as VOIDED — kitchen will see the ticket go red/cancelled
+      prisma.kdsTicket.updateMany({
+        where: { orderId: id },
+        data:  { status: 'VOIDED' },
+      }),
+
+      // 4. Mark every individual KDS ticket item as VOIDED
+      prisma.kdsTicketItem.updateMany({
+        where: { ticket: { orderId: id } },
+        data:  { status: 'VOIDED' },
+      }),
+
+      // 5. Create the order-level void audit record
+      prisma.orderVoid.create({
+        data: {
+          orderId:  id,
+          voidedBy: session.user.id,
+          reason:   voidReason,
+        },
+      }),
+
+      // 6. Free the table
       prisma.table.update({
         where: { id: existing.tableId },
         data:  { status: 'EMPTY' },
       }),
     ])
 
+    // ── Audit event log ────────────────────────────────────────────────────────
     await prisma.orderEvent.create({
       data: {
         orderId:   id,
         eventType: 'order.voided',
         actorId:   session.user.id,
-        metadata:  { previousStatus: existing.status },
+        metadata:  { previousStatus: existing.status, reason: voidReason },
       },
     })
 
+    // ── Real-time events (table + KDS) ─────────────────────────────────────────
     await Promise.all([
+      // Table freed
       publishEvent(EVENTS.TABLE_STATUS_CHANGED, {
         tableId: existing.tableId,
         status:  'EMPTY',
         actorId: session.user.id,
       }),
+      // KDS screen listens to this to remove/cancel the ticket immediately
+      publishEvent('order.voided', {
+        orderId:   id,
+        tableId:   existing.tableId,
+        actorId:   session.user.id,
+        reason:    voidReason,
+        voidedBy:  session.user.name,
+      }),
+      // Broader order-modified event for manager dashboard
       publishEvent(EVENTS.ORDER_MODIFIED, {
         orderId: id,
         status:  'VOIDED',
@@ -234,21 +286,22 @@ export async function DELETE(
       }),
     ])
 
-    // Log audit event for order voiding
+    // ── Structured audit trail ─────────────────────────────────────────────────
     await logAuditEvent({
       restaurantId: session.user.restaurantId,
-      actorId: session.user.id,
-      actorName: session.user.name,
-      action: 'VOID_ORDER',
-      targetType: 'Order',
-      targetId: id,
+      actorId:      session.user.id,
+      actorName:    session.user.name,
+      action:       'VOID_ORDER',
+      targetType:   'Order',
+      targetId:     id,
       before: { status: existing.status, total: Number(existing.total) },
-      after: { status: 'VOIDED' },
+      after:  { status: 'VOIDED', reason: voidReason },
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, orderId: id, voidedAt: new Date() })
   } catch (error) {
     console.error('[DELETE /api/orders/:id]', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { publishEvent } from '@/lib/redis'
 
 export async function PATCH(
   req: NextRequest,
@@ -97,6 +98,19 @@ export async function PATCH(
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
+
+    try {
+      await publishEvent(
+        'swap.resolved',
+        {
+          tradeId: id,
+          action,
+          status: updatedTrade?.status,
+          shiftId: trade.shiftId,
+        },
+        trade.shift.locationId
+      )
+    } catch {}
 
     return NextResponse.json(updatedTrade)
   } catch (error) {

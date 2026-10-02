@@ -3,7 +3,8 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
-const signupSchema = z.object({
+const ownerSignupSchema = z.object({
+  signupType:     z.literal('OWNER').default('OWNER'),
   restaurantName: z.string().min(2).max(100),
   ownerName:      z.string().min(2).max(100),
   email:          z.string().email(),
@@ -12,20 +13,123 @@ const signupSchema = z.object({
   phone:          z.string().optional().nullable(),
 })
 
+const staffSignupSchema = z.object({
+  signupType:     z.literal('STAFF'),
+  name:           z.string().min(2).max(100),
+  email:          z.string().email(),
+  password:       z.string().min(4).max(100), // supports 4-digit PIN or standard password
+  role:           z.enum(['MANAGER', 'SERVER', 'KITCHEN']),
+  restaurantCode: z.string().min(1), // restaurant slug or ID
+  phone:          z.string().optional().nullable(),
+})
+
 // ─── POST /api/auth/signup ──────────────────────────────────────────────────
-// Multi-Tenant SaaS Self-Service Registration Endpoint
+// Dynamic Multi-Tenant Registration Endpoint (Owner Restaurant Setup & Staff Onboarding)
 export async function POST(req: NextRequest) {
   try {
-    const body   = await req.json()
-    const parsed = signupSchema.safeParse(body)
+    const body = await req.json()
+    const signupType = body.signupType === 'STAFF' ? 'STAFF' : 'OWNER'
+
+    // ── Staff Registration (Manager, Server, Kitchen) ────────────────────────
+    if (signupType === 'STAFF') {
+      const parsed = staffSignupSchema.safeParse(body)
+      if (!parsed.success) {
+        return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      }
+
+      const { name, email, password, role, restaurantCode, phone } = parsed.data
+      const cleanEmail = email.trim().toLowerCase()
+
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({ where: { email: cleanEmail } })
+      if (existingUser) {
+        return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
+      }
+
+      // Look up target restaurant by slug or ID
+      const restaurant = await prisma.restaurant.findFirst({
+        where: {
+          OR: [
+            { slug: restaurantCode.trim() },
+            { id: restaurantCode.trim() },
+            { name: { equals: restaurantCode.trim(), mode: 'insensitive' } },
+          ],
+        },
+        include: {
+          locations: {
+            take: 1,
+            orderBy: { isHeadquarters: 'desc' },
+          },
+        },
+      })
+
+      if (!restaurant || restaurant.locations.length === 0) {
+        return NextResponse.json(
+          { error: 'Restaurant not found. Please verify the Restaurant Store Code or invite slug.' },
+          { status: 404 }
+        )
+      }
+
+      const locationId = restaurant.locations[0].id
+      const passwordHash = await bcrypt.hash(password, 10)
+
+      const titleMap = {
+        MANAGER: 'Store Operations Manager',
+        SERVER:  'Floor Waiter / Server',
+        KITCHEN: 'Line Cook / Kitchen Staff',
+      }
+
+      const newUser = await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            restaurantId: restaurant.id,
+            email:        cleanEmail,
+            name,
+            passwordHash,
+            role,
+          },
+        })
+
+        await tx.employee.create({
+          data: {
+            locationId,
+            userId:     user.id,
+            jobTitle:   titleMap[role] || 'Staff Member',
+            phone:      phone ?? null,
+            isActive:   true,
+          },
+        })
+
+        return user
+      })
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: `${role} account registered successfully.`,
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            role: newUser.role,
+            restaurantId: restaurant.id,
+          },
+        },
+        { status: 201 }
+      )
+    }
+
+    // ── Owner Registration (Tenant & Location Setup) ─────────────────────────
+    const parsed = ownerSignupSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
     const { restaurantName, ownerName, email, password, locationName, phone } = parsed.data
+    const cleanEmail = email.trim().toLowerCase()
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } })
+    const existingUser = await prisma.user.findUnique({ where: { email: cleanEmail } })
     if (existingUser) {
       return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
     }
@@ -61,7 +165,7 @@ export async function POST(req: NextRequest) {
       const user = await tx.user.create({
         data: {
           restaurantId: restaurant.id,
-          email,
+          email:        cleanEmail,
           name:         ownerName,
           passwordHash,
           role:         'OWNER',
@@ -69,7 +173,7 @@ export async function POST(req: NextRequest) {
       })
 
       // 4. Create Employee record for owner
-      const employee = await tx.employee.create({
+      await tx.employee.create({
         data: {
           locationId: location.id,
           userId:     user.id,
@@ -120,16 +224,28 @@ export async function POST(req: NextRequest) {
         ],
       })
 
-      return { restaurant, location, user, employee }
+      return { restaurant, location, user }
     })
 
-    return NextResponse.json({
-      message: 'Restaurant tenant created successfully!',
-      restaurant: { id: result.restaurant.id, name: result.restaurant.name, slug: result.restaurant.slug },
-      user: { id: result.user.id, email: result.user.email, name: result.user.name },
-    }, { status: 201 })
-  } catch (error) {
-    console.error('[POST /api/auth/signup]', error)
-    return NextResponse.json({ error: 'Internal server error during registration' }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Restaurant SaaS account created successfully',
+        restaurant: {
+          id:   result.restaurant.id,
+          name: result.restaurant.name,
+          slug: result.restaurant.slug,
+        },
+        user: {
+          id:    result.user.id,
+          email: result.user.email,
+          role:  result.user.role,
+        },
+      },
+      { status: 201 }
+    )
+  } catch (err: any) {
+    console.error('Registration error:', err)
+    return NextResponse.json({ error: err.message || 'Internal server error during registration' }, { status: 500 })
   }
 }

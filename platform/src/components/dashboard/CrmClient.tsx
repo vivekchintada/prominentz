@@ -3,33 +3,75 @@
 import React, { useState, useEffect } from 'react'
 import CustomerProfileModal from './CustomerProfileModal'
 
+interface Tier {
+  id: string
+  name: string
+  badgeColor: string
+  pointsMultiplier: number
+}
 
 interface Customer {
   id: string
   name: string
   phone: string
-  email?: string
+  email?: string | null
   pointsBalance: number
   lifetimeSpend: number
   totalVisits: number
   allergyTags: string[]
-  notes?: string
+  tags?: string[]
+  notes?: string | null
   createdAt: string
+  lastVisitAt?: string | null
+  tier?: Tier | null
   _count?: { orders: number }
+}
+
+interface SegmentSummary {
+  key: string
+  count: number
+  sample: any[]
+}
+
+interface Campaign {
+  id: string
+  title: string
+  channel: 'EMAIL' | 'SMS' | 'WHATSAPP'
+  status: 'DRAFT' | 'SCHEDULED' | 'SENT' | 'CANCELLED'
+  targetSegment: string
+  subject?: string | null
+  messageBody: string
+  recipientCount: number
+  sentAt?: string | null
+  createdAt: string
 }
 
 export function CrmClient() {
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [segments, setSegments] = useState<SegmentSummary[]>([])
+  const [activeSegment, setActiveSegment] = useState<string>('ALL')
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
 
-  // Form state
+  // Marketing campaigns state
+  const [showCampaignsModal, setShowCampaignsModal] = useState(false)
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [campTitle, setCampTitle] = useState('')
+  const [campChannel, setCampChannel] = useState<'EMAIL' | 'SMS' | 'WHATSAPP'>('EMAIL')
+  const [campSegment, setCampSegment] = useState('ALL')
+  const [campSubject, setCampSubject] = useState('')
+  const [campBody, setCampBody] = useState('Hi {{name}}, we have a special offer for you!')
+  const [campCreating, setCampCreating] = useState(false)
+  const [dispatchingId, setDispatchingId] = useState<string | null>(null)
+
+  // Form state for new guest
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [allergies, setAllergies] = useState('')
+  const [tags, setTags] = useState('')
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -49,8 +91,34 @@ export function CrmClient() {
     }
   }
 
+  const fetchSegments = async () => {
+    try {
+      const res = await fetch('/api/customers/segments')
+      const data = await res.json()
+      if (data.summary) {
+        setSegments(data.summary)
+      }
+    } catch (err) {
+      console.error('Failed to fetch segments', err)
+    }
+  }
+
+  const fetchCampaigns = async () => {
+    try {
+      const res = await fetch('/api/campaigns')
+      const data = await res.json()
+      if (data.campaigns) {
+        setCampaigns(data.campaigns)
+      }
+    } catch (err) {
+      console.error('Failed to fetch campaigns', err)
+    }
+  }
+
   useEffect(() => {
     fetchCustomers()
+    fetchSegments()
+    fetchCampaigns()
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -64,10 +132,18 @@ export function CrmClient() {
     setSubmitting(true)
     try {
       const tagArray = allergies.split(',').map((t) => t.trim()).filter(Boolean)
+      const segmentTags = tags.split(',').map((t) => t.trim()).filter(Boolean)
       const res = await fetch('/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, allergyTags: tagArray, notes }),
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim() || null,
+          allergyTags: tagArray,
+          tags: segmentTags,
+          notes: notes.trim() || null,
+        }),
       })
       if (res.ok) {
         setShowAddModal(false)
@@ -75,8 +151,10 @@ export function CrmClient() {
         setPhone('')
         setEmail('')
         setAllergies('')
+        setTags('')
         setNotes('')
         fetchCustomers(query)
+        fetchSegments()
       } else {
         const json = await res.json()
         alert(json.error || 'Failed to save customer')
@@ -88,132 +166,267 @@ export function CrmClient() {
     }
   }
 
+  const handleCreateCampaign = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!campTitle.trim() || !campBody.trim()) return
+    setCampCreating(true)
+    try {
+      const res = await fetch('/api/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: campTitle.trim(),
+          channel: campChannel,
+          targetSegment: campSegment,
+          subject: campChannel === 'EMAIL' ? campSubject.trim() : null,
+          messageBody: campBody.trim(),
+        }),
+      })
+      if (res.ok) {
+        setCampTitle('')
+        setCampSubject('')
+        setCampBody('Hi {{name}}, we have a special offer for you!')
+        fetchCampaigns()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to create campaign')
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Campaign creation error')
+    } finally {
+      setCampCreating(false)
+    }
+  }
+
+  const handleDispatchCampaign = async (id: string) => {
+    if (!confirm('Are you sure you want to broadcast this campaign to eligible opted-in customers?')) return
+    setDispatchingId(id)
+    try {
+      const res = await fetch(`/api/campaigns/${id}/send`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        alert(`Campaign broadcast successfully sent to ${data.sentCount} customers!`)
+        fetchCampaigns()
+      } else {
+        alert(data.error || 'Failed to send campaign')
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Broadcast error')
+    } finally {
+      setDispatchingId(null)
+    }
+  }
+
+  // Filter customers by active segment
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+
+  const filteredCustomers = customers.filter((c) => {
+    if (activeSegment === 'ALL') return true
+    if (activeSegment === 'NEW') return c.totalVisits <= 1 && new Date(c.createdAt) >= thirtyDaysAgo
+    if (activeSegment === 'REPEAT') return c.totalVisits >= 2
+    if (activeSegment === 'HIGH_VALUE') return Number(c.lifetimeSpend) >= 200 || c.tier !== null
+    if (activeSegment === 'LAPSED') return c.totalVisits >= 1 && (!c.lastVisitAt || new Date(c.lastVisitAt) < sixtyDaysAgo)
+    if (activeSegment === 'DIETARY') return Array.isArray(c.allergyTags) && c.allergyTags.length > 0
+    return true
+  })
+
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+    <div style={{ padding: '0 0 32px 0', maxWidth: '1280px', margin: '0 auto' }}>
+      {/* Top Banner Actions */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#111827' }}>👥 Customer CRM & Guest Directory</h1>
-          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
-            Guest spend profiles, loyalty balances, visit frequencies, and allergy notes
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+            👥 Unified Guest Directory & CRM
+          </h2>
+          <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Cross-channel customer profiles from POS, QR, and online ordering with loyalty tiers and consent tracking
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          style={{
-            padding: '10px 18px',
-            backgroundColor: '#4f46e5',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontSize: '13px',
-          }}
-        >
-          ➕ Register New Guest
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={() => setShowCampaignsModal(true)}
+            className="btn btn--secondary btn--sm"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <span>📢</span> Marketing Campaigns ({campaigns.length})
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="btn btn--primary btn--sm"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <span>➕</span> Register Guest
+          </button>
+        </div>
+      </div>
+
+      {/* Audience Segmentation Pills */}
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px' }}>
+        {[
+          { key: 'ALL', label: 'All Guests', icon: '👥' },
+          { key: 'NEW', label: 'New Guests (30d)', icon: '🌱' },
+          { key: 'REPEAT', label: 'Repeat (2+ visits)', icon: '🔁' },
+          { key: 'HIGH_VALUE', label: 'VIP & High Spend', icon: '👑' },
+          { key: 'LAPSED', label: 'Lapsed (>60d)', icon: '⏳' },
+          { key: 'DIETARY', label: 'Dietary & Allergies', icon: '⚠️' },
+        ].map((seg) => {
+          const count = segments.find((s) => s.key === seg.key)?.count
+          const isActive = activeSegment === seg.key
+          return (
+            <button
+              key={seg.key}
+              onClick={() => setActiveSegment(seg.key)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '8px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
+                cursor: 'pointer', whiteSpace: 'nowrap',
+                background: isActive ? 'var(--color-brand-500)' : 'var(--color-bg-card)',
+                color: isActive ? '#ffffff' : 'var(--color-text-secondary)',
+                border: isActive ? '1px solid var(--color-brand-500)' : '1px solid var(--color-border)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <span>{seg.icon}</span>
+              <span>{seg.label}</span>
+              {count !== undefined && (
+                <span style={{
+                  fontSize: '11px', padding: '1px 6px', borderRadius: '10px',
+                  background: isActive ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)',
+                }}>
+                  {count}
+                </span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {/* Search Bar */}
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+      <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, phone (+1...), or email..."
-          style={{
-            flex: 1,
-            padding: '10px 14px',
-            borderRadius: '8px',
-            border: '1px solid #d1d5db',
-            fontSize: '14px',
-            outline: 'none',
-          }}
+          placeholder="Search by guest name, phone (+1...), or email..."
+          className="input"
+          style={{ flex: 1 }}
         />
-        <button
-          type="submit"
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#111827',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
+        <button type="submit" className="btn btn--secondary">
           Search
         </button>
       </form>
 
       {/* Customer Directory Table */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{
+        background: 'var(--color-bg-card)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-border)',
+        overflow: 'hidden',
+      }}>
         {loading ? (
-          <div style={{ padding: '24px', color: '#6b7280', textAlign: 'center' }}>Loading guest directory...</div>
-        ) : customers.length === 0 ? (
-          <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
-            No customer profiles found. Click <strong>"Register New Guest"</strong> to create one!
+          <div style={{ padding: '40px', color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+            <div className="spinner" style={{ width: 28, height: 28, margin: '0 auto 12px' }} />
+            Loading guest directory...
+          </div>
+        ) : filteredCustomers.length === 0 ? (
+          <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
+            <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>No guest profiles match this segment</div>
+            <p style={{ fontSize: '13px', maxWidth: '400px', margin: '6px auto 16px' }}>
+              Register guests manually or link customer info when taking POS and online orders.
+            </p>
+            <button onClick={() => setShowAddModal(true)} className="btn btn--primary btn--sm">
+              Register New Guest
+            </button>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
               <thead>
-                <tr style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}>
-                  <th style={{ padding: '12px 16px' }}>Guest Name</th>
-                  <th style={{ padding: '12px 16px' }}>Phone / Email</th>
-                  <th style={{ padding: '12px 16px' }}>Points Balance</th>
-                  <th style={{ padding: '12px 16px' }}>Lifetime Spend</th>
-                  <th style={{ padding: '12px 16px' }}>Total Visits</th>
-                  <th style={{ padding: '12px 16px' }}>Allergies / Tags</th>
-                  <th style={{ padding: '12px 16px' }}>Joined Date</th>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.02)', color: 'var(--color-text-secondary)' }}>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Guest Name & Tier</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Contact</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Loyalty Balance</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Lifetime Spend</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Visits</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Allergies & Tags</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Joined</th>
                 </tr>
               </thead>
               <tbody>
-                {customers.map((c, idx) => (
+                {filteredCustomers.map((c) => (
                   <tr
                     key={c.id}
                     onClick={() => setSelectedCustomerId(c.id)}
                     style={{
-                      borderBottom: '1px solid #e5e7eb',
-                      backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb',
+                      borderBottom: '1px solid var(--color-border)',
                       cursor: 'pointer',
-                      transition: 'background 0.12s',
+                      transition: 'background 0.12s ease',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#eff6ff')}
-                    onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? '#ffffff' : '#f9fafb')}
+                    className="table-row-hover"
                   >
-                    <td style={{ padding: '12px 16px', fontWeight: 600, color: '#111827' }}>
-                      {c.name}
-                      {c.notes && <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 400 }}>Note: {c.notes}</div>}
+                    <td style={{ padding: '12px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>{c.name}</span>
+                        {c.tier && (
+                          <span style={{
+                            fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '8px',
+                            background: c.tier.badgeColor + '22',
+                            color: c.tier.badgeColor,
+                            border: `1px solid ${c.tier.badgeColor}44`,
+                          }}>
+                            ★ {c.tier.name}
+                          </span>
+                        )}
+                      </div>
+                      {c.notes && (
+                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                          📝 {c.notes.slice(0, 40)}
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div>{c.phone}</div>
-                      {c.email && <div style={{ fontSize: '11px', color: '#6b7280' }}>{c.email}</div>}
+                      {c.email && <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>{c.email}</div>}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span style={{ padding: '3px 10px', backgroundColor: '#e0e7ff', color: '#4338ca', borderRadius: '12px', fontWeight: 700 }}>
+                      <span style={{
+                        padding: '3px 8px', borderRadius: '6px', fontWeight: 700,
+                        background: 'rgba(99,102,241,0.12)', color: '#818cf8',
+                        fontFamily: 'var(--font-mono)',
+                      }}>
                         ⭐ {c.pointsBalance} pts
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontWeight: 700, color: '#059669' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: 700, color: '#22c55e', fontFamily: 'var(--font-mono)' }}>
                       ${Number(c.lifetimeSpend).toFixed(2)}
                     </td>
-                    <td style={{ padding: '12px 16px' }}>{c.totalVisits} visits</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      {Array.isArray(c.allergyTags) && c.allergyTags.length > 0 ? (
-                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                          {c.allergyTags.map((tag, tIdx) => (
-                            <span key={tIdx} style={{ padding: '2px 6px', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '4px', fontSize: '11px', fontWeight: 600 }}>
-                              🚫 {tag}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span style={{ color: '#9ca3af' }}>None</span>
-                      )}
+                    <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>
+                      {c.totalVisits} visits
                     </td>
-                    <td style={{ padding: '12px 16px', color: '#6b7280' }}>
+                    <td style={{ padding: '12px 16px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                        {Array.isArray(c.allergyTags) && c.allergyTags.map((t, idx) => (
+                          <span key={idx} style={{
+                            fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
+                            background: 'rgba(239,68,68,0.12)', color: '#ef4444',
+                          }}>
+                            🚫 {t}
+                          </span>
+                        ))}
+                        {Array.isArray(c.tags) && c.tags.map((t, idx) => (
+                          <span key={idx} style={{
+                            fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
+                            background: 'rgba(99,102,241,0.12)', color: '#818cf8',
+                          }}>
+                            🏷️ {t}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--color-text-muted)', fontSize: '12px' }}>
                       {new Date(c.createdAt).toLocaleDateString()}
                     </td>
                   </tr>
@@ -224,93 +437,255 @@ export function CrmClient() {
         )}
       </div>
 
-      {/* Add Guest Modal */}
+      {/* Customer Profile Modal with Timeline */}
+      {selectedCustomerId && (
+        <CustomerProfileModal
+          customerId={selectedCustomerId}
+          onClose={() => setSelectedCustomerId(null)}
+          onCustomerUpdated={() => {
+            fetchCustomers(query)
+            fetchSegments()
+          }}
+        />
+      )}
+
+      {/* Register New Guest Modal */}
       {showAddModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '24px', width: '420px', maxWidth: '90vw', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 700 }}>➕ Register New Customer Profile</h3>
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 950,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            width: '460px', maxWidth: '100%',
+            padding: '24px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>➕ Register New Guest</h3>
+              <button onClick={() => setShowAddModal(false)} className="btn btn--ghost btn--sm">×</button>
+            </div>
             <form onSubmit={handleSaveCustomer} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Sarah Jenkins"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
-                />
+                <label style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Full Name *</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g. Sarah Connor" className="input" style={{ width: '100%' }} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Phone Number *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. +1 (555) 234-5678"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
-                />
+                <label style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Phone Number *</label>
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required placeholder="e.g. +1 555-0199" className="input" style={{ width: '100%' }} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Email Address</label>
-                <input
-                  type="email"
-                  placeholder="sarah@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
-                />
+                <label style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Email Address (optional)</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="guest@example.com" className="input" style={{ width: '100%' }} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Allergies (comma-separated)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Peanuts, Dairy, Gluten-Free"
-                  value={allergies}
-                  onChange={(e) => setAllergies(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
-                />
+                <label style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Dietary & Allergies</label>
+                <input type="text" value={allergies} onChange={e => setAllergies(e.target.value)} placeholder="Gluten, Peanuts" className="input" style={{ width: '100%' }} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Internal Notes</label>
-                <input
-                  type="text"
-                  placeholder="VIP guest, prefers patio table 4"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
-                />
+                <label style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Segmentation Tags</label>
+                <input type="text" value={tags} onChange={e => setTags(e.target.value)} placeholder="VIP, Wine Lover, Regular" className="input" style={{ width: '100%' }} />
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  style={{ padding: '8px 16px', backgroundColor: '#f3f4f6', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  style={{ padding: '8px 16px', backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
-                >
-                  {submitting ? 'Saving...' : 'Save Customer'}
+              <div>
+                <label style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Notes</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Prefers patio seating" className="input" style={{ width: '100%', minHeight: '50px' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn btn--secondary" style={{ flex: 1 }}>Cancel</button>
+                <button type="submit" disabled={submitting} className="btn btn--primary" style={{ flex: 1 }}>
+                  {submitting ? 'Registering…' : 'Register Guest'}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-      {selectedCustomerId && (
-        <CustomerProfileModal
-          customerId={selectedCustomerId}
-          onClose={() => {
-            setSelectedCustomerId(null)
-            fetchCustomers(query) // refresh list in case edits were made
-          }}
-        />
+
+      {/* Marketing Campaigns Modal */}
+      {showCampaignsModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 950,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            width: '680px', maxWidth: '100%', maxHeight: '90vh',
+            display: 'flex', flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
+          }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>📢 Marketing Campaigns & Broadcasts</h3>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+                  Targeted messaging with automatic customer communication consent enforcement
+                </div>
+              </div>
+              <button onClick={() => setShowCampaignsModal(false)} className="btn btn--ghost btn--sm">×</button>
+            </div>
+
+            <div style={{ padding: '20px 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Campaign Composer */}
+              <form onSubmit={handleCreateCampaign} style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '16px',
+                display: 'flex', flexDirection: 'column', gap: '10px',
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: 700 }}>Compose New Campaign</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Channel</label>
+                    <select
+                      value={campChannel}
+                      onChange={(e: any) => setCampChannel(e.target.value)}
+                      className="input"
+                      style={{ width: '100%' }}
+                    >
+                      <option value="EMAIL">📧 Email (Resend)</option>
+                      <option value="SMS">💬 SMS (Twilio)</option>
+                      <option value="WHATSAPP">📱 WhatsApp (Meta)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Target Segment</label>
+                    <select
+                      value={campSegment}
+                      onChange={(e) => setCampSegment(e.target.value)}
+                      className="input"
+                      style={{ width: '100%' }}
+                    >
+                      <option value="ALL">All Opted-In Guests</option>
+                      <option value="NEW">New Guests (30d)</option>
+                      <option value="REPEAT">Repeat Guests</option>
+                      <option value="HIGH_VALUE">VIP & High-Value</option>
+                      <option value="LAPSED">Lapsed Guests</option>
+                      <option value="BIRTHDAY">Birthdays this month</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Campaign Title</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Weekend Special"
+                      value={campTitle}
+                      onChange={(e) => setCampTitle(e.target.value)}
+                      required
+                      className="input"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+
+                {campChannel === 'EMAIL' && (
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Email Subject</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 20% Off Your Next Meal at Resto AI!"
+                      value={campSubject}
+                      onChange={(e) => setCampSubject(e.target.value)}
+                      className="input"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Message Body</label>
+                    <span style={{ fontSize: '11px', color: 'var(--color-brand-500)' }}>Tip: Use {'{{name}}'} for guest name</span>
+                  </div>
+                  <textarea
+                    rows={3}
+                    value={campBody}
+                    onChange={(e) => setCampBody(e.target.value)}
+                    required
+                    className="input"
+                    style={{ width: '100%', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                  <button type="submit" disabled={campCreating} className="btn btn--primary btn--sm">
+                    {campCreating ? 'Saving Draft…' : 'Save Campaign Draft'}
+                  </button>
+                </div>
+              </form>
+
+              {/* Past Campaigns List */}
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '10px' }}>Campaign History</div>
+                {campaigns.length === 0 ? (
+                  <div style={{ color: 'var(--color-text-secondary)', fontSize: '13px', textAlign: 'center', padding: '24px 0' }}>
+                    No campaigns created yet. Compose your first campaign above!
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {campaigns.map((camp) => (
+                      <div
+                        key={camp.id}
+                        style={{
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 'var(--radius-md)',
+                          padding: '12px 16px',
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          background: 'rgba(255,255,255,0.02)',
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontWeight: 700, fontSize: '14px' }}>{camp.title}</span>
+                            <span style={{
+                              fontSize: '11px', padding: '2px 6px', borderRadius: '4px',
+                              background: camp.status === 'SENT' ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
+                              color: camp.status === 'SENT' ? '#22c55e' : '#818cf8',
+                              fontWeight: 600,
+                            }}>
+                              {camp.status}
+                            </span>
+                            <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+                              via {camp.channel} · {camp.targetSegment}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
+                            {camp.messageBody.slice(0, 70)}...
+                          </div>
+                        </div>
+
+                        <div>
+                          {camp.status === 'DRAFT' ? (
+                            <button
+                              onClick={() => handleDispatchCampaign(camp.id)}
+                              disabled={dispatchingId === camp.id}
+                              className="btn btn--primary btn--sm"
+                            >
+                              {dispatchingId === camp.id ? 'Sending…' : '🚀 Send Now'}
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                              Sent to {camp.recipientCount} guests
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

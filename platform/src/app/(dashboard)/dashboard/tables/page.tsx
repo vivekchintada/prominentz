@@ -11,7 +11,7 @@ const TablesClient = dynamic(() => import('@/components/dashboard/TablesClient')
   ),
 })
 
-export const metadata = { title: 'Tables & Floor Plan | Resto AI' }
+export const metadata = { title: 'Tables & Floor Plan | Prominentz' }
 
 export default async function TablesPage() {
   const session = await auth()

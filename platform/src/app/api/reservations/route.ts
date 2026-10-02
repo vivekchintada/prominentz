@@ -5,6 +5,7 @@ import { publishEvent } from '@/lib/redis'
 import { sendReservationConfirmation } from '@/lib/email'
 import { sendReservationConfirmed } from '@/lib/twilio'
 import { sendWhatsAppReservationConfirmed } from '@/lib/whatsapp'
+import { getFeatureFlags } from '@/lib/settings-helpers'
 import { z } from 'zod'
 
 const createReservationSchema = z.object({
@@ -92,6 +93,15 @@ export async function POST(req: NextRequest) {
     }
     if (!locationId) {
       return NextResponse.json({ error: 'Location not resolved' }, { status: 404 })
+    }
+
+    // ── Feature flag: enableReservation ───────────────────────────────
+    const flags = await getFeatureFlags(session.user.restaurantId)
+    if (flags.enableReservation === false) {
+      return NextResponse.json(
+        { error: 'Reservations are currently disabled for this restaurant.' },
+        { status: 403 },
+      )
     }
 
     const body   = await req.json()
@@ -197,7 +207,7 @@ export async function POST(req: NextRequest) {
         where: { id: locationId },
         include: { restaurant: { select: { name: true } } },
       })
-      const restName = location?.restaurant?.name ?? 'Resto AI'
+      const restName = location?.restaurant?.name ?? 'Prominentz'
       
       // WhatsApp notification (Primary for international)
       sendWhatsAppReservationConfirmed({
@@ -212,15 +222,17 @@ export async function POST(req: NextRequest) {
         console.error('[Reservations] Background WhatsApp error:', err)
       })
 
-      // Twilio SMS fallback
+      // Twilio WhatsApp (Sandbox for dev, production WA for live)
       sendReservationConfirmed(
         reservation.guestPhone,
         reservation.guestName,
         restName,
-        new Date(reservation.scheduledAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        reservation.partySize
+        new Date(reservation.scheduledAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        reservation.partySize,
+        reservation.table?.name ?? undefined,
+        reservation.notes ?? undefined
       ).catch((err) => {
-        console.error('[Reservations] Background SMS error:', err)
+        console.error('[Reservations] Background Twilio WhatsApp error:', err)
       })
     }
 

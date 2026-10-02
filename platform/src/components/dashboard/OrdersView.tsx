@@ -407,7 +407,7 @@ export default function OrdersView({ initialOrders }: Props) {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              backgroundColor: '#2563eb',
+              backgroundColor: '#5b45f5',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -450,7 +450,7 @@ export default function OrdersView({ initialOrders }: Props) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Pending</span>
             <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
@@ -538,7 +538,7 @@ export default function OrdersView({ initialOrders }: Props) {
                 key={tab.key}
                 onClick={() => setFilter(tab.key)}
                 style={{
-                  backgroundColor: active ? '#2563eb' : '#ffffff',
+                  backgroundColor: active ? '#5b45f5' : '#ffffff',
                   color: active ? '#ffffff' : '#475569',
                   border: active ? 'none' : '1px solid #e2e8f0',
                   borderRadius: 8,
@@ -564,7 +564,7 @@ export default function OrdersView({ initialOrders }: Props) {
               onClick={() => setViewMode('grid')}
               title="Grid View"
               style={{
-                backgroundColor: viewMode === 'grid' ? '#2563eb' : 'transparent',
+                backgroundColor: viewMode === 'grid' ? '#5b45f5' : 'transparent',
                 color: viewMode === 'grid' ? '#ffffff' : '#64748b',
                 border: 'none',
                 borderRadius: 6,
@@ -585,7 +585,7 @@ export default function OrdersView({ initialOrders }: Props) {
               onClick={() => setViewMode('list')}
               title="List View"
               style={{
-                backgroundColor: viewMode === 'list' ? '#2563eb' : 'transparent',
+                backgroundColor: viewMode === 'list' ? '#5b45f5' : 'transparent',
                 color: viewMode === 'list' ? '#ffffff' : '#64748b',
                 border: 'none',
                 borderRadius: 6,
@@ -690,7 +690,7 @@ export default function OrdersView({ initialOrders }: Props) {
                         width: 42,
                         height: 42,
                         borderRadius: '50%',
-                        backgroundColor: '#2563eb',
+                        backgroundColor: '#5b45f5',
                         color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
@@ -788,7 +788,7 @@ export default function OrdersView({ initialOrders }: Props) {
                         textAlign: 'left',
                         fontSize: 12,
                         fontWeight: 700,
-                        color: '#2563eb',
+                        color: '#5b45f5',
                         cursor: 'pointer',
                         marginTop: 4,
                       }}
@@ -998,9 +998,9 @@ export default function OrdersView({ initialOrders }: Props) {
                         borderRadius: 8,
                         fontSize: 13,
                         fontWeight: 700,
-                        border: newOrderType === t ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                        border: newOrderType === t ? '2px solid #5b45f5' : '1px solid #e2e8f0',
                         backgroundColor: newOrderType === t ? '#eff6ff' : '#ffffff',
-                        color: newOrderType === t ? '#2563eb' : '#475569',
+                        color: newOrderType === t ? '#5b45f5' : '#475569',
                         cursor: 'pointer',
                       }}
                     >
@@ -1099,7 +1099,7 @@ export default function OrdersView({ initialOrders }: Props) {
                     padding: '10px 14px',
                     borderRadius: 8,
                     border: 'none',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#5b45f5',
                     fontWeight: 700,
                     fontSize: 13,
                     cursor: isSubmitting ? 'not-allowed' : 'pointer',

@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
 import { sendWhatsAppReservationConfirmed, sendWhatsAppReservationCancelled } from '@/lib/whatsapp'
-import { sendReservationConfirmed } from '@/lib/twilio'
+import { sendReservationConfirmed, sendReservationCancelled } from '@/lib/twilio'
 import { z } from 'zod'
 
 const updateReservationSchema = z.object({
@@ -127,7 +127,7 @@ export async function PATCH(
         where: { id: existing.locationId },
         include: { restaurant: { select: { name: true } } },
       })
-      const restName = location?.restaurant?.name ?? 'Resto AI'
+      const restName = location?.restaurant?.name ?? 'Prominentz'
       
       sendWhatsAppReservationConfirmed({
         to: updated.guestPhone,
@@ -143,9 +143,11 @@ export async function PATCH(
         updated.guestPhone,
         updated.guestName,
         restName,
-        new Date(updated.scheduledAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        updated.partySize
-      ).catch((err) => console.error('[Reservations] SMS confirm error:', err))
+        new Date(updated.scheduledAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        updated.partySize,
+        updated.table?.name ?? undefined,
+        updated.notes ?? undefined
+      ).catch((err) => console.error('[Reservations] Twilio confirm error:', err))
     }
 
     // If status changed to CANCELLED, send cancellation notice
@@ -154,12 +156,22 @@ export async function PATCH(
         where: { id: existing.locationId },
         include: { restaurant: { select: { name: true } } },
       })
+      const restName = location?.restaurant?.name ?? 'Prominentz'
+      const formattedDate = new Date(updated.scheduledAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+
       sendWhatsAppReservationCancelled({
         to: updated.guestPhone,
         guestName: updated.guestName,
-        restaurantName: location?.restaurant?.name ?? 'Resto AI',
+        restaurantName: restName,
         dateTime: updated.scheduledAt.toISOString(),
       }).catch((err) => console.error('[Reservations] WhatsApp cancel error:', err))
+
+      sendReservationCancelled(
+        updated.guestPhone,
+        updated.guestName,
+        restName,
+        formattedDate
+      ).catch((err) => console.error('[Reservations] Twilio cancel error:', err))
     }
 
     return NextResponse.json(updated)

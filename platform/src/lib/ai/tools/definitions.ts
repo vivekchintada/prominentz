@@ -1,7 +1,7 @@
 /**
  * Resto IQ Tool Definitions
  * Compatible with OpenAI / Groq / Gemini function calling schemas.
- * Covers all 10 operational domains ("every nook and cranny") of Resto AI.
+ * Covers all 10 operational domains ("every nook and cranny") of Prominentz.
  */
 
 export interface ToolDefinition {

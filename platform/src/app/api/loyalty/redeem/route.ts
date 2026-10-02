@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    // Transactionally deduct points and record redemption
+    // Transactionally deduct points and record redemption & ledger entry
     const [updatedCustomer, redemption] = await prisma.$transaction([
       prisma.customer.update({
         where: { id: customerId },
@@ -58,6 +58,17 @@ export async function POST(req: NextRequest) {
           rewardId,
           orderId: orderId || null,
           pointsRedeemed: reward.pointsRequired,
+        },
+      }),
+      prisma.pointsLedger.create({
+        data: {
+          customerId,
+          orderId: orderId || null,
+          type: 'REDEEMED',
+          pointsChange: -reward.pointsRequired,
+          balanceAfter: customer.pointsBalance - reward.pointsRequired,
+          reason: `Redeemed reward: ${reward.name}`,
+          actorId: session.user.id,
         },
       }),
     ])
@@ -76,7 +87,7 @@ export async function POST(req: NextRequest) {
       sendLoyaltyRewardEmail({
         to: customer.email,
         guestName: customer.name,
-        restaurantName: restaurant?.name || 'Resto AI',
+        restaurantName: restaurant?.name || 'Prominentz',
         rewardName: reward.name,
         discountText,
         pointsRedeemed: reward.pointsRequired,

@@ -215,7 +215,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#2563eb',
+              background: '#5b45f5',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -295,7 +295,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: statusFilter === s ? '#ffffff' : 'transparent',
-                  color: statusFilter === s ? '#2563eb' : '#64748b',
+                  color: statusFilter === s ? '#5b45f5' : '#64748b',
                   boxShadow: statusFilter === s ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                 }}
               >
@@ -516,7 +516,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <img
                     src={categoryImage || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop&q=80'}
-                    alt="Preview"
+                    alt="Category image preview"
                     style={{ width: 50, height: 50, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
                   />
                   <input
@@ -603,7 +603,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                   disabled={saving}
                   style={{
                     padding: '8px 20px',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,

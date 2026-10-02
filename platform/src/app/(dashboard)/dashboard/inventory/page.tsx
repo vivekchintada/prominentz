@@ -12,7 +12,7 @@ const InventoryClient = dynamic(() => import('@/components/dashboard/InventoryCl
   ),
 })
 
-export const metadata = { title: 'Inventory Management | Resto AI' }
+export const metadata = { title: 'Inventory Management | Prominentz' }
 
 export default async function InventoryPage() {
   const session = await auth()

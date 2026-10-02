@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
         sendWhatsAppLowStockAlert({
           to: manager.phone,
           managerName: manager.user.name,
-          restaurantName: location?.restaurant?.name ?? 'Resto AI',
+          restaurantName: location?.restaurant?.name ?? 'Prominentz',
           locationName: location?.name ?? 'Main Location',
           items: [{
             name: updatedItem.name,

@@ -10,6 +10,8 @@ export type AuditAction =
   | 'DELETE_MENU_ITEM'
   | 'CREATE_LOCATION'
   | 'EDIT_SETTINGS'
+  | 'PLAN_UPGRADED'
+  | 'PLAN_DOWNGRADED'
 
 export type AuditTargetType = 'Order' | 'Payment' | 'MenuItem' | 'User' | 'Location' | 'Restaurant'
 

@@ -327,19 +327,38 @@ export function SettingsClient() {
     }
   }
 
-  // Image Upload handler
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Image Upload handler — posts to /api/settings/logo for persistence
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be within 5 MB')
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Logo file must be under 2 MB')
       return
     }
+
+    // Optimistic preview via FileReader
     const reader = new FileReader()
     reader.onload = () => {
       setStore((prev) => ({ ...prev, logoUrl: reader.result as string }))
     }
     reader.readAsDataURL(file)
+
+    // Persist to backend
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch('/api/settings/logo', { method: 'POST', body: form })
+      if (!res.ok) {
+        const err = await res.json()
+        alert(err.error || 'Failed to upload logo')
+      } else {
+        const data = await res.json()
+        setStore((prev) => ({ ...prev, logoUrl: data.logoUrl }))
+        showToast('Logo uploaded successfully!')
+      }
+    } catch {
+      alert('Failed to connect to server for logo upload')
+    }
   }
 
   const navTabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
@@ -426,7 +445,7 @@ export function SettingsClient() {
   if (loading) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
-        <div style={{ width: '28px', height: '28px', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
+        <div style={{ width: '28px', height: '28px', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: '#5b45f5', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
         Loading DreamPOS settings...
       </div>
     )
@@ -494,7 +513,7 @@ export function SettingsClient() {
                   borderRadius: '10px',
                   border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
                   backgroundColor: isActive ? '#eff6ff' : 'transparent',
-                  color: isActive ? '#2563eb' : '#475569',
+                  color: isActive ? '#5b45f5' : '#475569',
                   fontSize: '13.5px',
                   fontWeight: isActive ? 650 : 500,
                   cursor: 'pointer',
@@ -503,13 +522,36 @@ export function SettingsClient() {
                   transition: 'all 150ms ease',
                 }}
               >
-                <span style={{ color: isActive ? '#2563eb' : '#64748b', display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: isActive ? '#5b45f5' : '#64748b', display: 'flex', alignItems: 'center' }}>
                   {tab.icon}
                 </span>
                 {tab.label}
               </button>
             )
           })}
+
+          <a
+            href="/dashboard/settings/ordering"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '11px 16px',
+              borderRadius: '10px',
+              border: '1px solid transparent',
+              color: '#475569',
+              fontSize: '13.5px',
+              fontWeight: 500,
+              textDecoration: 'none',
+              transition: 'all 150ms ease',
+              marginTop: '4px',
+            }}
+          >
+            <span style={{ color: '#5b45f5', display: 'flex', alignItems: 'center', fontSize: '15px' }}>
+              🛍️
+            </span>
+            Online Ordering ↗
+          </a>
         </aside>
 
         {/* ─── Right Content Area ──────────────────────────────────────────── */}
@@ -562,7 +604,7 @@ export function SettingsClient() {
                       borderRadius: '8px',
                       border: '1px solid #e2e8f0',
                       backgroundColor: '#ffffff',
-                      color: '#2563eb',
+                      color: '#5b45f5',
                       fontSize: '13px',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -835,7 +877,7 @@ export function SettingsClient() {
                     gap: '8px',
                     padding: '9px 18px',
                     borderRadius: '8px',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#5b45f5',
                     color: '#ffffff',
                     border: 'none',
                     fontSize: '13px',
@@ -1091,7 +1133,7 @@ export function SettingsClient() {
                   checked={paymentTypes.cash}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, cash: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <rect x="2" y="6" width="20" height="12" rx="2" />
                       <circle cx="12" cy="12" r="2" />
                       <path d="M6 12h.01M18 12h.01" />
@@ -1105,7 +1147,7 @@ export function SettingsClient() {
                   checked={paymentTypes.card}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, card: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <rect x="2" y="5" width="20" height="14" rx="2" />
                       <line x1="2" y1="10" x2="22" y2="10" />
                     </svg>
@@ -1118,7 +1160,7 @@ export function SettingsClient() {
                   checked={paymentTypes.wallet}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, wallet: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
                       <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
                     </svg>
@@ -1131,7 +1173,7 @@ export function SettingsClient() {
                   checked={paymentTypes.paypal}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, paypal: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <path d="M7 3h7a5 5 0 0 1 5 5 5 5 0 0 1-5 5H9l-2 8H3l4-18z" />
                     </svg>
                   }
@@ -1143,7 +1185,7 @@ export function SettingsClient() {
                   checked={paymentTypes.qrReader}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, qrReader: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <rect x="3" y="3" width="7" height="7" />
                       <rect x="14" y="3" width="7" height="7" />
                       <rect x="3" y="14" width="7" height="7" />
@@ -1158,7 +1200,7 @@ export function SettingsClient() {
                   checked={paymentTypes.cardReader}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, cardReader: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <rect x="4" y="2" width="16" height="20" rx="2" />
                       <line x1="8" y1="6" x2="16" y2="6" />
                       <line x1="8" y1="10" x2="16" y2="10" />
@@ -1173,7 +1215,7 @@ export function SettingsClient() {
                   checked={paymentTypes.bank}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, bank: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
                       <path d="m3 9 9-7 9 7v1H3V9z" />
                       <line x1="5" y1="10" x2="5" y2="18" />
                       <line x1="9" y1="10" x2="9" y2="18" />
@@ -1675,7 +1717,7 @@ export function SettingsClient() {
                     padding: '8px 20px',
                     borderRadius: '8px',
                     border: 'none',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#5b45f5',
                     color: '#ffffff',
                     fontWeight: 600,
                     fontSize: '13px',
@@ -1731,7 +1773,7 @@ function DreamSwitch({ checked, onChange }: { checked: boolean; onChange: (c: bo
         width: '44px',
         height: '24px',
         borderRadius: '12px',
-        backgroundColor: checked ? '#2563eb' : '#cbd5e1',
+        backgroundColor: checked ? '#5b45f5' : '#cbd5e1',
         position: 'relative',
         cursor: 'pointer',
         border: 'none',
@@ -1853,7 +1895,7 @@ function DreamActionBar({
           padding: '9px 24px',
           borderRadius: '8px',
           border: 'none',
-          backgroundColor: '#2563eb',
+          backgroundColor: '#5b45f5',
           color: '#ffffff',
           fontSize: '13px',
           fontWeight: 600,

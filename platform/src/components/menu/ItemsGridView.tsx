@@ -145,7 +145,7 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#2563eb',
+              background: '#5b45f5',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',

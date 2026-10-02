@@ -10,7 +10,7 @@ import {
 } from '@/components/pos/DreamsPosTerminal'
 
 export const metadata = {
-  title: 'POS Terminal | Resto AI',
+  title: 'POS Terminal | Prominentz',
   description: 'High-speed Restaurant Point of Sale terminal with live checks, menu catalog, and table layout.',
 }
 

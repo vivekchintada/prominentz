@@ -154,7 +154,7 @@ I am continuously monitoring and managing **every operational domain** across li
           alignItems: 'center',
           gap: 8,
           padding: '12px 20px',
-          background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+          background: 'linear-gradient(135deg, #5b45f5, #4a36d9)',
           color: '#ffffff',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: 9999,
@@ -220,8 +220,8 @@ I am continuously monitoring and managing **every operational domain** across li
                   width: 32,
                   height: 32,
                   borderRadius: 10,
-                  background: 'rgba(37, 99, 235, 0.12)',
-                  color: '#2563eb',
+                  background: 'rgba(91,69,245,0.12)',
+                  color: '#5b45f5',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -289,8 +289,8 @@ I am continuously monitoring and managing **every operational domain** across li
                   flexShrink: 0,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#2563eb'
-                  e.currentTarget.style.color = '#2563eb'
+                  e.currentTarget.style.borderColor = '#5b45f5'
+                  e.currentTarget.style.color = '#5b45f5'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'var(--color-border)'
@@ -330,7 +330,7 @@ I am continuously monitoring and managing **every operational domain** across li
                       maxWidth: '92%',
                       padding: '12px 16px',
                       borderRadius: 14,
-                      background: isAgent ? 'var(--color-bg-primary)' : '#2563eb',
+                      background: isAgent ? 'var(--color-bg-primary)' : '#5b45f5',
                       color: isAgent ? 'var(--color-text-primary)' : '#ffffff',
                       border: isAgent ? '1px solid var(--color-border)' : 'none',
                       fontSize: 13,
@@ -350,8 +350,8 @@ I am continuously monitoring and managing **every operational domain** across li
                               gap: 4,
                               fontSize: 10,
                               fontWeight: 800,
-                              background: 'rgba(37, 99, 235, 0.12)',
-                              color: '#2563eb',
+                              background: 'rgba(91,69,245,0.12)',
+                              color: '#5b45f5',
                               padding: '2px 6px',
                               borderRadius: 4,
                             }}
@@ -393,8 +393,8 @@ I am continuously monitoring and managing **every operational domain** across li
                                 fontWeight: 700,
                                 padding: '6px 12px',
                                 borderRadius: 8,
-                                backgroundColor: act.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : act.severity === 'WARNING' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(37, 99, 235, 0.15)',
-                                color: act.severity === 'CRITICAL' ? '#ef4444' : act.severity === 'WARNING' ? '#f59e0b' : '#3b82f6',
+                                backgroundColor: act.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : act.severity === 'WARNING' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(91,69,245,0.15)',
+                                color: act.severity === 'CRITICAL' ? '#ef4444' : act.severity === 'WARNING' ? '#f59e0b' : '#7b68f7',
                                 border: act.severity === 'CRITICAL' ? '1px solid rgba(239, 68, 68, 0.35)' : act.severity === 'WARNING' ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(37, 99, 235, 0.35)',
                                 cursor: isThinking ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.15s ease',
@@ -427,7 +427,7 @@ I am continuously monitoring and managing **every operational domain** across li
 
             {isThinking && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--color-bg-primary)', borderRadius: 10, width: 'fit-content' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563eb', animation: 'ping 1s infinite' }} />
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#5b45f5', animation: 'ping 1s infinite' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                   Resto IQ is querying live telemetry & reasoning...
                 </span>
@@ -473,7 +473,7 @@ I am continuously monitoring and managing **every operational domain** across li
                 padding: '10px 16px',
                 borderRadius: 12,
                 border: 'none',
-                background: isThinking || !inputPrompt.trim() ? 'var(--color-border)' : '#2563eb',
+                background: isThinking || !inputPrompt.trim() ? 'var(--color-border)' : '#5b45f5',
                 color: '#ffffff',
                 fontWeight: 700,
                 fontSize: 13,

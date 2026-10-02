@@ -300,7 +300,7 @@ Current User Screen: ${currentPage || 'Dashboard'}`
     // ─────────────────────────────────────────────────────────────────────────
     // 4. AUGMENTED SYSTEM PROMPT
     // ─────────────────────────────────────────────────────────────────────────
-    const systemPrompt = `You are RestoIQ, the brilliant, conversational AI co-pilot for Resto AI.
+    const systemPrompt = `You are ProminentzIQ, the brilliant, conversational AI co-pilot for Prominentz.
 Role: ${mode === 'customer' ? 'Michelin-Star Digital Sommelier & Guest Concierge' : 'Executive Restaurant General Manager & Operations Co-Pilot'}
 Current Location: ${locationId}
 

@@ -1,4 +1,4 @@
-// ─── Resto AI — Core TypeScript Types (Phase 1) ───────────────────────────────
+// ─── Prominentz — Core TypeScript Types (Phase 1) ───────────────────────────────
 
 export type UserRole = 'OWNER' | 'MANAGER' | 'SERVER' | 'KITCHEN'
 

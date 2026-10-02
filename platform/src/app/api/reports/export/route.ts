@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     // Construct CSV content
     const csvRows: string[] = []
 
-    csvRows.push('RESTO AI — FINANCIAL & OPERATIONS REPORT')
+    csvRows.push('PROMINENTZ — FINANCIAL & OPERATIONS REPORT')
     csvRows.push(`Date Range: ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`)
     csvRows.push('')
 

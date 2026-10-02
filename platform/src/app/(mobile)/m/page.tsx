@@ -71,7 +71,7 @@ export default async function MobileDashboardPage() {
       <div style={{ marginBottom: 20 }}>
         <p style={{ margin: 0, fontSize: 13, color: '#8E8E93' }}>Good day,</p>
         <h1 style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 700, color: '#E5E5EA' }}>{user.name}</h1>
-        <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user.role}</span>
+        <span style={{ fontSize: 11, color: '#5b45f5', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user.role}</span>
       </div>
 
       {/* KPI Cards */}
@@ -94,7 +94,7 @@ export default async function MobileDashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {recentEvents.map((ev) => (
               <div key={ev.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563eb', marginTop: 5, flexShrink: 0 }} />
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#5b45f5', marginTop: 5, flexShrink: 0 }} />
                 <div>
                   <div style={{ fontSize: 12, color: '#E5E5EA', lineHeight: 1.4 }}>
                     {ev.eventType.replace(/\./g, ' → ')} · {ev.order.table.name}

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { processPaymentSchema } from '@/lib/validations/payments'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { getAllowedPaymentMethods } from '@/lib/settings-helpers'
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,6 +49,15 @@ export async function POST(req: NextRequest) {
     }
     if (order.status === 'PAID') {
       return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
+    }
+
+    // ── Enforce payment type settings ─────────────────────────────────────
+    const allowedMethods = await getAllowedPaymentMethods(session.user.restaurantId)
+    if (allowedMethods && !allowedMethods.has(method)) {
+      return NextResponse.json(
+        { error: `Payment method '${method}' is not enabled for this restaurant. Please use a different payment method.` },
+        { status: 403 },
+      )
     }
 
     // Process checkout transaction
@@ -119,18 +129,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Auto-accumulate Loyalty Points if customer linked (1 Point / $1 spent)
+    // 5. Auto-accumulate Loyalty Points if customer linked (configurable rate + tier multiplier + idempotency + ledger)
     if (order.customerId) {
-      const pointsEarned = Math.floor(Number(subtotal))
-      if (pointsEarned > 0) {
-        await prisma.customer.update({
-          where: { id: order.customerId },
-          data: {
-            pointsBalance: { increment: pointsEarned },
-            lifetimeSpend: { increment: total },
-            totalVisits: { increment: 1 },
-          },
-        })
+      try {
+        const { awardOrderPoints } = await import('@/lib/customer-crm')
+        await awardOrderPoints(orderId)
+      } catch (pointsErr) {
+        console.error('[Payment] Points award error:', pointsErr)
       }
     }
 

@@ -2,6 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 
+interface ActionDirective {
+  id: string
+  label: string
+  prompt: string
+  severity?: 'CRITICAL' | 'WARNING' | 'OPPORTUNITY' | 'INFO'
+}
+
 interface MessageItem {
   id: string
   sender: 'user' | 'assistant'
@@ -9,6 +16,7 @@ interface MessageItem {
   intent?: string
   actionType?: string
   actionData?: any
+  actionDirectives?: ActionDirective[]
   stats?: { label: string; value: string }[]
   actionableDishCards?: Array<{
     id: string
@@ -150,13 +158,17 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
     setLoading(true)
 
     try {
-      const res = await fetch('/api/ai', {
+      const res = await fetch('/api/ai/agent/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: activeText,
           currentPage: currentRoute,
           mode: 'operator',
+          history: messages
+            .filter((m) => m.sender !== 'assistant' || m.id !== 'msg-welcome')
+            .slice(-6)
+            .map((m) => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
         }),
       })
 
@@ -168,10 +180,12 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
       const assistantMsg: MessageItem = {
         id: `asst-${Date.now()}`,
         sender: 'assistant',
-        text: data.message || 'Analysis complete.',
+        // new agent returns `reply`, old route returned `message`
+        text: data.reply || data.message || 'Analysis complete.',
         intent: data.intent,
         actionType: data.actionType,
-        actionData: data.data,
+        actionData: data.actionData,
+        actionDirectives: data.actionDirectives || [],
         stats: data.stats,
         actionableDishCards: data.actionableDishCards,
         suggestedPills: data.suggestedPills || getFollowUpPills(activeText),
@@ -217,7 +231,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
           gap: '10px',
           padding: '4px',
           borderRadius: '9999px',
-          background: 'conic-gradient(from 180deg at 50% 50%, #2563eb 0deg, #8b5cf6 90deg, #ec4899 180deg, #06b6d4 270deg, #2563eb 360deg)',
+          background: 'conic-gradient(from 180deg at 50% 50%, #5b45f5 0deg, #8b5cf6 90deg, #ec4899 180deg, #06b6d4 270deg, #5b45f5 360deg)',
           border: 'none',
           boxShadow: '0 12px 36px -4px rgba(37, 99, 235, 0.4), 0 0 20px rgba(139, 92, 246, 0.25)',
           cursor: 'pointer',
@@ -245,7 +259,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
             width: '18px',
             height: '18px',
             borderRadius: '50%',
-            background: 'conic-gradient(from 0deg, #2563eb, #8b5cf6, #06b6d4, #2563eb)',
+            background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #06b6d4, #5b45f5)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -298,7 +312,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                   width: '34px',
                   height: '34px',
                   borderRadius: '50%',
-                  background: 'conic-gradient(from 0deg, #2563eb, #8b5cf6, #ec4899, #06b6d4, #2563eb)',
+                  background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #ec4899, #06b6d4, #5b45f5)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -314,7 +328,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
                     RestoIQ Meta AI
                   </h3>
-                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#3b82f6', border: '0.5px solid rgba(37, 99, 235, 0.3)' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(91,69,245,0.15)', color: '#7b68f7', border: '0.5px solid rgba(91,69,245,0.3)' }}>
                     RAG LIVE
                   </span>
                 </div>
@@ -386,14 +400,14 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                       marginTop: '12px',
                       padding: '12px 14px',
                       borderRadius: '10px',
-                      backgroundColor: 'rgba(37, 99, 235, 0.12)',
-                      border: '1px solid rgba(37, 99, 235, 0.3)',
+                      backgroundColor: 'rgba(91,69,245,0.12)',
+                      border: '1px solid rgba(91,69,245,0.3)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#3b82f6' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#7b68f7' }}>
                           ⚡ DIRECTIVE EXECUTED: {m.actionType.replace(/_/g, ' ')}
                         </span>
                         <button
@@ -454,9 +468,9 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                                 fontWeight: 700,
                                 padding: '4px 8px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(37, 99, 235, 0.15)',
-                                color: '#3b82f6',
-                                border: '1px solid rgba(37, 99, 235, 0.3)',
+                                backgroundColor: 'rgba(91,69,245,0.15)',
+                                color: '#7b68f7',
+                                border: '1px solid rgba(91,69,245,0.3)',
                                 cursor: 'pointer',
                               }}
                             >
@@ -474,12 +488,56 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                       {m.stats.map((s, idx) => (
                         <div key={idx} style={{ padding: '8px 10px', borderRadius: '8px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                           <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.45)', textTransform: 'uppercase', fontWeight: 600 }}>{s.label}</div>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#3b82f6', marginTop: '2px' }}>{s.value}</div>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#7b68f7', marginTop: '2px' }}>{s.value}</div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
+
+                {/* Autonomous Action Directives — clickable agent commands */}
+                {m.actionDirectives && m.actionDirectives.length > 0 && (
+                  <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>
+                      ⚡ Recommended Actions
+                    </div>
+                    {m.actionDirectives.map((d) => {
+                      const severityColor =
+                        d.severity === 'CRITICAL' ? '#ef4444'
+                        : d.severity === 'WARNING' ? '#f59e0b'
+                        : d.severity === 'OPPORTUNITY' ? '#22c55e'
+                        : '#7b68f7'
+                      const severityBg =
+                        d.severity === 'CRITICAL' ? 'rgba(239,68,68,0.12)'
+                        : d.severity === 'WARNING' ? 'rgba(245,158,11,0.12)'
+                        : d.severity === 'OPPORTUNITY' ? 'rgba(34,197,94,0.12)'
+                        : 'rgba(59,130,246,0.12)'
+                      return (
+                        <button
+                          key={d.id}
+                          onClick={() => sendMessage(d.prompt)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            backgroundColor: severityBg,
+                            border: `1px solid ${severityColor}40`,
+                            color: severityColor,
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                            width: '100%',
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
+                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                        >
+                          {d.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
 
                 {/* Suggested Dynamic Follow-Up Prompt Pills */}
                 {m.suggestedPills && m.suggestedPills.length > 0 && (
@@ -500,9 +558,9 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                           transition: 'all 0.15s ease',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.15)'
+                          e.currentTarget.style.backgroundColor = 'rgba(91,69,245,0.15)'
                           e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.4)'
-                          e.currentTarget.style.color = '#3b82f6'
+                          e.currentTarget.style.color = '#7b68f7'
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)'
@@ -521,8 +579,8 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
             {/* Thinking Pulse */}
             {loading && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', backgroundColor: '#15161d', border: '1px solid rgba(255, 255, 255, 0.08)', width: 'fit-content' }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'conic-gradient(from 0deg, #2563eb, #8b5cf6, #06b6d4, #2563eb)', animation: 'spin 1s linear infinite' }} />
-                <span style={{ fontSize: '12px', color: '#3b82f6', fontWeight: 600 }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #06b6d4, #5b45f5)', animation: 'spin 1s linear infinite' }} />
+                <span style={{ fontSize: '12px', color: '#7b68f7', fontWeight: 600 }}>
                   RestoIQ is retrieving RAG knowledge &amp; telemetry...
                 </span>
               </div>
@@ -596,7 +654,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                   padding: '11px 18px',
                   borderRadius: '10px',
                   border: 'none',
-                  background: loading || !prompt.trim() ? '#27272a' : 'linear-gradient(135deg, #2563eb, #3b82f6)',
+                  background: loading || !prompt.trim() ? '#27272a' : 'linear-gradient(135deg, #5b45f5, #7b68f7)',
                   color: '#ffffff',
                   cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
                   fontWeight: 700,

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSidebarCollapse } from './SidebarCollapseContext'
+import { NotificationsDropdown } from './NotificationsDropdown'
+
 
 /* ── Quick-nav links (centre of top bar) ── */
 const QUICK_LINKS = [
@@ -112,6 +114,21 @@ export default function TopBar({ restaurantName = 'My Restaurant', userInitials 
   const pathname = usePathname()
   const { toggle } = useSidebarCollapse()
   const [isDark, setIsDark] = useState(true)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [hasUnread, setHasUnread] = useState(true)
+
+  // Check unread notifications on mount
+  useEffect(() => {
+    fetch('/api/notifications')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data.unreadCount === 'number') {
+          setHasUnread(data.unreadCount > 0)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
 
   // Sync theme state with current html data-theme
   useEffect(() => {
@@ -148,10 +165,14 @@ export default function TopBar({ restaurantName = 'My Restaurant', userInitials 
         </button>
 
         <div className="top-bar__brand">
-          {/* Logo mark */}
+          {/* Prominentz chef-toque mark */}
           <div className="top-bar__logo-mark">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="none">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            <svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M8 33 C8 23 14 17 22 17 C23 13 27 9 32 9 C36 3 46 5 47 13 C52 11 56 17 54 23 C56 26 56 31 52 34 L10 34 C8.5 34 8 33.5 8 33Z" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M11 34 L11 38 Q11 41 14 41 L42 41 Q45 41 45 38 L45 34" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <line x1="21" y1="34" x2="21" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+              <line x1="28" y1="34" x2="28" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+              <line x1="35" y1="34" x2="35" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
             </svg>
           </div>
           <span className="top-bar__restaurant-name">{restaurantName}</span>
@@ -203,27 +224,45 @@ export default function TopBar({ restaurantName = 'My Restaurant', userInitials 
         </button>
 
         {/* Notifications */}
-        <button className="top-bar__icon-btn" aria-label="Notifications" title="Notifications">
-          <div style={{ position: 'relative' }}>
-            <BellIcon />
-            {/* Notification dot */}
-            <span style={{
-              position: 'absolute',
-              top: -3,
-              right: -3,
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: 'var(--apple-red)',
-              border: '1.5px solid var(--color-bg-sidebar)',
-            }} />
-          </div>
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            className="top-bar__icon-btn"
+            aria-label="Notifications"
+            title="Notifications"
+            onClick={() => setShowNotifications((prev) => !prev)}
+          >
+            <div style={{ position: 'relative' }}>
+              <BellIcon />
+              {/* Notification dot */}
+              {hasUnread && (
+                <span style={{
+                  position: 'absolute',
+                  top: -3,
+                  right: -3,
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: 'var(--apple-red, #ff453a)',
+                  border: '1.5px solid var(--color-bg-sidebar, #12151e)',
+                }} />
+              )}
+            </div>
+          </button>
+
+          <NotificationsDropdown
+            isOpen={showNotifications}
+            onClose={() => {
+              setShowNotifications(false)
+              setHasUnread(false)
+            }}
+          />
+        </div>
+
 
         {/* User avatar */}
         <Link href="/dashboard/settings" className="top-bar__avatar" aria-label="User settings">
           {userImage ? (
-            <img src={userImage} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+            <img src={userImage} alt="User profile avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
           ) : (
             <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{userInitials}</span>
           )}

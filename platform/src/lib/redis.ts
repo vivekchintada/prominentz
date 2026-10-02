@@ -41,6 +41,18 @@ export const EVENTS = {
   TABLE_NOTE_CHANGED:       'table.note.changed',
   SERVER_KPI_UPDATED:       'server.kpi.updated',
   DELIVERY_ORDER_RECEIVED:  'delivery.order.received', // Phase D — external delivery platform orders
+  SHIFT_PUBLISHED:          'shift.published',
+  SWAP_REQUESTED:           'swap.requested',
+  SWAP_RESOLVED:            'swap.resolved',
+  TASK_CREATED:             'task.created',
+  TASK_RESOLVED:            'task.resolved',
+  ORDER_FIRED:              'order.fired',
+  ORDER_ITEM_STATUS:        'orderitem.status_changed',
+  TICKET_READY_TO_SERVE:    'ticket.ready_to_serve',
+  ATTENDANCE_FLAGGED:       'attendance.flagged',
+  ATTENDANCE_CLOCK:         'attendance.clock',
+  TABLE_ASSISTANCE_REQUESTED:    'table.assistance.requested',
+  TABLE_ASSISTANCE_ACKNOWLEDGED: 'table.assistance.acknowledged',
 } as const
 
 

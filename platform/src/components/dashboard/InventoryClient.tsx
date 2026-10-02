@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useToast, ToastContainer } from '../ui/Toast'
+import ReceivePOModal from './inventory/ReceivePOModal'
+import StockCountsTab from './inventory/StockCountsTab'
+import RecipesTab from './inventory/RecipesTab'
+import WasteTab from './inventory/WasteTab'
 
 interface MenuItemRef {
   id: string
@@ -24,6 +28,9 @@ interface InventoryItem {
   unit: string
   currentStock: number
   minStock: number
+  category?: string | null
+  unitCost?: number
+  parStock?: number
   createdAt: string
   updatedAt: string
   recipes: RecipeRef[]
@@ -64,18 +71,20 @@ interface PurchaseOrderItem {
 interface PurchaseOrder {
   id: string
   poNumber: string
-  status: 'DRAFT' | 'ORDERED' | 'RECEIVED' | 'CANCELLED'
+  status: 'DRAFT' | 'ORDERED' | 'PARTIALLY_RECEIVED' | 'RECEIVED' | 'CANCELLED'
   totalCost: number
   createdAt: string
   receivedAt: string | null
-  supplier: { name: string }
+  supplier: { name: string; leadTimeDays?: number }
   items: PurchaseOrderItem[]
 }
 
-type MainTab = 'stock' | 'suppliers' | 'pos'
+type MainTab = 'stock' | 'counts' | 'pos' | 'recipes' | 'waste' | 'suppliers'
 
-export default function InventoryClient() {
-  const [activeTab, setActiveTab] = useState<MainTab>('stock')
+export default function InventoryClient({ initialTab = 'stock' }: { initialTab?: MainTab } = {}) {
+  const [activeTab, setActiveTab] = useState<MainTab>(initialTab)
+  const [receivingPO, setReceivingPO] = useState<PurchaseOrder | null>(null)
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [items, setItems] = useState<InventoryItem[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [alerts, setAlerts] = useState<InventoryAlert[]>([])
@@ -150,7 +159,7 @@ export default function InventoryClient() {
       const res = await fetch('/api/inventory')
       if (!res.ok) throw new Error('Failed to load inventory')
       const data = await res.json()
-      setItems(data)
+      setItems(Array.isArray(data) ? data : (data.items || []))
     } catch (err: any) {
       showToast(err.message || 'Error loading inventory', 'error')
     } finally {
@@ -534,30 +543,81 @@ export default function InventoryClient() {
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Export Button */}
-          <button
-            onClick={exportCSV}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: 8,
-              padding: '9px 16px',
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#334155',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-            </svg>
-            Export ▾
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
+          {/* Export Dropdown */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setExportMenuOpen((prev) => !prev)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: 8,
+                padding: '9px 16px',
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#334155',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+              </svg>
+              Export CSV ▾
+            </button>
+
+            {exportMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: 6,
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 10,
+                  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+                  zIndex: 200,
+                  minWidth: 190,
+                  padding: 6,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
+                {[
+                  { label: 'Stock Items CSV', type: 'stock' },
+                  { label: 'Purchase Orders CSV', type: 'pos' },
+                  { label: 'Menu Recipes CSV', type: 'recipes' },
+                  { label: 'Waste Logs CSV', type: 'waste' },
+                  { label: 'Suppliers CSV', type: 'suppliers' },
+                ].map((opt) => (
+                  <a
+                    key={opt.type}
+                    href={`/api/inventory/export?type=${opt.type}`}
+                    download
+                    onClick={() => setExportMenuOpen(false)}
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#334155',
+                      textDecoration: 'none',
+                      borderRadius: 6,
+                      display: 'block',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#f8fafc')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    📥 {opt.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Quick Restock Shortage Button */}
           {shortageItems.length > 0 && (
@@ -593,7 +653,7 @@ export default function InventoryClient() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#2563eb',
+              background: '#5b45f5',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -629,7 +689,7 @@ export default function InventoryClient() {
             <span style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Total Stock Items
             </span>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5b45f5' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
               </svg>
@@ -760,9 +820,9 @@ export default function InventoryClient() {
             padding: '10px 18px',
             borderRadius: '8px 8px 0 0',
             border: 'none',
-            borderBottom: activeTab === 'stock' ? '2.5px solid #2563eb' : '2.5px solid transparent',
+            borderBottom: activeTab === 'stock' ? '2.5px solid #5b45f5' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'stock' ? '#2563eb' : '#64748b',
+            color: activeTab === 'stock' ? '#5b45f5' : '#64748b',
             fontSize: 14,
             fontWeight: activeTab === 'stock' ? 700 : 600,
             cursor: 'pointer',
@@ -827,9 +887,9 @@ export default function InventoryClient() {
             padding: '10px 18px',
             borderRadius: '8px 8px 0 0',
             border: 'none',
-            borderBottom: activeTab === 'suppliers' ? '2.5px solid #2563eb' : '2.5px solid transparent',
+            borderBottom: activeTab === 'suppliers' ? '2.5px solid #5b45f5' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'suppliers' ? '#2563eb' : '#64748b',
+            color: activeTab === 'suppliers' ? '#5b45f5' : '#64748b',
             fontSize: 14,
             fontWeight: activeTab === 'suppliers' ? 700 : 600,
             cursor: 'pointer',
@@ -843,6 +903,31 @@ export default function InventoryClient() {
         </button>
 
         <button
+          onClick={() => setActiveTab('counts')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 18px',
+            borderRadius: '8px 8px 0 0',
+            border: 'none',
+            borderBottom: activeTab === 'counts' ? '2.5px solid #5b45f5' : '2.5px solid transparent',
+            background: 'transparent',
+            color: activeTab === 'counts' ? '#5b45f5' : '#64748b',
+            fontSize: 14,
+            fontWeight: activeTab === 'counts' ? 700 : 600,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 11 12 14 22 4" />
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+          </svg>
+          Stock Counts & Audit
+        </button>
+
+        <button
           onClick={() => setActiveTab('pos')}
           style={{
             display: 'flex',
@@ -851,9 +936,9 @@ export default function InventoryClient() {
             padding: '10px 18px',
             borderRadius: '8px 8px 0 0',
             border: 'none',
-            borderBottom: activeTab === 'pos' ? '2.5px solid #2563eb' : '2.5px solid transparent',
+            borderBottom: activeTab === 'pos' ? '2.5px solid #5b45f5' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'pos' ? '#2563eb' : '#64748b',
+            color: activeTab === 'pos' ? '#5b45f5' : '#64748b',
             fontSize: 14,
             fontWeight: activeTab === 'pos' ? 700 : 600,
             cursor: 'pointer',
@@ -864,6 +949,54 @@ export default function InventoryClient() {
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
           </svg>
           Purchase Orders ({pos.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('recipes')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 18px',
+            borderRadius: '8px 8px 0 0',
+            border: 'none',
+            borderBottom: activeTab === 'recipes' ? '2.5px solid #5b45f5' : '2.5px solid transparent',
+            background: 'transparent',
+            color: activeTab === 'recipes' ? '#5b45f5' : '#64748b',
+            fontSize: 14,
+            fontWeight: activeTab === 'recipes' ? 700 : 600,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>
+          Recipes & Food Cost
+        </button>
+
+        <button
+          onClick={() => setActiveTab('waste')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 18px',
+            borderRadius: '8px 8px 0 0',
+            border: 'none',
+            borderBottom: activeTab === 'waste' ? '2.5px solid #dc2626' : '2.5px solid transparent',
+            background: 'transparent',
+            color: activeTab === 'waste' ? '#dc2626' : '#64748b',
+            fontSize: 14,
+            fontWeight: activeTab === 'waste' ? 700 : 600,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          </svg>
+          Waste & Spoilage
         </button>
       </div>
 
@@ -990,7 +1123,7 @@ export default function InventoryClient() {
                         statusFilter === s.key
                           ? s.key === 'SHORTAGE'
                             ? '#ea580c'
-                            : '#2563eb'
+                            : '#5b45f5'
                           : '#64748b',
                       boxShadow: statusFilter === s.key ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                       transition: 'all 0.15s ease',
@@ -1114,7 +1247,7 @@ export default function InventoryClient() {
                                 height: 38,
                                 borderRadius: 8,
                                 background: isZero ? '#fee2e2' : isShort ? '#ffedd5' : '#eff6ff',
-                                color: isZero ? '#dc2626' : isShort ? '#ea580c' : '#2563eb',
+                                color: isZero ? '#dc2626' : isShort ? '#ea580c' : '#5b45f5',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1246,7 +1379,7 @@ export default function InventoryClient() {
                               style={{
                                 background: '#eff6ff',
                                 border: '1px solid #bfdbfe',
-                                color: '#2563eb',
+                                color: '#5b45f5',
                                 borderRadius: 6,
                                 padding: '4px 8px',
                                 fontSize: 12,
@@ -1287,7 +1420,7 @@ export default function InventoryClient() {
                                 borderRadius: '50%',
                                 border: isShort ? '1px solid #fed7aa' : '1px solid #e2e8f0',
                                 background: isShort ? '#fff7ed' : '#ffffff',
-                                color: isShort ? '#ea580c' : '#2563eb',
+                                color: isShort ? '#ea580c' : '#5b45f5',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1393,7 +1526,7 @@ export default function InventoryClient() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: '#2563eb',
+                background: '#5b45f5',
                 border: 'none',
                 borderRadius: 8,
                 padding: '9px 18px',
@@ -1445,7 +1578,7 @@ export default function InventoryClient() {
                       <td style={{ padding: '14px 20px', color: '#475569' }}>{sup.email || '—'}</td>
                       <td style={{ padding: '14px 20px', color: '#475569' }}>{sup.phone || '—'}</td>
                       <td style={{ padding: '14px 20px' }}>
-                        <span style={{ background: '#eff6ff', color: '#2563eb', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
+                        <span style={{ background: '#eff6ff', color: '#5b45f5', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
                           {sup.leadTimeDays} days
                         </span>
                       </td>
@@ -1487,13 +1620,14 @@ export default function InventoryClient() {
                   <th style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>Status</th>
                   <th style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>Items</th>
                   <th style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>Total Cost</th>
-                  <th style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase', textAlign: 'right' }}>Created On</th>
+                  <th style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>Created On</th>
+                  <th style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {pos.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+                    <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
                       No purchase orders recorded.
                     </td>
                   </tr>
@@ -1509,8 +1643,8 @@ export default function InventoryClient() {
                             borderRadius: 20,
                             fontSize: 12,
                             fontWeight: 700,
-                            background: po.status === 'RECEIVED' ? '#dcfce7' : '#fef3c7',
-                            color: po.status === 'RECEIVED' ? '#16a34a' : '#b45309',
+                            background: po.status === 'RECEIVED' ? '#dcfce7' : po.status === 'PARTIALLY_RECEIVED' ? '#e0e7ff' : '#fef3c7',
+                            color: po.status === 'RECEIVED' ? '#16a34a' : po.status === 'PARTIALLY_RECEIVED' ? '#4338ca' : '#b45309',
                           }}
                         >
                           {po.status}
@@ -1520,8 +1654,34 @@ export default function InventoryClient() {
                       <td style={{ padding: '14px 20px', fontWeight: 700, color: '#0f172a' }}>
                         ${Number(po.totalCost).toFixed(2)}
                       </td>
-                      <td style={{ padding: '14px 20px', textAlign: 'right', color: '#64748b' }}>
+                      <td style={{ padding: '14px 20px', color: '#64748b' }}>
                         {new Date(po.createdAt).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                        {(po.status === 'ORDERED' || po.status === 'PARTIALLY_RECEIVED') ? (
+                          <button
+                            onClick={() => setReceivingPO(po)}
+                            style={{
+                              padding: '6px 14px',
+                              borderRadius: 6,
+                              border: 'none',
+                              background: '#5b45f5',
+                              color: '#ffffff',
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              boxShadow: '0 1px 3px rgba(37,99,235,0.25)',
+                            }}
+                          >
+                            Receive PO
+                          </button>
+                        ) : po.status === 'RECEIVED' ? (
+                          <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 600 }}>
+                            ✓ Received
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>—</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -1530,6 +1690,21 @@ export default function InventoryClient() {
             </table>
           </div>
         </div>
+      )}
+
+      {/* ── STOCK COUNTS TAB ────────────────────────────────────────── */}
+      {activeTab === 'counts' && (
+        <StockCountsTab showToast={showToast} onStockUpdated={fetchInventory} />
+      )}
+
+      {/* ── RECIPES & FOOD COST TAB ──────────────────────────────────── */}
+      {activeTab === 'recipes' && (
+        <RecipesTab showToast={showToast} onRecipeChanged={fetchInventory} />
+      )}
+
+      {/* ── WASTE & SPOILAGE TAB ─────────────────────────────────────── */}
+      {activeTab === 'waste' && (
+        <WasteTab showToast={showToast} onWasteLogged={fetchInventory} />
       )}
 
       {/* ── MODAL 1: QUICK RESTOCK SHORTAGE (DREAMSPOS STYLE) ─────── */}
@@ -1649,9 +1824,9 @@ export default function InventoryClient() {
                       style={{
                         padding: '10px 8px',
                         borderRadius: 8,
-                        border: restockType === t.key ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                        border: restockType === t.key ? '2px solid #5b45f5' : '1px solid #e2e8f0',
                         background: restockType === t.key ? '#eff6ff' : '#ffffff',
-                        color: restockType === t.key ? '#2563eb' : '#475569',
+                        color: restockType === t.key ? '#5b45f5' : '#475569',
                         cursor: 'pointer',
                         textAlign: 'center',
                         transition: 'all 0.15s ease',
@@ -1681,7 +1856,7 @@ export default function InventoryClient() {
                     width: '100%',
                     padding: '10px 14px',
                     borderRadius: 8,
-                    border: '1.5px solid #2563eb',
+                    border: '1.5px solid #5b45f5',
                     fontSize: 16,
                     fontWeight: 700,
                     outline: 'none',
@@ -1741,12 +1916,12 @@ export default function InventoryClient() {
                     padding: '10px 22px',
                     borderRadius: 8,
                     border: 'none',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     fontSize: 13,
                     fontWeight: 700,
                     color: '#ffffff',
                     cursor: submittingRestock ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 2px 4px rgba(37,99,235,0.3)',
+                    boxShadow: '0 2px 4px rgba(91,69,245,0.3)',
                   }}
                 >
                   {submittingRestock ? 'Stocking In...' : 'Confirm Restock & Update'}
@@ -1920,7 +2095,7 @@ export default function InventoryClient() {
                     padding: '9px 20px',
                     borderRadius: 8,
                     border: 'none',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     fontSize: 13,
                     fontWeight: 700,
                     color: '#ffffff',
@@ -2064,7 +2239,7 @@ export default function InventoryClient() {
                     padding: '9px 20px',
                     borderRadius: 8,
                     border: 'none',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     fontSize: 13,
                     fontWeight: 700,
                     color: '#ffffff',
@@ -2142,7 +2317,7 @@ export default function InventoryClient() {
                         key={r.id}
                         style={{
                           background: '#eff6ff',
-                          color: '#2563eb',
+                          color: '#5b45f5',
                           border: '1px solid #bfdbfe',
                           borderRadius: 6,
                           padding: '4px 10px',
@@ -2236,7 +2411,7 @@ export default function InventoryClient() {
                       padding: '9px 20px',
                       borderRadius: 8,
                       border: 'none',
-                      background: '#2563eb',
+                      background: '#5b45f5',
                       fontSize: 13,
                       fontWeight: 700,
                       color: '#ffffff',
@@ -2544,7 +2719,7 @@ export default function InventoryClient() {
                     padding: '9px 20px',
                     borderRadius: 8,
                     border: 'none',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     fontSize: 13,
                     fontWeight: 700,
                     color: '#ffffff',
@@ -2557,6 +2732,19 @@ export default function InventoryClient() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ── RECEIVE PO MODAL ───────────────────────────────────────── */}
+      {receivingPO && (
+        <ReceivePOModal
+          po={receivingPO}
+          onClose={() => setReceivingPO(null)}
+          onSuccess={() => {
+            fetchSuppliersAndPOs()
+            fetchInventory()
+          }}
+          showToast={showToast}
+        />
       )}
     </div>
   )

@@ -11,7 +11,7 @@ const InvoicesTableView = dynamic(() => import('@/components/dashboard/InvoicesT
   ),
 })
 
-export const metadata = { title: 'Invoices | Resto AI' }
+export const metadata = { title: 'Invoices | Prominentz' }
 
 export default async function InvoicesPage() {
   const session = await auth()

@@ -261,7 +261,7 @@ export default function CouponsTableView() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#2563eb',
+              background: '#5b45f5',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -341,7 +341,7 @@ export default function CouponsTableView() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: statusFilter === s ? '#ffffff' : 'transparent',
-                  color: statusFilter === s ? '#2563eb' : '#64748b',
+                  color: statusFilter === s ? '#5b45f5' : '#64748b',
                   boxShadow: statusFilter === s ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                 }}
               >
@@ -635,7 +635,7 @@ export default function CouponsTableView() {
                 onClick={() => setIsViewModalOpen(false)}
                 style={{
                   padding: '8px 18px',
-                  background: '#2563eb',
+                  background: '#5b45f5',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 13,
@@ -930,7 +930,7 @@ export default function CouponsTableView() {
                   disabled={saving}
                   style={{
                     padding: '8px 20px',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,

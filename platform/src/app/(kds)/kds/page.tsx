@@ -7,7 +7,7 @@ export default async function KdsPage() {
   const session = await auth()
   
   if (!session?.user) {
-    redirect('/login')
+    redirect('/login?portal=kitchen')
   }
 
   const user = session.user

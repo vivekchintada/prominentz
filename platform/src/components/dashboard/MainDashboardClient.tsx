@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { RestoIqDrawer } from '@/components/dashboard/RestoIqDrawer'
@@ -235,6 +235,125 @@ export function MainDashboardClient({
   const [selectedDashboardTable, setSelectedDashboardTable] = useState<TableFloorNode | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
 
+  // Live Clocked-in / On-Duty Staff State
+  const [clockedInStaff, setClockedInStaff] = useState<Array<{
+    shiftId: string
+    timeEntryId?: string | null
+    name: string
+    role: string
+    jobTitle: string
+    locationName: string
+    clockInTime: string
+    durationFormatted: string
+    isFlagged?: boolean
+    flagReason?: string | null
+    distanceMeters?: number | null
+  }>>([])
+  const [loadingStaff, setLoadingStaff] = useState(true)
+
+  // Pending Shift Trades / Swaps (Manager Approval Queue)
+  const [pendingTrades, setPendingTrades] = useState<any[]>([])
+  const [tradeActionLoading, setTradeActionLoading] = useState<string | null>(null)
+
+  // Starter Restaurant Launchpad Checklist State
+  const [checklistDismissed, setChecklistDismissed] = useState(false)
+  const [checklistCollapsed, setChecklistCollapsed] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setChecklistDismissed(localStorage.getItem('resto_starter_launchpad_dismissed') === 'true')
+      setChecklistCollapsed(localStorage.getItem('resto_starter_launchpad_collapsed') === 'true')
+    }
+  }, [])
+
+  const handleDismissChecklist = () => {
+    setChecklistDismissed(true)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('resto_starter_launchpad_dismissed', 'true')
+    }
+  }
+
+  const handleToggleChecklist = () => {
+    setChecklistCollapsed((prev) => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('resto_starter_launchpad_collapsed', String(next))
+      }
+      return next
+    })
+  }
+
+  const fetchClockedInStaff = async () => {
+    try {
+      const res = await fetch('/api/employees/clocked-in')
+      if (res.ok) {
+        const data = await res.json()
+        setClockedInStaff(data.staff || [])
+      }
+    } catch (e) {
+      console.error('Failed to load clocked in staff', e)
+    } finally {
+      setLoadingStaff(false)
+    }
+  }
+
+  const fetchPendingTrades = async () => {
+    try {
+      const res = await fetch('/api/shifts/swap?status=PENDING_MANAGER')
+      if (res.ok) {
+        const data = await res.json()
+        setPendingTrades(Array.isArray(data) ? data : [])
+      }
+    } catch (e) {
+      console.error('Failed to load pending shift trades', e)
+    }
+  }
+
+  const handleResolveTrade = async (tradeId: string, action: 'APPROVE' | 'DENY') => {
+    try {
+      setTradeActionLoading(tradeId)
+      await fetch(`/api/shifts/swap/${tradeId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+      await fetchPendingTrades()
+      await fetchClockedInStaff()
+    } catch (e) {
+      console.error('Failed to act on shift trade', e)
+    } finally {
+      setTradeActionLoading(null)
+    }
+  }
+
+  useEffect(() => {
+    fetchClockedInStaff()
+    fetchPendingTrades()
+    const interval = setInterval(() => {
+      fetchClockedInStaff()
+      fetchPendingTrades()
+    }, 20000)
+
+    // SSE live updates
+    let es: EventSource | null = null
+    try {
+      es = new EventSource('/api/events')
+      es.addEventListener('employee.clocked_in', () => fetchClockedInStaff())
+      es.addEventListener('employee.clocked_out', () => fetchClockedInStaff())
+      es.addEventListener('attendance.flagged', () => fetchClockedInStaff())
+      es.addEventListener('swap.requested', () => fetchPendingTrades())
+      es.addEventListener('swap.resolved', () => {
+        fetchPendingTrades()
+        fetchClockedInStaff()
+      })
+    } catch {}
+
+    return () => {
+      clearInterval(interval)
+      es?.close()
+    }
+  }, [])
+
   // Quick Table Status Change handlers
   const handleClearTable = async (tableId: string) => {
     try {
@@ -308,6 +427,66 @@ export function MainDashboardClient({
   // Available unique categories for top-selling filter
   const categoriesList = ['All', ...Array.from(new Set(topSelling.rankedList.map((i) => i.category)))]
 
+  // Starter Restaurant Launchpad Checklist items
+  const hasMenu = Boolean(topSelling?.rankedList?.length > 0 || trendingDishes?.length > 0)
+  const hasTables = Boolean(tables && tables.length > 0)
+  const hasOrders = Boolean((stats?.totalOrders || 0) > 0)
+
+  const launchpadItems = [
+    {
+      id: 'settings',
+      step: '1',
+      title: 'Restaurant Profile & Tax',
+      desc: 'Tax percentage, currency & store details active',
+      completed: true,
+      href: '/dashboard/settings',
+      badge: 'Completed',
+    },
+    {
+      id: 'menu',
+      step: '2',
+      title: 'Digital Menu & Catalogue',
+      desc: hasMenu
+        ? `${(topSelling?.rankedList?.length || 0) + (trendingDishes?.length || 0)} dishes configured`
+        : 'Add dishes, categories & modifiers',
+      completed: hasMenu,
+      href: '/dashboard/menu',
+      badge: hasMenu ? 'Active' : 'Setup Menu',
+    },
+    {
+      id: 'floor',
+      step: '3',
+      title: 'Dining Floor & Tables',
+      desc: hasTables ? `${tables.length} tables mapped to floor zones` : 'Add table numbers & seating capacities',
+      completed: hasTables,
+      href: '/dashboard/tables',
+      badge: hasTables ? 'Configured' : 'Add Tables',
+    },
+    {
+      id: 'qr',
+      step: '4',
+      title: 'Table QR Studio & Waiter Call',
+      desc: 'Generate printable QR codes with instant waiter call',
+      completed: hasTables,
+      href: '/dashboard/tables/qr',
+      badge: hasTables ? 'Ready to Print' : 'Requires Tables',
+    },
+    {
+      id: 'pos',
+      step: '5',
+      title: 'POS Terminal & Thermal Print',
+      desc: hasOrders
+        ? `${stats.totalOrders} total orders processed`
+        : 'Place a live test order & print 80mm/58mm ticket',
+      completed: hasOrders,
+      href: '/dashboard/pos',
+      badge: hasOrders ? 'Verified' : 'Open POS',
+    },
+  ]
+
+  const completedLaunchpadCount = launchpadItems.filter((i) => i.completed).length
+  const launchpadPercent = Math.round((completedLaunchpadCount / launchpadItems.length) * 100)
+
   return (
     <div className="dream-dashboard">
       {/* ── RESTO IQ PROACTIVE OPERATIONS TICKER ─────────────────────────── */}
@@ -336,7 +515,7 @@ export function MainDashboardClient({
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: '#2563eb',
+            color: '#5b45f5',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
@@ -347,6 +526,246 @@ export function MainDashboardClient({
           Open Command Center ↗
         </Link>
       </div>
+
+      {/* ── STARTER LAUNCHPAD CHECKLIST ────────────────────────────────────── */}
+      {checklistDismissed ? (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
+          <button
+            onClick={() => {
+              setChecklistDismissed(false)
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('resto_starter_launchpad_dismissed')
+              }
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 20,
+              padding: '4px 12px',
+              fontSize: 11,
+              fontWeight: 700,
+              color: '#64748b',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <span>🚀 Restaurant Launchpad ({completedLaunchpadCount}/{launchpadItems.length})</span>
+            <span style={{ color: '#5b45f5' }}>Show</span>
+          </button>
+        </div>
+      ) : (
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            border: '1px solid #e2e8f0',
+            borderRadius: 16,
+            padding: '16px 20px',
+            marginBottom: 20,
+            boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.04)',
+          }}
+        >
+          {/* Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #5b45f5 0%, #4f46e5 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 18,
+                  color: '#fff',
+                  boxShadow: '0 2px 6px rgba(91,69,245,0.3)',
+                }}
+              >
+                🚀
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Restaurant Launchpad</span>
+                  <span
+                    style={{
+                      background: completedLaunchpadCount === 5 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(37, 99, 235, 0.1)',
+                      color: completedLaunchpadCount === 5 ? '#059669' : '#5b45f5',
+                      padding: '2px 8px',
+                      borderRadius: 12,
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  >
+                    Starter Pack {completedLaunchpadCount === 5 ? '• 100% Ready' : `• ${launchpadPercent}% Ready`}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                  Essential operational milestones to get your dining room, menu, and POS fully primed for service.
+                </div>
+              </div>
+            </div>
+
+            {/* Actions & Progress Summary */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: completedLaunchpadCount === 5 ? '#059669' : '#0f172a' }}>
+                  {completedLaunchpadCount} of {launchpadItems.length} Milestones
+                </span>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                  {completedLaunchpadCount === 5 ? 'All starter features verified' : 'Complete remaining steps'}
+                </div>
+              </div>
+
+              <button
+                onClick={handleToggleChecklist}
+                title={checklistCollapsed ? 'Expand checklist' : 'Collapse checklist'}
+                style={{
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: 8,
+                  width: 32,
+                  height: 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  color: '#475569',
+                }}
+              >
+                {checklistCollapsed ? '▼' : '▲'}
+              </button>
+
+              <button
+                onClick={handleDismissChecklist}
+                title="Dismiss Launchpad"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: 8,
+                  width: 32,
+                  height: 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: 15,
+                  color: '#94a3b8',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div style={{ width: '100%', height: 6, background: '#e2e8f0', borderRadius: 6, marginTop: 14, overflow: 'hidden' }}>
+            <div
+              style={{
+                width: `${launchpadPercent}%`,
+                height: '100%',
+                background: completedLaunchpadCount === 5 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #5b45f5, #4f46e5)',
+                borderRadius: 6,
+                transition: 'width 0.4s ease',
+              }}
+            />
+          </div>
+
+          {/* Grid of 5 milestones (collapsible) */}
+          {!checklistCollapsed && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 12,
+                marginTop: 16,
+              }}
+            >
+              {launchpadItems.map((item) => (
+                <div
+                  key={item.id}
+                  style={{
+                    background: item.completed ? 'rgba(16, 185, 129, 0.04)' : '#ffffff',
+                    border: `1px solid ${item.completed ? 'rgba(16, 185, 129, 0.3)' : '#e2e8f0'}`,
+                    borderRadius: 12,
+                    padding: '12px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    position: 'relative',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span
+                        style={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          background: item.completed ? '#10b981' : '#e2e8f0',
+                          color: item.completed ? '#fff' : '#64748b',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          fontWeight: 800,
+                        }}
+                      >
+                        {item.completed ? '✓' : item.step}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          color: item.completed ? '#059669' : '#64748b',
+                          background: item.completed ? 'rgba(16, 185, 129, 0.1)' : '#f1f5f9',
+                          padding: '2px 6px',
+                          borderRadius: 6,
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 3 }}>
+                      {item.title}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4, marginBottom: 12 }}>
+                      {item.desc}
+                    </div>
+                  </div>
+
+                  <Link
+                    href={item.href}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 4,
+                      padding: '6px 10px',
+                      borderRadius: 8,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textDecoration: 'none',
+                      color: item.completed ? '#059669' : '#5b45f5',
+                      background: item.completed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(37, 99, 235, 0.08)',
+                      border: `1px solid ${item.completed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(37, 99, 235, 0.2)'}`,
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    <span>{item.completed ? 'Review' : 'Set Up'}</span>
+                    <span>→</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── ROW 1: 4 Top KPI Cards ────────────────────────────────────────── */}
       <div className="dream-kpi-grid">
@@ -469,7 +888,7 @@ export function MainDashboardClient({
               </div>
             </div>
             <div className="dream-rev-legend">
-              <span style={{ width: 12, height: 12, borderRadius: 2, background: '#3b82f6', display: 'inline-block' }} />
+              <span style={{ width: 12, height: 12, borderRadius: 2, background: '#7b68f7', display: 'inline-block' }} />
               Revenue
             </div>
           </div>
@@ -530,7 +949,7 @@ export function MainDashboardClient({
                       style={{
                         fontSize: 11,
                         fontWeight: 700,
-                        color: isHovered ? '#2563eb' : 'var(--color-text-secondary)',
+                        color: isHovered ? '#5b45f5' : 'var(--color-text-secondary)',
                         transition: 'color var(--transition-fast)',
                       }}
                     >
@@ -544,8 +963,8 @@ export function MainDashboardClient({
                           width: '100%',
                           height: `${bar.height}%`,
                           background: isHovered
-                            ? 'linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%)'
-                            : 'linear-gradient(180deg, #3b82f6 0%, #2563eb 100%)',
+                            ? 'linear-gradient(180deg, #5b45f5 0%, #4a36d9 100%)'
+                            : 'linear-gradient(180deg, #7b68f7 0%, #5b45f5 100%)',
                           borderRadius: '8px 8px 0 0',
                           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                           boxShadow: isHovered ? '0 6px 16px rgba(37, 99, 235, 0.35)' : 'none',
@@ -624,7 +1043,7 @@ export function MainDashboardClient({
           {/* Ranked List of other sold items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 4 }}>
             {filteredRanked.slice(0, 4).map((dish, i) => {
-              const colors = ['#3b82f6', '#f59e0b', '#10b981', '#a855f7']
+              const colors = ['#7b68f7', '#f59e0b', '#10b981', '#a855f7']
               const color = colors[i % colors.length]
               const maxQty = mostOrdered ? Math.max(mostOrdered.ordersCount, 1) : 20
               const barWidth = Math.max(Math.round((dish.ordersCount / maxQty) * 100), 20)
@@ -740,11 +1159,11 @@ export function MainDashboardClient({
             </div>
 
             {/* Avatar Stack */}
-            <div className="dream-avatar-stack">
-              <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" alt="user 1" width={28} height={28} className="dream-stack-img" unoptimized />
-              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" alt="user 2" width={28} height={28} className="dream-stack-img" unoptimized />
-              <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&q=80" alt="user 3" width={28} height={28} className="dream-stack-img" unoptimized />
-              <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&q=80" alt="user 4" width={28} height={28} className="dream-stack-img" unoptimized />
+            <div className="dream-avatar-stack" aria-label="Active floor staff on shift">
+              <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" alt="Staff member Alex" width={28} height={28} className="dream-stack-img" unoptimized />
+              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" alt="Staff member Marcus" width={28} height={28} className="dream-stack-img" unoptimized />
+              <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&q=80" alt="Staff member Elena" width={28} height={28} className="dream-stack-img" unoptimized />
+              <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&q=80" alt="Staff member David" width={28} height={28} className="dream-stack-img" unoptimized />
             </div>
           </div>
 
@@ -753,8 +1172,8 @@ export function MainDashboardClient({
             <svg viewBox="0 0 300 120" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
               <defs>
                 <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="#7b68f7" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#7b68f7" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               <path
@@ -764,13 +1183,303 @@ export function MainDashboardClient({
               <path
                 d="M 0 85 C 40 85, 60 95, 90 80 C 130 60, 160 80, 200 60 C 230 45, 260 70, 280 20 L 300 15"
                 fill="none"
-                stroke="#3b82f6"
+                stroke="#7b68f7"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
             </svg>
           </div>
         </div>
+      </div>
+
+      {/* ── LIVE ON-DUTY STAFF & TIMECOMMAND ROSTER (OWNER / MANAGER VIEW) ── */}
+      <div className="dream-card" style={{ marginBottom: 20 }}>
+        <div className="dream-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="dream-card-title">
+              <span>👥</span> Active On-Duty Staff
+            </div>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                padding: '3px 10px',
+                borderRadius: 999,
+                backgroundColor: clockedInStaff.length > 0 ? 'rgba(34,197,94,0.15)' : 'rgba(148,163,184,0.15)',
+                color: clockedInStaff.length > 0 ? '#16a34a' : 'var(--color-text-tertiary)',
+                border: clockedInStaff.length > 0 ? '1px solid rgba(34,197,94,0.3)' : '1px solid var(--color-border)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              <span>{clockedInStaff.length > 0 ? '●' : '○'}</span>
+              <span>{clockedInStaff.length} Clocked In</span>
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={fetchClockedInStaff}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-text-tertiary)',
+                fontSize: 12,
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+              title="Refresh Roster"
+            >
+              ↻ Refresh
+            </button>
+            <Link
+              href="/dashboard/team"
+              style={{ fontSize: 12, fontWeight: 700, color: '#5b45f5', textDecoration: 'none' }}
+            >
+              Manage Staff & Shifts →
+            </Link>
+          </div>
+        </div>
+
+        {clockedInStaff.length === 0 ? (
+          <div
+            style={{
+              padding: '24px 20px',
+              textAlign: 'center',
+              backgroundColor: 'var(--color-bg)',
+              borderRadius: 14,
+              border: '1px dashed var(--color-border)',
+              margin: '8px 0',
+            }}
+          >
+            <span style={{ fontSize: 24, display: 'block', marginBottom: 6 }}>⏰</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+              No staff currently clocked in
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 4 }}>
+              When servers, kitchen chefs, or managers clock in from their phone terminal or POS, they will appear here in real time.
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+              gap: 12,
+              marginTop: 10,
+            }}
+          >
+            {clockedInStaff.map((member) => {
+              const isServer = member.role === 'SERVER'
+              const isKitchen = member.role === 'KITCHEN'
+              const roleBadgeBg = isServer ? 'rgba(91,69,245,0.12)' : isKitchen ? 'rgba(249,115,22,0.12)' : 'rgba(168,85,247,0.12)'
+              const roleBadgeColor = isServer ? '#5b45f5' : isKitchen ? '#ea580c' : '#9333ea'
+
+              return (
+                <div
+                  key={member.shiftId}
+                  style={{
+                    backgroundColor: 'var(--color-bg)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 14,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: isServer ? 'linear-gradient(135deg, #5b45f5, #4a36d9)' : isKitchen ? 'linear-gradient(135deg, #f97316, #c2410c)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: 14,
+                      position: 'relative',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {member.name.charAt(0).toUpperCase()}
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        backgroundColor: '#22c55e',
+                        border: '2px solid var(--color-bg)',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 800,
+                          color: 'var(--color-text-primary)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                        title={member.name}
+                      >
+                        {member.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 9,
+                          fontWeight: 800,
+                          padding: '2px 6px',
+                          borderRadius: 4,
+                          backgroundColor: roleBadgeBg,
+                          color: roleBadgeColor,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {member.role}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+                      {member.jobTitle} • {member.locationName}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, fontSize: 11, flexWrap: 'wrap' }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>
+                        In at {member.clockInTime}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          color: '#16a34a',
+                          backgroundColor: 'rgba(34,197,94,0.12)',
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                          fontFamily: 'monospace',
+                        }}
+                      >
+                        ⏱ {member.durationFormatted}
+                      </span>
+                      {member.isFlagged && (
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 800,
+                            color: '#b45309',
+                            backgroundColor: 'rgba(245,158,11,0.16)',
+                            padding: '1px 6px',
+                            borderRadius: 4,
+                          }}
+                          title={member.flagReason || 'Geofence violation'}
+                        >
+                          ⚠️ Geofence Flag ({member.distanceMeters ?? '?'}m)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* ── Pending Shift Swap Approvals Queue ── */}
+        {pendingTrades.length > 0 && (
+          <div
+            style={{
+              marginTop: 14,
+              padding: '12px 16px',
+              backgroundColor: 'rgba(37,99,235,0.06)',
+              border: '1px solid rgba(37,99,235,0.2)',
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 13, color: '#5b45f5' }}>
+                <span>🔄</span>
+                <span>Shift Swap Approval Queue ({pendingTrades.length} Pending)</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {pendingTrades.map((t) => (
+                <div
+                  key={t.id}
+                  style={{
+                    backgroundColor: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 10,
+                    padding: '10px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    fontSize: 12,
+                  }}
+                >
+                  <div>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                      {t.requester?.user?.name || 'Server'}
+                    </span>{' '}
+                    wants to trade shift with{' '}
+                    <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                      {t.targetEmployee?.user?.name || 'Open Floor Pool'}
+                    </span>
+                    {t.reason && (
+                      <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 6 }}>
+                        — &quot;{t.reason}&quot;
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      onClick={() => handleResolveTrade(t.id, 'APPROVE')}
+                      disabled={tradeActionLoading === t.id}
+                      style={{
+                        padding: '4px 12px',
+                        borderRadius: 6,
+                        backgroundColor: '#16a34a',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 700,
+                        fontSize: 11,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {tradeActionLoading === t.id ? '...' : 'Approve ✓'}
+                    </button>
+                    <button
+                      onClick={() => handleResolveTrade(t.id, 'DENY')}
+                      disabled={tradeActionLoading === t.id}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 6,
+                        backgroundColor: 'transparent',
+                        color: '#dc2626',
+                        border: '1px solid #fecdd3',
+                        fontWeight: 700,
+                        fontSize: 11,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Deny ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── ROW 4: Real Reservations, Actual Tables Floor Plan, Notifications ─ */}
@@ -831,7 +1540,7 @@ export function MainDashboardClient({
             <div className="dream-card-title">
               <span>🪑</span> Tables Available
             </div>
-            <Link href="/dashboard/tables" style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-brand-600, #2563eb)', textDecoration: 'none' }}>
+            <Link href="/dashboard/tables" style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-brand-600, #5b45f5)', textDecoration: 'none' }}>
               View All Floor Plan →
             </Link>
           </div>
@@ -1108,7 +1817,7 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 8,
                       padding: '11px',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#5b45f5',
                       color: '#ffffff',
                       borderRadius: 10,
                       fontWeight: 700,
@@ -1180,7 +1889,7 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 8,
                       padding: '11px',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#5b45f5',
                       color: '#ffffff',
                       borderRadius: 10,
                       fontWeight: 700,
@@ -1217,7 +1926,7 @@ export function MainDashboardClient({
                 style={{
                   fontSize: 12,
                   textAlign: 'center',
-                  color: '#2563eb',
+                  color: '#5b45f5',
                   fontWeight: 600,
                   textDecoration: 'none',
                   marginTop: 4,
@@ -1398,7 +2107,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>In Kitchen / Live</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#2563eb', marginTop: 4 }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: '#5b45f5', marginTop: 4 }}>
                           {kpiData.orders.statusCounts.open + kpiData.orders.statusCounts.sentToKitchen + kpiData.orders.statusCounts.ready}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Active tickets</div>
@@ -1429,7 +2138,7 @@ export function MainDashboardClient({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           {[
                             { label: 'Paid & Completed', count: kpiData.orders.statusCounts.paid, color: '#16a34a' },
-                            { label: 'Sent to Kitchen', count: kpiData.orders.statusCounts.sentToKitchen, color: '#2563eb' },
+                            { label: 'Sent to Kitchen', count: kpiData.orders.statusCounts.sentToKitchen, color: '#5b45f5' },
                             { label: 'Open / Unsent', count: kpiData.orders.statusCounts.open, color: '#f59e0b' },
                             { label: 'Ready for Service', count: kpiData.orders.statusCounts.ready, color: '#8b5cf6' },
                             { label: 'Voided', count: kpiData.orders.statusCounts.voided, color: '#dc2626' },
@@ -1457,7 +2166,7 @@ export function MainDashboardClient({
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                           {[
-                            { label: 'POS Terminal & Dine-In', count: kpiData.orders.channelCounts.pos, icon: '🖥️', color: '#2563eb' },
+                            { label: 'POS Terminal & Dine-In', count: kpiData.orders.channelCounts.pos, icon: '🖥️', color: '#5b45f5' },
                             { label: 'QR Self-Order Tabletop', count: kpiData.orders.channelCounts.qrTable, icon: '📱', color: '#10b981' },
                             { label: 'Delivery Apps (DoorDash/Uber)', count: kpiData.orders.channelCounts.delivery, icon: '🛵', color: '#f59e0b' },
                           ].map((c) => {
@@ -1519,8 +2228,8 @@ export function MainDashboardClient({
                                         borderRadius: 6,
                                         fontSize: 10,
                                         fontWeight: 800,
-                                        background: o.status === 'PAID' ? 'rgba(34, 197, 94, 0.15)' : o.status === 'SENT_TO_KITCHEN' ? 'rgba(37, 99, 235, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                        color: o.status === 'PAID' ? '#16a34a' : o.status === 'SENT_TO_KITCHEN' ? '#2563eb' : '#d97706',
+                                        background: o.status === 'PAID' ? 'rgba(34, 197, 94, 0.15)' : o.status === 'SENT_TO_KITCHEN' ? 'rgba(91,69,245,0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                        color: o.status === 'PAID' ? '#16a34a' : o.status === 'SENT_TO_KITCHEN' ? '#5b45f5' : '#d97706',
                                       }}
                                     >
                                       {o.status}
@@ -1557,12 +2266,12 @@ export function MainDashboardClient({
                         style={{
                           padding: '9px 18px',
                           borderRadius: 10,
-                          background: '#2563eb',
+                          background: '#5b45f5',
                           color: '#ffffff',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',
-                          boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                          boxShadow: '0 4px 12px rgba(91,69,245,0.3)',
                         }}
                       >
                         📦 Open Live Orders Workspace →
@@ -1618,7 +2327,7 @@ export function MainDashboardClient({
                       {/* Multi-segment bar */}
                       <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: 14, background: 'var(--color-border)' }}>
                         {kpiData.sales.paymentMethods.map((pm, idx) => {
-                          const colors = ['#2563eb', '#16a34a', '#8b5cf6', '#f59e0b']
+                          const colors = ['#5b45f5', '#16a34a', '#8b5cf6', '#f59e0b']
                           return (
                             <div
                               key={pm.method}
@@ -1636,7 +2345,7 @@ export function MainDashboardClient({
                       {/* Method Cards */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                         {kpiData.sales.paymentMethods.map((pm, idx) => {
-                          const colors = ['#2563eb', '#16a34a', '#8b5cf6', '#f59e0b']
+                          const colors = ['#5b45f5', '#16a34a', '#8b5cf6', '#f59e0b']
                           return (
                             <div
                               key={pm.method}
@@ -1687,7 +2396,7 @@ export function MainDashboardClient({
                         </div>
                         <div style={{ padding: '10px 12px', background: 'var(--color-bg-card)', borderRadius: 10, border: '1px solid var(--color-border)' }}>
                           <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Digital Payment Ratio</span>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: '#2563eb', marginTop: 2 }}>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: '#5b45f5', marginTop: 2 }}>
                             78.0% Non-Cash
                           </div>
                         </div>
@@ -1775,7 +2484,7 @@ export function MainDashboardClient({
                       </h4>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                         {kpiData.aov.tierDistribution.map((t, idx) => {
-                          const tierColors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899']
+                          const tierColors = ['#06b6d4', '#7b68f7', '#8b5cf6', '#ec4899']
                           return (
                             <div
                               key={t.label}
@@ -1887,7 +2596,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Currently Seated</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#2563eb', marginTop: 4 }}>{kpiData.reservations.statusCounts.seated}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: '#5b45f5', marginTop: 4 }}>{kpiData.reservations.statusCounts.seated}</div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Dining right now</div>
                       </div>
 
@@ -1937,8 +2646,8 @@ export function MainDashboardClient({
                                       borderRadius: 6,
                                       fontSize: 10,
                                       fontWeight: 800,
-                                      background: r.status === 'Booked' || r.status === 'CONFIRMED' ? 'rgba(34, 197, 94, 0.15)' : r.status === 'Seated' || r.status === 'SEATED' ? 'rgba(37, 99, 235, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                      color: r.status === 'Booked' || r.status === 'CONFIRMED' ? '#16a34a' : r.status === 'Seated' || r.status === 'SEATED' ? '#2563eb' : '#d97706',
+                                      background: r.status === 'Booked' || r.status === 'CONFIRMED' ? 'rgba(34, 197, 94, 0.15)' : r.status === 'Seated' || r.status === 'SEATED' ? 'rgba(91,69,245,0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                      color: r.status === 'Booked' || r.status === 'CONFIRMED' ? '#16a34a' : r.status === 'Seated' || r.status === 'SEATED' ? '#5b45f5' : '#d97706',
                                     }}
                                   >
                                     {r.status}

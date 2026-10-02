@@ -3,6 +3,7 @@ import TopBar from '@/components/layout/TopBar'
 import { SidebarCollapseProvider } from '@/components/layout/SidebarCollapseContext'
 import { RestoIQAssistant } from '@/components/dashboard/RestoIQAssistant'
 import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { PlanTier } from '@/lib/plans'
 
@@ -12,9 +13,21 @@ interface DashboardLayoutProps {
 
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const session = await auth()
-  const userRole = session?.user?.role
-  const userName = session?.user?.name ?? ''
-  const userImage = session?.user?.image ?? null
+  if (!session?.user) {
+    redirect('/login')
+  }
+
+  // Strict Role Gate: Server and Kitchen staff have dedicated operational workspaces
+  if (session.user.role === 'SERVER') {
+    redirect('/server')
+  }
+  if (session.user.role === 'KITCHEN') {
+    redirect('/kds')
+  }
+
+  const userRole = session.user.role
+  const userName = session.user.name ?? ''
+  const userImage = session.user.image ?? null
 
   // Build user initials from name
   const userInitials = userName
@@ -25,11 +38,11 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
     .slice(0, 2) || 'U'
 
   // Resolve the restaurant's active plan tier
-  let planTier: PlanTier = 'ENTERPRISE'
+  let planTier: PlanTier = 'STARTER'
   let restaurantName = 'My Restaurant'
 
   try {
-    let restaurantId = session?.user?.restaurantId
+    let restaurantId: string | undefined = session?.user?.restaurantId
     if (!restaurantId) {
       const fb = await prisma.restaurant.findFirst()
       restaurantId = fb?.id
@@ -70,9 +83,6 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
           </main>
         </div>
       </div>
-
-      {/* AI assistant floats over the layout */}
-      <RestoIQAssistant />
     </SidebarCollapseProvider>
   )
 }

@@ -4,7 +4,7 @@ import { QrGeneratorClient } from '@/components/dashboard/QrGeneratorClient'
 import { PageHeader } from '@/components/ui/PageHeader'
 
 export const metadata = {
-  title: 'Table QR Code Generator | Resto AI',
+  title: 'Table QR Code Generator | Prominentz',
 }
 
 export default async function TableQrPage() {

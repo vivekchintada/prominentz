@@ -205,7 +205,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
       {tables.length === 0 && (
         <p style={{ color: '#8E8E93', fontSize: 14, textAlign: 'center', marginTop: 40 }}>
           No tables found. Set up tables in the{' '}
-          <Link href="/dashboard/tables/qr" style={{ color: '#2563eb' }}>Dashboard</Link>.
+          <Link href="/dashboard/tables/qr" style={{ color: '#5b45f5' }}>Dashboard</Link>.
         </p>
       )}
 
@@ -246,7 +246,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
               >
                 -
               </button>
-              <span style={{ fontSize: 32, fontWeight: 800, color: '#2563eb', minWidth: 40 }}>{guestCount}</span>
+              <span style={{ fontSize: 32, fontWeight: 800, color: '#5b45f5', minWidth: 40 }}>{guestCount}</span>
               <button
                 type="button"
                 onClick={() => setGuestCount((c) => c + 1)}
@@ -277,7 +277,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                 disabled={submitting}
                 style={{
                   flex: 1, padding: 12, borderRadius: 12,
-                  background: '#2563eb', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer',
+                  background: '#5b45f5', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer',
                 }}
               >
                 {submitting ? 'Opening...' : 'Open Table'}
@@ -343,7 +343,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                       flex: 1,
                       padding: 14,
                       borderRadius: 12,
-                      background: '#2563eb',
+                      background: '#5b45f5',
                       color: '#fff',
                       textDecoration: 'none',
                       fontWeight: 700,

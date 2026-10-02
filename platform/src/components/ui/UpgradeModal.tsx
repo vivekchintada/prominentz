@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { PlanTier, PRICING, getUpgradeFeatures, getUpgradeMessage } from '@/lib/pricing'
 
 interface UpgradeModalProps {
@@ -11,6 +12,7 @@ interface UpgradeModalProps {
 }
 
 export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER', onClose }: UpgradeModalProps) {
+  const router = useRouter()
   const required = PRICING[requiredTier]
   const upgradeFeatures = getUpgradeFeatures(currentPlan, requiredTier)
   const { from, to, delta, savings } = getUpgradeMessage(currentPlan, requiredTier)
@@ -22,6 +24,11 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
       sessionStorage.setItem('resto_last_locked_tier', requiredTier)
     } catch {}
   }, [featureName, requiredTier])
+
+  const handleUpgradeClick = () => {
+    onClose()
+    router.push('/dashboard/settings/billing')
+  }
 
   return (
     <div
@@ -68,54 +75,43 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
               borderRadius: '999px',
               fontSize: '10px',
               fontWeight: 800,
-              backgroundColor: required.color + '22',
-              color: required.color,
-              border: `0.5px solid ${required.color}44`,
+              backgroundColor: 'rgba(239,68,68,0.15)',
+              color: '#ef4444',
+              border: '0.5px solid rgba(239,68,68,0.3)',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
             }}>
-              🔒 {required.label} Feature
+              🔒 Not in Basic Plan
             </span>
           </div>
 
           <h2 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 800, color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.03em' }}>
-            Unlock {featureName}
+            {featureName}
           </h2>
 
-          {/* Current → Required pricing callout */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginTop: '10px',
-            padding: '10px 14px',
-            backgroundColor: 'rgba(0,0,0,0.30)',
-            borderRadius: '10px',
-            border: '0.5px solid rgba(255,255,255,0.08)',
-          }}>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{from}</span>
-            <span style={{ color: required.color, fontSize: '14px' }}>→</span>
-            <span style={{ fontSize: '13px', color: required.color, fontWeight: 700 }}>{to}</span>
-            <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
-              +${delta}/mo
-            </span>
-          </div>
+          <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+            Intelligence, Guest CRM, and Loyalty Rewards are not included in the $40/mo Basic Plan. These features will launch in upcoming advanced tiers.
+          </p>
         </div>
 
-        {/* Features gained */}
+        {/* Features list */}
         <div style={{ padding: '20px 24px' }}>
           <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>
-            What you unlock on {required.label}
+            Features Not Included in Basic Plan:
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-            {upgradeFeatures.map((feature: { icon: string; label: string }, i: number) => (
+            {[
+              { icon: '🧠', label: 'RestoIQ AI Operations Agent & Intelligence' },
+              { icon: '👥', label: 'Guest CRM & VIP Dining Histories' },
+              { icon: '⭐', label: 'Automatic Loyalty Points & Rewards Engine' },
+            ].map((feature, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{
                   width: '26px',
                   height: '26px',
                   borderRadius: '7px',
-                  backgroundColor: required.color + '18',
+                  backgroundColor: 'rgba(239,68,68,0.1)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -125,40 +121,38 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
                   {feature.icon}
                 </span>
                 <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.78)', fontWeight: 500 }}>{feature.label}</span>
-                {i === 0 && (
-                  <span style={{ marginLeft: 'auto', fontSize: '10px', fontWeight: 700, color: required.color, backgroundColor: required.color + '18', padding: '2px 6px', borderRadius: '4px' }}>
-                    JUST TRIED
-                  </span>
-                )}
+                <span style={{ marginLeft: 'auto', fontSize: '10px', fontWeight: 700, color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                  COMING SOON
+                </span>
               </div>
             ))}
           </div>
 
-          {/* Annual savings callout */}
+          {/* Basic plan reminder */}
           <div style={{
             padding: '10px 14px',
-            backgroundColor: 'rgba(48,209,88,0.08)',
-            border: '0.5px solid rgba(48,209,88,0.2)',
+            backgroundColor: 'rgba(37,99,235,0.08)',
+            border: '0.5px solid rgba(37,99,235,0.2)',
             borderRadius: '10px',
             marginBottom: '16px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
           }}>
-            <span style={{ fontSize: '14px' }}>💡</span>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.60)', lineHeight: 1.4 }}>
-              Switch to annual billing and <strong style={{ color: '#30D158' }}>save ${savings}</strong> — 2 months free.
+            <span style={{ fontSize: '14px' }}>ℹ️</span>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.70)', lineHeight: 1.4 }}>
+              Your <strong style={{ color: '#60a5fa' }}>Basic Plan ($40/mo)</strong> covers complete POS, KDS, Floor Tables, QR Studio, and Sales Reports.
             </span>
           </div>
 
           {/* CTA Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
-              onClick={onClose}
+              onClick={handleUpgradeClick}
               style={{
                 width: '100%',
-                height: '44px',
-                background: `linear-gradient(135deg, ${required.color} 0%, ${required.color}CC 100%)`,
+                height: '42px',
+                background: 'linear-gradient(135deg, #5b45f5 0%, #4a36d9 100%)',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '12px',
@@ -166,11 +160,11 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
                 fontSize: '14px',
                 cursor: 'pointer',
                 letterSpacing: '-0.01em',
-                boxShadow: `0 4px 16px ${required.color}40`,
+                boxShadow: '0 4px 16px rgba(91,69,245,0.3)',
                 transition: 'all 150ms ease',
               }}
             >
-              ⬆ Upgrade to {required.label} — ${required.monthly}/mo
+              View Basic Plan Details ($40/mo)
             </button>
             <button
               onClick={onClose}
@@ -178,14 +172,14 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
                 width: '100%',
                 height: '36px',
                 backgroundColor: 'transparent',
-                color: 'rgba(255,255,255,0.35)',
+                color: 'rgba(255,255,255,0.5)',
                 border: 'none',
                 fontSize: '13px',
                 cursor: 'pointer',
                 fontWeight: 500,
               }}
             >
-              Maybe later
+              Close
             </button>
           </div>
         </div>

@@ -18,7 +18,7 @@ export async function PATCH(
     const body = await req.json()
     const { status } = body as { status: TicketStatus }
 
-    if (!['NEW', 'IN_PROGRESS', 'READY', 'SERVED'].includes(status)) {
+    if (!['NEW', 'IN_PROGRESS', 'READY', 'SERVED', 'VOIDED'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status value' }, { status: 400 })
     }
 

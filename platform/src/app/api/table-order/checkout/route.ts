@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { recalculateOrderTotals } from '@/lib/orders'
+import { getFeatureFlags, getDeliverySettings } from '@/lib/settings-helpers'
 import type { KdsStation } from '@prisma/client'
 
 // ─── POST /api/table-order/checkout ──────────────────────────────────────────
@@ -9,7 +10,7 @@ import type { KdsStation } from '@prisma/client'
 // Automatically fires order tickets directly to Kitchen KDS screens!
 export async function POST(req: NextRequest) {
   try {
-    const { tableId, locationId, items, guestCount = 1, notes, guestName, guestPhone } = await req.json()
+    const { tableId, locationId, items, guestCount = 1, notes, guestName, guestPhone, mode } = await req.json()
 
     if (!tableId || !locationId || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -38,6 +39,15 @@ export async function POST(req: NextRequest) {
 
     const restaurantId = table.location.restaurantId
     const effectiveLocationId = table.location.id
+
+    // ── Feature flag: enableOrderViaQr ──────────────────────────────────
+    const flags = await getFeatureFlags(restaurantId)
+    if (flags.enableOrderViaQr === false) {
+      return NextResponse.json(
+        { error: 'Self-ordering via QR code is currently disabled. Please ask your server to take your order.' },
+        { status: 403 },
+      )
+    }
 
     // 2. Link or create CRM Customer if phone number provided
     let customerId: string | null = null
@@ -178,8 +188,38 @@ export async function POST(req: NextRequest) {
       kdsTickets.push(ticket)
     }
 
-    // 8. Recalculate Order Financial Totals
-    const updatedOrder = await recalculateOrderTotals(order.id)
+    // 8. Recalculate Order Financial Totals (uses settings tax rates)
+    let updatedOrder = await recalculateOrderTotals(order.id)
+
+    // 9. Apply delivery fee if mode is takeout/delivery
+    if (mode === 'takeout' || mode === 'delivery') {
+      const deliverySettings = await getDeliverySettings(restaurantId)
+      if (deliverySettings) {
+        const currentTotal = Number(updatedOrder.total)
+        let deliveryFee = 0
+
+        // Fixed delivery fee check
+        if (deliverySettings.fixedDelivery?.enabled) {
+          deliveryFee = parseFloat(deliverySettings.fixedDelivery.amount || '0')
+        }
+
+        // Free delivery override if over threshold
+        if (deliverySettings.freeDelivery?.enabled) {
+          const freeOver = parseFloat(deliverySettings.freeDelivery.overAmount || '0')
+          if (currentTotal >= freeOver) deliveryFee = 0
+        }
+
+        if (deliveryFee > 0) {
+          updatedOrder = await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              total: Number(updatedOrder.total) + deliveryFee,
+              notes: `${updatedOrder.notes || ''} | Delivery fee: $${deliveryFee.toFixed(2)}`,
+            },
+          })
+        }
+      }
+    }
 
     // 9. Fire Real-time Events to Kitchen KDS & POS Screens
     await publishEvent(EVENTS.ORDER_SENT_KITCHEN, {

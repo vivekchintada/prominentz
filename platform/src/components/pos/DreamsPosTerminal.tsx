@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '../ui/ThemeToggle'
 import ModifierSelector from './ModifierSelector'
+import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
 import CheckoutModal from '../payments/CheckoutModal'
 import SplitCheckModal from './SplitCheckModal'
 import QuickNoteModal from './QuickNoteModal'
@@ -157,6 +158,54 @@ export function DreamsPosTerminal({
 
   // Cart Items (starts empty — user adds from the dish grid)
   const [cart, setCart] = useState<CartItem[]>([])
+
+  // Shift Timeclock State
+  const [clockStatus, setClockStatus] = useState<{
+    isClockedIn: boolean
+    shift: { id: string; clockIn: string; elapsedMinutes: number } | null
+  }>({ isClockedIn: false, shift: null })
+  const [clockLoading, setClockLoading] = useState(false)
+
+  const fetchClockStatus = async () => {
+    try {
+      const res = await fetch('/api/server/clock')
+      if (res.ok) {
+        const data = await res.json()
+        setClockStatus({ isClockedIn: data.isClockedIn, shift: data.shift })
+      }
+    } catch {}
+  }
+
+  const handleToggleClock = async () => {
+    setClockLoading(true)
+    try {
+      const res = await fetch('/api/server/clock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: clockStatus.isClockedIn ? 'CLOCK_OUT' : 'CLOCK_IN' }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setClockStatus({ isClockedIn: data.isClockedIn, shift: data.shift })
+        showToast(
+          data.isClockedIn
+            ? '🟢 Clocked in successfully! Have a great shift.'
+            : '⏹ Clocked out of shift.',
+          'success'
+        )
+      } else {
+        showToast(data.error || 'Failed to update timeclock', 'error')
+      }
+    } catch (e: any) {
+      showToast(e?.message || 'Failed to connect to timeclock', 'error')
+    } finally {
+      setClockLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchClockStatus()
+  }, [])
 
   // Items already fired to Kitchen — kept visible in check for billing
   const [sentItems, setSentItems] = useState<CartItem[]>([])
@@ -407,6 +456,14 @@ export function DreamsPosTerminal({
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false)
   const [statementOrder, setStatementOrder] = useState<any | null>(null)
 
+  // Thermal Print & Cash Drawer Reconciliation
+  const [isThermalPrintOpen, setIsThermalPrintOpen] = useState(false)
+  const [printFormat, setPrintFormat] = useState<'RECEIPT' | 'KOT'>('RECEIPT')
+  const [isRegisterCloseOpen, setIsRegisterCloseOpen] = useState(false)
+  const [openingFloat, setOpeningFloat] = useState<number>(200.00)
+  const [countedCash, setCountedCash] = useState<string>('')
+  const [shiftClosingNote, setShiftClosingNote] = useState<string>('')
+
   // Current Live Time
   const [currentTime, setCurrentTime] = useState<string>('08 Oct, 2026, 12:44 PM')
 
@@ -479,6 +536,14 @@ export function DreamsPosTerminal({
       try {
         fetchRecentOrders()
         fetchOpenOrders()
+      } catch {}
+    })
+
+    eventSource.addEventListener('table.assistance.requested', async (e: any) => {
+      try {
+        const data = JSON.parse(e.data)
+        const desc = data.type === 'REQUEST_BILL' ? '🧾 requested their bill' : `🔔 needs assistance (${data.type})`
+        showToast(`${data.tableName || `Table ${data.tableId?.slice(-4)}`}: ${desc}${data.notes ? ` - "${data.notes}"` : ''}`, 'warning')
       } catch {}
     })
 
@@ -782,9 +847,10 @@ export function DreamsPosTerminal({
     })
     .slice(0, 6)
 
-  // Thermal Print Receipt
-  const handlePrintReceipt = () => {
-    window.print()
+  // Thermal Print Receipt / KOT
+  const handlePrintReceipt = (format: 'RECEIPT' | 'KOT' = 'RECEIPT') => {
+    setPrintFormat(format)
+    setIsThermalPrintOpen(true)
   }
 
   return (
@@ -793,7 +859,11 @@ export function DreamsPosTerminal({
       <header className="dream-pos-header">
         <div className="dream-pos-header__left">
           {/* App Switcher Dots */}
-          <Link href="/dashboard" style={{ display: 'flex', color: 'var(--color-text-secondary)', textDecoration: 'none' }}>
+          <Link
+            href={currentUser.role === 'SERVER' ? '/server' : currentUser.role === 'KITCHEN' ? '/kds' : '/dashboard'}
+            style={{ display: 'flex', color: 'var(--color-text-secondary)', textDecoration: 'none' }}
+            title={currentUser.role === 'SERVER' ? 'Server Floor' : currentUser.role === 'KITCHEN' ? 'Kitchen KDS' : 'Dashboard'}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="7" height="7"/>
               <rect x="14" y="3" width="7" height="7"/>
@@ -803,49 +873,105 @@ export function DreamsPosTerminal({
           </Link>
 
           {/* Logo */}
-          <Link href="/dashboard" className="dream-pos-logo">
-            <span style={{ color: '#2563eb' }}>●</span>
-            <span>Resto AI</span>
+          <Link
+            href={currentUser.role === 'SERVER' ? '/server' : currentUser.role === 'KITCHEN' ? '/kds' : '/dashboard'}
+            className="dream-pos-logo"
+          >
+            <ProminentzLogo variant="full" size="sm" />
+            {currentUser.role === 'SERVER' && (
+              <span style={{ fontSize: '10px', background: 'rgba(59,130,246,0.15)', color: '#60a5fa', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 800 }}>
+                SERVER
+              </span>
+            )}
           </Link>
 
           {/* Center Navigation Pills */}
           <div className="dream-pos-nav-pills">
+            {currentUser.role === 'SERVER' && (
+              <Link href="/server" className="dream-pos-nav-btn">
+                🍽️ Server Floor
+              </Link>
+            )}
             <button className="dream-pos-nav-btn dream-pos-nav-btn--active">
               🛍️ POS
             </button>
-            <Link href="/dashboard/orders" className="dream-pos-nav-btn">
-              📋 Orders
-            </Link>
             <Link href="/kds" className="dream-pos-nav-btn">
               🍳 Kitchen
-            </Link>
-            <Link href="/dashboard/reservations" className="dream-pos-nav-btn">
-              📅 Reservation
             </Link>
             <button className="dream-pos-nav-btn" onClick={() => setIsTableFloorOpen(true)}>
               🪑 Table
             </button>
+            <button className="dream-pos-nav-btn" onClick={() => setIsRegisterCloseOpen(true)}>
+              💵 Cash Drawer
+            </button>
+            {['OWNER', 'MANAGER'].includes(currentUser.role) && (
+              <>
+                <Link href="/dashboard/orders" className="dream-pos-nav-btn">
+                  📋 Orders
+                </Link>
+                <Link href="/dashboard/reservations" className="dream-pos-nav-btn">
+                  📅 Reservation
+                </Link>
+                <Link href="/dashboard" className="dream-pos-nav-btn">
+                  📊 Manager Console
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
         {/* Right Tools & User */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <Link href="/dashboard/reports" style={{ color: 'var(--color-text-secondary)', display: 'flex' }} title="Reports">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="20" x2="18" y2="10"/>
-              <line x1="12" y1="20" x2="12" y2="4"/>
-              <line x1="6" y1="20" x2="6" y2="14"/>
-            </svg>
-          </Link>
+          {['OWNER', 'MANAGER'].includes(currentUser.role) && (
+            <Link href="/dashboard/reports" style={{ color: 'var(--color-text-secondary)', display: 'flex' }} title="Reports">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </Link>
+          )}
+
+          {/* Shift Timeclock Quick Toggle */}
+          <button
+            onClick={handleToggleClock}
+            disabled={clockLoading}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              border: clockStatus.isClockedIn ? '1px solid #16a34a' : '1px solid var(--color-border)',
+              backgroundColor: clockStatus.isClockedIn ? 'rgba(22, 163, 74, 0.12)' : 'var(--color-bg-card)',
+              color: clockStatus.isClockedIn ? '#16a34a' : 'var(--color-text-secondary)',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            title={clockStatus.isClockedIn ? 'You are Clocked In. Tap to Clock Out.' : 'You are Clocked Out. Tap to Clock In.'}
+          >
+            <span>{clockStatus.isClockedIn ? '🟢' : '⏰'}</span>
+            <span>
+              {clockLoading
+                ? 'Updating...'
+                : clockStatus.isClockedIn
+                ? 'Clocked In'
+                : 'Clock In'}
+            </span>
+          </button>
 
           <ThemeToggle />
 
-          <Link href="/dashboard/settings" style={{ color: 'var(--color-text-secondary)', display: 'flex' }} title="Settings">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-          </Link>
+          {['OWNER', 'MANAGER'].includes(currentUser.role) && (
+            <Link href="/dashboard/settings" style={{ color: 'var(--color-text-secondary)', display: 'flex' }} title="Settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </Link>
+          )}
 
           {/* User Profile Avatar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -854,7 +980,7 @@ export function DreamsPosTerminal({
                 width: 34,
                 height: 34,
                 borderRadius: '50%',
-                background: '#2563eb',
+                background: '#5b45f5',
                 color: '#fff',
                 fontWeight: 800,
                 fontSize: 12,
@@ -954,7 +1080,7 @@ export function DreamsPosTerminal({
                         title="Click to load into billing check drawer"
                         style={{
                           cursor: 'pointer',
-                          borderColor: isLoaded ? '#2563eb' : `${statusColor}55`,
+                          borderColor: isLoaded ? '#5b45f5' : `${statusColor}55`,
                           background: isLoaded ? 'rgba(37,99,235,0.06)' : 'var(--color-bg-card)',
                         }}
                       >
@@ -969,8 +1095,8 @@ export function DreamsPosTerminal({
                           </div>
                           <span style={{
                             fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
-                            background: ro.type === 'Take Away' ? 'rgba(234,179,8,0.15)' : ro.type === 'Delivery' ? 'rgba(139,92,246,0.15)' : 'rgba(37,99,235,0.12)',
-                            color: ro.type === 'Take Away' ? '#b45309' : ro.type === 'Delivery' ? '#7c3aed' : '#2563eb',
+                            background: ro.type === 'Take Away' ? 'rgba(234,179,8,0.15)' : ro.type === 'Delivery' ? 'rgba(139,92,246,0.15)' : 'rgba(91,69,245,0.12)',
+                            color: ro.type === 'Take Away' ? '#b45309' : ro.type === 'Delivery' ? '#7c3aed' : '#5b45f5',
                           }}>
                             {ro.type === 'Delivery' && '🚚 Delivery'}
                             {ro.type === 'Take Away' && '🛍️ Take Away'}
@@ -983,7 +1109,7 @@ export function DreamsPosTerminal({
                             <h4 style={{ margin: 0, fontSize: 13, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                               {ro.customerName}
                             </h4>
-                            <span style={{ fontSize: 11, color: '#2563eb', marginTop: 2, display: 'block', fontWeight: 600 }}>
+                            <span style={{ fontSize: 11, color: '#5b45f5', marginTop: 2, display: 'block', fontWeight: 600 }}>
                               {isLoaded ? '✅ Loaded in Billing' : '💳 Click to Bill'}
                             </span>
                           </div>
@@ -1073,9 +1199,9 @@ export function DreamsPosTerminal({
                     fontSize: 12,
                     fontWeight: 700,
                     borderRadius: 8,
-                    border: '1px solid #2563eb',
+                    border: '1px solid #5b45f5',
                     backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    color: '#2563eb',
+                    color: '#5b45f5',
                     cursor: 'pointer',
                   }}
                   title="Upload dish photo and add custom menu item"
@@ -1145,10 +1271,20 @@ export function DreamsPosTerminal({
             </div>
 
             {/* Horizontal Category Cards Strip */}
-            <div className="dream-cat-cards-row">
+            <div className="dream-cat-cards-row" role="tablist" aria-label="Menu categories">
               <div
+                role="tab"
+                tabIndex={0}
+                aria-selected={selectedCategoryId === 'all'}
+                aria-label="All Menus"
                 className={`dream-cat-card ${selectedCategoryId === 'all' ? 'dream-cat-card--active' : ''}`}
                 onClick={() => setSelectedCategoryId('all')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setSelectedCategoryId('all')
+                  }
+                }}
               >
                 <Image
                   src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120&h=120&fit=crop&q=80"
@@ -1174,8 +1310,18 @@ export function DreamsPosTerminal({
                 return (
                   <div
                     key={cat.id}
+                    role="tab"
+                    tabIndex={0}
+                    aria-selected={selectedCategoryId === cat.id}
+                    aria-label={`${cat.name} category`}
                     className={`dream-cat-card ${selectedCategoryId === cat.id ? 'dream-cat-card--active' : ''}`}
                     onClick={() => setSelectedCategoryId(cat.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedCategoryId(cat.id)
+                      }
+                    }}
                   >
                     <Image
                       src={img}
@@ -1207,7 +1353,20 @@ export function DreamsPosTerminal({
 
               return (
                 <div key={dish.id} className="dream-dish-card">
-                  <div className="dream-dish-img-wrap" onClick={() => handleAddToCart(dish)} style={{ cursor: 'pointer' }}>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Add ${dish.name} to cart, price $${dish.price.toFixed(2)}`}
+                    className="dream-dish-img-wrap"
+                    onClick={() => handleAddToCart(dish)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleAddToCart(dish)
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <Image
                       src={dish.imageUrl || getImageForDish(dish.name)}
                       alt={dish.name}
@@ -1361,7 +1520,7 @@ export function DreamsPosTerminal({
                     padding: '0 8px',
                     borderRadius: '8px',
                     border: '1px solid var(--color-border)',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#5b45f5',
                     color: '#ffffff',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -1447,16 +1606,16 @@ export function DreamsPosTerminal({
                   <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8,
                     padding: '8px 12px', background: 'rgba(59, 130, 246, 0.12)', borderRadius: 8,
-                    border: '1px solid #3b82f6',
+                    border: '1px solid #7b68f7',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 16 }}>🔔</span>
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: '#2563eb' }}>Dishes Ready at Pass</div>
-                        <div style={{ fontSize: 10, color: '#1d4ed8' }}>Kitchen finished cooking · Deliver to table</div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#5b45f5' }}>Dishes Ready at Pass</div>
+                        <div style={{ fontSize: 10, color: '#4a36d9' }}>Kitchen finished cooking · Deliver to table</div>
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: '#3b82f6', color: '#fff' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: '#7b68f7', color: '#fff' }}>
                       🔔 READY
                     </span>
                   </div>
@@ -1483,7 +1642,7 @@ export function DreamsPosTerminal({
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 12px', marginBottom: 6,
                     background: 'var(--color-bg-raised)', borderRadius: 8,
-                    borderLeft: `3px solid ${item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? '#2563eb' : '#f59e0b'}`,
+                    borderLeft: `3px solid ${item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? '#5b45f5' : '#f59e0b'}`,
                     opacity: 0.95,
                   }}>
                     <Image
@@ -1511,7 +1670,7 @@ export function DreamsPosTerminal({
                         padding: '1px 6px',
                         borderRadius: 4,
                         background: item.status === 'SERVED' ? 'rgba(34, 197, 94, 0.15)' : item.status === 'READY' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                        color: item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? '#2563eb' : '#d97706',
+                        color: item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? '#5b45f5' : '#d97706',
                       }}>
                         {item.status === 'SERVED' ? '🍽️ Served' : item.status === 'READY' ? '🔔 Ready' : '🍳 Cooking'}
                       </span>
@@ -1654,7 +1813,7 @@ export function DreamsPosTerminal({
                         fontWeight: 700,
                         borderRadius: 6,
                         border: 'none',
-                        background: '#2563eb',
+                        background: '#5b45f5',
                         color: '#fff',
                         cursor: couponLoading || !couponInput.trim() ? 'not-allowed' : 'pointer',
                         opacity: couponLoading || !couponInput.trim() ? 0.6 : 1,
@@ -1704,7 +1863,7 @@ export function DreamsPosTerminal({
               </div>
               <div className="dream-pay-total-row">
                 <span>{activeOrderStatus === 'PAID' ? 'Total Paid (Settled)' : 'Amount to be Paid'}</span>
-                <span style={{ color: activeOrderStatus === 'PAID' ? '#16a34a' : '#2563eb' }}>
+                <span style={{ color: activeOrderStatus === 'PAID' ? '#16a34a' : '#5b45f5' }}>
                   ${total.toFixed(2)}
                 </span>
               </div>
@@ -1740,7 +1899,7 @@ export function DreamsPosTerminal({
                     padding: '12px 14px',
                     borderRadius: 10,
                     border: 'none',
-                    background: '#2563eb',
+                    background: '#5b45f5',
                     color: '#ffffff',
                     fontWeight: 800,
                     fontSize: 13,
@@ -1964,7 +2123,7 @@ export function DreamsPosTerminal({
                 style={{
                   flex: 1,
                   padding: '10px',
-                  backgroundColor: '#2563eb',
+                  backgroundColor: '#5b45f5',
                   color: '#fff',
                   border: 'none',
                   borderRadius: 8,
@@ -2041,7 +2200,7 @@ export function DreamsPosTerminal({
                   }}
                   style={{
                     backgroundColor: selectedTable?.id === t.id ? 'rgba(37, 99, 235, 0.1)' : 'var(--color-bg)',
-                    border: `1.5px solid ${selectedTable?.id === t.id ? '#2563eb' : 'var(--color-border)'}`,
+                    border: `1.5px solid ${selectedTable?.id === t.id ? '#5b45f5' : 'var(--color-border)'}`,
                     borderRadius: 'var(--radius-lg)',
                     padding: '16px',
                     display: 'flex',
@@ -2064,8 +2223,8 @@ export function DreamsPosTerminal({
                       fontWeight: 700,
                       padding: '2px 8px',
                       borderRadius: 12,
-                      backgroundColor: t.status === 'ACTIVE' ? 'rgba(37, 99, 235, 0.15)' : 'rgba(34, 197, 94, 0.15)',
-                      color: t.status === 'ACTIVE' ? '#2563eb' : '#16a34a',
+                      backgroundColor: t.status === 'ACTIVE' ? 'rgba(91,69,245,0.15)' : 'rgba(34, 197, 94, 0.15)',
+                      color: t.status === 'ACTIVE' ? '#5b45f5' : '#16a34a',
                     }}
                   >
                     {t.status === 'ACTIVE' ? 'Occupied' : 'Available'}
@@ -2148,11 +2307,11 @@ export function DreamsPosTerminal({
 
             <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
               <button
-                onClick={handlePrintReceipt}
+                onClick={() => handlePrintReceipt('RECEIPT')}
                 style={{
                   flex: 1,
                   padding: '10px',
-                  backgroundColor: '#2563eb',
+                  backgroundColor: '#5b45f5',
                   color: '#fff',
                   border: 'none',
                   borderRadius: 8,
@@ -2278,6 +2437,503 @@ export function DreamsPosTerminal({
           }}
         />
       )}
+
+      {/* ── 8. Thermal Receipt & KOT Print Modal ── */}
+      {isThermalPrintOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setIsThermalPrintOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#181822',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              width: '100%',
+              maxWidth: '460px',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>🖨️</span>
+                <strong style={{ fontSize: '15px', color: '#fff' }}>Thermal Print Station (80mm)</strong>
+              </div>
+              <button
+                onClick={() => setIsThermalPrintOpen(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: 'none',
+                  color: '#fff',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Format Switcher Pills */}
+            <div style={{ padding: '12px 20px', display: 'flex', gap: '8px', background: '#121218', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <button
+                onClick={() => setPrintFormat('RECEIPT')}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  backgroundColor: printFormat === 'RECEIPT' ? '#5b45f5' : '#272732',
+                  color: '#fff',
+                }}
+              >
+                🧾 Customer Bill
+              </button>
+              <button
+                onClick={() => setPrintFormat('KOT')}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  backgroundColor: printFormat === 'KOT' ? '#f59e0b' : '#272732',
+                  color: printFormat === 'KOT' ? '#000' : '#fff',
+                }}
+              >
+                🍳 Kitchen KOT
+              </button>
+            </div>
+
+            {/* Thermal Ticket Paper Simulation */}
+            <div style={{ padding: '20px', overflowY: 'auto', flex: 1, display: 'flex', justifyContent: 'center', background: '#0e0e14' }}>
+              <div
+                id="resto-thermal-ticket"
+                style={{
+                  width: '300px',
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  fontFamily: '"Courier New", Courier, monospace',
+                  fontSize: '12px',
+                  lineHeight: '1.4',
+                  padding: '16px 14px',
+                  borderRadius: '3px',
+                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.35)',
+                }}
+              >
+                {printFormat === 'RECEIPT' ? (
+                  <>
+                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '15px', textTransform: 'uppercase', marginBottom: '2px' }}>
+                      RESTO AI
+                    </div>
+                    <div style={{ textAlign: 'center', fontSize: '10px', color: '#444', marginBottom: '8px' }}>
+                      Dine-In &amp; Smart Bar Operations
+                    </div>
+                    <div style={{ textAlign: 'center', fontSize: '11px', borderTop: '1px dashed #000', borderBottom: '1px dashed #000', padding: '4px 0', margin: '6px 0', fontWeight: 'bold' }}>
+                      *** GUEST RECEIPT ***
+                    </div>
+                    <div style={{ fontSize: '11px', margin: '6px 0' }}>
+                      <div>Order: <strong>{orderNumber || '#ORD-LIVE'}</strong></div>
+                      <div>Table: <strong>{selectedTable?.name || orderType}</strong></div>
+                      <div>Server: {currentUser.name}</div>
+                      <div>Date: {currentTime}</div>
+                    </div>
+                    <div style={{ borderBottom: '1px solid #000', margin: '8px 0 6px 0' }} />
+                    {/* Item list */}
+                    {[...sentItems, ...cart].map((item, idx) => (
+                      <div key={idx} style={{ marginBottom: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{item.quantity}x {item.name}</span>
+                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                        {item.modifiers && item.modifiers.length > 0 && (
+                          <div style={{ fontSize: '10px', color: '#555', paddingLeft: '14px' }}>
+                            + {item.modifiers.map((m: any) => typeof m === 'string' ? m : m.name).join(', ')}
+                          </div>
+                        )}
+                        {item.specialNote && (
+                          <div style={{ fontSize: '10px', fontStyle: 'italic', paddingLeft: '14px' }}>
+                            * {item.specialNote}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <div style={{ borderBottom: '1px dashed #000', margin: '8px 0' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                      <span>Subtotal:</span>
+                      <span>${[...sentItems, ...cart].reduce((s, i) => s + i.price * i.quantity, 0).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                      <span>Tax (8.25%):</span>
+                      <span>${([...sentItems, ...cart].reduce((s, i) => s + i.price * i.quantity, 0) * 0.0825).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '14px', borderTop: '1px solid #000', paddingTop: '4px', marginTop: '6px' }}>
+                      <span>TOTAL:</span>
+                      <span>${([...sentItems, ...cart].reduce((s, i) => s + i.price * i.quantity, 0) * 1.0825).toFixed(2)}</span>
+                    </div>
+                    <div style={{ marginTop: '16px', borderTop: '1px dashed #000', paddingTop: '8px', fontSize: '10px', textAlign: 'center' }}>
+                      <div>Suggested Gratuity:</div>
+                      <div>18%: ${([...sentItems, ...cart].reduce((s, i) => s + i.price * i.quantity, 0) * 0.18).toFixed(2)} | 20%: ${([...sentItems, ...cart].reduce((s, i) => s + i.price * i.quantity, 0) * 0.20).toFixed(2)}</div>
+                    </div>
+                    <div style={{ marginTop: '12px', fontSize: '11px' }}>
+                      Tip: _______________________
+                    </div>
+                    <div style={{ marginTop: '8px', fontSize: '11px' }}>
+                      Sign: ______________________
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '10px', color: '#555' }}>
+                      Thank you for dining with us!
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ textAlign: 'center', fontWeight: '900', fontSize: '16px', borderBottom: '2px solid #000', paddingBottom: '4px', marginBottom: '6px' }}>
+                      🍳 KITCHEN ORDER (KOT)
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', textAlign: 'center', background: '#000', color: '#fff', padding: '4px 0', margin: '4px 0' }}>
+                      TABLE: {selectedTable?.name || orderType.toUpperCase()}
+                    </div>
+                    <div style={{ fontSize: '11px', margin: '6px 0' }}>
+                      <div>Order: <strong>{orderNumber || '#ORD-LIVE'}</strong></div>
+                      <div>Server: {currentUser.name}</div>
+                      <div>Time: {currentTime}</div>
+                    </div>
+                    <div style={{ borderBottom: '2px dashed #000', margin: '6px 0' }} />
+                    {[...sentItems, ...cart].map((item, idx) => (
+                      <div key={idx} style={{ marginBottom: '8px', borderBottom: '1px dotted #ccc', paddingBottom: '4px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: '900' }}>
+                          [{item.quantity}x] {item.name}
+                        </div>
+                        {item.modifiers && item.modifiers.length > 0 && (
+                          <div style={{ fontSize: '11px', fontWeight: 'bold', paddingLeft: '12px', color: '#333' }}>
+                            + {item.modifiers.map((m: any) => typeof m === 'string' ? m : m.name).join(', ')}
+                          </div>
+                        )}
+                        {item.specialNote && (
+                          <div style={{ fontSize: '11px', fontWeight: 'bold', paddingLeft: '12px', color: '#dc2626' }}>
+                            ** NOTE: {item.specialNote}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <div style={{ borderTop: '2px solid #000', paddingTop: '6px', textAlign: 'center', fontSize: '11px', fontWeight: 'bold' }}>
+                      *** END OF KOT TICKET ***
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '10px', background: '#121218' }}>
+              <button
+                onClick={() => setIsThermalPrintOpen(false)}
+                className="btn btn--secondary"
+                style={{ flex: 1, padding: '12px' }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="btn btn--primary"
+                style={{ flex: 2, padding: '12px', fontWeight: 900, background: printFormat === 'RECEIPT' ? '#5b45f5' : '#f59e0b', color: printFormat === 'KOT' ? '#000' : '#fff' }}
+              >
+                🖨️ Print Now (80mm)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 9. Cash Drawer & Shift Close Modal ── */}
+      {isRegisterCloseOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setIsRegisterCloseOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#181822',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              width: '100%',
+              maxWidth: '520px',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)',
+              padding: '24px',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '24px' }}>💵</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#fff' }}>
+                    Cash Drawer &amp; Shift Close
+                  </h3>
+                  <div style={{ fontSize: '12px', color: '#a1a1aa' }}>
+                    Cashier: {currentUser.name} · {currentTime}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsRegisterCloseOpen(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: 'none',
+                  color: '#fff',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Reconciliation Stat Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ padding: '14px', borderRadius: '12px', backgroundColor: '#121218', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '11px', color: '#a1a1aa', textTransform: 'uppercase', fontWeight: 700 }}>
+                  Opening Cash Float
+                </span>
+                <div style={{ fontSize: '20px', fontWeight: 900, color: '#93c5fd', marginTop: '4px' }}>
+                  ${openingFloat.toFixed(2)}
+                </div>
+                <button
+                  onClick={() => {
+                    const next = prompt('Enter new opening float amount ($):', openingFloat.toString())
+                    if (next && !isNaN(parseFloat(next))) setOpeningFloat(parseFloat(next))
+                  }}
+                  style={{ background: 'none', border: 'none', color: '#7b68f7', fontSize: '11px', cursor: 'pointer', padding: 0, marginTop: '4px', textDecoration: 'underline' }}
+                >
+                  Adjust Float
+                </button>
+              </div>
+
+              <div style={{ padding: '14px', borderRadius: '12px', backgroundColor: '#121218', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '11px', color: '#a1a1aa', textTransform: 'uppercase', fontWeight: 700 }}>
+                  Cash Orders Settled
+                </span>
+                <div style={{ fontSize: '20px', fontWeight: 900, color: '#10b981', marginTop: '4px' }}>
+                  ${recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2)}
+                </div>
+                <div style={{ fontSize: '11px', color: '#71717a', marginTop: '4px' }}>
+                  {recentOrders.filter(o => o.status === 'PAID').length} checks settled
+                </div>
+              </div>
+            </div>
+
+            {/* Expected Cash in Drawer */}
+            <div
+              style={{
+                padding: '16px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(37,99,235,0.08)',
+                border: '1px solid rgba(37,99,235,0.25)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+              }}
+            >
+              <div>
+                <strong style={{ fontSize: '14px', color: '#93c5fd' }}>Expected in Cash Drawer:</strong>
+                <div style={{ fontSize: '11px', color: '#a1a1aa' }}>Opening Float + Cash Sales Collected</div>
+              </div>
+              <div style={{ fontSize: '22px', fontWeight: 900, color: '#ffffff' }}>
+                ${(openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)).toFixed(2)}
+              </div>
+            </div>
+
+            {/* Physical Cash Counted Input */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
+                Actual Counted Cash in Drawer ($):
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="e.g. 342.50"
+                value={countedCash}
+                onChange={(e) => setCountedCash(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  backgroundColor: '#121218',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  fontSize: '18px',
+                  fontWeight: 900,
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Live Variance Calculation */}
+            {countedCash && (
+              <div
+                style={{
+                  padding: '14px',
+                  borderRadius: '12px',
+                  backgroundColor:
+                    Math.abs(parseFloat(countedCash) - (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0))) < 0.01
+                      ? 'rgba(16,185,129,0.15)'
+                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)'),
+                  border:
+                    Math.abs(parseFloat(countedCash) - (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0))) < 0.01
+                      ? '1px solid #10b981'
+                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? '1px solid #7b68f7' : '1px solid #ef4444'),
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '20px',
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: '13px', color: '#fff' }}>Cash Variance:</strong>
+                  <div style={{ fontSize: '11px', color: '#a1a1aa' }}>
+                    {Math.abs(parseFloat(countedCash) - (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0))) < 0.01
+                      ? 'Drawer perfectly balanced'
+                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? 'Cash Over' : 'Cash Shortage')}
+                  </div>
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff' }}>
+                  {(() => {
+                    const diff = parseFloat(countedCash) - (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0))
+                    if (Math.abs(diff) < 0.01) return '✅ $0.00 (Balanced)'
+                    return diff > 0 ? `+${diff.toFixed(2)} (Over)` : `-${Math.abs(diff).toFixed(2)} (Short)`
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Note */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>
+                Shift Closing Note (Optional):
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Paid out $12.00 for ice from register"
+                value={shiftClosingNote}
+                onChange={(e) => setShiftClosingNote(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '10px',
+                  backgroundColor: '#121218',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  showToast('Printed Register Closing Tape to thermal printer!', 'success')
+                  window.print()
+                }}
+                className="btn btn--secondary"
+                style={{ flex: 1, padding: '12px', fontWeight: 700 }}
+              >
+                🖨️ Print Tape
+              </button>
+              <button
+                onClick={() => {
+                  showToast('Register shift reconciled and completed!', 'success')
+                  setIsRegisterCloseOpen(false)
+                  setCountedCash('')
+                  setShiftClosingNote('')
+                }}
+                className="btn btn--primary"
+                style={{ flex: 1, padding: '12px', fontWeight: 900 }}
+              >
+                Complete Shift Close ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Isolated Thermal Print CSS ── */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              body * {
+                visibility: hidden !important;
+              }
+              #resto-thermal-ticket, #resto-thermal-ticket * {
+                visibility: visible !important;
+              }
+              #resto-thermal-ticket {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 80mm !important;
+                max-width: 80mm !important;
+                margin: 0 !important;
+                padding: 3mm !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 999999 !important;
+              }
+            }
+          `,
+        }}
+      />
     </div>
   )
 }

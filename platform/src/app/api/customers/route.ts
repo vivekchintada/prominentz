@@ -45,7 +45,8 @@ export async function GET(req: NextRequest) {
           : {}),
       },
       include: {
-        _count: { select: { orders: true } },
+        tier: true,
+        _count: { select: { orders: true, redemptions: true } },
       },
       orderBy: { createdAt: 'desc' },
     })
@@ -80,33 +81,55 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { name, phone, email, allergyTags, notes } = await req.json()
+    const {
+      name,
+      phone,
+      email,
+      allergyTags,
+      tags,
+      notes,
+      marketingConsentEmail,
+      marketingConsentSms,
+      marketingConsentWhatsApp,
+      birthDate,
+    } = await req.json()
 
-    if (!name || !phone) {
+    if (!name?.trim() || !phone?.trim()) {
       return NextResponse.json({ error: 'Customer name and phone number are required' }, { status: 400 })
     }
 
-    const customer = await prisma.customer.upsert({
-      where: { phone },
-      update: {
-        name,
-        email: email || undefined,
-        allergyTags: Array.isArray(allergyTags) ? allergyTags : undefined,
-        notes: notes || undefined,
-      },
-      create: {
-        restaurantId,
-        name,
-        phone,
-        email: email || null,
-        allergyTags: Array.isArray(allergyTags) ? allergyTags : [],
-        notes: notes || null,
-      },
+    const { findOrCreateCustomer } = await import('@/lib/customer-crm')
+    const customer = await findOrCreateCustomer({
+      restaurantId,
+      phone,
+      email,
+      name,
+      notes,
+      marketingConsentEmail,
+      marketingConsentSms,
     })
 
-    return NextResponse.json({ customer }, { status: 201 })
-  } catch (error) {
+    // If extra fields like tags, allergies or birthDate were provided, update them
+    if (allergyTags || tags || birthDate || marketingConsentWhatsApp !== undefined) {
+      await prisma.customer.update({
+        where: { id: customer.id },
+        data: {
+          ...(allergyTags !== undefined ? { allergyTags: Array.isArray(allergyTags) ? allergyTags : [] } : {}),
+          ...(tags !== undefined ? { tags: Array.isArray(tags) ? tags : [] } : {}),
+          ...(birthDate ? { birthDate: new Date(birthDate) } : {}),
+          ...(marketingConsentWhatsApp !== undefined ? { marketingConsentWhatsApp: Boolean(marketingConsentWhatsApp) } : {}),
+        },
+      })
+    }
+
+    const refreshed = await prisma.customer.findUnique({
+      where: { id: customer.id },
+      include: { tier: true },
+    })
+
+    return NextResponse.json({ customer: refreshed }, { status: 201 })
+  } catch (error: any) {
     console.error('[POST /api/customers]', error)
-    return NextResponse.json({ error: 'Failed to save customer profile' }, { status: 500 })
+    return NextResponse.json({ error: error?.message || 'Failed to save customer profile' }, { status: 500 })
   }
 }

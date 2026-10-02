@@ -29,7 +29,7 @@ export default function NotFound() {
             fontSize: 64,
             fontWeight: 900,
             letterSpacing: '-0.06em',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            background: 'linear-gradient(135deg, #7b68f7 0%, #5b45f5 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             lineHeight: 1,
@@ -68,14 +68,14 @@ export default function NotFound() {
               padding: '0 24px',
               borderRadius: 10,
               border: 'none',
-              background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+              background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
               color: '#fff',
               fontWeight: 700,
               fontSize: 14,
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
-              boxShadow: '0 2px 12px rgba(37,99,235,0.3)',
+              boxShadow: '0 2px 12px rgba(91,69,245,0.3)',
             }}
           >
             Go to Dashboard

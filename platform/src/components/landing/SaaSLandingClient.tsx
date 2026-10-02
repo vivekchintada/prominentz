@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
 
 export default function SaaSLandingClient() {
   // App Preview Tab State
@@ -19,20 +20,19 @@ export default function SaaSLandingClient() {
 
   return (
     <div className="landing-root">
+      <main id="main-content">
       {/* ── Navbar ────────────────────────────────────────────────────────── */}
-      <nav className="landing-nav">
+      <nav className="landing-nav" aria-label="Main Navigation">
         <div className="landing-nav__inner">
           <Link href="/" className="landing-logo">
-            <span className="landing-logo__mark">R</span>
-            <span className="landing-logo__text">Resto</span>
-            <span className="landing-logo__badge">AI</span>
+            <ProminentzLogo variant="full" size="sm" />
           </Link>
 
           <div className="landing-nav__links">
             <a href="#features">Features</a>
-            <a href="#intelligence">Resto IQ</a>
             <a href="#calculator">ROI Calculator</a>
             <a href="#pricing">Pricing</a>
+            <Link href="/portals">Role Portals</Link>
           </div>
 
           <div className="landing-nav__actions">
@@ -50,16 +50,16 @@ export default function SaaSLandingClient() {
       <header className="landing-hero">
         <div className="landing-hero__eyebrow">
           <span className="pulse-dot" />
-          <span>Resto AI 2.0 is Live — Powered by Llama 3.1</span>
+          <span>Prominentz — High-Speed Restaurant Operating System</span>
         </div>
 
         <h1 className="landing-hero__title">
-          Where every <em>detail</em> matters.<br />
-          Unified FOH + BOH + AI.
+          Where every <em>order</em> counts.<br />
+          Unified POS, KDS &amp; Floor.
         </h1>
 
         <p className="landing-hero__sub">
-          The single operating platform built for modern restaurant groups. Sync POS, kitchen displays, inventory depletion, and predictive analytics in real time.
+          The single operating platform built for high-performance restaurants. Sync POS terminals, kitchen bump displays, floor tables, and staff shifts in real time.
         </p>
 
         <div className="landing-hero__ctas">
@@ -219,10 +219,10 @@ export default function SaaSLandingClient() {
           <div className="bento-grid">
             {/* Card 1 — Large */}
             <div className="bento-card bento-card--large card--glass">
-              <div className="bento-card__badge">⚡ SUB-100MS SYNC</div>
+              <div className="bento-card__badge">⚡ REAL-TIME SYNC</div>
               <h3 className="bento-card__title">Real-Time POS &amp; KDS Event Pipeline</h3>
               <p className="bento-card__desc">
-                When a server punches in an order on the floor, kitchen tickets render instantly on KDS monitors. Zero lag, zero lost paper chits.
+                When a server punches in an order on the floor, kitchen tickets render in real time on KDS monitors with high-speed websocket synchronization to prevent lost orders.
               </p>
               <div className="bento-card__visual">
                 <div className="event-pill">
@@ -316,6 +316,9 @@ export default function SaaSLandingClient() {
                 <p className="text-xs text-secondary mt-2">
                   Based on automated recipe depletion, reduced kitchen prep delays, and optimized shift scheduling.
                 </p>
+                <p className="text-xs text-secondary" style={{ fontStyle: 'italic', opacity: 0.8, marginTop: '4px' }}>
+                  *Illustrative estimates based on typical industry benchmarks. Actual returns depend on store volume, menu structure, and operational execution.
+                </p>
                 <Link href="/login" className="btn btn--primary btn--full mt-6">
                   Start Saving Today →
                 </Link>
@@ -348,50 +351,33 @@ export default function SaaSLandingClient() {
             </div>
           </div>
 
-          <div className="pricing-grid">
-            {/* Starter */}
-            <div className="pricing-card card--glass">
-              <div className="pricing-header">
-                <h4 className="pricing-title">Starter</h4>
-                <p className="pricing-desc">For single-location bistros and cafes.</p>
-                <div className="pricing-price">
-                  <span className="amount">${billingCycle === 'annual' ? '39' : '49'}</span>
-                  <span className="period">/ month</span>
-                </div>
-              </div>
-              <ul className="pricing-features">
-                <li>✓ 1 Location</li>
-                <li>✓ POS Terminal Interface</li>
-                <li>✓ Basic KDS Monitor</li>
-                <li>✓ Up to 5 Employee Profiles</li>
-                <li>✓ Standard Sales Reporting</li>
-              </ul>
-              <Link href="/pricing/starter" className="btn btn--secondary btn--full mt-6">
-                Get Starter Plan
-              </Link>
-            </div>
-
-            {/* Pro — Featured */}
+          <div className="pricing-grid" style={{ maxWidth: '820px', margin: '0 auto' }}>
+            {/* Basic Plan — Featured */}
             <div className="pricing-card pricing-card--featured card--glass">
-              <div className="featured-badge">MOST POPULAR</div>
+              <div className="featured-badge">MOST POPULAR · $40/MO</div>
               <div className="pricing-header">
-                <h4 className="pricing-title">Pro Plan</h4>
-                <p className="pricing-desc">For high-volume restaurants and multi-outlets.</p>
+                <h4 className="pricing-title">Basic Plan</h4>
+                <p className="pricing-desc">Complete, high-speed restaurant operating foundation.</p>
                 <div className="pricing-price">
-                  <span className="amount">${billingCycle === 'annual' ? '119' : '149'}</span>
+                  <span className="amount">${billingCycle === 'annual' ? '32' : '40'}</span>
                   <span className="period">/ month</span>
                 </div>
               </div>
               <ul className="pricing-features">
-                <li>✓ Up to 3 Locations</li>
-                <li>✓ Unlimited POS &amp; KDS Terminals</li>
-                <li>✓ Resto IQ Llama 3.1 AI Intelligence</li>
-                <li>✓ Automated 86 Stock &amp; Recipe Depletion</li>
-                <li>✓ Labor Shifts &amp; Leave Approvals</li>
-                <li>✓ Stripe Split Checkout</li>
+                <li>✓ Full POS Terminal &amp; Floor Management</li>
+                <li>✓ Real-Time Kitchen Display System (KDS)</li>
+                <li>✓ Table &amp; Menu QR Code Studio (Direct-to-KDS)</li>
+                <li>✓ Table Quick Status Switcher &amp; Bill Splitter</li>
+                <li>✓ Table-Side Cash &amp; Card Payments</li>
+                <li>✓ Inventory Stock &amp; Depletion Tracking</li>
+                <li>✓ Staff Clock-In &amp; Shift Management</li>
+                <li>✓ End-of-Day Z-Reports &amp; Sales Analytics</li>
               </ul>
-              <Link href="/pricing/pro" className="btn btn--primary btn--full mt-6">
-                Start 14-Day Free Trial
+              <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: 'rgba(239,68,68,0.1)', border: '0.5px solid rgba(239,68,68,0.25)', fontSize: '11px', color: 'rgba(255,255,255,0.7)', margin: '12px 0' }}>
+                <span style={{ color: '#ef4444', fontWeight: 800 }}>✕ Not in Basic:</span> Intelligence (AI Agent), Guest CRM &amp; Loyalty Rewards (in development).
+              </div>
+              <Link href="/pricing/starter" className="btn btn--primary btn--full mt-4">
+                Get Started with Basic ($40/mo)
               </Link>
             </div>
 
@@ -399,17 +385,18 @@ export default function SaaSLandingClient() {
             <div className="pricing-card card--glass">
               <div className="pricing-header">
                 <h4 className="pricing-title">Enterprise</h4>
-                <p className="pricing-desc">For national chains &amp; franchise operators.</p>
+                <p className="pricing-desc">For high-volume chains &amp; franchise operators.</p>
                 <div className="pricing-price">
                   <span className="amount">Custom</span>
                 </div>
               </div>
               <ul className="pricing-features">
-                <li>✓ Unlimited Outlets &amp; HQ Hierarchy</li>
+                <li>✓ Multi-Location HQ Hierarchy</li>
                 <li>✓ Dedicated Database Cluster</li>
                 <li>✓ Custom POS Hardware Integrations</li>
+                <li>✓ High-Volume Transaction Volume SLA</li>
                 <li>✓ 24/7 Dedicated Account Manager</li>
-                <li>✓ Custom SLA &amp; Uptime Guarantee</li>
+                <li>✓ Priority Engineering Support</li>
               </ul>
               <Link href="/pricing/enterprise" className="btn btn--secondary btn--full mt-6">
                 Contact Enterprise Sales
@@ -419,21 +406,44 @@ export default function SaaSLandingClient() {
         </div>
       </section>
 
+      </main>
+
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer className="landing-footer">
+      <footer className="landing-footer" aria-label="Site Footer">
         <div className="container flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-3">
-            <span className="landing-logo__mark">R</span>
-            <span className="text-sm font-bold">Resto AI</span>
-            <span className="text-xs text-secondary">© 2026 Resto AI Inc. All rights reserved.</span>
+            <ProminentzLogo variant="full" size="sm" />
+            <span className="text-xs text-secondary">© 2026 Prominentz Inc. All rights reserved.</span>
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-secondary">
+          <div className="flex items-center gap-5 text-xs text-secondary flex-wrap">
             <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
+            <Link href="/portals">Workspaces</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('prominentz:open-cookie-settings'))
+                }
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                font: 'inherit',
+                cursor: 'pointer',
+                padding: 0,
+                textDecoration: 'underline',
+              }}
+            >
+              Cookie Settings
+            </button>
             <Link href="/login">Sign In</Link>
             <span className="flex items-center gap-1">
-              <span className="status-dot status-dot--active" /> All Systems Operational
+              <span className="status-dot status-dot--active" /> Operational
             </span>
           </div>
         </div>

@@ -28,6 +28,7 @@ export async function GET(
     const customer = await prisma.customer.findFirst({
       where: { id, restaurantId: session.user.restaurantId },
       include: {
+        tier: true,
         orders: {
           orderBy: { createdAt: 'desc' },
           take: 50,
@@ -47,6 +48,10 @@ export async function GET(
             reward: { select: { name: true, pointsRequired: true } },
           },
         },
+        ledgerEntries: {
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+        },
       },
     })
 
@@ -62,7 +67,7 @@ export async function GET(
 }
 
 // ─── PATCH /api/customers/:id ─────────────────────────────────────────────────
-// Update customer identity fields (name, phone, email, allergyTags, notes)
+// Update customer identity fields, consent, tags, allergies, notes
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -82,17 +87,38 @@ export async function PATCH(
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
     }
 
-    const { name, phone, email, allergyTags, notes } = await req.json()
+    const {
+      name,
+      phone,
+      email,
+      allergyTags,
+      tags,
+      notes,
+      marketingConsentEmail,
+      marketingConsentSms,
+      marketingConsentWhatsApp,
+      birthDate,
+      tierId,
+    } = await req.json()
+
+    const { normalizePhone, normalizeEmail } = await import('@/lib/customer-crm')
 
     const updated = await prisma.customer.update({
       where: { id },
       data: {
-        ...(name        !== undefined ? { name }        : {}),
-        ...(phone       !== undefined ? { phone }       : {}),
-        ...(email       !== undefined ? { email }       : {}),
+        ...(name !== undefined ? { name: name.trim() } : {}),
+        ...(phone !== undefined ? { phone: normalizePhone(phone) } : {}),
+        ...(email !== undefined ? { email: normalizeEmail(email) } : {}),
         ...(allergyTags !== undefined ? { allergyTags } : {}),
-        ...(notes       !== undefined ? { notes }       : {}),
+        ...(tags !== undefined ? { tags } : {}),
+        ...(notes !== undefined ? { notes } : {}),
+        ...(marketingConsentEmail !== undefined ? { marketingConsentEmail: Boolean(marketingConsentEmail) } : {}),
+        ...(marketingConsentSms !== undefined ? { marketingConsentSms: Boolean(marketingConsentSms) } : {}),
+        ...(marketingConsentWhatsApp !== undefined ? { marketingConsentWhatsApp: Boolean(marketingConsentWhatsApp) } : {}),
+        ...(birthDate !== undefined ? { birthDate: birthDate ? new Date(birthDate) : null } : {}),
+        ...(tierId !== undefined ? { tierId: tierId || null } : {}),
       },
+      include: { tier: true },
     })
 
     return NextResponse.json({ customer: updated })

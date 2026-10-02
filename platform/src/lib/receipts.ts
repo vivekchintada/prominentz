@@ -113,7 +113,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Receipt - Resto AI</title>
+  <title>Receipt - Prominentz</title>
   <style>
     :root {
       --color-bg: #0d0d0f;
@@ -122,7 +122,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       --color-text-secondary: #a1a1aa;
       --color-text-tertiary: #52525b;
       --color-border: #2a2a2e;
-      --color-brand: #2563eb;
+      --color-brand: #5b45f5;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -304,7 +304,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
 
     <div class="footer-msg">
       Thank you for dining with us!<br>
-      Resto AI — Refined Service
+      Prominentz — Refined Hospitality
     </div>
   </div>
 </body>

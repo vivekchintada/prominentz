@@ -202,9 +202,10 @@ export function generateReceiptEscPos(data: ReceiptData, widthChars: number = 42
   // Footer
   add(ESC_POS.ALIGN_CENTER)
   addLine('\nThank you for dining with us!')
-  addLine('Powered by Resto AI\n\n\n')
+  addLine('Powered by Prominentz\n\n\n')
   add(ESC_POS.CUT_PAPER)
   add(ESC_POS.KICK_DRAWER)
+
 
   return new Uint8Array(bytes)
 }

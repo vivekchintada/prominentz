@@ -220,7 +220,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               borderRadius: 6,
               transition: 'all 0.15s ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#2563eb')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#5b45f5')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -295,7 +295,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               transition: 'border-color 0.15s ease',
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = '#2563eb'
+              e.currentTarget.style.borderColor = '#5b45f5'
               e.currentTarget.style.backgroundColor = '#ffffff'
             }}
             onBlur={(e) => {
@@ -330,11 +330,11 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               gap: 6,
               padding: '8px 14px',
               backgroundColor: orderTypeFilter !== 'All' ? '#eff6ff' : '#ffffff',
-              border: orderTypeFilter !== 'All' ? '1px solid #2563eb' : '1px solid #e2e8f0',
+              border: orderTypeFilter !== 'All' ? '1px solid #5b45f5' : '1px solid #e2e8f0',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
-              color: orderTypeFilter !== 'All' ? '#2563eb' : '#475569',
+              color: orderTypeFilter !== 'All' ? '#5b45f5' : '#475569',
               cursor: 'pointer',
             }}
           >
@@ -342,7 +342,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Filter
-            {orderTypeFilter !== 'All' && <span style={{ fontSize: 11, background: '#2563eb', color: '#fff', padding: '1px 5px', borderRadius: 99 }}>1</span>}
+            {orderTypeFilter !== 'All' && <span style={{ fontSize: 11, background: '#5b45f5', color: '#fff', padding: '1px 5px', borderRadius: 99 }}>1</span>}
           </button>
 
           {/* Filter Dropdown Popover */}
@@ -378,7 +378,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                     cursor: 'pointer',
                     fontWeight: orderTypeFilter === type ? 700 : 500,
                     backgroundColor: orderTypeFilter === type ? '#eff6ff' : 'transparent',
-                    color: orderTypeFilter === type ? '#2563eb' : '#334155',
+                    color: orderTypeFilter === type ? '#5b45f5' : '#334155',
                   }}
                 >
                   {type}
@@ -571,7 +571,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#eff6ff'
-                          e.currentTarget.style.color = '#2563eb'
+                          e.currentTarget.style.color = '#5b45f5'
                           e.currentTarget.style.borderColor = '#bfdbfe'
                         }}
                         onMouseLeave={(e) => {
@@ -609,7 +609,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#eff6ff'
-                          e.currentTarget.style.color = '#2563eb'
+                          e.currentTarget.style.color = '#5b45f5'
                           e.currentTarget.style.borderColor = '#bfdbfe'
                         }}
                         onMouseLeave={(e) => {
@@ -831,7 +831,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 }}
                 style={{
                   padding: '8px 18px',
-                  backgroundColor: '#2563eb',
+                  backgroundColor: '#5b45f5',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 13,

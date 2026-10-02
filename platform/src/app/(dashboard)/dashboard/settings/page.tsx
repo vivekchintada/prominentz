@@ -4,7 +4,7 @@ import { SettingsClient } from '@/components/dashboard/SettingsClient'
 import { PageHeader } from '@/components/ui/PageHeader'
 
 export const metadata = {
-  title: 'Settings | Resto AI',
+  title: 'Settings | Prominentz',
 }
 
 export default async function SettingsPage() {

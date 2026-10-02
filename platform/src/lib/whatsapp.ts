@@ -130,7 +130,7 @@ export async function sendWhatsAppInteractiveButtons(params: {
         type: 'button',
         ...(params.header ? { header: { type: 'text', text: params.header } } : {}),
         body: { text: params.body },
-        ...(params.footer ? { footer: { text: params.footer } } : { footer: { text: 'Resto AI Hospitality' } }),
+        ...(params.footer ? { footer: { text: params.footer } } : { footer: { text: 'Prominentz Hospitality' } }),
         action: {
           buttons: params.buttons.slice(0, 3).map((b) => ({
             type: 'reply',
@@ -276,7 +276,7 @@ export async function sendWhatsAppLowStockAlert(params: LowStockAlertNotificatio
     .map((i) => `• *${i.name}*: ${i.currentStock} ${i.unit} (Min threshold: ${i.minStock} ${i.unit})`)
     .join('\n')
 
-  const body = `⚠️ *Resto AI Low Stock Warning*\n\n` +
+  const body = `⚠️ *Prominentz Low Stock Warning*\n\n` +
     `Attention *${params.managerName}* (${params.locationName}):\n` +
     `The following items are running below reorder levels:\n\n` +
     `${itemLines}\n\n` +

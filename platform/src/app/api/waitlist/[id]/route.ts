@@ -45,7 +45,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Waitlist entry not found' }, { status: 404 })
     }
 
-    const restaurantName = existing.location?.restaurant?.name ?? 'Resto AI'
+    const restaurantName = existing.location?.restaurant?.name ?? 'Prominentz'
 
     // If notify requested, send WhatsApp & SMS table ready notifications
     if (notify && existing.guestPhone) {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useToast, ToastContainer } from '../ui/Toast'
+import { UpgradeModal } from '../ui/UpgradeModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface User {
@@ -76,7 +77,8 @@ export default function TeamClient() {
   const [shifts, setShifts]       = useState<Shift[]>([])
   const [leaves, setLeaves]       = useState<LeaveRequest[]>([])
   const [shiftTrades, setShiftTrades] = useState<ShiftTrade[]>([])
-  const [loading, setLoading]     = useState(true)
+  const [loading,     setLoading]     = useState(true)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
 
   // ── Shift Swap state ──
@@ -233,7 +235,12 @@ export default function TeamClient() {
       })
       if (!userRes.ok) {
         const err = await userRes.json().catch(() => ({}))
-        throw new Error(err.error || 'Failed to create user')
+        if (err.error === 'STARTER_LIMIT_REACHED') {
+          setIsRegisterOpen(false)
+          setShowUpgradeModal(true)
+          return
+        }
+        throw new Error(err.message || err.error || 'Failed to create user')
       }
       const created = await userRes.json()
       const empRes = await fetch('/api/employees', {
@@ -243,7 +250,12 @@ export default function TeamClient() {
       })
       if (!empRes.ok) {
         const err = await empRes.json().catch(() => ({}))
-        throw new Error(err.error || 'User created but failed to link employee')
+        if (err.error === 'STARTER_LIMIT_REACHED') {
+          setIsRegisterOpen(false)
+          setShowUpgradeModal(true)
+          return
+        }
+        throw new Error(err.message || err.error || 'User created but failed to link employee')
       }
       showToast(`Created & registered ${regName}`, 'success')
       setIsRegisterOpen(false)
@@ -263,7 +275,15 @@ export default function TeamClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: selectedUserId, jobTitle: regJobTitle || undefined }),
       })
-      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Failed') }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        if (err.error === 'STARTER_LIMIT_REACHED') {
+          setIsRegisterOpen(false)
+          setShowUpgradeModal(true)
+          return
+        }
+        throw new Error(err.message || err.error || 'Failed')
+      }
       showToast('Employee registered', 'success')
       setIsRegisterOpen(false); setSelectedUserId(''); setRegJobTitle('')
       fetchData()
@@ -1347,6 +1367,15 @@ export default function TeamClient() {
             </form>
           </div>
         </div>
+      )}
+
+      {showUpgradeModal && (
+        <UpgradeModal
+          requiredTier="PRO"
+          featureName="Unlimited Staff User Accounts"
+          currentPlan="STARTER"
+          onClose={() => setShowUpgradeModal(false)}
+        />
       )}
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />

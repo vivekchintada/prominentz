@@ -206,7 +206,7 @@ export default function ReportsClient() {
               padding: '8px 16px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: activeTab === 'analytics' ? '#2563eb' : 'transparent',
+              backgroundColor: activeTab === 'analytics' ? '#5b45f5' : 'transparent',
               color: activeTab === 'analytics' ? '#ffffff' : 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 800,
@@ -221,7 +221,7 @@ export default function ReportsClient() {
               padding: '8px 16px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: activeTab === 'invoices' ? '#2563eb' : 'transparent',
+              backgroundColor: activeTab === 'invoices' ? '#5b45f5' : 'transparent',
               color: activeTab === 'invoices' ? '#ffffff' : 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 800,
@@ -236,7 +236,7 @@ export default function ReportsClient() {
               padding: '8px 16px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: activeTab === 'zreport' ? '#2563eb' : 'transparent',
+              backgroundColor: activeTab === 'zreport' ? '#5b45f5' : 'transparent',
               color: activeTab === 'zreport' ? '#ffffff' : 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 800,
@@ -365,7 +365,7 @@ export default function ReportsClient() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 14px', backgroundColor: 'rgba(37,99,235,0.1)', borderRadius: '8px', border: '1px solid rgba(37,99,235,0.25)' }}>
                       <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>Total Settled Tenders</span>
-                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#2563eb', fontFamily: 'monospace' }}>${zData.tenders.totalTenders.toFixed(2)}</span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#5b45f5', fontFamily: 'monospace' }}>${zData.tenders.totalTenders.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -482,9 +482,9 @@ export default function ReportsClient() {
                   style={{
                     padding: '6px 14px',
                     borderRadius: '8px',
-                    border: preset === p ? '1px solid #2563eb' : '1px solid var(--color-border)',
-                    backgroundColor: preset === p ? 'rgba(37,99,235,0.15)' : 'var(--color-bg-input)',
-                    color: preset === p ? '#2563eb' : 'var(--color-text-secondary)',
+                    border: preset === p ? '1px solid #5b45f5' : '1px solid var(--color-border)',
+                    backgroundColor: preset === p ? 'rgba(91,69,245,0.15)' : 'var(--color-bg-input)',
+                    color: preset === p ? '#5b45f5' : 'var(--color-text-secondary)',
                     fontSize: '12px',
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -584,7 +584,7 @@ export default function ReportsClient() {
                             style={{
                               width: '100%',
                               height: `${Math.max(pct, 4)}%`,
-                              backgroundColor: val > 0 ? '#2563eb' : 'var(--color-border)',
+                              backgroundColor: val > 0 ? '#5b45f5' : 'var(--color-border)',
                               borderRadius: '4px 4px 0 0',
                               transition: 'height 0.3s ease',
                             }}

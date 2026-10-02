@@ -60,7 +60,7 @@ export default async function MobileTeamPage() {
       {/* Pending approvals */}
       {pendingTrades.length > 0 && (
         <div style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: 14, padding: '12px 16px', marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#2563eb', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#5b45f5', marginBottom: 8 }}>
             🔔 {pendingTrades.length} Shift Trade{pendingTrades.length > 1 ? 's' : ''} Need Approval
           </div>
           {pendingTrades.map((trade) => (
@@ -71,7 +71,7 @@ export default async function MobileTeamPage() {
                 : 'Date TBD'}
             </div>
           ))}
-          <a href="/dashboard/team" style={{ fontSize: 11, color: '#2563eb', textDecoration: 'none', fontWeight: 600, marginTop: 6, display: 'block' }}>
+          <a href="/dashboard/team" style={{ fontSize: 11, color: '#5b45f5', textDecoration: 'none', fontWeight: 600, marginTop: 6, display: 'block' }}>
             Review in Dashboard →
           </a>
         </div>

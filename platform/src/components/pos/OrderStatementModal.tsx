@@ -360,7 +360,7 @@ export default function OrderStatementModal({
             style={{
               flex: 1,
               padding: '10px',
-              backgroundColor: '#2563eb',
+              backgroundColor: '#5b45f5',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',

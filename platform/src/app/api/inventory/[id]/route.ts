@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { resolveLocationContext } from '@/lib/location-context'
 import { z } from 'zod'
 
 const updateSchema = z.object({
-  name:     z.string().min(1).max(100).optional(),
-  unit:     z.string().min(1).max(20).optional(),
-  minStock: z.number().min(0).optional(),
+  name: z.string().trim().min(1).max(120).optional(),
+  category: z.string().trim().max(80).nullable().optional(),
+  unit: z.string().trim().min(1).max(20).optional(),
+  unitCost: z.coerce.number().min(0).optional(),
+  currentStock: z.coerce.number().min(0).optional(),
+  minStock: z.coerce.number().min(0).optional(),
+  parStock: z.coerce.number().min(0).optional(),
 })
 
 // ─── PATCH /api/inventory/[id] ────────────────────────────────────────────────
@@ -32,13 +37,10 @@ export async function PATCH(
     }
 
     // Resolve location
-    const employee = await prisma.employee.findFirst({
-      where: { userId: session.user.id, isActive: true },
-    })
-    let locationId = employee?.locationId
+    const location = await resolveLocationContext(session.user.id, session.user.restaurantId)
+    const locationId = location?.id
     if (!locationId) {
-      const fallback = await prisma.location.findFirst({ where: { restaurantId: session.user.restaurantId } })
-      locationId = fallback?.id
+      return NextResponse.json({ error: 'Location not resolved' }, { status: 404 })
     }
 
     const existing = await prisma.inventoryItem.findFirst({
@@ -53,7 +55,7 @@ export async function PATCH(
       data:  parsed.data,
     })
 
-    return NextResponse.json(updated)
+    return NextResponse.json({ ...updated, unitCost: Number(updated.unitCost) })
   } catch (error) {
     console.error('[PATCH /api/inventory/:id]', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

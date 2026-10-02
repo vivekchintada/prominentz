@@ -41,16 +41,33 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-client',
+          },
+        ],
+      },
+      {
         source: '/(.*)',
         headers: securityHeaders,
       },
     ]
   },
 
+
   // Silence Prisma edge runtime warning in Next.js serverless.
   // Note: /api/webhooks/stripe reads raw body via req.arrayBuffer() — no
   // special bodyParser config needed in the App Router.
   serverExternalPackages: ['@prisma/client', 'bcryptjs', 'stripe'],
+  experimental: {
+    cpus: 4,
+  },
 }
 
 export default nextConfig

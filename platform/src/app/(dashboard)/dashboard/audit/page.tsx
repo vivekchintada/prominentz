@@ -4,7 +4,7 @@ import { AuditLogClient } from '@/components/dashboard/AuditLogClient'
 import { PageHeader } from '@/components/ui/PageHeader'
 
 export const metadata = {
-  title: 'Audit Log | Resto AI',
+  title: 'Audit Log | Prominentz',
 }
 
 export default async function AuditPage() {

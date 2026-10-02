@@ -418,7 +418,7 @@ export default function TablesClient() {
               setIsBookModalOpen(true)
             }}
             style={{
-              backgroundColor: '#2563eb',
+              backgroundColor: '#5b45f5',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -432,8 +432,8 @@ export default function TablesClient() {
               boxShadow: '0 2px 4px rgba(37,99,235,0.2)',
               transition: 'background-color 0.15s ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4a36d9')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5b45f5')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -442,6 +442,42 @@ export default function TablesClient() {
             </svg>
             Book Table
           </button>
+
+          {/* QR Studio Button */}
+          <Link
+            href="/dashboard/tables/qr"
+            title="Generate & Print Table QR Codes"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '0 14px',
+              height: 40,
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#5b45f5',
+              textDecoration: 'none',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#dbeafe'
+              e.currentTarget.style.borderColor = '#93c5fd'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#eff6ff'
+              e.currentTarget.style.borderColor = '#bfdbfe'
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/>
+              <rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3v3"/><path d="M21 21v.01"/>
+              <path d="M12 7v3"/><path d="M12 3v.01"/><path d="M12 14v.01"/><path d="M12 17v3"/>
+            </svg>
+            QR Studio
+          </Link>
 
           {/* Settings Button (Gear) */}
           <button
@@ -493,8 +529,8 @@ export default function TablesClient() {
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  border: isActive ? '1px solid #2563eb' : '1px solid #f59e0b',
-                  backgroundColor: isActive ? '#2563eb' : '#ffffff',
+                  border: isActive ? '1px solid #5b45f5' : '1px solid #f59e0b',
+                  backgroundColor: isActive ? '#5b45f5' : '#ffffff',
                   color: isActive ? '#ffffff' : '#d97706',
                   transition: 'all 0.15s ease',
                   boxShadow: isActive ? '0 2px 4px rgba(37,99,235,0.2)' : 'none',
@@ -543,7 +579,7 @@ export default function TablesClient() {
             }}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#2563eb',
+              backgroundColor: '#5b45f5',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -609,7 +645,7 @@ export default function TablesClient() {
                 </div>
 
                 {/* Seats Count */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#2563eb', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#5b45f5', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 11 }}>👥</span> {table.capacity} seats
                 </div>
 
@@ -814,7 +850,7 @@ export default function TablesClient() {
                       justifyContent: 'center',
                       gap: 6,
                       padding: '10px',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#5b45f5',
                       color: '#ffffff',
                       borderRadius: 8,
                       fontSize: 13,
@@ -906,7 +942,7 @@ export default function TablesClient() {
                       justifyContent: 'center',
                       gap: 6,
                       padding: '10px',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#5b45f5',
                       color: '#ffffff',
                       borderRadius: 8,
                       fontSize: 13,
@@ -1193,7 +1229,7 @@ export default function TablesClient() {
                   disabled={submittingBook}
                   style={{
                     padding: '8px 20px',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#5b45f5',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,
@@ -1264,10 +1300,10 @@ export default function TablesClient() {
                   padding: '8px 16px',
                   background: 'none',
                   border: 'none',
-                  borderBottom: settingsTab === 'tables' ? '2px solid #2563eb' : '2px solid transparent',
+                  borderBottom: settingsTab === 'tables' ? '2px solid #5b45f5' : '2px solid transparent',
                   fontWeight: 700,
                   fontSize: 13,
-                  color: settingsTab === 'tables' ? '#2563eb' : '#64748b',
+                  color: settingsTab === 'tables' ? '#5b45f5' : '#64748b',
                   cursor: 'pointer',
                 }}
               >
@@ -1279,10 +1315,10 @@ export default function TablesClient() {
                   padding: '8px 16px',
                   background: 'none',
                   border: 'none',
-                  borderBottom: settingsTab === 'floors' ? '2px solid #2563eb' : '2px solid transparent',
+                  borderBottom: settingsTab === 'floors' ? '2px solid #5b45f5' : '2px solid transparent',
                   fontWeight: 700,
                   fontSize: 13,
-                  color: settingsTab === 'floors' ? '#2563eb' : '#64748b',
+                  color: settingsTab === 'floors' ? '#5b45f5' : '#64748b',
                   cursor: 'pointer',
                 }}
               >
@@ -1397,7 +1433,7 @@ export default function TablesClient() {
                     disabled={submittingNewTable}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#5b45f5',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: 6,
@@ -1486,7 +1522,7 @@ export default function TablesClient() {
                       disabled={submittingNewFloor}
                       style={{
                         padding: '8px 16px',
-                        backgroundColor: '#2563eb',
+                        backgroundColor: '#5b45f5',
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: 6,

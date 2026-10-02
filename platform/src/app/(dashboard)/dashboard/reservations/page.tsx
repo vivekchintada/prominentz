@@ -11,7 +11,7 @@ const ReservationsClient = dynamic(() => import('@/components/dashboard/Reservat
   ),
 })
 
-export const metadata = { title: 'Reservations | Resto AI' }
+export const metadata = { title: 'Reservations | Prominentz' }
 
 export default async function ReservationsPage() {
   const session = await auth()

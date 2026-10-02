@@ -2,18 +2,18 @@ import type { Metadata, Viewport } from 'next'
 import { MobileNav } from '@/components/mobile/MobileNav'
 
 export const metadata: Metadata = {
-  title: 'Resto AI Manager',
-  description: 'Mobile manager dashboard for Resto AI',
+  title: 'Prominentz Manager',
+  description: 'Mobile manager dashboard for Prominentz',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Resto AI',
+    title: 'Prominentz',
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#2563eb',
+  themeColor: '#5b45f5',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
+import { getEffectiveTaxRate, getFeatureFlags } from '@/lib/settings-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,6 +36,12 @@ export async function POST(req: NextRequest) {
 
     if (!table || table.locationId !== locationId) {
       return NextResponse.json({ error: 'Table or location not found' }, { status: 404 })
+    }
+
+    // Check feature flag: enableOrderViaQr
+    const flags = await getFeatureFlags(table.location.restaurantId)
+    if (flags.enableOrderViaQr === false) {
+      return NextResponse.json({ error: 'QR ordering is currently disabled for this restaurant.' }, { status: 403 })
     }
 
     // Auto-upsert diner profile if guest phone supplied
@@ -76,7 +83,9 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const tax = subtotal * 0.08
+    // Use restaurant's configured tax rates instead of hardcoded 8%
+    const taxRate = await getEffectiveTaxRate(table.location.restaurantId)
+    const tax = subtotal * taxRate
     const total = subtotal + tax
 
     // Find default kitchen/server user for online order assignment

@@ -30,17 +30,24 @@ export async function GET(req: NextRequest) {
     defaultStart.setDate(defaultStart.getDate() - 7)
     defaultStart.setHours(0, 0, 0, 0)
     const defaultEnd = new Date()
+    defaultEnd.setDate(defaultEnd.getDate() + 14)
     defaultEnd.setHours(23, 59, 59, 999)
 
     const startParam = searchParams.get('startDate')
     const endParam   = searchParams.get('endDate')
+    const mineParam  = searchParams.get('mine') === 'true'
     const start = startParam ? new Date(startParam) : defaultStart
     const end   = endParam   ? new Date(endParam)   : defaultEnd
+
+    let targetEmployeeId = employeeId
+    if (mineParam && employee) {
+      targetEmployeeId = employee.id
+    }
 
     const shifts = await prisma.shift.findMany({
       where: {
         locationId,
-        ...(employeeId ? { employeeId } : {}),
+        ...(targetEmployeeId ? { employeeId: targetEmployeeId } : {}),
         OR: [
           { scheduledStart: { gte: start, lte: end } },
           { createdAt:      { gte: start, lte: end } },
@@ -90,6 +97,8 @@ const createShiftSchema = z.object({
   role:           z.enum(['OWNER', 'MANAGER', 'SERVER', 'KITCHEN']),
   scheduledStart: z.string().datetime(),
   scheduledEnd:   z.string().datetime(),
+  breakMinutes:   z.number().int().min(0).max(240).default(0),
+  station:        z.string().max(80).nullable().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -146,6 +155,9 @@ export async function POST(req: NextRequest) {
         role:           parsed.data.role,
         scheduledStart: newStart,
         scheduledEnd:   newEnd,
+        breakMinutes:   parsed.data.breakMinutes,
+        station:        parsed.data.station ?? null,
+        hourlyRateSnapshot: employee.hourlyRate,
         status:         'SCHEDULED',
       },
     })

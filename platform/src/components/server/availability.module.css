@@ -1,0 +1,358 @@
+/* ─── Staff Availability (Resto AI Design System v2) ─────────────────── */
+
+.container {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top Bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 56px;
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 16px;
+}
+
+.brandNav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brandDot {
+  color: var(--brand);
+  font-size: 18px;
+}
+
+.brandText {
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.navPills {
+  display: flex;
+  gap: 4px;
+}
+
+.navPill {
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.navPill:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+}
+
+.navPillActive {
+  background: var(--brand) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.signOutBtn {
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.signOutBtn:hover {
+  background: var(--color-bg-card-hover);
+  color: var(--color-text-primary);
+}
+
+/* ── Content Area ── */
+.content {
+  max-width: 1060px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--brand-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.title {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.backBtn:hover {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-strong);
+}
+
+/* ── Card & Schedule Rows ── */
+.scheduleCard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.legendBar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 20px;
+  background: var(--color-bg-raised);
+  border-bottom: 1px solid var(--color-separator);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.dotAvailable {
+  background: #30D158;
+}
+
+.dotPreferred {
+  background: var(--brand);
+}
+
+.dotUnavailable {
+  background: #ef4444;
+}
+
+.dayRow {
+  display: grid;
+  grid-template-columns: 140px 160px 110px 24px 110px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-separator);
+  transition: background var(--transition-fast);
+}
+
+.dayRow:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.dayName {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.selectInput {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.timeInput {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+  outline: none;
+  text-align: center;
+}
+
+.timeInput:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.timeSep {
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.noteInput {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: var(--text-xs);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.noteInput::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--color-bg-raised);
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.footerNote {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--brand);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 10px var(--brand-glow);
+  transition: all var(--transition-fast);
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: var(--brand-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--brand-glow);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 800px) {
+  .dayRow {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .dayName {
+    grid-column: 1 / -1;
+  }
+  .timeSep {
+    display: none;
+  }
+  .noteInput {
+    grid-column: 1 / -1;
+  }
+}

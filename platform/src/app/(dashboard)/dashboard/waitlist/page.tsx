@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import WaitlistClient from '@/components/dashboard/WaitlistClient'
 import { PageHeader } from '@/components/ui/PageHeader'
 
-export const metadata = { title: 'Walk-in Waitlist Queue | Resto AI' }
+export const metadata = { title: 'Walk-in Waitlist Queue | Prominentz' }
 
 export default async function WaitlistPage() {
   const session = await auth()

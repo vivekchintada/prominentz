@@ -23,6 +23,42 @@ enum OrderSource {
   DELIVERY_DOORDASH
   DELIVERY_UBEREATS
   DELIVERY_OTHER
+  WEB_PICKUP
+  WEB_DELIVERY
+  QR_DINE_IN
+}
+
+enum FulfilmentType {
+  PICKUP
+  DELIVERY
+  DINE_IN
+}
+
+enum OnlineOrderStatus {
+  DRAFT
+  PAYMENT_PENDING
+  PENDING_ACCEPTANCE
+  ACCEPTED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  COMPLETED
+  DELIVERED
+  REJECTED
+  CANCELLED
+  PAYMENT_FAILED
+  REFUNDED
+}
+
+enum OrderingAcceptanceMode {
+  AUTOMATIC
+  MANUAL
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
 }
 
 enum UserRole {
@@ -54,6 +90,7 @@ enum OrderItemStatus {
   IN_PROGRESS
   READY
   SERVED
+  VOIDED // Cancelled before being served — set when parent order is voided
 }
 
 enum TicketStatus {
@@ -61,12 +98,14 @@ enum TicketStatus {
   IN_PROGRESS
   READY
   SERVED
+  VOIDED // KDS ticket cancelled — kitchen must stop work on this ticket
 }
 
 enum TicketItemStatus {
   PENDING
   IN_PROGRESS
   READY
+  VOIDED // Individual line-item cancelled
 }
 
 enum PaymentMethod {
@@ -91,6 +130,25 @@ enum KdsStation {
   EXPO
 }
 
+enum TimeEntryStatus {
+  ACTIVE
+  COMPLETED
+  FLAGGED // Geofence mismatch, overtime anomaly, or missed clock-out
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
 // ─── RESTAURANT & LOCATION ───────────────────────────────────────────────────
 
 model Restaurant {
@@ -112,6 +170,9 @@ model Restaurant {
   loyaltyRewards LoyaltyReward[]
   coupons        Coupon[]
   addons         MenuAddon[]
+  loyaltyConfig  LoyaltyConfig?
+  loyaltyTiers   LoyaltyTier[]
+  marketingCampaigns MarketingCampaign[]
 }
 
 model Location {
@@ -123,6 +184,9 @@ model Location {
   timezone       String   @default("UTC")
   region         String?  // e.g. "North Region", "West Coast"
   isHeadquarters Boolean  @default(false)
+  lat            Float?
+  lng            Float?
+  geofenceRadiusM Float   @default(150.0) // Radius in meters
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -134,10 +198,24 @@ model Location {
   inventoryItems InventoryItem[]
   inventoryAlerts InventoryAlert[]
   shifts         Shift[]
+  timeEntries    TimeEntry[]
+  tasks          Task[]
   reservations   Reservation[]
   waitlistEntries WaitlistEntry[]
   suppliers      Supplier[]
   purchaseOrders PurchaseOrder[]
+  stockCountSessions StockCountSession[]
+  wasteLogs      WasteLog[]
+  scheduleVersions ScheduleVersion[]
+  shiftTemplates ShiftTemplate[]
+  coverageRules  CoverageRule[]
+  overtimeRule   OvertimeRule?
+  onlineOrderingConfig OnlineOrderingConfig?
+  deliveryAddresses OrderDeliveryAddress[]
+  orderingHolidays OrderingHoliday[]
+  deliveryProviders      DeliveryProvider[]
+  deliveryStatements     DeliveryStatement[]
+  reconciliationPeriods  ReconciliationPeriod[]
 }
 
 // ─── AUTH / USERS ────────────────────────────────────────────────────────────
@@ -153,12 +231,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  sessions   Session[]
-  orders     Order[]
-  payments   Payment[]
-  voids      Void[]
-  employee   Employee?
+  restaurant  Restaurant  @relation(fields: [restaurantId], references: [id])
+  sessions    Session[]
+  orders      Order[]
+  payments    Payment[]
+  voids       Void[]
+  orderVoids  OrderVoid[] @relation("OrderVoidUser") // order-level voids initiated by this user
+  employee    Employee?
 }
 
 model Session {
@@ -203,6 +282,7 @@ model MenuItem {
   isVeg        Boolean    @default(false)
   isAvailable  Boolean    @default(true)
   is86d        Boolean    @default(false)
+  prepTimeEstimateMin Int @default(15)
   taxRate      Decimal    @db.Decimal(5, 4) @default(0.0)
   displayOrder Int        @default(0)
   kdsStation   KdsStation @default(HOT)
@@ -282,6 +362,9 @@ model Coupon {
   status         String    @default("ACTIVE") // "ACTIVE" | "EXPIRED" | "INACTIVE"
   usageLimit     Int?
   usageCount     Int       @default(0)
+  minimumOrderAmount Decimal? @db.Decimal(10, 2)
+  channels       Json      @default("[\"POS\", \"ONLINE\", \"QR\"]")
+  perCustomerLimit Int?    @default(1)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -327,6 +410,30 @@ model Order {
   subtotal                Decimal     @db.Decimal(10, 2) @default(0.0)
   tax                     Decimal     @db.Decimal(10, 2) @default(0.0)
   total                   Decimal     @db.Decimal(10, 2) @default(0.0)
+  publicOrderNumber       String?     @unique
+  trackingToken           String?     @unique
+  fulfilmentType          FulfilmentType?
+  onlineStatus            OnlineOrderStatus?
+  customerName            String?
+  customerEmail           String?
+  customerPhone           String?
+  scheduledFor            DateTime?
+  estimatedReadyAt        DateTime?
+  acceptedAt              DateTime?
+  rejectedAt              DateTime?
+  rejectionReason         String?
+  readyAt                 DateTime?
+  completedAt             DateTime?
+  discount                Decimal     @db.Decimal(10, 2) @default(0.0)
+  serviceCharge           Decimal     @db.Decimal(10, 2) @default(0.0)
+  deliveryFee             Decimal     @db.Decimal(10, 2) @default(0.0)
+  tip                     Decimal     @db.Decimal(10, 2) @default(0.0)
+  paymentStatus           String      @default("UNPAID")
+  stripePaymentIntentId   String?
+  refundId                String?
+  refundAmount            Decimal?    @db.Decimal(10, 2)
+  idempotencyKey          String?     @unique
+  voidedAt                DateTime?   // Set when status transitions to VOIDED
   createdAt               DateTime    @default(now())
   updatedAt               DateTime    @updatedAt
 
@@ -337,6 +444,12 @@ model Order {
   tickets    KdsTicket[]
   payments   Payment[]
   events     OrderEvent[]
+  deliveryAddress OrderDeliveryAddress?
+  orderVoid  OrderVoid?  // Direct link to the order-level void record
+
+  @@index([onlineStatus, scheduledFor])
+  @@index([createdAt, fulfilmentType])
+  @@index([status, createdAt])
 }
 
 model OrderItem {
@@ -349,6 +462,12 @@ model OrderItem {
   modifiers    Json            @default("[]") // [{modifierName, optionName, priceDelta}]
   specialNote  String?
   status       OrderItemStatus @default(PENDING)
+  station      KdsStation?
+  hold         Boolean         @default(false)
+  firedAt      DateTime?
+  prepStartedAt DateTime?
+  readyAt      DateTime?
+  servedAt     DateTime?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
@@ -393,8 +512,10 @@ model KdsTicket {
   readyAt   DateTime?
   servedAt  DateTime?
 
-  order Order          @relation(fields: [orderId], references: [id])
+  order Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   items KdsTicketItem[]
+
+  @@index([orderId, status])
 }
 
 model KdsTicketItem {
@@ -409,7 +530,7 @@ model KdsTicketItem {
   completedAt DateTime?
   createdAt   DateTime         @default(now())
 
-  ticket KdsTicket @relation(fields: [ticketId], references: [id])
+  ticket KdsTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
 }
 
@@ -466,6 +587,18 @@ model Void {
   voidedByUser User @relation(fields: [voidedBy], references: [id])
 }
 
+// ─── ORDER-LEVEL VOID (separate from payment void — covers comps & pre-payment cancels)
+model OrderVoid {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  voidedBy  String   // userId who initiated the void
+  reason    String
+  createdAt DateTime @default(now())
+
+  order        Order @relation(fields: [orderId], references: [id])
+  voidedByUser User  @relation("OrderVoidUser", fields: [voidedBy], references: [id])
+}
+
 model Receipt {
   id        String   @id @default(cuid())
   paymentId String   @unique
@@ -486,6 +619,10 @@ model Employee {
   jobTitle          String?
   phone             String?
   hourlyRate        Decimal?  @db.Decimal(10, 2)
+  employmentType    EmploymentType @default(PART_TIME)
+  maxWeeklyHours    Int       @default(40)
+  minRestHours      Int       @default(10)
+  overtimeEligible  Boolean   @default(true)
   hireDate          DateTime?
   emergencyContact  String?   // "Name — Phone"
   isActive          Boolean   @default(true)
@@ -495,6 +632,8 @@ model Employee {
   user          User                 @relation(fields: [userId], references: [id])
   location      Location             @relation(fields: [locationId], references: [id])
   shifts        Shift[]
+  timeEntries   TimeEntry[]
+  tasks         Task[]
   leaveRequests LeaveRequest[]
   availability  WorkerAvailability[]
   tradeRequestsSent     ShiftTradeRequest[] @relation("TradeRequester")
@@ -514,11 +653,16 @@ model WorkerAvailability {
   type       AvailabilityType @default(AVAILABLE)
   startTime  String?          // e.g. "09:00"
   endTime    String?          // e.g. "17:00"
+  specificDate DateTime?      // optional one-off override
+  isRecurring Boolean         @default(true)
   notes      String?
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, dayOfWeek])
+  @@index([employeeId, specificDate])
 }
 
 // ─── INVENTORY & AUTO-86 (Phase 2 — Week 9) ──────────────────────────────────
@@ -535,6 +679,9 @@ model InventoryItem {
   locationId   String
   name         String      // e.g. "Beef Patty"
   unit         String      // e.g. "pcs", "g", "oz"
+  category     String?
+  unitCost     Decimal     @db.Decimal(12, 4) @default(0.0)
+  parStock     Float       @default(0.0)
   currentStock Float       @default(0.0)
   minStock     Float       @default(0.0) // alert threshold
   createdAt    DateTime    @default(now())
@@ -544,6 +691,12 @@ model InventoryItem {
   recipes      RecipeItem[]
   transactions InventoryTransaction[]
   alerts       InventoryAlert[]
+  purchaseOrderItems PurchaseOrderItem[]
+  stockCountItems StockCountItem[]
+  wasteLogs      WasteLog[]
+
+  @@unique([locationId, name])
+  @@index([locationId, currentStock])
 }
 
 model RecipeItem {
@@ -584,6 +737,85 @@ model InventoryAlert {
   location        Location      @relation(fields: [locationId], references: [id])
 }
 
+enum StockCountStatus {
+  DRAFT
+  COMPLETED
+  CANCELLED
+}
+
+model StockCountSession {
+  id            String           @id @default(cuid())
+  locationId    String
+  sessionNumber String           // e.g. "SC-2026-001"
+  status        StockCountStatus @default(DRAFT)
+  createdById   String
+  notes         String?
+  startedAt     DateTime         @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  location      Location         @relation(fields: [locationId], references: [id])
+  items         StockCountItem[]
+
+  @@unique([locationId, sessionNumber])
+  @@index([locationId, status])
+}
+
+model StockCountItem {
+  id                  String            @id @default(cuid())
+  stockCountSessionId String
+  inventoryItemId     String
+  expectedQuantity    Float
+  countedQuantity     Float
+  variance            Float             // counted - expected
+  unitCost            Decimal           @db.Decimal(12, 4) @default(0.0)
+  varianceCost        Decimal           @db.Decimal(12, 4) @default(0.0)
+  notes               String?
+  createdAt           DateTime          @default(now())
+
+  stockCountSession   StockCountSession @relation(fields: [stockCountSessionId], references: [id], onDelete: Cascade)
+  inventoryItem       InventoryItem     @relation(fields: [inventoryItemId], references: [id])
+
+  @@unique([stockCountSessionId, inventoryItemId])
+}
+
+enum WasteReason {
+  SPOILED
+  EXPIRED
+  PREP_MISTAKE
+  DROPPED
+  CUSTOMER_COMPLAINT
+  OTHER
+}
+
+enum WasteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model WasteLog {
+  id              String      @id @default(cuid())
+  locationId      String
+  inventoryItemId String
+  quantity        Float
+  unitCost        Decimal     @db.Decimal(12, 4) @default(0.0)
+  totalCost       Decimal     @db.Decimal(12, 4) @default(0.0)
+  reason          WasteReason @default(SPOILED)
+  status          WasteStatus @default(APPROVED)
+  reportedById    String
+  approvedById    String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  location        Location      @relation(fields: [locationId], references: [id])
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@index([locationId, createdAt])
+}
+
 // ─── LABOR MANAGEMENT (Phase 2) ──────────────────────────────────────────────
 
 enum ShiftStatus {
@@ -602,15 +834,24 @@ model Shift {
   clockIn        DateTime?
   clockOut       DateTime?
   breakMinutes   Int         @default(0)
+  station        String?
+  hourlyRateSnapshot Decimal? @db.Decimal(10, 2)
+  publishedAt    DateTime?
+  publishedBy    String?
   status         ShiftStatus @default(SCHEDULED)
   role           UserRole    // Role active during this shift
+  isOpen         Boolean     @default(false)
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
   employee       Employee            @relation(fields: [employeeId], references: [id])
   location       Location            @relation(fields: [locationId], references: [id])
+  timeEntries    TimeEntry[]
   notes          ShiftNote[]
   tradeRequests  ShiftTradeRequest[]
+
+  @@index([locationId, scheduledStart])
+  @@index([employeeId, scheduledStart])
 }
 
 model ShiftNote {
@@ -647,6 +888,120 @@ model ShiftTradeRequest {
   shift          Shift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   requester      Employee  @relation("TradeRequester", fields: [requesterId], references: [id])
   targetEmployee Employee? @relation("TradeTarget", fields: [targetEmployeeId], references: [id])
+}
+
+model ScheduleVersion {
+  id            String   @id @default(cuid())
+  locationId    String
+  weekStart     DateTime
+  versionNumber Int      @default(1)
+  shiftCount    Int      @default(0)
+  publishedBy   String
+  publishedAt   DateTime @default(now())
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@index([locationId, weekStart])
+}
+
+model ShiftTemplate {
+  id          String   @id @default(cuid())
+  locationId  String
+  name        String   // e.g. "Dinner Line Cook (4p - 11p)"
+  role        UserRole
+  station     String?
+  dayOfWeek   Int      // 0 = Sun, 1 = Mon ... 6 = Sat
+  startTime   String   // "16:00"
+  endTime     String   // "23:00"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@index([locationId, dayOfWeek])
+}
+
+model CoverageRule {
+  id          String   @id @default(cuid())
+  locationId  String
+  dayOfWeek   Int      // 0-6
+  role        UserRole
+  station     String?
+  minStaff    Int      @default(1)
+  targetStaff Int      @default(2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([locationId, dayOfWeek, role, station])
+}
+
+model OvertimeRule {
+  id                   String   @id @default(cuid())
+  locationId           String   @unique
+  dailyThresholdHours  Float    @default(8.0)
+  weeklyThresholdHours Float    @default(40.0)
+  overtimeMultiplier   Float    @default(1.5)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  location Location @relation(fields: [locationId], references: [id])
+}
+
+// ─── TIMECARDS / GEOFENCE ATTENDANCE ─────────────────────────────────────────
+
+model TimeEntry {
+  id             String          @id @default(cuid())
+  employeeId     String
+  shiftId        String?
+  locationId     String
+  clockIn        DateTime        @default(now())
+  clockOut       DateTime?
+  clockInLat     Float?
+  clockInLng     Float?
+  distanceMeters Float?
+  breakMinutes   Int             @default(0)
+  status         TimeEntryStatus @default(ACTIVE)
+  flagReason     String?
+  approvedAt     DateTime?
+  approvedBy     String?
+  managerNote    String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  shift    Shift?    @relation(fields: [shiftId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@index([locationId, status])
+  @@index([employeeId, clockIn])
+}
+
+// ─── FLOOR TASKS & ALERTS ───────────────────────────────────────────────────
+
+model Task {
+  id           String       @id @default(cuid())
+  locationId   String
+  createdById  String?      // Staff or system generated
+  assignedToId String?      // Target employee (nullable if role broadcast)
+  role         UserRole?    // Broadcast to SERVER, RUNNER, etc.
+  message      String
+  taskType     String       @default("FLOOR") // "FOOD_READY", "BUSSING", "MANAGER_CALL", "SPILL"
+  orderId      String?
+  tableId      String?
+  priority     TaskPriority @default(NORMAL)
+  status       TaskStatus   @default(OPEN)
+  resolvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  location Location  @relation(fields: [locationId], references: [id])
+  employee Employee? @relation(fields: [assignedToId], references: [id])
+
+  @@index([locationId, status])
 }
 
 // ─── LEAVE MANAGEMENT (Phase 2 — Week 4) ─────────────────────────────────────
@@ -738,6 +1093,7 @@ model WaitlistEntry {
 enum PurchaseOrderStatus {
   DRAFT
   ORDERED
+  PARTIALLY_RECEIVED
   RECEIVED
   CANCELLED
 }
@@ -776,37 +1132,135 @@ model PurchaseOrder {
 }
 
 model PurchaseOrderItem {
-  id              String        @id @default(cuid())
-  purchaseOrderId String
-  inventoryItemId String
-  quantity        Float
-  unitCost        Decimal       @db.Decimal(10, 2)
-  totalCost       Decimal       @db.Decimal(10, 2)
+  id               String        @id @default(cuid())
+  purchaseOrderId  String
+  inventoryItemId  String
+  quantity         Float
+  receivedQuantity Float         @default(0.0)
+  unitCost         Decimal       @db.Decimal(10, 2)
+  totalCost        Decimal       @db.Decimal(10, 2)
 
   purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
 }
 
-// ─── CUSTOMER CRM & LOYALTY (Phase 3 — Module 3) ─────────────────────────────
+// ─── CUSTOMER CRM & LOYALTY (Phase 3 — Module 4) ─────────────────────────────
+
+enum PointsLedgerType {
+  EARNED_PURCHASE
+  REDEEMED
+  MANUAL_ADJUSTMENT
+  REFUND_REVERSAL
+  WELCOME_BONUS
+  BIRTHDAY_BONUS
+  EXPIRED
+}
+
+enum CampaignChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  CANCELLED
+}
+
+enum CampaignSegment {
+  ALL
+  NEW
+  REPEAT
+  HIGH_VALUE
+  LAPSED
+  BIRTHDAY
+  DIETARY
+}
 
 model Customer {
-  id            String    @id @default(cuid())
-  restaurantId  String
-  name          String
-  phone         String    @unique
-  email         String?
-  pointsBalance Int       @default(0)
-  lifetimeSpend Decimal   @db.Decimal(10, 2) @default(0.0)
-  totalVisits   Int       @default(0)
-  allergyTags   Json      @default("[]") // e.g. ["Peanuts", "Gluten-Free"]
-  notes         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                       String    @id @default(cuid())
+  restaurantId             String
+  name                     String
+  phone                    String    @unique
+  email                    String?
+  pointsBalance            Int       @default(0)
+  lifetimeSpend            Decimal   @db.Decimal(10, 2) @default(0.0)
+  totalVisits              Int       @default(0)
+  allergyTags              Json      @default("[]") // e.g. ["Peanuts", "Gluten-Free"]
+  tags                     Json      @default("[]") // e.g. ["VIP", "Regular", "Wine Lover"]
+  marketingConsentEmail    Boolean   @default(true)
+  marketingConsentSms      Boolean   @default(true)
+  marketingConsentWhatsApp Boolean   @default(false)
+  consentRecordedAt        DateTime  @default(now())
+  birthDate                DateTime?
+  lastVisitAt              DateTime?
+  source                   String    @default("POS") // POS, QR_TABLE, ONLINE, PHONE, DELIVERY
+  notes                    String?
+  tierId                   String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
-  restaurant  Restaurant          @relation(fields: [restaurantId], references: [id])
-  orders      Order[]
-  redemptions LoyaltyRedemption[]
+  restaurant    Restaurant          @relation(fields: [restaurantId], references: [id])
+  tier          LoyaltyTier?        @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  orders        Order[]
+  redemptions   LoyaltyRedemption[]
+  ledgerEntries PointsLedger[]
 
   @@index([restaurantId])
+  @@index([restaurantId, lifetimeSpend])
+  @@index([tierId])
+}
+
+model LoyaltyConfig {
+  id                      String   @id @default(cuid())
+  restaurantId            String   @unique
+  pointsPerDollar         Float    @default(1.0)
+  pointsExpiryDays        Int?     @default(365)
+  welcomeBonusPoints      Int      @default(0)
+  birthdayBonusPoints     Int      @default(0)
+  minimumRedemptionPoints Int      @default(100)
+  isEnabled               Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+}
+
+model LoyaltyTier {
+  id               String   @id @default(cuid())
+  restaurantId     String
+  name             String   // e.g. "Bronze", "Silver", "Gold", "VIP"
+  minimumSpend     Decimal  @db.Decimal(10, 2) @default(0.0)
+  pointsMultiplier Float    @default(1.0)
+  perks            Json     @default("[]")
+  badgeColor       String   @default("#6366f1")
+  displayOrder     Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  customers  Customer[]
+
+  @@unique([restaurantId, name])
+  @@index([restaurantId, minimumSpend])
+}
+
+model PointsLedger {
+  id           String           @id @default(cuid())
+  customerId   String
+  orderId      String?
+  type         PointsLedgerType @default(EARNED_PURCHASE)
+  pointsChange Int
+  balanceAfter Int
+  reason       String?
+  actorId      String?
+  createdAt    DateTime         @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, createdAt])
 }
 
 model LoyaltyReward {
@@ -836,6 +1290,26 @@ model LoyaltyRedemption {
   reward   LoyaltyReward @relation(fields: [rewardId], references: [id])
 }
 
+model MarketingCampaign {
+  id             String          @id @default(cuid())
+  restaurantId   String
+  title          String
+  channel        CampaignChannel @default(EMAIL)
+  status         CampaignStatus  @default(DRAFT)
+  targetSegment  CampaignSegment @default(ALL)
+  subject        String?
+  messageBody    String
+  couponId       String?
+  recipientCount Int             @default(0)
+  sentAt         DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId, status])
+}
+
 
 // ─── AUDIT LOG (Phase D — Compliance Trail) ───────────────────────────────────
 
@@ -855,4 +1329,238 @@ model AuditLog {
   @@index([restaurantId, createdAt])
   @@index([actorId])
   @@index([action])
+}
+
+// ─── ONLINE ORDERING MODULE ──────────────────────────────────────────────────
+
+model OnlineOrderingConfig {
+  id                    String @id @default(cuid())
+  locationId            String @unique
+  isEnabled             Boolean @default(true)
+  isPaused              Boolean @default(false)
+  pauseReason           String?
+  acceptanceMode        OrderingAcceptanceMode @default(MANUAL)
+  pickupEnabled         Boolean @default(true)
+  deliveryEnabled       Boolean @default(true)
+  dineInEnabled         Boolean @default(true)
+  scheduledOrdersEnabled Boolean @default(true)
+  pickupLeadMinutes     Int @default(20)
+  deliveryLeadMinutes   Int @default(45)
+  minimumPickupAmount   Decimal @db.Decimal(10, 2) @default(0)
+  minimumDeliveryAmount Decimal @db.Decimal(10, 2) @default(0)
+  deliveryRadiusKm      Float @default(8)
+  deliveryFee           Decimal @db.Decimal(10, 2) @default(0)
+  freeDeliveryThreshold Decimal? @db.Decimal(10, 2)
+  serviceChargePercent  Decimal @db.Decimal(5, 2) @default(0)
+  maximumOrdersPerSlot  Int @default(10)
+  slotDurationMinutes   Int @default(15)
+  customerInstructions  String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  hours OnlineOrderingHours[]
+}
+
+model OnlineOrderingHours {
+  id          String @id @default(cuid())
+  configId    String
+  dayOfWeek   Int
+  orderType   FulfilmentType
+  openTime    String
+  closeTime   String
+  isClosed    Boolean @default(false)
+
+  config OnlineOrderingConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  @@unique([configId, dayOfWeek, orderType])
+}
+
+model OrderDeliveryAddress {
+  id            String @id @default(cuid())
+  orderId       String @unique
+  locationId    String
+  addressLine1  String
+  addressLine2  String?
+  city          String
+  state         String
+  postalCode    String
+  latitude      Float?
+  longitude     Float?
+  distanceKm    Float?
+  instructions  String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id])
+}
+
+model StripeEventLog {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  eventType   String
+  orderId     String?
+  processedAt DateTime @default(now())
+
+  @@index([eventId])
+}
+
+model OrderingHoliday {
+  id         String   @id @default(cuid())
+  locationId String
+  name       String
+  date       DateTime
+  isClosed   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, date])
+  @@index([locationId, date])
+}
+
+// ─── MODULE 5: DELIVERY RECONCILIATION ──────────────────────────────────────
+
+enum ReconciliationStatus {
+  OPEN
+  REVIEWING
+  LOCKED
+  EXPORTED
+}
+
+enum ExceptionType {
+  UNMATCHED_ORDER
+  AMOUNT_DIFF
+  MISSING_PAYOUT
+  DUPLICATE_IMPORT
+}
+
+model DeliveryProvider {
+  id          String   @id @default(cuid())
+  locationId  String
+  name        String   // "UrbanPiper", "Swiggy", "Zomato", "DoorDash"
+  slug        String   // "urbanpiper", "swiggy" etc.
+  isActive    Boolean  @default(true)
+  apiKey      String?
+  webhookSecret String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location   Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  statements DeliveryStatement[]
+
+  @@unique([locationId, slug])
+  @@index([locationId])
+}
+
+model DeliveryStatement {
+  id           String   @id @default(cuid())
+  providerId   String
+  locationId   String
+  periodStart  DateTime
+  periodEnd    DateTime
+  rawCsvHash   String   // SHA-256 of uploaded CSV, for dedup
+  importedAt   DateTime @default(now())
+  importedBy   String?  // userId who uploaded
+  totalGross   Float    @default(0)
+  totalCommission Float @default(0)
+  totalTax     Float    @default(0)
+  totalRefunds Float    @default(0)
+  totalAdjustments Float @default(0)
+  expectedPayout Float  @default(0)
+  lineCount    Int      @default(0)
+
+  provider   DeliveryProvider      @relation(fields: [providerId], references: [id])
+  location   Location              @relation(fields: [locationId], references: [id])
+  lines      DeliveryStatementLine[]
+  periods    ReconciliationPeriodStatement[]
+
+  @@index([providerId, periodStart, periodEnd])
+  @@index([locationId, periodStart])
+}
+
+model DeliveryStatementLine {
+  id              String   @id @default(cuid())
+  statementId     String
+  externalOrderId String   // provider's order ID
+  restoOrderId    String?  // matched OnlineOrder.id (null = unmatched)
+  matchedAt       DateTime?
+  orderDate       DateTime
+  customerName    String?
+  itemsJson       String?  // JSON array of line items from provider
+  grossAmount     Float
+  commission      Float    @default(0)
+  tax             Float    @default(0)
+  promotionAmount Float    @default(0)
+  refundAmount    Float    @default(0)
+  adjustment      Float    @default(0)
+  netAmount       Float    // gross - commission - tax + adjustments - refunds
+  paymentMethod   String?
+  status          String?  // provider status string
+
+  statement DeliveryStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
+
+  @@unique([statementId, externalOrderId])
+  @@index([statementId])
+  @@index([externalOrderId])
+  @@index([restoOrderId])
+}
+
+model ReconciliationPeriod {
+  id         String                 @id @default(cuid())
+  locationId String
+  name       String                 // e.g. "Sep 2026 — UrbanPiper"
+  periodStart DateTime
+  periodEnd   DateTime
+  status     ReconciliationStatus   @default(OPEN)
+  lockedAt   DateTime?
+  lockedBy   String?                // userId
+  exportedAt DateTime?
+  notes      String?
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  // Summary totals (updated on match)
+  totalGross       Float @default(0)
+  totalCommission  Float @default(0)
+  totalTax         Float @default(0)
+  totalRefunds     Float @default(0)
+  totalNet         Float @default(0)
+  matchedCount     Int   @default(0)
+  unmatchedCount   Int   @default(0)
+  exceptionCount   Int   @default(0)
+
+  location     Location                          @relation(fields: [locationId], references: [id])
+  statements   ReconciliationPeriodStatement[]
+  exceptions   ReconciliationException[]
+
+  @@index([locationId, periodStart])
+  @@index([locationId, status])
+}
+
+model ReconciliationPeriodStatement {
+  periodId    String
+  statementId String
+
+  period    ReconciliationPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  statement DeliveryStatement    @relation(fields: [statementId], references: [id], onDelete: Cascade)
+
+  @@id([periodId, statementId])
+}
+
+model ReconciliationException {
+  id          String        @id @default(cuid())
+  periodId    String
+  lineId      String?       // DeliveryStatementLine id if applicable
+  type        ExceptionType
+  description String
+  amount      Float?        // the discrepancy amount if type = AMOUNT_DIFF
+  isResolved  Boolean       @default(false)
+  resolvedAt  DateTime?
+  resolvedBy  String?       // userId
+  resolutionNote String?
+  createdAt   DateTime      @default(now())
+
+  period ReconciliationPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@index([periodId, isResolved])
+  @@index([periodId, type])
 }

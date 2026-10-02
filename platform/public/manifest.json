@@ -1,13 +1,19 @@
 {
-  "name": "Resto AI",
-  "short_name": "Resto",
-  "description": "Restaurant management platform — manager mobile app",
+  "name": "Prominentz",
+  "short_name": "Prominentz",
+  "description": "Restaurant operating platform — manager mobile app",
   "start_url": "/m",
   "display": "standalone",
   "background_color": "#0A0A0B",
-  "theme_color": "#FF4F1F",
+  "theme_color": "#5b45f5",
   "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "/prominentz-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",

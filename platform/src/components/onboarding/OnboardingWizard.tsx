@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
 
 type Template = 'FINE_DINING' | 'FAST_CASUAL' | 'BAR'
 
@@ -133,8 +134,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
       {/* Progress header */}
       <div style={styles.header}>
         <div style={styles.logoRow}>
-          <span style={styles.logoText}>Resto</span>
-          <span style={styles.logoBadge}>AI</span>
+          <ProminentzLogo variant="full" size="sm" />
         </div>
         <div style={styles.progressBar}>
           <div style={{ ...styles.progressFill, width: `${progress}%` }} />
@@ -160,7 +160,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
         {/* ── Step 1: Restaurant Name ── */}
         {step === 1 && (
           <div>
-            <h2 style={styles.cardTitle}>Welcome to Resto AI 👋</h2>
+            <h2 style={styles.cardTitle}>Welcome to Prominentz 👋</h2>
             <p style={styles.cardSub}>Let's set up your restaurant in a few quick steps. First — what's your restaurant called?</p>
             <label style={styles.label}>Restaurant Name</label>
             <input
@@ -339,7 +339,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '-0.5px',
   },
   logoBadge: {
-    background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
+    background: 'linear-gradient(135deg, #5b45f5, #7b68f7)',
     color: '#fff',
     fontSize: 10,
     fontWeight: 700,
@@ -356,7 +356,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   progressFill: {
     height: '100%',
-    background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
+    background: 'linear-gradient(135deg, #5b45f5, #7b68f7)',
     borderRadius: 2,
     transition: 'width 0.4s ease',
   },
@@ -380,8 +380,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   stepDotActive: {
     background: 'rgba(37,99,235,0.18)',
-    border: '1.5px solid #2563eb',
-    color: '#2563eb',
+    border: '1.5px solid #5b45f5',
+    color: '#5b45f5',
   },
   stepDotDone: {
     background: 'rgba(48,209,88,0.12)',
@@ -448,7 +448,7 @@ const styles: Record<string, React.CSSProperties> = {
     boxSizing: 'border-box',
   },
   primaryBtn: {
-    background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
+    background: 'linear-gradient(135deg, #5b45f5, #7b68f7)',
     color: '#fff',
     border: 'none',
     borderRadius: 10,
@@ -463,8 +463,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   secondaryBtn: {
     background: 'rgba(37,99,235,0.1)',
-    color: '#2563eb',
-    border: '1px solid rgba(37,99,235,0.3)',
+    color: '#5b45f5',
+    border: '1px solid rgba(91,69,245,0.3)',
     borderRadius: 10,
     padding: '12px 20px',
     fontSize: 14,
@@ -499,7 +499,7 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'all 0.2s ease',
   },
   templateCardActive: {
-    border: '1.5px solid #2563eb',
+    border: '1.5px solid #5b45f5',
     background: 'rgba(37,99,235,0.08)',
   },
   errorBanner: {

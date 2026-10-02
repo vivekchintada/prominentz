@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { generateReceiptEscPos } from '@/lib/escpos'
+import { getPrintSettings } from '@/lib/settings-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +19,14 @@ export async function POST(req: NextRequest) {
     const { orderId, type = 'RECEIPT', format = 'json' } = await req.json()
     if (!orderId) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
+    }
+
+    // Load restaurant print settings
+    const printSettings = await getPrintSettings(session.user.restaurantId)
+
+    // Check if printing is enabled
+    if (!printSettings.enablePrint) {
+      return NextResponse.json({ error: 'Printing is disabled in restaurant settings.' }, { status: 403 })
     }
 
     const order = await prisma.order.findFirst({
@@ -56,9 +65,12 @@ export async function POST(req: NextRequest) {
     const restaurantName = location.restaurant.name
 
     const receiptData = {
-      restaurantName,
-      address: location.address,
-      phone: location.phone,
+      restaurantName: printSettings.showStoreDetails ? restaurantName : '',
+      address: printSettings.showStoreDetails ? location.address : undefined,
+      phone: printSettings.showStoreDetails ? location.phone : undefined,
+      // Custom header/footer from print settings (overrides defaults if set)
+      customHeader: printSettings.header || undefined,
+      customFooter: printSettings.footer || undefined,
       orderId: order.id,
       tableName: order.table.name,
       serverName: order.server?.name || session.user.name || 'Staff',
@@ -74,6 +86,8 @@ export async function POST(req: NextRequest) {
       tip: payment ? Number(payment.tip) : 0,
       total: Number(order.total),
       paymentMethod: payment ? payment.method : 'UNPAID / CHECK',
+      showNotes: printSettings.showNotes,
+      notes: printSettings.showNotes ? order.notes : undefined,
     }
 
     const escPosBytes = generateReceiptEscPos(receiptData)

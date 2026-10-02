@@ -18,8 +18,8 @@ export default function EnterprisePlanPage() {
       {/* Nav Header */}
       <nav style={{ padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '0.5px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'rgba(10,10,11,0.88)' }}>
         <Link href="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '17px', fontWeight: 800, background: 'linear-gradient(135deg, #3b82f6, #2563eb)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.04em' }}>Resto</span>
-          <span style={{ fontSize: '9px', fontWeight: 800, color: '#2563eb', backgroundColor: 'rgba(37,99,235,0.12)', border: '0.5px solid rgba(37,99,235,0.3)', padding: '2px 6px', borderRadius: '5px', letterSpacing: '0.06em' }}>AI</span>
+          <span style={{ fontSize: '17px', fontWeight: 800, background: 'linear-gradient(135deg, #7b68f7, #5b45f5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.04em' }}>Resto</span>
+          <span style={{ fontSize: '9px', fontWeight: 800, color: '#5b45f5', backgroundColor: 'rgba(91,69,245,0.12)', border: '0.5px solid rgba(91,69,245,0.3)', padding: '2px 6px', borderRadius: '5px', letterSpacing: '0.06em' }}>AI</span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '11px', fontWeight: 700, color: plan.color, backgroundColor: plan.color + '18', padding: '3px 10px', borderRadius: '999px', border: `0.5px solid ${plan.color}35` }}>✦ ENTERPRISE PLAN</span>

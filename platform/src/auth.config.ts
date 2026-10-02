@@ -15,6 +15,7 @@ export const authConfig = {
         nextUrl.pathname === '/' ||
         nextUrl.pathname.startsWith('/table') ||
         nextUrl.pathname.startsWith('/menu') ||
+        nextUrl.pathname.startsWith('/order') ||
         nextUrl.pathname.startsWith('/signup') ||
         nextUrl.pathname.startsWith('/pricing') ||
         nextUrl.pathname.startsWith('/terms') ||
@@ -27,7 +28,7 @@ export const authConfig = {
       if (isAuthPage) {
         if (isLoggedIn) {
           if (userRole === 'KITCHEN') return Response.redirect(new URL('/kds', nextUrl))
-          if (userRole === 'SERVER')  return Response.redirect(new URL('/pos', nextUrl))
+          if (userRole === 'SERVER')  return Response.redirect(new URL('/server', nextUrl))
           return Response.redirect(new URL('/dashboard', nextUrl))
         }
         return true
@@ -42,16 +43,32 @@ export const authConfig = {
         return Response.redirect(new URL('/kds', nextUrl))
       }
 
-      // SERVER role: allowed on /pos, /kds, /dashboard/reservations, /dashboard/waitlist
+      // SERVER role: strictly restricted to /server and /pos
       if (userRole === 'SERVER') {
-        const allowedServerRoutes = ['/pos', '/kds', '/dashboard/reservations', '/dashboard/waitlist']
+        const allowedServerRoutes = ['/server', '/pos']
         const isAllowed = allowedServerRoutes.some((route) => nextUrl.pathname.startsWith(route))
         if (!isAllowed) {
-          return Response.redirect(new URL('/pos', nextUrl))
+          return Response.redirect(new URL('/server', nextUrl))
         }
       }
 
       return true
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        token.restaurantId = user.restaurantId
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as any
+        session.user.restaurantId = token.restaurantId as string
+      }
+      return session
     },
   },
   providers: [], // Add providers in auth.ts

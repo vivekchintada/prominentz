@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
-import { RESTO_IQ_TOOLS } from '@/lib/ai/tools/definitions'
 import { executeRestoIqTool, ToolExecutionResult } from '@/lib/ai/tools/executor'
 import { AgentContext } from '@/lib/ai-agent'
-import { retrieveRagContext } from '@/lib/ai-rag'
 
 export const dynamic = 'force-dynamic'
 
@@ -78,140 +76,7 @@ export async function POST(req: NextRequest) {
     const executedTools: ToolExecutionResult[] = []
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 1. LLM TOOL-CALLING ORCHESTRATION (Groq / OpenAI API if key is present)
-    // ─────────────────────────────────────────────────────────────────────────
-    const experlabsKey = process.env.EXPLABS_API_KEY
-    if (!experlabsKey) {
-      console.error('EXPLABS_API_KEY not set. Please create one under Settings -> API Keys and export it.')
-      return NextResponse.json({ error: 'Experiential API key missing' }, { status: 500 })
-    }
-    const apiUrl = 'https://api.experientiallabs.ai/v1/chat/completions'
-    const model = 'gpt-5.6-luna'
-
-    if (experlabsKey) {
-      try {
-        const ragContext = await retrieveRagContext(prompt, locationId || restaurantId, 5, mode)
-        const systemPrompt = `You are Resto IQ, the autonomous AI Operations Co-pilot for Resto AI.
-Current User: ${agentCtx.userName} (${agentCtx.userRole})
-Location ID: ${agentCtx.locationId}
-Active Page: ${currentPage || 'dashboard'}
-Mode: ${mode}
-
-CAPABILITIES:
-You have programmatic tools to inspect every operational domain ("every nook and cranny") of the restaurant:
-- Live POS operations, sales, open checks, bill splits (getLiveOperations)
-- Kitchen KDS bottlenecks, cook speeds, delayed tickets > 15m (getKitchenHealth)
-- Floor plan table occupancy, banquet seats, long-wait tables (getTableFloorStatus)
-- Reservations roster, VIP guests, waitlist line (getReservationsAndWaitlist)
-- Ingredient stock levels, auto-86 items, vendor purchase orders (getInventoryAndDepletion)
-- Sales financials, tax, tips, ticket size tiers: <$25, $25-$75, $75-$150, $150+ (getSalesAndAOVMetrics)
-- Loss prevention audit: void spikes, comp abuse, cash drawer events (getLossPreventionAudit)
-- Labor staffing: clocked in staff, labor cost % vs sales, overtime (getLaborEfficiency)
-- Customer CRM: top spenders, visit counts, loyalty points (getCrmAndLoyalty)
-- Direct actions: 86/restore item, prioritize KDS ticket, apply courtesy comp
-
-RULES:
-1. Always call the relevant tool(s) first before answering questions about current operations, numbers, tables, or stock.
-2. NEVER guess or hallucinate numbers; report the exact figures returned by your tools.
-3. Be concise, professional, and action-oriented. Highlight actionable next steps for the restaurant manager.
-4. When direct actions are requested (e.g. 86 Salmon, rush table 4), call the corresponding execution tool.
-
-RELEVANT KNOWLEDGE / RECIPES / SOPS:
-${ragContext}
-`
-
-        const messages: any[] = [
-          { role: 'system', content: systemPrompt },
-          ...(body.history || []).slice(-6),
-          { role: 'user', content: prompt },
-        ]
-
-        // 1st LLM call with tools
-        const firstRes = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${experlabsKey}`,
-          },
-          body: JSON.stringify({
-            model,
-            messages,
-            tools: RESTO_IQ_TOOLS,
-            tool_choice: 'auto',
-            temperature: 0.2,
-            max_tokens: 800,
-          }),
-        })
-
-        if (firstRes.ok) {
-          const firstData = await firstRes.json()
-          const responseMessage = firstData.choices?.[0]?.message
-
-          // Check if LLM requested tool execution
-          if (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
-            messages.push(responseMessage)
-
-            for (const toolCall of responseMessage.tool_calls) {
-              const name = toolCall.function.name
-              let args = {}
-              try {
-                args = JSON.parse(toolCall.function.arguments || '{}')
-              } catch {}
-
-              const toolRes = await executeRestoIqTool(name, args, agentCtx)
-              executedTools.push(toolRes)
-
-              messages.push({
-                role: 'tool',
-                tool_call_id: toolCall.id,
-                name,
-                content: JSON.stringify(toolRes.data || { summary: toolRes.summary, error: toolRes.error }),
-              })
-            }
-
-            // 2nd LLM call with tool execution results
-            const secondRes = await fetch(apiUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${apiKey}`,
-              },
-              body: JSON.stringify({
-                model,
-                messages,
-                temperature: 0.3,
-                max_tokens: 800,
-              }),
-            })
-
-            if (secondRes.ok) {
-              const secondData = await secondRes.json()
-              const finalContent = secondData.choices?.[0]?.message?.content
-              if (finalContent) {
-                return NextResponse.json({
-                  reply: finalContent,
-                  usage: firstData.usage || secondData.usage || {},
-                  executedTools,
-                  mode,
-                })
-              }
-            }
-          } else if (responseMessage?.content) {
-            return NextResponse.json({
-              reply: responseMessage.content,
-              usage: firstData.usage || {},
-              executedTools,
-              mode,
-            })
-          }
-        }
-      } catch (err) {
-        console.warn('[Resto IQ] External LLM tool calling call failed, using deterministic agentic runner:', err)
-      }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 2. DETERMINISTIC AGENTIC INTENT ROUTER (100% Offline / Zero-Cost Fallback)
+    // DETERMINISTIC AGENTIC INTENT ROUTER (100% Offline / Zero-Cost / No LLM)
     // ─────────────────────────────────────────────────────────────────────────
     const lower = prompt.toLowerCase().trim()
     let reply = ''

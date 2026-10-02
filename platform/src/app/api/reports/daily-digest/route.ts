@@ -32,7 +32,7 @@ export async function GET() {
 
     const Resend = (await import('resend')).Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
-    const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'Resto AI <onboarding@resend.dev>'
+    const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'Prominentz <onboarding@resend.dev>'
 
     let totalSent = 0
 

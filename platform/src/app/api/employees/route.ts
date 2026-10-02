@@ -87,6 +87,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User not found in this restaurant' }, { status: 404 })
     }
 
+    // Enforce Starter plan limit (up to 5 staff user accounts)
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: session.user.restaurantId },
+      select: { planTier: true },
+    })
+    const planTier = restaurant?.planTier ?? 'STARTER'
+    if (planTier === 'STARTER') {
+      const activeStaffCount = await prisma.employee.count({
+        where: {
+          location: { restaurantId: session.user.restaurantId },
+          isActive: true,
+        },
+      })
+      if (activeStaffCount >= 5) {
+        return NextResponse.json(
+          {
+            error: 'STARTER_LIMIT_REACHED',
+            message: 'The Starter Plan is limited to 5 staff accounts. Upgrade to Professional for unlimited staff accounts.',
+            requiredTier: 'PRO',
+          },
+          { status: 403 }
+        )
+      }
+    }
+
     const employee = await prisma.employee.findFirst({
       where: { userId: session.user.id, isActive: true },
     })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { publishEvent } from '@/lib/redis'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,6 +99,21 @@ export async function POST(req: NextRequest) {
         targetEmployee: { include: { user: true } },
       },
     })
+
+    try {
+      await publishEvent(
+        'swap.requested',
+        {
+          tradeId: trade.id,
+          shiftId,
+          requesterName: trade.requester.user?.name,
+          targetName: trade.targetEmployee?.user?.name,
+          status: trade.status,
+          reason,
+        },
+        shift.locationId
+      )
+    } catch {}
 
     return NextResponse.json(trade, { status: 201 })
   } catch (error) {

@@ -59,6 +59,28 @@ export async function POST(req: NextRequest) {
 
     const { name, email, password, role } = parsed.data
 
+    // Enforce Starter plan limit (up to 5 staff user accounts)
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: session.user.restaurantId },
+      select: { planTier: true },
+    })
+    const planTier = restaurant?.planTier ?? 'STARTER'
+    if (planTier === 'STARTER') {
+      const userCount = await prisma.user.count({
+        where: { restaurantId: session.user.restaurantId },
+      })
+      if (userCount >= 5) {
+        return NextResponse.json(
+          {
+            error: 'STARTER_LIMIT_REACHED',
+            message: 'The Starter Plan is limited to 5 staff accounts. Upgrade to Professional for unlimited staff accounts.',
+            requiredTier: 'PRO',
+          },
+          { status: 403 }
+        )
+      }
+    }
+
     // Check if email already exists
     const existing = await prisma.user.findFirst({ where: { email } })
     if (existing) {

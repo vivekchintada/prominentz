@@ -412,7 +412,7 @@ export default function PosTerminal({
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, fontSize: '18px', color: 'var(--brand)' }}>
             <span style={{ fontSize: '22px' }}>🍽️</span>
-            <span>Resto AI</span>
+            <span>Prominentz</span>
           </div>
 
           <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>

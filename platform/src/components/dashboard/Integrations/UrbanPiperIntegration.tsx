@@ -18,9 +18,9 @@ export function UrbanPiperIntegration() {
     fetchStatus();
   }, []);
 
-  const bgColor = status === 'configured' ? 'rgba(48,209,88,0.12)' : 'rgba(37,99,235,0.12)';
-  const borderColor = status === 'configured' ? '#30D15844' : '#2563eb44';
-  const textColor = status === 'configured' ? '#30D158' : '#2563eb';
+  const bgColor = status === 'configured' ? 'rgba(48,209,88,0.12)' : 'rgba(91,69,245,0.12)';
+  const borderColor = status === 'configured' ? '#30D15844' : '#5b45f544';
+  const textColor = status === 'configured' ? '#30D158' : '#5b45f5';
   const label = status === 'configured' ? 'UrbanPiper Connected' : 'UrbanPiper Not Configured';
 
   return (

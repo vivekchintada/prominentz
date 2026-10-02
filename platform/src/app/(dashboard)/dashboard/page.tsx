@@ -16,7 +16,7 @@ import {
 } from '@/components/dashboard/MainDashboardClient'
 
 export const metadata = {
-  title: 'Dashboard | Resto AI',
+  title: 'Dashboard | Prominentz',
   description: 'Real-time restaurant operations, revenue analytics, trending menus, and table reservations.',
 }
 
@@ -840,7 +840,7 @@ export default async function DashboardPage() {
           const isToday = now.toDateString() === date.toDateString()
 
           let icon = '🧺'
-          let iconColor = '#3b82f6'
+          let iconColor = '#7b68f7'
           let iconBg = 'rgba(59, 130, 246, 0.15)'
 
           if (event.eventType.includes('payment')) {

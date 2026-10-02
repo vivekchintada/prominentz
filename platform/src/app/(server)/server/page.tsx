@@ -5,9 +5,10 @@ import ServerDashboard from '@/components/server/ServerDashboard'
 
 export default async function ServerPage() {
   const session = await auth()
-  if (!session?.user) redirect('/login')
+  if (!session?.user) redirect('/login?portal=server')
 
   const user = session.user
+  if (user.role === 'KITCHEN') redirect('/kds')
 
   // Resolve employee record & location
   const employee = await prisma.employee.findFirst({

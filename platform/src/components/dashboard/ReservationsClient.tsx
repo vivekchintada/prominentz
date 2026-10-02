@@ -351,7 +351,7 @@ export default function ReservationsClient() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              backgroundColor: '#2563eb',
+              backgroundColor: '#5b45f5',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -405,7 +405,7 @@ export default function ReservationsClient() {
             } else if (res.status === 'PENDING') {
               statusLabel = 'Pending'
               statusBg = '#eff6ff'
-              statusColor = '#2563eb'
+              statusColor = '#5b45f5'
             }
 
             return (
@@ -679,7 +679,7 @@ export default function ReservationsClient() {
                 padding: '10px',
                 borderRadius: 8,
                 border: 'none',
-                backgroundColor: '#2563eb',
+                backgroundColor: '#5b45f5',
                 color: '#ffffff',
                 fontWeight: 700,
                 fontSize: 13,
@@ -840,7 +840,7 @@ export default function ReservationsClient() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: '#2563eb', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: '#5b45f5', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
                 >
                   {isSubmitting ? 'Booking...' : 'Book Table'}
                 </button>
@@ -972,7 +972,7 @@ export default function ReservationsClient() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: '#2563eb', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: '#5b45f5', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
                 >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>

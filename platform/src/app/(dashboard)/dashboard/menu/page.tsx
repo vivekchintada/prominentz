@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Suspense } from 'react'
 
-export const metadata = { title: 'Menu Management | Resto AI' }
+export const metadata = { title: 'Menu Management | Prominentz' }
 
 export default async function DashboardMenuPage() {
   const session = await auth()

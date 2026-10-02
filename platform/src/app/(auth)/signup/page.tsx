@@ -1,17 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import styles from '../login/page.module.css'
 
 export default function SignupPage() {
+  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>('OWNER')
+
+  // Owner fields
   const [restaurantName, setRestaurantName] = useState('')
   const [ownerName, setOwnerName]           = useState('')
+  const [locationName, setLocationName]     = useState('Main Dining Room')
+
+  // Staff fields
+  const [staffName, setStaffName]           = useState('')
+  const [staffRole, setStaffRole]           = useState<'MANAGER' | 'SERVER' | 'KITCHEN'>('SERVER')
+  const [restaurantCode, setRestaurantCode] = useState('')
+
+  // Shared fields
   const [email, setEmail]                   = useState('')
   const [password, setPassword]             = useState('')
-  const [locationName, setLocationName]     = useState('Main Outlet')
+  const [showPassword, setShowPassword]     = useState(false)
   const [phone, setPhone]                   = useState('')
+
   const [error, setError]                   = useState<string | null>(null)
   const [loading, setLoading]               = useState(false)
   const router = useRouter()
@@ -22,131 +34,415 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
+      const payload = accountType === 'OWNER'
+        ? {
+            signupType: 'OWNER',
+            restaurantName,
+            ownerName,
+            email,
+            password,
+            locationName: locationName || 'Main Dining Room',
+            phone: phone || undefined,
+          }
+        : {
+            signupType: 'STAFF',
+            name: staffName,
+            email,
+            password,
+            role: staffRole,
+            restaurantCode,
+            phone: phone || undefined,
+          }
+
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          restaurantName,
-          ownerName,
-          email,
-          password,
-          locationName,
-          phone: phone || undefined,
-        }),
+        body: JSON.stringify(payload),
       })
 
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to create SaaS account')
+        if (typeof data.error === 'object' && data.error.fieldErrors) {
+          const firstErr = Object.values(data.error.fieldErrors)[0] as string[]
+          throw new Error(firstErr?.[0] || 'Validation error')
+        }
+        throw new Error(data.error || 'Failed to create account')
       }
 
-      // Registration successful -> redirect to login with query param
-      router.push('/login?registered=true')
+      // Registration successful -> redirect to login with query param and pre-selected role
+      const targetRole = accountType === 'OWNER' ? 'owner' : staffRole.toLowerCase()
+      router.push(`/login?registered=true&portal=${targetRole}&email=${encodeURIComponent(email)}`)
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.')
+      setError(err.message || 'An unexpected registration error occurred.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.loginCard} style={{ maxWidth: '440px' }}>
-        <div className={styles.header}>
-          <div className={styles.logoMark}>
-            <span>R</span>
+    <div className={styles.pageWrapper}>
+      <div className={styles.mainContainer}>
+        {/* ── LEFT SHOWCASE: Brand Presentation & Role Overview ── */}
+        <div className={styles.heroShowcase}>
+          <div className={styles.brandBadge}>
+            <span className={styles.badgeDot} />
+            Prominentz Platform Onboarding
           </div>
-          <h2 className={styles.title}>Register Your Restaurant</h2>
-          <p className={styles.subtitle}>Start your 14-day free trial — all features included</p>
+
+          <h1 className={styles.heroTitle}>
+            {accountType === 'OWNER' ? (
+              <>
+                Launch your restaurant in{' '}
+                <span className={styles.heroTitleGradient}>minutes, not weeks.</span>
+              </>
+            ) : (
+              <>
+                Join your restaurant team{' '}
+                <span className={styles.heroTitleGradient}>with high-speed access.</span>
+              </>
+            )}
+          </h1>
+
+          <p className={styles.heroSubtitle}>
+            {accountType === 'OWNER'
+              ? 'Complete cloud operating system for restaurant groups: Point-of-Sale, Kitchen Display Systems, floor tables, QR ordering, and live inventory.'
+              : 'Direct-access portal for managers, floor servers, and kitchen line cooks. Seamless order entry, bump displays, and shift management.'}
+          </p>
+
+          {/* Onboarding Highlights Card */}
+          <div className={styles.liveMetricsCard}>
+            <div className={styles.metricsHeader}>
+              <span>{accountType === 'OWNER' ? 'Owner SaaS Privileges' : 'Staff Workspace Access'}</span>
+              <span className={styles.liveIndicator}>
+                <span className={styles.liveIndicatorDot} />
+                Live Setup
+              </span>
+            </div>
+
+            <div className={styles.metricsGrid}>
+              {accountType === 'OWNER' ? (
+                <>
+                  <div className={styles.metricBox}>
+                    <span className={styles.metricValue}>$0 Due</span>
+                    <span className={styles.metricLabel}>14-Day Free Trial</span>
+                  </div>
+                  <div className={styles.metricBox}>
+                    <span className={styles.metricValue}>Pre-seeded</span>
+                    <span className={styles.metricLabel}>Menu &amp; Tables Ready</span>
+                  </div>
+                  <div className={styles.metricBox}>
+                    <span className={styles.metricValue}>All Access</span>
+                    <span className={styles.metricLabel}>FOH + BOH + HQ</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.metricBox}>
+                    <span className={styles.metricValue}>
+                      {staffRole === 'MANAGER' ? '👔 Ops' : staffRole === 'SERVER' ? '🛎️ Floor' : '🍳 KDS'}
+                    </span>
+                    <span className={styles.metricLabel}>Role Assigned</span>
+                  </div>
+                  <div className={styles.metricBox}>
+                    <span className={styles.metricValue}>Instant</span>
+                    <span className={styles.metricLabel}>Terminal Dispatch</span>
+                  </div>
+                  <div className={styles.metricBox}>
+                    <span className={styles.metricValue}>PIN / Pass</span>
+                    <span className={styles.metricLabel}>Touchscreen Ready</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Key Perks */}
+          <div className={styles.featurePills}>
+            <div className={styles.featurePill}>
+              <span>⚡</span> Real-time KDS Kitchen Pipeline
+            </div>
+            <div className={styles.featurePill}>
+              <span>🔒</span> Encrypted Cloud Sessions
+            </div>
+            <div className={styles.featurePill}>
+              <span>📱</span> Mobile Handheld &amp; Tablet Ready
+            </div>
+          </div>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {/* ── RIGHT COLUMN: Registration Form Card ── */}
+        <div className={styles.authCardWrapper}>
+          <div className={styles.authCard}>
+            <div className={styles.cardHeader}>
+              <div className={styles.logoRow}>
+                <div className={styles.logoIcon}>P</div>
+                <div>
+                  <div className={styles.logoBrandName}>Prominentz</div>
+                  <span className={styles.logoBrandTag}>Account Setup</span>
+                </div>
+              </div>
 
-        <form onSubmit={handleSignup} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label className="label">Restaurant Name *</label>
-            <input
-              type="text"
-              className="input"
-              value={restaurantName}
-              onChange={(e) => setRestaurantName(e.target.value)}
-              placeholder="e.g. Bella Italia Bistro"
-              required
-            />
-          </div>
+              {/* Segmented Account Type Toggle */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '6px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  padding: '4px',
+                  borderRadius: '10px',
+                  margin: '16px 0 8px',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => { setAccountType('OWNER'); setError(null) }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    backgroundColor: accountType === 'OWNER' ? '#5b45f5' : 'transparent',
+                    color: accountType === 'OWNER' ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                    transition: 'all 150ms ease',
+                  }}
+                >
+                  👑 New Restaurant Owner
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAccountType('STAFF'); setError(null) }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    backgroundColor: accountType === 'STAFF' ? '#5b45f5' : 'transparent',
+                    color: accountType === 'STAFF' ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                    transition: 'all 150ms ease',
+                  }}
+                >
+                  👥 Staff Member Onboarding
+                </button>
+              </div>
 
-          <div className="flex gap-3">
-            <div className={styles.formGroup} style={{ flex: 1 }}>
-              <label className="label">Your Full Name *</label>
-              <input
-                type="text"
-                className="input"
-                value={ownerName}
-                onChange={(e) => setOwnerName(e.target.value)}
-                placeholder="Jane Smith"
-                required
-              />
+              <h2 className={styles.cardTitle}>
+                {accountType === 'OWNER' ? 'Register Restaurant' : 'Join Restaurant Team'}
+              </h2>
+              <p className={styles.cardSubtitle}>
+                {accountType === 'OWNER'
+                  ? 'Start your 14-day free trial with full platform access'
+                  : 'Register your staff profile under an existing restaurant'}
+              </p>
             </div>
-            <div className={styles.formGroup} style={{ flex: 1 }}>
-              <label className="label">Outlet Name</label>
-              <input
-                type="text"
-                className="input"
-                value={locationName}
-                onChange={(e) => setLocationName(e.target.value)}
-                placeholder="Main Outlet"
-              />
+
+            {error && (
+              <div className={styles.errorBanner}>
+                <span>⚠️</span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSignup} className={styles.form}>
+              {/* ── OWNER REGISTRATION FIELDS ── */}
+              {accountType === 'OWNER' && (
+                <>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label} htmlFor="restaurantName">
+                      Restaurant / Business Name *
+                    </label>
+                    <input
+                      id="restaurantName"
+                      type="text"
+                      className={styles.customInput}
+                      value={restaurantName}
+                      onChange={(e) => setRestaurantName(e.target.value)}
+                      placeholder="e.g. Osteria Stella"
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label} htmlFor="ownerName">
+                      Owner / Operator Full Name *
+                    </label>
+                    <input
+                      id="ownerName"
+                      type="text"
+                      className={styles.customInput}
+                      value={ownerName}
+                      onChange={(e) => setOwnerName(e.target.value)}
+                      placeholder="e.g. Marcus Vance"
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label} htmlFor="locationName">
+                      Primary Outlet / Location Name
+                    </label>
+                    <input
+                      id="locationName"
+                      type="text"
+                      className={styles.customInput}
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
+                      placeholder="e.g. Downtown Flagship"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ── STAFF ONBOARDING FIELDS ── */}
+              {accountType === 'STAFF' && (
+                <>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label} htmlFor="staffRole">
+                      Your Restaurant Role *
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                      {[
+                        { id: 'SERVER', label: '🛎️ Server', desc: 'Floor & POS' },
+                        { id: 'KITCHEN', label: '🍳 Kitchen', desc: 'KDS Screens' },
+                        { id: 'MANAGER', label: '👔 Manager', desc: 'Store Ops' },
+                      ].map((r) => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => setStaffRole(r.id as any)}
+                          style={{
+                            padding: '10px 8px',
+                            borderRadius: '10px',
+                            border: staffRole === r.id ? '1.5px solid #7b68f7' : '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: staffRole === r.id ? 'rgba(91,69,245,0.2)' : 'rgba(255,255,255,0.03)',
+                            color: '#ffffff',
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, fontSize: '12px' }}>{r.label}</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{r.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label} htmlFor="staffName">
+                      Your Full Name *
+                    </label>
+                    <input
+                      id="staffName"
+                      type="text"
+                      className={styles.customInput}
+                      value={staffName}
+                      onChange={(e) => setStaffName(e.target.value)}
+                      placeholder="e.g. Alex Taylor"
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label} htmlFor="restaurantCode">
+                      Restaurant Store Code / Slug *
+                    </label>
+                    <input
+                      id="restaurantCode"
+                      type="text"
+                      className={styles.customInput}
+                      value={restaurantCode}
+                      onChange={(e) => setRestaurantCode(e.target.value)}
+                      placeholder="e.g. osteria-stella-1042 or store ID"
+                      required
+                    />
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '4px', display: 'block' }}>
+                      Provided by your General Manager or on your shift schedule.
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {/* ── SHARED CREDENTIALS ── */}
+              <div className={styles.inputGroup}>
+                <label className={styles.label} htmlFor="email">
+                  {accountType === 'OWNER' ? 'Work Email Address *' : 'Staff Email Address *'}
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  className={styles.customInput}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@restaurant.com"
+                  autoComplete="email"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <div className={styles.labelRow}>
+                  <label className={styles.label} htmlFor="password">
+                    {accountType === 'OWNER' ? 'Account Password (min. 6 chars) *' : 'Password or 4-Digit PIN *'}
+                  </label>
+                </div>
+                <div className={styles.inputContainer}>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className={styles.customInput}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={accountType === 'OWNER' ? '••••••••••••' : '•••• or 4-digit PIN'}
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={styles.passwordToggleBtn}
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? '👁️' : '🔒'}
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label} htmlFor="phone">
+                  Mobile Phone Number (Optional)
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  className={styles.customInput}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                />
+              </div>
+
+              <button type="submit" className={styles.submitBtn} disabled={loading}>
+                {loading
+                  ? 'Creating Account...'
+                  : accountType === 'OWNER'
+                  ? 'Launch Restaurant OS (14 Days Free) →'
+                  : `Complete ${staffRole} Registration →`}
+              </button>
+            </form>
+
+            <div className={styles.footerRow}>
+              <span>Already have an account? </span>
+              <Link href="/login" className={styles.footerLink}>
+                Sign in to your portal →
+              </Link>
             </div>
           </div>
-
-          <div className={styles.formGroup}>
-            <label className="label">Work Email *</label>
-            <input
-              type="email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="jane@bellaitalia.com"
-              required
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <div className={styles.formGroup} style={{ flex: 1 }}>
-              <label className="label">Password *</label>
-              <input
-                type="password"
-                className="input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min 6 chars"
-                minLength={6}
-                required
-              />
-            </div>
-            <div className={styles.formGroup} style={{ flex: 1 }}>
-              <label className="label">Phone (optional)</label>
-              <input
-                type="tel"
-                className="input"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 555-0199"
-              />
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn--brand btn--full btn--lg" disabled={loading}>
-            {loading ? 'Creating Restaurant Account...' : '🚀 Start 14-Day Free Trial'}
-          </button>
-        </form>
-
-        <div className="text-center mt-4">
-          <span className="text-xs text-secondary">Already have an account? </span>
-          <Link href="/login" className="text-xs font-semibold text-brand">
-            Sign In here
-          </Link>
         </div>
       </div>
     </div>

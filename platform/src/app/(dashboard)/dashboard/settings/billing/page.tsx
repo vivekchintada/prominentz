@@ -4,7 +4,7 @@ import { BillingManagerClient } from '@/components/dashboard/BillingManagerClien
 import { PageHeader } from '@/components/ui/PageHeader'
 
 export const metadata = {
-  title: 'Subscription & Billing Portal | Resto AI',
+  title: 'Subscription & Billing Portal | Prominentz',
 }
 
 export default async function BillingPage() {

@@ -634,7 +634,7 @@ export default function ItemFormModal({
                       gap: 6,
                       background: '#eff6ff',
                       border: '1px solid #bfdbfe',
-                      color: '#2563eb',
+                      color: '#5b45f5',
                       borderRadius: 8,
                       padding: '7px 14px',
                       fontSize: 13,
@@ -684,7 +684,7 @@ export default function ItemFormModal({
                               justifyContent: 'space-between',
                               padding: '8px 12px',
                               borderRadius: 8,
-                              border: checked ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                              border: checked ? '1px solid #5b45f5' : '1px solid #e2e8f0',
                               background: checked ? '#eff6ff' : '#ffffff',
                               cursor: 'pointer',
                             }}
@@ -697,7 +697,7 @@ export default function ItemFormModal({
                               />
                               <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{addon.name}</span>
                             </div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#2563eb' }}>+${Number(addon.price).toFixed(2)}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#5b45f5' }}>+${Number(addon.price).toFixed(2)}</span>
                           </label>
                         )
                       })}
@@ -741,7 +741,7 @@ export default function ItemFormModal({
               disabled={isSaving}
               style={{
                 padding: '9px 24px',
-                background: '#2563eb',
+                background: '#5b45f5',
                 border: 'none',
                 borderRadius: 8,
                 fontSize: 14,
