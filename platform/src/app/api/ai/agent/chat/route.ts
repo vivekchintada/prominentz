@@ -33,7 +33,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
     }
 
-    const mode = body.mode || (session?.user ? 'operator' : 'customer')
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
+    // This endpoint performs privileged operational reads and mutations.
+    // Never trust a client-supplied mode to elevate an anonymous request.
+    const mode = 'operator' as const
 
     // Rate limiting: 40 requests per 60s
     const clientKey = session?.user?.id || req.headers.get('x-forwarded-for') || 'guest-ip'
@@ -47,30 +57,47 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     // Resolve location & restaurant
-    let locationId = body.locationId
-    let restaurantId = session?.user?.restaurantId || ''
+    let locationId: string | undefined
+    const restaurantId = session.user.restaurantId
 
-    if (!locationId && session?.user) {
+    if (body.locationId) {
+      const requestedLocation = await prisma.location.findFirst({
+        where: {
+          id: body.locationId,
+          restaurantId,
+        },
+        select: { id: true },
+      })
+      if (!requestedLocation) {
+        return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+      }
+      locationId = requestedLocation.id
+    } else {
       const emp = await prisma.employee.findFirst({
         where: { userId: session.user.id, isActive: true },
+        select: { locationId: true },
       })
       locationId = emp?.locationId || undefined
     }
 
     if (!locationId) {
       const firstLoc = await prisma.location.findFirst({
-        where: restaurantId ? { restaurantId } : undefined,
+        where: { restaurantId },
+        select: { id: true },
       })
       locationId = firstLoc?.id || ''
-      restaurantId = firstLoc?.restaurantId || restaurantId || ''
+    }
+
+    if (!locationId) {
+      return NextResponse.json({ error: 'No active location available' }, { status: 403 })
     }
 
     const agentCtx: AgentContext = {
       restaurantId,
       locationId,
-      userId: session?.user?.id || 'guest',
-      userName: session?.user?.name || (mode === 'customer' ? 'Valued Guest' : 'Manager'),
-      userRole: session?.user?.role || 'SERVER',
+      userId: session.user.id,
+      userName: session.user.name || 'Manager',
+      userRole: session.user.role,
     }
 
     const executedTools: ToolExecutionResult[] = []
