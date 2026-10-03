@@ -1192,7 +1192,7 @@ model Customer {
   id                       String    @id @default(cuid())
   restaurantId             String
   name                     String
-  phone                    String    @unique
+  phone                    String
   email                    String?
   pointsBalance            Int       @default(0)
   lifetimeSpend            Decimal   @db.Decimal(10, 2) @default(0.0)
@@ -1218,6 +1218,7 @@ model Customer {
   ledgerEntries PointsLedger[]
 
   @@index([restaurantId])
+  @@unique([restaurantId, phone])
   @@index([restaurantId, lifetimeSpend])
   @@index([tierId])
 }
