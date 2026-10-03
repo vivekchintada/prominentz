@@ -217,7 +217,7 @@ export default function OwnerPortalLandingPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
             {[
               { step: '01', title: 'Register Your Tenant', desc: 'Create your organization in under 60 seconds with 14 days of unrestricted access.' },
-              { step: '02', title: 'Upload Menus & Tables', desc: 'Pre-seeded sample menus and visual table floor plans ready to customize instantly.' },
+              { step: '02', title: 'Upload Menus & Tables', desc: 'Start with a clean workspace, then add your real menus and floor layout.' },
               { step: '03', title: 'Invite Your Team', desc: 'Generate 4-digit PINs for waitstaff and line cooks. Real-time NextAuth synchronization takes care of the rest.' },
             ].map((s, i) => (
               <div key={i} style={{ padding: '20px', borderRadius: '16px', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
