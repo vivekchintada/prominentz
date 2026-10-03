@@ -13,6 +13,10 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (!['OWNER', 'MANAGER', 'SERVER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const connectionToken = await stripe.terminal.connectionTokens.create()
 
     return NextResponse.json({ secret: connectionToken.secret })
