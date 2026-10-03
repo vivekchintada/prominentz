@@ -12,7 +12,7 @@ export default function OwnerPortalLandingPage() {
   const kpis = [
     { label: 'Consolidated Revenue', value: '$148,920', trend: '+18.4% vs last mo', positive: true },
     { label: 'Prime Cost (COGS + Labor)', value: '54.2%', trend: '-3.1% optimized', positive: true },
-    { label: 'Live Active Outlets', value: '6 Locations', trend: '100% online sync', positive: true },
+    { label: 'Sample Active Outlets', value: '6 Locations', trend: '100% online sync', positive: true },
     { label: 'Avg Table Turn Time', value: '41 min', trend: '8 min faster', positive: true },
   ]
 
@@ -159,9 +159,9 @@ export default function OwnerPortalLandingPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '24px' }}>
               <div>
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a594fd', fontWeight: 700 }}>
-                  Consolidated Multi-Unit Telemetry
+                  Sample Multi-Unit Dashboard · Demo Data
                 </span>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>All 6 Outlets — Live Service Stream</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>Illustrative Outlet Performance — Not Live Data</h3>
               </div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(48,209,88,0.12)', border: '1px solid rgba(48,209,88,0.3)', padding: '6px 14px', borderRadius: '999px', fontSize: '12px', color: '#30D158', fontWeight: 600 }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#30D158', display: 'inline-block' }} />
