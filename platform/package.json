@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "cypress run"
+    "test:e2e": "cypress run",
+    "test:security": "node scripts/security-regression.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
