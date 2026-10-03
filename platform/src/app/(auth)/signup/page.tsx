@@ -138,7 +138,7 @@ function SignupForm() {
               <span>{accountType === 'OWNER' ? 'Owner SaaS Privileges' : 'Staff Workspace Access'}</span>
               <span className={styles.liveIndicator}>
                 <span className={styles.liveIndicatorDot} />
-                Live Setup
+                Secure Setup
               </span>
             </div>
 
@@ -150,8 +150,8 @@ function SignupForm() {
                     <span className={styles.metricLabel}>14-Day Free Trial</span>
                   </div>
                   <div className={styles.metricBox}>
-                    <span className={styles.metricValue}>Pre-seeded</span>
-                    <span className={styles.metricLabel}>Menu &amp; Tables Ready</span>
+                    <span className={styles.metricValue}>Clean Start</span>
+                    <span className={styles.metricLabel}>Add Your Own Menu &amp; Tables</span>
                   </div>
                   <div className={styles.metricBox}>
                     <span className={styles.metricValue}>All Access</span>
@@ -253,7 +253,7 @@ function SignupForm() {
                     transition: 'all 150ms ease',
                   }}
                 >
-                  👥 Staff Member Onboarding
+                  🔒 Staff Access Is Invite-Only
                 </button>
               </div>
 
