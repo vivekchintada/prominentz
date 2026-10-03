@@ -20,15 +20,21 @@ export async function GET() {
     checks.database = { status: 'down', latencyMs: 0, detail: err.message?.slice(0, 100) }
   }
 
-  // 2. Redis / SSE connectivity (test by checking if the events endpoint is configured)
-  try {
-    const start = Date.now()
-    // Attempt a lightweight redis ping via dynamic import
-    const { redis } = await import('@/lib/redis')
-    await redis.ping()
-    checks.redis = { status: 'ok', latencyMs: Date.now() - start }
-  } catch (err: any) {
-    checks.redis = { status: 'down', latencyMs: 0, detail: err.message?.slice(0, 100) }
+  // 2. Redis / SSE connectivity
+  const redisUrl = process.env.REDIS_URL
+  const isRedisConfigured = Boolean(redisUrl && !redisUrl.includes('localhost') && !redisUrl.includes('127.0.0.1'))
+
+  if (!isRedisConfigured) {
+    checks.redis = { status: 'degraded', latencyMs: 0, detail: 'Redis URL not configured (SSE/polling fallback active)' }
+  } else {
+    try {
+      const start = Date.now()
+      const { redis } = await import('@/lib/redis')
+      await redis.ping()
+      checks.redis = { status: 'ok', latencyMs: Date.now() - start }
+    } catch (err: any) {
+      checks.redis = { status: 'degraded', latencyMs: 0, detail: err.message?.slice(0, 100) }
+    }
   }
 
   // 3. Auth system

@@ -4,11 +4,17 @@ const globalForRedis = globalThis as unknown as {
   redis: Redis | undefined
 }
 
+const redisUrl = process.env.REDIS_URL
+const isLocal = !redisUrl || redisUrl.includes('localhost') || redisUrl.includes('127.0.0.1')
+const isConfigured = Boolean(redisUrl && (process.env.NODE_ENV !== 'production' || !isLocal))
+
 export const redis =
   globalForRedis.redis ??
-  new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-    maxRetriesPerRequest: 3,
+  new Redis(redisUrl || 'redis://localhost:6379', {
+    maxRetriesPerRequest: 1,
     lazyConnect: true,
+    enableOfflineQueue: false,
+    retryStrategy: () => null, // Don't retry indefinitely in serverless
   })
 
 if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis
@@ -20,10 +26,17 @@ export async function publishEvent(
   payload: Record<string, unknown>,
   locationId?: string,
 ) {
-  await redis.publish(
-    'resto:events',
-    JSON.stringify({ event, payload: { ...payload, _locationId: locationId }, ts: Date.now() }),
-  )
+  if (!isConfigured) return
+
+  try {
+    await redis.publish(
+      'resto:events',
+      JSON.stringify({ event, payload: { ...payload, _locationId: locationId }, ts: Date.now() }),
+    )
+  } catch (err) {
+    // Graceful fallback: log warning without crashing the caller
+    console.warn(`[Redis Event '${event}' Warning]`, err instanceof Error ? err.message : err)
+  }
 }
 
 // ─── Typed Event Names (Phase 1) ─────────────────────────────────────────────
