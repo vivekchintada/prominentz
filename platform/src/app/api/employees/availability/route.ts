@@ -16,10 +16,28 @@ export async function GET(req: NextRequest) {
 
     let targetEmployeeId = employeeIdParam
 
-    if (!targetEmployeeId) {
+    if (targetEmployeeId) {
+      if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+      const employee = await prisma.employee.findFirst({
+        where: {
+          id: targetEmployeeId,
+          location: { restaurantId: session.user.restaurantId },
+        },
+        select: { id: true },
+      })
+      if (!employee) {
+        return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
+      }
+      targetEmployeeId = employee.id
+    } else {
       // Default to current user's employee record
       const emp = await prisma.employee.findFirst({
-        where: { userId: session.user.id },
+        where: {
+          userId: session.user.id,
+          location: { restaurantId: session.user.restaurantId },
+        },
       })
       if (!emp) {
         return NextResponse.json([])
@@ -51,9 +69,27 @@ export async function POST(req: NextRequest) {
 
     // Find employee record
     let targetEmployeeId = employeeId
-    if (!targetEmployeeId) {
+    if (targetEmployeeId) {
+      if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+      const employee = await prisma.employee.findFirst({
+        where: {
+          id: targetEmployeeId,
+          location: { restaurantId: session.user.restaurantId },
+        },
+        select: { id: true },
+      })
+      if (!employee) {
+        return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
+      }
+      targetEmployeeId = employee.id
+    } else {
       const emp = await prisma.employee.findFirst({
-        where: { userId: session.user.id },
+        where: {
+          userId: session.user.id,
+          location: { restaurantId: session.user.restaurantId },
+        },
       })
       if (!emp) {
         return NextResponse.json({ error: 'Employee record not found' }, { status: 404 })
