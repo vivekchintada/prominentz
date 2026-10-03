@@ -9,9 +9,7 @@ function SignupForm() {
   const searchParams = useSearchParams()
   const initialRoleParam = searchParams.get('role')?.toUpperCase()
 
-  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>(
-    ['MANAGER', 'SERVER', 'KITCHEN'].includes(initialRoleParam || '') ? 'STAFF' : 'OWNER'
-  )
+  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>('OWNER')
 
   // Owner fields
   const [restaurantName, setRestaurantName] = useState('')
@@ -43,8 +41,8 @@ function SignupForm() {
     if (r === 'OWNER') {
       setAccountType('OWNER')
     } else if (r && ['MANAGER', 'SERVER', 'KITCHEN'].includes(r)) {
-      setAccountType('STAFF')
-      setStaffRole(r as 'MANAGER' | 'SERVER' | 'KITCHEN')
+      setAccountType('OWNER')
+      setError('Staff accounts must be created by a restaurant owner or manager.')
     }
   }, [searchParams])
 
@@ -90,8 +88,8 @@ function SignupForm() {
         throw new Error(data.error || 'Failed to create account')
       }
 
-      if (accountType === 'OWNER' && data.starterAccounts) {
-        setCreatedData(data)
+      if (accountType === 'OWNER') {
+        router.push(`/login?registered=true&portal=owner&email=${encodeURIComponent(email)}`)
         return
       }
 
@@ -238,7 +236,10 @@ function SignupForm() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setAccountType('STAFF'); setError(null) }}
+                  onClick={() => {
+                    setAccountType('OWNER')
+                    setError('Staff accounts must be created by a restaurant owner or manager.')
+                  }}
                   style={{
                     flex: 1,
                     padding: '8px 12px',
