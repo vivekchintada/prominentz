@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma'
 import {
   buildKotEscposBuffer,
   buildReceiptEscposBuffer,
-  sendToNetworkPrinter,
   KotPrintData,
   ReceiptPrintData,
 } from '@/lib/escpos-printer'
@@ -16,6 +15,10 @@ export async function POST(req: NextRequest) {
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!['OWNER', 'MANAGER', 'SERVER', 'KITCHEN'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const body = await req.json()
@@ -41,6 +44,10 @@ export async function POST(req: NextRequest) {
     })
 
     if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+
+    if (order.table.location.restaurantId !== session.user.restaurantId) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
@@ -93,21 +100,14 @@ export async function POST(req: NextRequest) {
       buffer = buildReceiptEscposBuffer(receiptData)
     }
 
-    // If a physical LAN printer IP is supplied (e.g. 192.168.1.100), send raw TCP bytes
+    // Cloud deployments must never open arbitrary TCP connections from
+    // user-supplied printer addresses. Local printing uses the returned
+    // ESC/POS payload through the browser/local bridge.
     if (printerIp && typeof printerIp === 'string') {
-      const result = await sendToNetworkPrinter(printerIp, buffer)
-      if (!result.success) {
-        return NextResponse.json({
-          success: false,
-          warning: result.error,
-          message: 'Failed to send directly to network printer over TCP. Returning binary stream for local printing.',
-          rawEscposBase64: buffer.toString('base64'),
-        })
-      }
-      return NextResponse.json({
-        success: true,
-        message: `Directly dispatched to thermal printer at ${printerIp}:9100.`,
-      })
+      return NextResponse.json(
+        { error: 'Direct network printing is disabled. Use the authorized local print bridge.' },
+        { status: 400 },
+      )
     }
 
     // Return binary base64 ESC/POS payload for client WebUSB / Serial printing
