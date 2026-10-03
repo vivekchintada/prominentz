@@ -150,15 +150,15 @@ export default function KitchenPortalLandingPage() {
         {/* ── LIVE KDS TELEMETRY ── */}
         <section aria-labelledby="kds-kpis-heading" style={{ marginBottom: '80px' }}>
           <h2 id="kds-kpis-heading" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
-            Live Kitchen Telemetry
+            Sample Kitchen Dashboard · Demo Data
           </h2>
           <div style={{ backgroundColor: '#111218', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '32px', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '24px' }}>
               <div>
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#FF9F0A', fontWeight: 700 }}>
-                  Live BOH Service Pipeline
+                  Illustrative BOH Pipeline — Not Live Data
                 </span>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>Main Hot Line + Grill Station — Rush Stream</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>Sample Hot Line + Grill Station</h3>
               </div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,159,10,0.12)', border: '1px solid rgba(255,159,10,0.3)', padding: '6px 14px', borderRadius: '999px', fontSize: '12px', color: '#FF9F0A', fontWeight: 600 }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FF9F0A', display: 'inline-block' }} />
