@@ -25,8 +25,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Valid status (ACKNOWLEDGED or RESOLVED) is required' }, { status: 400 })
     }
 
-    const existing = await prisma.task.findUnique({
-      where: { id },
+    const existing = await prisma.task.findFirst({
+      where: {
+        id,
+        location: { restaurantId: session.user.restaurantId },
+      },
     })
 
     if (!existing) {

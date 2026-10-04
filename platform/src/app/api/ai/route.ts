@@ -124,7 +124,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
     }
 
-    const mode = body.mode || (session?.user ? 'operator' : 'customer')
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
+    // This route exposes live operational context and mutations. Do not allow
+    // callers to elevate themselves by supplying mode="operator".
+    const mode: 'operator' | 'customer' = body.mode === 'customer' ? 'customer' : 'operator'
 
     // Rate-limiting: max 40 requests per 60 seconds
     const clientIdentifier = session?.user?.id || req.headers.get('x-forwarded-for') || 'guest-ip'
@@ -141,28 +151,47 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     // Resolve location ID
-    let locationId = body.locationId
-    let restaurantId = session?.user?.restaurantId || ''
+    let locationId: string | undefined
+    const restaurantId = session.user.restaurantId
 
-    if (!locationId && session?.user) {
+    if (body.locationId) {
+      const requestedLocation = await prisma.location.findFirst({
+        where: {
+          id: body.locationId,
+          restaurantId,
+        },
+        select: { id: true },
+      })
+      if (!requestedLocation) {
+        return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+      }
+      locationId = requestedLocation.id
+    } else {
       const employee = await prisma.employee.findFirst({
         where: { userId: session.user.id, isActive: true },
+        select: { locationId: true },
       })
       locationId = employee?.locationId
     }
 
     if (!locationId) {
-      const firstLocation = await prisma.location.findFirst()
+      const firstLocation = await prisma.location.findFirst({
+        where: { restaurantId },
+        select: { id: true },
+      })
       locationId = firstLocation?.id || ''
-      restaurantId = firstLocation?.restaurantId || ''
+    }
+
+    if (!locationId) {
+      return NextResponse.json({ error: 'No active location available' }, { status: 403 })
     }
 
     const agentCtx: AgentContext = {
       restaurantId,
       locationId,
-      userId: session?.user?.id || 'guest',
-      userName: session?.user?.name || (mode === 'customer' ? 'Valued Guest' : 'Manager'),
-      userRole: session?.user?.role || 'SERVER',
+      userId: session.user.id,
+      userName: session.user.name || 'Manager',
+      userRole: session.user.role,
     }
 
     const lowerPrompt = prompt.toLowerCase().trim()

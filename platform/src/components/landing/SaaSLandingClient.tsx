@@ -67,7 +67,7 @@ export default function SaaSLandingClient() {
             Start 14-Day Free Trial
           </Link>
           <a href="#preview" className="btn btn--secondary btn--lg">
-            View Live Interactive Demo
+            View Sample Interactive Demo
           </a>
         </div>
 
@@ -101,7 +101,7 @@ export default function SaaSLandingClient() {
             </div>
             <div className="app-preview-status">
               <span className="status-dot status-dot--active" />
-              <span className="text-xs text-secondary">Live System</span>
+              <span className="text-xs text-secondary">Interactive Demo · Sample Data</span>
             </div>
           </div>
 
@@ -284,6 +284,7 @@ export default function SaaSLandingClient() {
                   </div>
                   <input
                     type="range"
+                    aria-label="Average monthly store revenue"
                     min="20000"
                     max="300000"
                     step="5000"
@@ -300,6 +301,7 @@ export default function SaaSLandingClient() {
                   </div>
                   <input
                     type="range"
+                    aria-label="Target food waste and error reduction percentage"
                     min="5"
                     max="30"
                     step="1"

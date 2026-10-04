@@ -9,9 +9,7 @@ function SignupForm() {
   const searchParams = useSearchParams()
   const initialRoleParam = searchParams.get('role')?.toUpperCase()
 
-  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>(
-    ['MANAGER', 'SERVER', 'KITCHEN'].includes(initialRoleParam || '') ? 'STAFF' : 'OWNER'
-  )
+  const [accountType, setAccountType] = useState<'OWNER' | 'STAFF'>('OWNER')
 
   // Owner fields
   const [restaurantName, setRestaurantName] = useState('')
@@ -43,8 +41,8 @@ function SignupForm() {
     if (r === 'OWNER') {
       setAccountType('OWNER')
     } else if (r && ['MANAGER', 'SERVER', 'KITCHEN'].includes(r)) {
-      setAccountType('STAFF')
-      setStaffRole(r as 'MANAGER' | 'SERVER' | 'KITCHEN')
+      setAccountType('OWNER')
+      setError('Staff accounts must be created by a restaurant owner or manager.')
     }
   }, [searchParams])
 
@@ -90,8 +88,8 @@ function SignupForm() {
         throw new Error(data.error || 'Failed to create account')
       }
 
-      if (accountType === 'OWNER' && data.starterAccounts) {
-        setCreatedData(data)
+      if (accountType === 'OWNER') {
+        router.push(`/login?registered=true&portal=owner&email=${encodeURIComponent(email)}`)
         return
       }
 
@@ -140,7 +138,7 @@ function SignupForm() {
               <span>{accountType === 'OWNER' ? 'Owner SaaS Privileges' : 'Staff Workspace Access'}</span>
               <span className={styles.liveIndicator}>
                 <span className={styles.liveIndicatorDot} />
-                Live Setup
+                Secure Setup
               </span>
             </div>
 
@@ -152,8 +150,8 @@ function SignupForm() {
                     <span className={styles.metricLabel}>14-Day Free Trial</span>
                   </div>
                   <div className={styles.metricBox}>
-                    <span className={styles.metricValue}>Pre-seeded</span>
-                    <span className={styles.metricLabel}>Menu &amp; Tables Ready</span>
+                    <span className={styles.metricValue}>Clean Start</span>
+                    <span className={styles.metricLabel}>Add Your Own Menu &amp; Tables</span>
                   </div>
                   <div className={styles.metricBox}>
                     <span className={styles.metricValue}>All Access</span>
@@ -238,7 +236,10 @@ function SignupForm() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setAccountType('STAFF'); setError(null) }}
+                  onClick={() => {
+                    setAccountType('OWNER')
+                    setError('Staff accounts must be created by a restaurant owner or manager.')
+                  }}
                   style={{
                     flex: 1,
                     padding: '8px 12px',
@@ -252,7 +253,7 @@ function SignupForm() {
                     transition: 'all 150ms ease',
                   }}
                 >
-                  👥 Staff Member Onboarding
+                  🔒 Staff Access Is Invite-Only
                 </button>
               </div>
 

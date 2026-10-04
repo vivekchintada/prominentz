@@ -150,7 +150,7 @@ export default function ManagerPortalLandingPage() {
         {/* ── LIVE SHIFT TELEMETRY ── */}
         <section aria-labelledby="shift-kpis-heading" style={{ marginBottom: '80px' }}>
           <h2 id="shift-kpis-heading" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
-            Live Shift Telemetry
+            Sample Shift Dashboard · Demo Data
           </h2>
           <div style={{ backgroundColor: '#111218', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '32px', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '24px' }}>
@@ -158,7 +158,7 @@ export default function ManagerPortalLandingPage() {
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64b5f6', fontWeight: 700 }}>
                   Active Shift Dashboard
                 </span>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>Dinner Rush Service — Live Approvals Stream</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>Illustrative Dinner Service — Not Live Data</h3>
               </div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(0,122,255,0.12)', border: '1px solid rgba(0,122,255,0.3)', padding: '6px 14px', borderRadius: '999px', fontSize: '12px', color: '#64b5f6', fontWeight: 600 }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#007AFF', display: 'inline-block' }} />

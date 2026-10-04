@@ -29,7 +29,11 @@ export function verifyDeliverySignature(
   }
 
   if (!secret) {
-    console.warn(`[Delivery Webhook] ${platform} webhook secret not configured. Skipping HMAC check in dev.`);
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`[Delivery Webhook] ${platform} webhook secret is not configured.`);
+      return { isValid: false, reason: 'Webhook verification is not configured' };
+    }
+    console.warn(`[Delivery Webhook] ${platform} webhook secret not configured. Skipping HMAC check in development.`);
     return { isValid: true };
   }
 
@@ -40,7 +44,9 @@ export function verifyDeliverySignature(
   try {
     const computed = crypto.createHmac('sha256', secret).update(rawBodyText).digest('hex');
     const cleanHeader = signatureHeader.replace(/^sha256=/i, '').trim();
-    const isMatch = crypto.timingSafeEqual(Buffer.from(computed, 'utf-8'), Buffer.from(cleanHeader, 'utf-8'));
+    const supplied = Buffer.from(cleanHeader, 'utf-8');
+    const expected = Buffer.from(computed, 'utf-8');
+    const isMatch = supplied.length === expected.length && crypto.timingSafeEqual(expected, supplied);
     return { isValid: isMatch, reason: isMatch ? undefined : 'Signature mismatch' };
   } catch (err: any) {
     console.error('[Delivery Webhook] Verification error:', err);

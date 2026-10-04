@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { redis, publishEvent, EVENTS } from '@/lib/redis'
 import { z } from 'zod'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,12 +17,28 @@ const assistanceSchema = z.object({
 // ── GET: List active assistance requests for a location or check specific table ─
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(req.url)
     const locationId = searchParams.get('locationId')
     const tableId = searchParams.get('tableId')
 
     if (!locationId) {
       return NextResponse.json({ error: 'locationId is required' }, { status: 400 })
+    }
+
+    const authorizedLocation = await prisma.location.findFirst({
+      where: {
+        id: locationId,
+        restaurantId: session.user.restaurantId,
+      },
+      select: { id: true },
+    })
+    if (!authorizedLocation) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 })
     }
 
     if (tableId) {
@@ -62,9 +79,13 @@ export async function POST(req: NextRequest) {
 
     const { locationId, tableId, type, notes } = parsed.data
 
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-ip'
+    const rl = await rateLimit(`table-assistance:${ip}:${tableId}`, 5, 60)
+    if (!rl.allowed) return rateLimitResponse(rl.retryAfterSec)
+
     // Verify table exists
-    const table = await prisma.table.findUnique({
-      where: { id: tableId },
+    const table = await prisma.table.findFirst({
+      where: { id: tableId, locationId },
       select: { id: true, name: true, locationId: true },
     })
 
@@ -112,11 +133,27 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (!['OWNER', 'MANAGER', 'SERVER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const body = await req.json()
     const { locationId, tableId } = body
 
     if (!locationId || !tableId) {
       return NextResponse.json({ error: 'locationId and tableId required' }, { status: 400 })
+    }
+
+    const table = await prisma.table.findFirst({
+      where: {
+        id: tableId,
+        locationId,
+        location: { restaurantId: session.user.restaurantId },
+      },
+      select: { id: true },
+    })
+    if (!table) {
+      return NextResponse.json({ error: 'Table not found' }, { status: 404 })
     }
 
     const redisKey = `resto:assistance:${locationId}:${tableId}`

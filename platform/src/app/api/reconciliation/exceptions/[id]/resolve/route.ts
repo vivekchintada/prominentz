@@ -7,12 +7,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const session = await auth()
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const { id } = await params
     const body = await req.json()
     const { resolutionNote } = body
 
-    const exception = await prisma.reconciliationException.findUnique({ where: { id } })
+    const exception = await prisma.reconciliationException.findFirst({
+      where: {
+        id,
+        period: {
+          location: { restaurantId: session.user.restaurantId },
+        },
+      },
+    })
     if (!exception) return NextResponse.json({ error: 'Exception not found' }, { status: 404 })
     if (exception.isResolved) return NextResponse.json({ error: 'Exception is already resolved' }, { status: 400 })
 

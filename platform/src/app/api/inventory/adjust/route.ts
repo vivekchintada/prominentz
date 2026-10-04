@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const body = await req.json()
     const { inventoryItemId, type, quantity, notes } = body as {
       inventoryItemId: string
@@ -35,6 +39,17 @@ export async function POST(req: NextRequest) {
 
     // Determine the delta change on currentStock
     const delta = type === 'WASTE' ? -qty : qty
+
+    const authorizedItem = await prisma.inventoryItem.findFirst({
+      where: {
+        id: inventoryItemId,
+        location: { restaurantId: session.user.restaurantId },
+      },
+      select: { id: true },
+    })
+    if (!authorizedItem) {
+      return NextResponse.json({ error: 'Inventory item not found' }, { status: 404 })
+    }
 
     // Execute adjustment and check for auto-restores in a transaction
     const { updatedItem, restoredMenuItems } = await prisma.$transaction(async (tx) => {

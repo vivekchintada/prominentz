@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "cypress run"
+    "test:e2e": "cypress run",
+    "test:security": "node scripts/security-regression.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -16,7 +18,7 @@
     "bcryptjs": "^3.0.3",
     "ioredis": "^5.11.1",
     "motion": "^13.4.0",
-    "next": "16.2.10",
+    "next": "^16.3.8",
     "next-auth": "^5.0.0-beta.31",
     "pg": "^8.22.0",
     "prisma": "^7.8.0",
@@ -39,7 +41,7 @@
     "@types/socket.io-client": "^1.4.36",
     "cypress": "^13.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "^16.3.8",
     "puppeteer-core": "^25.11.0",
     "typescript": "^5"
   }
