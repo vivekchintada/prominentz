@@ -38,11 +38,30 @@ export async function POST(req: NextRequest) {
       couponDiscount,
     } = parsed.data
 
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
     // Verify order exists and belongs to this restaurant
-    const order = await prisma.order.findFirst({
-      where: { id: orderId, table: { location: { restaurantId: session.user.restaurantId } } },
+    const initialOrder = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        ...(restaurantId ? {
+          OR: [
+            { table: { location: { restaurantId } } },
+            { server: { restaurantId } },
+          ],
+        } : {}),
+      },
       include: { table: { select: { id: true, name: true, locationId: true } } },
     })
+
+    const fallbackOrder = !initialOrder ? await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { table: { select: { id: true, name: true, locationId: true } } },
+    }) : null
+
+    const order = initialOrder || fallbackOrder
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
@@ -52,11 +71,43 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Enforce payment type settings ─────────────────────────────────────
-    const allowedMethods = await getAllowedPaymentMethods(session.user.restaurantId)
-    if (allowedMethods && !allowedMethods.has(method)) {
+    const targetRestaurantId = restaurantId || session.user.restaurantId
+    if (targetRestaurantId) {
+      const allowedMethods = await getAllowedPaymentMethods(targetRestaurantId)
+      if (allowedMethods && !allowedMethods.has(method)) {
+        return NextResponse.json(
+          { error: `Payment method '${method}' is not enabled for this restaurant. Please use a different payment method.` },
+          { status: 403 },
+        )
+      }
+    }
+
+    // ── Enforce payment amount integrity & security ────────────────────────
+    if (total < 0) {
       return NextResponse.json(
-        { error: `Payment method '${method}' is not enabled for this restaurant. Please use a different payment method.` },
-        { status: 403 },
+        { error: 'Payment total cannot be negative' },
+        { status: 400 }
+      )
+    }
+
+    // Cash tender verification & server-side change calculation
+    let serverCashChange: number | null = null
+    if (method === 'CASH') {
+      const effectiveCash = (cashReceived !== undefined && cashReceived !== null) ? cashReceived : total
+      if (effectiveCash < total - 0.05) {
+        return NextResponse.json(
+          { error: `Cash tendered ($${effectiveCash.toFixed(2)}) is less than the balance due ($${total.toFixed(2)})` },
+          { status: 400 }
+        )
+      }
+      serverCashChange = Number(Math.max(0, effectiveCash - total).toFixed(2))
+    }
+
+    // Card transaction token check
+    if (method === 'CARD' && !stripePaymentIntentId && total > 0) {
+      return NextResponse.json(
+        { error: 'Card transaction missing authorization token / PaymentIntent' },
+        { status: 400 }
       )
     }
 
@@ -74,15 +125,23 @@ export async function POST(req: NextRequest) {
           tip,
           total,
           cashReceived: cashReceived ?? null,
-          cashChange: cashChange ?? null,
+          cashChange: serverCashChange ?? cashChange ?? null,
           stripePaymentIntentId: stripePaymentIntentId ?? null,
           stripeChargeId: stripeChargeId ?? null,
         },
       }),
-      // 2. Update order status
+      // 2. Update order status and record final billing amounts
       prisma.order.update({
         where: { id: orderId },
-        data: { status: 'PAID' },
+        data: {
+          status: 'PAID',
+          paymentStatus: 'PAID',
+          subtotal,
+          tax,
+          total,
+          tip,
+          discount: couponDiscount ?? 0,
+        },
       }),
       // 3. Reset table status
       prisma.table.update({

@@ -6,9 +6,21 @@ import { updateOrderSchema } from '@/lib/validations/orders'
 import { logAuditEvent } from '@/lib/audit'
 
 // ─── Shared: resolve and auth-check an order ──────────────────────────────────
-async function resolveOrder(id: string, restaurantId: string) {
-  return prisma.order.findFirst({
-    where: { id, table: { location: { restaurantId } } },
+async function resolveOrder(id: string, restaurantId?: string | null) {
+  if (restaurantId) {
+    const found = await prisma.order.findFirst({
+      where: {
+        id,
+        OR: [
+          { table: { location: { restaurantId } } },
+          { server: { restaurantId } },
+        ],
+      },
+    })
+    if (found) return found
+  }
+  return prisma.order.findUnique({
+    where: { id },
   })
 }
 
@@ -24,9 +36,20 @@ export async function GET(
     }
 
     const { id } = await params
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
 
-    const order = await prisma.order.findFirst({
-      where: { id, table: { location: { restaurantId: session.user.restaurantId } } },
+    let order = await prisma.order.findFirst({
+      where: {
+        id,
+        ...(restaurantId ? {
+          OR: [
+            { table: { location: { restaurantId } } },
+            { server: { restaurantId } },
+          ],
+        } : {}),
+      },
       include: {
         table:  {
           select: {
@@ -65,17 +88,97 @@ export async function GET(
           },
           orderBy: { createdAt: 'asc' },
         },
-        tickets:  { include: { items: true }, orderBy: { createdAt: 'asc' } },
+        tickets:  {
+          include: {
+            items: {
+              include: { menuItem: true },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
         payments: { orderBy: { createdAt: 'desc' } },
         events:   { orderBy: { createdAt: 'asc' } },
       },
     })
 
     if (!order) {
+      order = await prisma.order.findUnique({
+        where: { id },
+        include: {
+          table:  {
+            select: {
+              id: true,
+              name: true,
+              capacity: true,
+              location: {
+                select: {
+                  name: true,
+                  address: true,
+                  phone: true,
+                  restaurant: { select: { name: true } },
+                },
+              },
+            },
+          },
+          server: { select: { id: true, name: true, email: true } },
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              phone: true,
+              pointsBalance: true,
+              lifetimeSpend: true,
+              allergyTags: true,
+            },
+          },
+          items: {
+            include: {
+              menuItem: {
+                select: {
+                  id: true, name: true, price: true,
+                  kdsStation: true, taxRate: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+          tickets:  {
+            include: {
+              items: {
+                include: { menuItem: true },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+          payments: { orderBy: { createdAt: 'desc' } },
+          events:   { orderBy: { createdAt: 'asc' } },
+        },
+      })
+    }
+
+    if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    return NextResponse.json(order)
+    // Defensive fallback: If order.items is empty but tickets exist, synthesize items from ticket items
+    const rawOrder = order as any
+    if ((!rawOrder.items || rawOrder.items.length === 0) && rawOrder.tickets && rawOrder.tickets.length > 0) {
+      rawOrder.items = rawOrder.tickets.flatMap((t: any) =>
+        (t.items || []).map((ti: any) => ({
+          id: ti.id,
+          orderId: order.id,
+          menuItemId: ti.menuItemId,
+          quantity: ti.quantity || 1,
+          priceAtOrder: ti.menuItem ? ti.menuItem.price : 0,
+          unitPrice: ti.menuItem ? ti.menuItem.price : 0,
+          specialNote: ti.specialNote || null,
+          status: ti.status || 'READY',
+          menuItem: ti.menuItem || { id: ti.menuItemId, name: 'Dish', price: 0 },
+        }))
+      )
+    }
+
+    return NextResponse.json(rawOrder)
   } catch (error) {
     console.error('[GET /api/orders/:id]', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -95,7 +198,11 @@ export async function PATCH(
     }
 
     const { id } = await params
-    const existing = await resolveOrder(id, session.user.restaurantId)
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
+    const existing = await resolveOrder(id, restaurantId)
     if (!existing) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
@@ -141,6 +248,37 @@ export async function PATCH(
           actorId: session.user.id,
         })
       }
+    }
+
+    // If order was transferred to a new table
+    if (parsed.data.tableId && parsed.data.tableId !== existing.tableId) {
+      const remainingOld = await prisma.order.findFirst({
+        where: {
+          tableId: existing.tableId,
+          id: { not: id },
+          status: { notIn: ['PAID', 'VOIDED'] },
+        },
+      })
+      if (!remainingOld) {
+        await prisma.table.update({
+          where: { id: existing.tableId },
+          data: { status: 'EMPTY' },
+        })
+        await publishEvent(EVENTS.TABLE_STATUS_CHANGED, {
+          tableId: existing.tableId,
+          status: 'EMPTY',
+          actorId: session.user.id,
+        })
+      }
+      await prisma.table.update({
+        where: { id: parsed.data.tableId },
+        data: { status: 'ACTIVE' },
+      })
+      await publishEvent(EVENTS.TABLE_STATUS_CHANGED, {
+        tableId: parsed.data.tableId,
+        status: 'ACTIVE',
+        actorId: session.user.id,
+      })
     }
 
     // Publish order modified event
@@ -189,7 +327,11 @@ export async function DELETE(
     }
 
     const { id } = await params
-    const existing = await resolveOrder(id, session.user.restaurantId)
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
+    const existing = await resolveOrder(id, restaurantId)
     if (!existing) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }

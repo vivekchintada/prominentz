@@ -55,7 +55,7 @@ export async function GET() {
   const result = tables.map((t) => {
     const order = t.orders[0] ?? null
     const elapsedMins = order
-      ? Math.round((Date.now() - new Date(order.createdAt).getTime()) / 60000)
+      ? Math.max(0, Math.round((Date.now() - new Date(order.createdAt).getTime()) / 60000))
       : null
 
     return {
@@ -63,6 +63,7 @@ export async function GET() {
       name: t.name,
       status: t.status,
       capacity: t.capacity,
+      floor: t.floor || 'Main Dining',
       order: order
         ? {
             id: order.id,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { resolveUserLocation } from '@/lib/location-resolver'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,9 +37,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const restaurantId = session.user.restaurantId
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
     if (!restaurantId) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
+      return NextResponse.json({ invoices: [], stats: { totalPaid: 0, pendingCount: 0, completedCount: 0, cancelledCount: 0 } })
     }
 
     const { searchParams } = new URL(req.url)
@@ -48,7 +50,7 @@ export async function GET(req: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'newest' // 'newest' | 'oldest' | 'highest' | 'lowest'
 
     // Fetch payments for this restaurant
-    let payments = await prisma.payment.findMany({
+    const payments = await prisma.payment.findMany({
       where: {
         order: {
           table: {
@@ -73,120 +75,6 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
     })
-
-    // If no payments exist yet, seed standard demo invoices matching Screenshot 2
-    if (payments.length === 0) {
-      const location = await prisma.location.findFirst({
-        where: { restaurantId },
-        include: { tables: true },
-      })
-
-      const user = await prisma.user.findFirst({
-        where: { restaurantId },
-      })
-
-      if (location && user) {
-        const table = location.tables[0] || (await prisma.table.findFirst({ where: { locationId: location.id } }))
-        const menuItem = await prisma.menuItem.findFirst()
-
-        if (table) {
-          const sampleInvoices = [
-            { customerName: 'Adrian James', amount: 1000, type: 'Dine In', date: new Date('2026-11-01T14:30:00Z'), phone: '+1 555-0116' },
-            { customerName: 'Sue Allen', amount: 1500, type: 'Take Away', date: new Date('2026-09-04T12:15:00Z'), phone: '+1 555-0115' },
-            { customerName: 'Frank Barrett', amount: 1200, type: 'Delivery', date: new Date('2026-08-18T18:45:00Z'), phone: '+1 555-0114' },
-            { customerName: 'Kelley Davis', amount: 800, type: 'Dine In', date: new Date('2026-07-10T19:20:00Z'), phone: '+1 555-0113' },
-            { customerName: 'Jim Vickers', amount: 750, type: 'Delivery', date: new Date('2026-06-05T20:00:00Z'), phone: '+1 555-0112' },
-            { customerName: 'Nancy Chapman', amount: 1300, type: 'Dine In', date: new Date('2026-05-03T13:10:00Z'), phone: '+1 555-0111' },
-            { customerName: 'Ron Jude', amount: 1100, type: 'Take Away', date: new Date('2026-04-15T17:35:00Z'), phone: '+1 555-0110' },
-            { customerName: 'Andrea Aponte', amount: 600, type: 'Delivery', date: new Date('2026-03-22T19:50:00Z'), phone: '+1 555-0109' },
-            { customerName: 'David Belcher', amount: 1300, type: 'Take Away', date: new Date('2026-02-15T12:40:00Z'), phone: '+1 555-0108' },
-          ]
-
-          for (const s of sampleInvoices) {
-            let cust = await prisma.customer.findFirst({ where: { phone: s.phone } })
-            if (!cust) {
-              cust = await prisma.customer.create({
-                data: {
-                  restaurantId,
-                  name: s.customerName,
-                  phone: s.phone,
-                },
-              })
-            }
-
-            const orderSource = s.type === 'Delivery' ? 'DELIVERY_DOORDASH' : (s.type === 'Take Away' ? 'POS' : 'POS')
-
-            const ord = await prisma.order.create({
-              data: {
-                tableId: table.id,
-                customerId: cust.id,
-                serverId: user.id,
-                status: 'PAID',
-                orderSource,
-                subtotal: s.amount * 0.9,
-                tax: s.amount * 0.1,
-                total: s.amount,
-                createdAt: s.date,
-                updatedAt: s.date,
-              },
-            })
-
-            if (menuItem) {
-              await prisma.orderItem.create({
-                data: {
-                  orderId: ord.id,
-                  menuItemId: menuItem.id,
-                  quantity: 2,
-                  priceAtOrder: s.amount * 0.45,
-                },
-              })
-            }
-
-            await prisma.payment.create({
-              data: {
-                orderId: ord.id,
-                processedBy: user.id,
-                method: 'CARD',
-                status: 'COMPLETED',
-                subtotal: s.amount * 0.9,
-                tax: s.amount * 0.1,
-                tip: 0,
-                total: s.amount,
-                createdAt: s.date,
-                updatedAt: s.date,
-              },
-            })
-          }
-
-          // Refetch newly seeded payments
-          payments = await prisma.payment.findMany({
-            where: {
-              order: {
-                table: {
-                  location: { restaurantId },
-                },
-              },
-            },
-            include: {
-              order: {
-                include: {
-                  customer: true,
-                  server: { select: { name: true } },
-                  table: { select: { id: true, name: true, floor: true } },
-                  items: {
-                    include: {
-                      menuItem: { select: { id: true, name: true, price: true } },
-                    },
-                  },
-                },
-              },
-              processor: { select: { name: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-          })
-        }
-      }
-    }
 
     // Avatar color palettes
     const AVATAR_COLORS = [

@@ -20,7 +20,7 @@ function createPrismaClient(): PrismaClient {
 
 // Cache on globalThis in ALL environments to prevent connection pool
 // exhaustion in serverless (Vercel, Railway) cold starts.
-if (!globalForPrisma.prisma) {
+if (!globalForPrisma.prisma || !(globalForPrisma.prisma as any).staffInvitation) {
   globalForPrisma.prisma = createPrismaClient()
 }
 

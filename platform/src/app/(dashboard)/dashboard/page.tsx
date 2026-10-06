@@ -528,8 +528,8 @@ export default async function DashboardPage() {
         reservations: {
           totalCount: reservationsCount,
           statusCounts: {
-            booked: resvBooked || Math.max(1, Math.round(reservationsCount * 0.6)),
-            seated: resvSeated || Math.max(1, Math.round(reservationsCount * 0.3)),
+            booked: resvBooked,
+            seated: resvSeated,
             cancelled: resvCancelled,
             pending: resvPending,
           },

@@ -22,17 +22,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ valid: false, error: 'Please provide a coupon code', message: 'Please provide a coupon code' }, { status: 400 })
     }
 
+    const cleanCode = code.trim().toUpperCase()
     const coupon = await prisma.coupon.findUnique({
       where: {
         restaurantId_code: {
           restaurantId: session.user.restaurantId,
-          code: code.trim().toUpperCase(),
+          code: cleanCode,
         },
       },
     })
 
     if (!coupon) {
-      return NextResponse.json({ valid: false, error: 'Invalid coupon code', message: 'Invalid coupon code' }, { status: 404 })
+      // Find active available coupons to suggest to the user/cashier
+      const available = await prisma.coupon.findMany({
+        where: {
+          restaurantId: session.user.restaurantId,
+          status: 'ACTIVE',
+        },
+        select: {
+          code: true,
+          discountType: true,
+          discountAmount: true,
+          minimumOrderAmount: true,
+        },
+        take: 6,
+      })
+
+      return NextResponse.json({
+        valid: false,
+        notFound: true,
+        enteredCode: cleanCode,
+        error: `Coupon "${cleanCode}" does not exist`,
+        message: `Coupon "${cleanCode}" does not exist`,
+        availableCoupons: available.map((c) => ({
+          code: c.code,
+          discountType: c.discountType,
+          discountAmount: Number(c.discountAmount),
+          discount: c.discountType === 'PERCENTAGE' ? `${c.discountAmount}% off` : `$${c.discountAmount} off`,
+          minOrder: c.minimumOrderAmount ? Number(c.minimumOrderAmount) : 0,
+        })),
+      }, { status: 404 })
     }
 
     if (coupon.status !== 'ACTIVE') {

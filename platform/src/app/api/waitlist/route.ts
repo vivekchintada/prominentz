@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
+import { resolveUserLocation } from '@/lib/location-resolver'
 import { z } from 'zod'
 
 const createWaitlistSchema = z.object({
@@ -20,17 +21,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const employee = await prisma.employee.findFirst({
-      where: { userId: session.user.id, isActive: true },
-    })
-    let locationId = employee?.locationId
-    if (!locationId) {
-      const fallback = await prisma.location.findFirst({ where: { restaurantId: session.user.restaurantId } })
-      locationId = fallback?.id
+    const resolved = await resolveUserLocation(session.user)
+    if (!resolved) {
+      return NextResponse.json([])
     }
-    if (!locationId) {
-      return NextResponse.json({ error: 'Location not resolved' }, { status: 404 })
-    }
+    const { locationId } = resolved
 
     const entries = await prisma.waitlistEntry.findMany({
       where: { locationId, status: 'WAITING' },
@@ -38,9 +33,9 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json(entries)
-  } catch (error) {
+  } catch (error: any) {
     console.error('[GET /api/waitlist]', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -53,17 +48,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const employee = await prisma.employee.findFirst({
-      where: { userId: session.user.id, isActive: true },
-    })
-    let locationId = employee?.locationId
-    if (!locationId) {
-      const fallback = await prisma.location.findFirst({ where: { restaurantId: session.user.restaurantId } })
-      locationId = fallback?.id
+    const resolved = await resolveUserLocation(session.user)
+    if (!resolved) {
+      return NextResponse.json({ error: 'Location not resolved for this restaurant' }, { status: 400 })
     }
-    if (!locationId) {
-      return NextResponse.json({ error: 'Location not resolved' }, { status: 404 })
-    }
+    const { locationId } = resolved
 
     const body   = await req.json()
     const parsed = createWaitlistSchema.safeParse(body)
@@ -74,26 +63,28 @@ export async function POST(req: NextRequest) {
     const entry = await prisma.waitlistEntry.create({
       data: {
         locationId,
-        guestName:      parsed.data.guestName,
-        guestPhone:     parsed.data.guestPhone,
+        guestName:      parsed.data.guestName.trim(),
+        guestPhone:     parsed.data.guestPhone.trim(),
         partySize:      parsed.data.partySize,
         quotedWaitMins: parsed.data.quotedWaitMins,
         status:         'WAITING',
       },
     })
 
-    await publishEvent('waitlist.updated', {
-      action:  'added',
-      id:      entry.id,
-      name:    entry.guestName,
-      size:    entry.partySize,
-      minutes: entry.quotedWaitMins,
-      locationId,
-    })
+    try {
+      await publishEvent('waitlist.updated', {
+        action:  'added',
+        id:      entry.id,
+        name:    entry.guestName,
+        size:    entry.partySize,
+        minutes: entry.quotedWaitMins,
+        locationId,
+      })
+    } catch {}
 
     return NextResponse.json(entry, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/waitlist]', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
   }
 }

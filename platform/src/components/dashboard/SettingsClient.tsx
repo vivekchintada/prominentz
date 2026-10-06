@@ -447,7 +447,7 @@ export function SettingsClient() {
     return (
       <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
         <div style={{ width: '28px', height: '28px', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: '#5b45f5', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
-        Loading DreamPOS settings...
+        Loading Prominentz settings...
       </div>
     )
   }

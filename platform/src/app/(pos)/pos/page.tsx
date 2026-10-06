@@ -37,13 +37,18 @@ function getImageForDish(name: string): string {
   return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=280&fit=crop&q=80'
 }
 
-export default async function PosPage() {
+export default async function PosPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tableId?: string; orderId?: string }>
+}) {
   const session = await auth()
   
   if (!session?.user) {
     redirect('/login')
   }
 
+  const sp = searchParams ? await searchParams : {}
   const user = session.user
 
   // Resolve employee's locationId, fallback to restaurant's first location
@@ -112,6 +117,22 @@ export default async function PosPage() {
       table: true,
       customer: true,
       items: { include: { menuItem: true } },
+    },
+  })
+
+  // 5. Fetch Open Orders: active, kitchen, and unbilled orders
+  const openOrdersRaw = await prisma.order.findMany({
+    where: {
+      table: { locationId },
+      status: { in: ['OPEN', 'SENT_TO_KITCHEN', 'PARTIALLY_READY', 'READY', 'HOLD'] },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 30,
+    include: {
+      table: true,
+      customer: true,
+      items: { include: { menuItem: true } },
+      tickets: { include: { items: { include: { menuItem: true } } } },
     },
   })
 
@@ -234,7 +255,58 @@ export default async function PosPage() {
     }
   })
 
+  // Format Open Orders
+  const formattedOpenOrders: RecentOrderCardData[] = openOrdersRaw.map((o) => {
+    const date = new Date(o.createdAt)
+    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
+    const n = (o.notes || '').toLowerCase()
+    let type: 'Dine In' | 'Take Away' | 'Delivery' = 'Dine In'
+    if (n.includes('take away') || n.includes('takeaway') || n.includes('to-go') || n.includes('pickup')) {
+      type = 'Take Away'
+    } else if (n.includes('delivery') || n.includes('doordash') || n.includes('ubereats') || n.includes('courier') || (o as any).orderSource?.includes('DELIVERY')) {
+      type = 'Delivery'
+    } else {
+      type = 'Dine In'
+    }
+
+    let timerLabel = '📋 Open'
+    let progress = 20
+
+    if (o.status === 'READY') {
+      timerLabel = '🔔 Ready'
+      progress = 100
+    } else if (o.status === 'PARTIALLY_READY') {
+      timerLabel = '⚡ Part Ready'
+      progress = 75
+    } else if (o.status === 'SENT_TO_KITCHEN') {
+      timerLabel = '🍳 Cooking'
+      progress = 50
+    } else if (o.status === 'HOLD') {
+      timerLabel = '⏸️ Hold'
+      progress = 30
+    }
+
+    const itemCount = o.items.length > 0
+      ? o.items.length
+      : (o.tickets || []).flatMap((t: any) => (t as any).items || []).length
+
+    return {
+      id: o.id,
+      orderNumber: `#${o.id.slice(-5).toUpperCase()}`,
+      type,
+      customerName: o.customer?.name || (o.table ? `${o.table.name}` : 'Walk-in Guest'),
+      time: timeStr,
+      tableName: o.table?.name,
+      timerLabel,
+      timerColor: 'green',
+      targetTime: '20:00',
+      progress,
+      total: Number(o.total || 0),
+      status: o.status,
+      itemCount,
+    }
+  })
 
   const currentUser = {
     id: user.id!,
@@ -249,6 +321,9 @@ export default async function PosPage() {
       initialMenuItems={formattedMenuItems}
       initialTables={formattedTables}
       initialRecentOrders={formattedRecentOrders}
+      initialOpenOrders={formattedOpenOrders}
+      initialSelectedTableId={sp.tableId}
+      initialSelectedOrderId={sp.orderId}
       currentUser={currentUser}
       locationId={locationId}
     />

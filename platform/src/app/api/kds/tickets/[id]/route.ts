@@ -108,7 +108,9 @@ export async function PATCH(
     const ticketStatuses = allTickets.map((t) => t.status)
     let nextOrderStatus: OrderStatus = 'SENT_TO_KITCHEN'
 
-    if (ticketStatuses.every((s) => s === 'SERVED' || s === 'READY')) {
+    if (ticketStatuses.every((s) => s === 'SERVED')) {
+      nextOrderStatus = 'OPEN'
+    } else if (ticketStatuses.every((s) => s === 'SERVED' || s === 'READY')) {
       nextOrderStatus = 'READY'
     } else if (ticketStatuses.some((s) => s === 'SERVED' || s === 'READY')) {
       nextOrderStatus = 'PARTIALLY_READY'

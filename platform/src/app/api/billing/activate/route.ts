@@ -20,14 +20,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan tier' }, { status: 400 })
     }
 
-    if (process.env.NODE_ENV === 'production' && session.user.role !== 'ADMIN') {
+    if (process.env.NODE_ENV === 'production' && !['ADMIN', 'OWNER'].includes(session.user.role)) {
       return NextResponse.json(
-        { error: 'Plan activation in production must be completed through Stripe checkout' },
+        { error: 'Plan activation must be completed through Stripe checkout' },
         { status: 403 }
       )
     }
 
-    const restaurantId = session.user.restaurantId
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found for user' }, { status: 404 })
     }

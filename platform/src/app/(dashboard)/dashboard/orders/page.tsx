@@ -50,8 +50,8 @@ export default async function OrdersPage() {
       id: i.id,
       menuItemId: i.menuItemId,
       quantity: i.quantity,
-      unitPrice: Number(i.unitPrice),
-      totalPrice: Number(i.totalPrice),
+      unitPrice: Number(i.priceAtOrder || i.menuItem?.price || 0),
+      totalPrice: Number(i.priceAtOrder || i.menuItem?.price || 0) * (i.quantity || 1),
       status: i.status,
       specialNote: i.specialNote,
       menuItem: {

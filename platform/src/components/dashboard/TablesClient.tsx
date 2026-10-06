@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import QRCode from 'qrcode'
 
 /* ── Types ────────────────────────────────────────────────── */
 export interface TableData {
@@ -11,6 +12,7 @@ export interface TableData {
   status: 'EMPTY' | 'ACTIVE' | 'RESERVED' | 'PAYING'
   floor: string
   shape: 'square' | 'rectangle' | 'round'
+  locationId?: string
   note?: string | null
   posX?: number | null
   posY?: number | null
@@ -148,6 +150,50 @@ export default function TablesClient() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [selectedTable, setSelectedTable] = useState<TableData | null>(null)
   const [settingsTab, setSettingsTab] = useState<'tables' | 'floors'>('tables')
+
+  // Table QR & Thermal Print Modals
+  const [qrModalTable, setQrModalTable] = useState<TableData | null>(null)
+  const [tableQrDataUrl, setTableQrDataUrl] = useState<string>('')
+  const [thermalModalTable, setThermalModalTable] = useState<TableData | null>(null)
+  const [isBatchQrModalOpen, setIsBatchQrModalOpen] = useState(false)
+  const [allTableQrs, setAllTableQrs] = useState<Record<string, string>>({})
+  const [copiedLink, setCopiedLink] = useState(false)
+  const [thermalPageSize, setThermalPageSize] = useState<'80mm' | '58mm'>('80mm')
+
+  // Generate QR Data URL when single QR modal is opened
+  useEffect(() => {
+    if (qrModalTable) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+      const locId = qrModalTable.locationId || 'default'
+      const url = `${origin}/table/${locId}/${qrModalTable.id}`
+      QRCode.toDataURL(url, { width: 320, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
+        .then(setTableQrDataUrl)
+        .catch((err) => console.error('Failed to generate table QR:', err))
+    } else {
+      setTableQrDataUrl('')
+      setCopiedLink(false)
+    }
+  }, [qrModalTable])
+
+  // Generate All Table QRs when batch QR modal is opened
+  useEffect(() => {
+    if (isBatchQrModalOpen && tables.length > 0) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+      const promises = tables.map(async (t) => {
+        const locId = t.locationId || 'default'
+        const url = `${origin}/table/${locId}/${t.id}`
+        const dataUrl = await QRCode.toDataURL(url, { width: 220, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
+        return { id: t.id, dataUrl }
+      })
+      Promise.all(promises)
+        .then((results) => {
+          const map: Record<string, string> = {}
+          results.forEach((r) => { map[r.id] = r.dataUrl })
+          setAllTableQrs(map)
+        })
+        .catch((err) => console.error('Failed to generate batch QRs:', err))
+    }
+  }, [isBatchQrModalOpen, tables])
 
   // Booking Form State
   const [bookTableId, setBookTableId] = useState<string>('')
@@ -478,6 +524,40 @@ export default function TablesClient() {
             </svg>
             QR Studio
           </Link>
+
+          {/* Batch Print All Table QRs Button */}
+          <button
+            onClick={() => setIsBatchQrModalOpen(true)}
+            title="Batch Print All Table QR Tent Cards"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '0 14px',
+              height: 40,
+              backgroundColor: '#f8fafc',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#334155',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f1f5f9'
+              e.currentTarget.style.borderColor = '#94a3b8'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8fafc'
+              e.currentTarget.style.borderColor = '#cbd5e1'
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Batch Print QRs
+          </button>
 
           {/* Settings Button (Gear) */}
           <button
@@ -843,7 +923,7 @@ export default function TablesClient() {
               {selectedTable.status === 'EMPTY' && (
                 <>
                   <Link
-                    href={`/dashboard/pos?tableId=${selectedTable.id}`}
+                    href={`/pos?tableId=${selectedTable.id}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -935,7 +1015,7 @@ export default function TablesClient() {
               {selectedTable.status === 'ACTIVE' && (
                 <>
                   <Link
-                    href={`/dashboard/pos?tableId=${selectedTable.id}`}
+                    href={`/pos?tableId=${selectedTable.id}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -968,6 +1048,52 @@ export default function TablesClient() {
                     🧹 Clear Table (Mark Available)
                   </button>
                 </>
+              )}
+
+              {/* Table QR Code Button */}
+              <button
+                onClick={() => setQrModalTable(selectedTable)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '10px',
+                  backgroundColor: '#eff6ff',
+                  color: '#2563eb',
+                  border: '1px solid #bfdbfe',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                📱 View &amp; Print Table QR Code
+              </button>
+
+              {/* Thermal Print Slip Button (Active table with check) */}
+              {selectedTable.activeOrder && (
+                <button
+                  onClick={() => setThermalModalTable(selectedTable)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '10px',
+                    backgroundColor: '#1e293b',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  🖨️ Print Thermal Receipt (80mm)
+                </button>
               )}
 
               <button
@@ -1572,6 +1698,538 @@ export default function TablesClient() {
           </div>
         </div>
       )}
+
+      {/* ── Modal 4: Single Table QR Code & Table Tent ──────── */}
+      {qrModalTable && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: 16,
+          }}
+          onClick={() => setQrModalTable(null)}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 20,
+              width: '100%',
+              maxWidth: 440,
+              padding: 24,
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 16 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                  Table QR &amp; Ordering Studio
+                </h3>
+                <span style={{ fontSize: 12, color: '#64748b' }}>
+                  {qrModalTable.name} · {qrModalTable.floor} · {qrModalTable.capacity} Seats
+                </span>
+              </div>
+              <button
+                onClick={() => setQrModalTable(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#94a3b8' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Printable QR Tent Card Simulation */}
+            <div
+              id="resto-table-qr-tent"
+              style={{
+                backgroundColor: '#ffffff',
+                border: '2px solid #e2e8f0',
+                borderRadius: 16,
+                padding: '24px 20px',
+                textAlign: 'center',
+                width: '100%',
+                maxWidth: 320,
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+                marginBottom: 20,
+              }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5b45f5', marginBottom: 4 }}>
+                Dine-In Contactless Ordering
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>
+                {qrModalTable.name}
+              </div>
+              <div style={{ fontSize: 11, color: '#64748b', marginBottom: 16 }}>
+                Scan to browse menu, customize dishes &amp; pay
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+                {tableQrDataUrl ? (
+                  <img
+                    src={tableQrDataUrl}
+                    alt={`QR Code for ${qrModalTable.name}`}
+                    style={{ width: 190, height: 190, borderRadius: 8, display: 'block' }}
+                  />
+                ) : (
+                  <div style={{ width: 190, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 8 }}>
+                    Generating QR…
+                  </div>
+                )}
+              </div>
+
+              <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#64748b', wordBreak: 'break-all', backgroundColor: '#f1f5f9', padding: '6px 8px', borderRadius: 6 }}>
+                {typeof window !== 'undefined' ? `${window.location.origin}/table/${qrModalTable.locationId || 'default'}/${qrModalTable.id}` : ''}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: 10, width: '100%', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => window.print()}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  padding: '12px 14px',
+                  backgroundColor: '#5b45f5',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                🖨️ Print Table Tent
+              </button>
+
+              {tableQrDataUrl && (
+                <a
+                  href={tableQrDataUrl}
+                  download={`${qrModalTable.name.replace(/\s+/g, '_')}_QR.png`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    padding: '12px 14px',
+                    backgroundColor: '#f1f5f9',
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  💾 Save PNG
+                </a>
+              )}
+
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/table/${qrModalTable.locationId || 'default'}/${qrModalTable.id}`
+                  navigator.clipboard.writeText(url)
+                  setCopiedLink(true)
+                  showToast('✅ Table ordering link copied to clipboard!')
+                  setTimeout(() => setCopiedLink(false), 2500)
+                }}
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: '#f8fafc',
+                  color: '#475569',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                {copiedLink ? '✓ Copied' : '🔗 Copy Link'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal 5: Thermal Receipt Print (80mm / 58mm) ────── */}
+      {thermalModalTable && thermalModalTable.activeOrder && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: 16,
+          }}
+          onClick={() => setThermalModalTable(null)}
+        >
+          <div
+            style={{
+              backgroundColor: '#1e293b',
+              borderRadius: 20,
+              width: '100%',
+              maxWidth: 420,
+              padding: 20,
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '92vh',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18 }}>🖨️</span>
+                <strong style={{ fontSize: 15, color: '#ffffff' }}>Thermal Receipt Station</strong>
+              </div>
+              <button
+                onClick={() => setThermalModalTable(null)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 20, cursor: 'pointer' }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Paper Size Selector */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+              <button
+                onClick={() => setThermalPageSize('80mm')}
+                style={{
+                  flex: 1,
+                  padding: '6px',
+                  borderRadius: 6,
+                  border: 'none',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  backgroundColor: thermalPageSize === '80mm' ? '#5b45f5' : '#334155',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                }}
+              >
+                80mm Thermal (Standard)
+              </button>
+              <button
+                onClick={() => setThermalPageSize('58mm')}
+                style={{
+                  flex: 1,
+                  padding: '6px',
+                  borderRadius: 6,
+                  border: 'none',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  backgroundColor: thermalPageSize === '58mm' ? '#5b45f5' : '#334155',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                }}
+              >
+                58mm Thermal (Compact)
+              </button>
+            </div>
+
+            {/* Thermal Ticket Paper Simulation */}
+            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', justifyContent: 'center', backgroundColor: '#0f172a', padding: '14px', borderRadius: 10 }}>
+              <div
+                id="resto-table-thermal-ticket"
+                style={{
+                  width: thermalPageSize === '80mm' ? '300px' : '230px',
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  fontFamily: '"Courier New", Courier, monospace',
+                  fontSize: '12px',
+                  lineHeight: '1.4',
+                  padding: '16px 14px',
+                  borderRadius: '3px',
+                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.4)',
+                }}
+              >
+                <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '16px', textTransform: 'uppercase' }}>
+                  PROMINENTZ
+                </div>
+                <div style={{ textAlign: 'center', fontSize: '10px', color: '#444', marginBottom: 6 }}>
+                  Dine-In Hospitality &amp; Bar
+                </div>
+                <div style={{ textAlign: 'center', fontSize: '11px', borderTop: '1px dashed #000', borderBottom: '1px dashed #000', padding: '4px 0', margin: '6px 0', fontWeight: 'bold' }}>
+                  *** GUEST CHECK / RECEIPT ***
+                </div>
+
+                <div style={{ fontSize: '11px', marginBottom: 6 }}>
+                  <div>Table: <strong>{thermalModalTable.name} ({thermalModalTable.floor})</strong></div>
+                  <div>Guests: {thermalModalTable.activeOrder.guestCount}</div>
+                  <div>Date: {new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div>Order Ref: #{thermalModalTable.activeOrder.id.substring(0, 8).toUpperCase()}</div>
+                </div>
+
+                <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+
+                {/* Items */}
+                <div style={{ fontSize: '11px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', marginBottom: 4 }}>
+                    <span>ITEM</span>
+                    <span>AMOUNT</span>
+                  </div>
+                  {thermalModalTable.activeOrder.items?.map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+                      <span style={{ flex: 1, paddingRight: 8 }}>
+                        {item.quantity}× {item.name}
+                      </span>
+                      <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ borderTop: '1px dashed #000', margin: '8px 0' }} />
+
+                {/* Totals */}
+                <div style={{ fontSize: '11px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
+                    <span>Subtotal:</span>
+                    <span>${(thermalModalTable.activeOrder.subtotal ?? (thermalModalTable.activeOrder.total * 0.92)).toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
+                    <span>Tax (8%):</span>
+                    <span>${(thermalModalTable.activeOrder.tax ?? (thermalModalTable.activeOrder.total * 0.08)).toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '14px', fontWeight: 'bold', borderTop: '1px solid #000', marginTop: 4 }}>
+                    <span>TOTAL:</span>
+                    <span>${thermalModalTable.activeOrder.total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px dashed #000', margin: '10px 0 6px 0' }} />
+                <div style={{ textAlign: 'center', fontSize: '10px', color: '#555' }}>
+                  Thank you for dining with us!<br />
+                  Please present to cashier.
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+              <button
+                onClick={() => window.print()}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: '#22c55e',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                🖨️ Print to Thermal Printer
+              </button>
+              <button
+                onClick={() => setThermalModalTable(null)}
+                style={{
+                  padding: '12px 18px',
+                  backgroundColor: '#334155',
+                  color: '#cbd5e1',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal 6: Batch Print All Table QRs ──────────────── */}
+      {isBatchQrModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            backdropFilter: 'blur(5px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: 20,
+          }}
+          onClick={() => setIsBatchQrModalOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 20,
+              width: '100%',
+              maxWidth: 880,
+              maxHeight: '92vh',
+              padding: 24,
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#0f172a' }}>
+                  🖨️ Batch Table QR Tent Generator
+                </h3>
+                <span style={{ fontSize: 13, color: '#64748b' }}>
+                  Ready to print scannable table tent cards for all {tables.length} tables
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <button
+                  onClick={() => window.print()}
+                  style={{
+                    padding: '9px 18px',
+                    backgroundColor: '#5b45f5',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  🖨️ Print All Cards
+                </button>
+                <button
+                  onClick={() => setIsBatchQrModalOpen(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#94a3b8' }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Grid of Printable Table Cards */}
+            <div
+              id="resto-batch-qr-print-grid"
+              style={{
+                overflowY: 'auto',
+                flex: 1,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gap: 16,
+                padding: '8px 2px',
+              }}
+            >
+              {tables.map((t) => (
+                <div
+                  key={t.id}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    border: '2px solid #e2e8f0',
+                    borderRadius: 14,
+                    padding: 16,
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                    pageBreakInside: 'avoid',
+                  }}
+                >
+                  <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', color: '#5b45f5', letterSpacing: '0.04em' }}>
+                    PROMINENTZ DINING
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', margin: '4px 0 2px 0' }}>
+                    {t.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10 }}>
+                    {t.floor} · {t.capacity} Seats
+                  </div>
+
+                  <div style={{ width: 140, height: 140, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {allTableQrs[t.id] ? (
+                      <img src={allTableQrs[t.id]} alt={t.name} style={{ width: 140, height: 140, borderRadius: 6 }} />
+                    ) : (
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>Generating…</div>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#334155' }}>
+                    Scan with phone camera to order
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Isolated Print Styles for Thermal & Table QRs ── */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #resto-table-thermal-ticket,
+          #resto-table-thermal-ticket *,
+          #resto-table-qr-tent,
+          #resto-table-qr-tent *,
+          #resto-batch-qr-print-grid,
+          #resto-batch-qr-print-grid * {
+            visibility: visible !important;
+          }
+          #resto-table-thermal-ticket {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: ${thermalPageSize === '80mm' ? '76mm' : '54mm'} !important;
+            padding: 4mm !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+          #resto-table-qr-tent {
+            position: absolute !important;
+            left: 50% !important;
+            top: 20mm !important;
+            transform: translateX(-50%) !important;
+            box-shadow: none !important;
+            border: 2px solid #000 !important;
+          }
+          #resto-batch-qr-print-grid {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 16px !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }

@@ -23,6 +23,7 @@ export const NAV_ITEMS: PlanFeature[] = [
   { href: '/dashboard/approvals',    icon: '✅', label: 'Approvals',        tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
   { href: '/dashboard/kitchen-overview', icon: '🍲', label: 'Kitchen Overview', tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
   { href: '/dashboard/team',         icon: '👷', label: 'People (HR)',      tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
+  { href: '/dashboard/staff',        icon: '👥', label: 'Staff & Access',   tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
   { href: '/dashboard/orders',       icon: '📋', label: 'Orders',           tier: 'STARTER', roles: ['OWNER', 'MANAGER', 'SERVER'] },
   { href: '/dashboard/online-orders', icon: '🛍️', label: 'Online Orders',    tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
   { href: '/dashboard/tables',       icon: '🪑', label: 'Tables & Floor',   tier: 'STARTER', roles: ['OWNER', 'MANAGER', 'SERVER'] },

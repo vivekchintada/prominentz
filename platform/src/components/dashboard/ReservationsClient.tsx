@@ -28,24 +28,33 @@ interface Reservation {
 function parseDateParts(isoString: string): { month: string; day: string; year: string; time: string } {
   try {
     const d = new Date(isoString)
+    if (isNaN(d.getTime())) throw new Error()
     const month = d.toLocaleDateString('en-US', { month: 'short' })
     const day = d.toLocaleDateString('en-US', { day: '2-digit' })
     const year = d.getFullYear().toString()
     const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
     return { month, day, year, time }
   } catch {
-    return { month: 'Dec', day: '15', year: '2026', time: '10:45' }
+    const d = new Date()
+    return {
+      month: d.toLocaleDateString('en-US', { month: 'short' }),
+      day: d.toLocaleDateString('en-US', { day: '2-digit' }),
+      year: d.getFullYear().toString(),
+      time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    }
   }
 }
 
 function formatCreatedOn(isoString: string): string {
   try {
     const d = new Date(isoString)
+    if (isNaN(d.getTime())) throw new Error()
     const date = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     return `${date}, ${time}`
   } catch {
-    return '9 Nov 2026, 2:30PM'
+    const d = new Date()
+    return `${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}, ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
   }
 }
 
@@ -66,11 +75,11 @@ export default function ReservationsClient() {
   const [guestName, setGuestName] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
-  const [partySize, setPartySize] = useState(4)
+  const [partySize, setPartySize] = useState(2)
   const [scheduledDate, setScheduledDate] = useState(() => new Date().toISOString().substring(0, 10))
   const [scheduledTime, setScheduledTime] = useState('19:00')
   const [selectedTableId, setSelectedTableId] = useState('')
-  const [notes, setNotes] = useState('Special anniversary table near the window.')
+  const [notes, setNotes] = useState('')
   const [editStatus, setEditStatus] = useState<Reservation['status']>('CONFIRMED')
   const [isSubmitting, setIsSubmitting] = useState(false)
 

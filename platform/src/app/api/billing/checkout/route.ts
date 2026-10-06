@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { createSubscriptionCheckoutSession, isMockStripe } from '@/lib/stripe'
 import { logAuditEvent } from '@/lib/audit'
 import { PlanTier } from '@/lib/plans'
+import { resolveUserLocation } from '@/lib/location-resolver'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +18,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan tier' }, { status: 400 })
     }
 
-    const restaurantId = session.user.restaurantId
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant account not found for user' }, { status: 404 })
     }

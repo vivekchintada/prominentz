@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { resolveUserLocation } from '@/lib/location-resolver'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,16 +25,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. If not found or not provided, resolve by session restaurant
-    if (!targetLocation && session?.user?.restaurantId) {
-      targetLocation = await prisma.location.findFirst({
-        where: { restaurantId: session.user.restaurantId },
-        select: { id: true, restaurantId: true },
-      })
+    // 2. If not found or not provided, resolve using universal location resolver
+    if (!targetLocation && session?.user) {
+      const resolved = await resolveUserLocation(session.user)
+      if (resolved) {
+        targetLocation = { id: resolved.locationId, restaurantId: resolved.restaurantId }
+      }
     }
 
     if (!targetLocation) {
-      return NextResponse.json({ tables: [], count: 0 })
+      return NextResponse.json([])
     }
 
     // Tables are strictly managed by customer/location setup — no auto-seeding of ghost tables
@@ -114,10 +115,6 @@ export async function GET(req: NextRequest) {
         const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
         bookingTime = `${month} ${day} • ${time} • ${activeRes.partySize} guests`
         guestCount = activeRes.partySize
-      } else if (t.status === 'RESERVED' && !activeRes) {
-        // Fallback realistic booking info if table was flagged as reserved
-        guestName = 'Reserved Guest'
-        bookingTime = `Today • 19:30 • ${t.capacity} guests`
       } else if (t.status === 'ACTIVE' && activeOrder) {
         guestName = activeOrder.customer?.name || 'Walk-in Guest'
         const d = new Date(activeOrder.createdAt)
@@ -126,9 +123,6 @@ export async function GET(req: NextRequest) {
         const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
         bookingTime = `${month} ${day} • ${time} • ${activeOrder.guestCount} guests`
         guestCount = activeOrder.guestCount
-      } else if (t.status === 'ACTIVE' && !activeOrder) {
-        guestName = 'Dining Guests'
-        bookingTime = `Active • ${t.capacity} guests`
       }
 
       return {

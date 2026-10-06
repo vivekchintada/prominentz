@@ -19,6 +19,7 @@ export const createOrderSchema = z.object({
 })
 
 export const updateOrderSchema = z.object({
+  tableId:    z.string().optional(),
   guestCount: z.number().int().min(1).optional(),
   notes:      z.string().max(500).optional().nullable(),
   customerId: z.string().optional().nullable(),

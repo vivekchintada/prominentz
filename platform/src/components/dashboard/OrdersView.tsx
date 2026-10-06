@@ -710,7 +710,7 @@ export default function OrdersView({ initialOrders }: Props) {
 
                   {/* Three Dots Menu Button */}
                   <Link
-                    href="/pos"
+                    href={`/pos?orderId=${order.id}`}
                     title="Open in POS"
                     style={{
                       background: 'none',

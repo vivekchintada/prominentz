@@ -26,6 +26,22 @@
   --color-brand-600: #4a36d9;
   --color-brand-tint: rgba(91, 69, 245, 0.12);
 
+  /* ✦ DreamPOS Design System Tokens */
+  --primary: #6547F5;
+  --primary-soft: #EEEAFE;
+  --canvas: #F7F8FA;
+  --surface: #FFFFFF;
+  --border: #DDE2EA;
+  --text: #07152E;
+  --text-muted: #64748B;
+
+  --success: #16B364;
+  --success-soft: #EAF8F0;
+  --warning: #F79009;
+  --warning-soft: #FFF4E5;
+  --danger: #F04438;
+  --danger-soft: #FEECEB;
+
   /* Apple system reference colors (for semantic use only, NOT accents) */
   --apple-blue: #007AFF;
   /* info states only */
@@ -189,6 +205,18 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(0, 0, 0, 0.04);
   --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] {
+  --canvas: #0b0f19;
+  --surface: #141a29;
+  --border: #232d42;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --primary-soft: rgba(101, 71, 245, 0.2);
+  --success-soft: rgba(22, 179, 100, 0.18);
+  --warning-soft: rgba(247, 144, 9, 0.18);
+  --danger-soft: rgba(240, 68, 56, 0.18);
 }
 
 /* ─── Reset & Base ───────────────────────────────────────────────────────── */

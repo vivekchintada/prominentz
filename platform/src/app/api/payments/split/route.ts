@@ -17,28 +17,68 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { orderId, splits } = parsed.data
+    const { orderId, splits, couponCode, couponDiscount } = parsed.data
+
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
 
     // Verify order exists and belongs to this restaurant
-    const order = await prisma.order.findFirst({
-      where: { id: orderId, table: { location: { restaurantId: session.user.restaurantId } } },
+    const initialOrder = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        ...(restaurantId ? {
+          OR: [
+            { table: { location: { restaurantId } } },
+            { server: { restaurantId } },
+          ],
+        } : {}),
+      },
       include: { table: { select: { id: true, name: true, locationId: true } } },
     })
 
+    const fallbackOrder = !initialOrder ? await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { table: { select: { id: true, name: true, locationId: true } } },
+    }) : null
+
+    const order = initialOrder || fallbackOrder
+
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Order not found in restaurant records' }, { status: 404 })
     }
     if (order.status === 'PAID') {
       return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
     }
 
     // Sum details from splits
-    const totalSubtotal = splits.reduce((acc, s) => acc + s.subtotal, 0)
-    const totalTip = splits.reduce((acc, s) => acc + s.tip, 0)
-    const totalPayment = splits.reduce((acc, s) => acc + s.total, 0)
+    const totalSubtotal = Number(splits.reduce((acc, s) => acc + s.subtotal, 0).toFixed(2))
+    const totalTip = Number(splits.reduce((acc, s) => acc + s.tip, 0).toFixed(2))
+    const totalPayment = Number(splits.reduce((acc, s) => acc + s.total, 0).toFixed(2))
     
-    // We assume the tax is part of subtotal or splits. Let's calculate the tax diff if any
-    const taxValue = Number(order.tax)
+    // Security verification: ensure splits total covers the order balance due
+    const orderRawSubtotal = Number(order.subtotal)
+    const effectiveDiscount = couponDiscount ? Math.min(orderRawSubtotal > 0 ? orderRawSubtotal : totalSubtotal, Number(couponDiscount)) : 0
+    const effectiveBase = orderRawSubtotal > 0 ? Math.min(orderRawSubtotal, totalSubtotal) : totalSubtotal
+    const expectedNetSubtotal = Math.max(0, effectiveBase - effectiveDiscount)
+    const taxRate = orderRawSubtotal > 0 ? (Number(order.tax) / orderRawSubtotal) : 0.10
+    const expectedTax = Number((expectedNetSubtotal * taxRate).toFixed(2))
+    
+    // Total payment must be greater than zero and cover the net bill
+    if (totalPayment <= 0) {
+      return NextResponse.json(
+        { error: 'Split payments total must be greater than zero' },
+        { status: 400 }
+      )
+    }
+
+    const minRequiredPayment = Number(Math.max(0, expectedNetSubtotal + expectedTax - 0.75).toFixed(2))
+    if (totalPayment < minRequiredPayment) {
+      return NextResponse.json(
+        { error: `Split payments total ($${totalPayment.toFixed(2)}) is less than the required balance due ($${minRequiredPayment.toFixed(2)})` },
+        { status: 400 }
+      )
+    }
 
     // Derive the primary method: if all splits use the same method, use that;
     // otherwise default to CARD as the transaction anchor for the parent record
@@ -54,7 +94,7 @@ export async function POST(req: NextRequest) {
           method:      primaryMethod,
           status:      'COMPLETED',
           subtotal:    totalSubtotal,
-          tax:         taxValue,
+          tax:         expectedTax,
           tip:         totalTip,
           total:       totalPayment,
         },
@@ -73,20 +113,72 @@ export async function POST(req: NextRequest) {
         })),
       })
 
-      // 3. Set order status to paid
+      // 3. Set order status to paid and sync totals to match settled split payment
       await tx.order.update({
         where: { id: orderId },
-        data:  { status: 'PAID' },
+        data: {
+          status: 'PAID',
+          subtotal: totalSubtotal,
+          tax: expectedTax,
+          total: totalPayment,
+        },
       })
 
-      // 4. Free the table
-      await tx.table.update({
-        where: { id: order.tableId },
-        data:  { status: 'EMPTY' },
-      })
+      // 4. Free the table if tableId exists
+      if (order.tableId) {
+        await tx.table.update({
+          where: { id: order.tableId },
+          data:  { status: 'EMPTY' },
+        })
+      }
 
       return parentPayment
     })
+
+    // Handle Coupon usage count & loyalty points redemption for split payment
+    if (couponCode) {
+      try {
+        const cleanCode = couponCode.trim().toUpperCase()
+        await prisma.coupon.updateMany({
+          where: {
+            restaurantId: session.user.restaurantId,
+            code: cleanCode,
+          },
+          data: { usageCount: { increment: 1 } },
+        })
+
+        const coupon = await prisma.coupon.findFirst({
+          where: { restaurantId: session.user.restaurantId, code: cleanCode },
+        })
+        if (coupon?.pointsCost && coupon.pointsCost > 0 && order.customerId) {
+          await prisma.customer.update({
+            where: { id: order.customerId },
+            data: { pointsBalance: { decrement: coupon.pointsCost } },
+          })
+        }
+
+        const couponNote = `Coupon: ${cleanCode} (-$${Number(couponDiscount || 0).toFixed(2)})`
+        if (!order.notes?.includes(cleanCode)) {
+          const newNotes = order.notes ? `${order.notes} | ${couponNote}` : couponNote
+          await prisma.order.update({
+            where: { id: orderId },
+            data: { notes: newNotes },
+          })
+        }
+      } catch (couponErr) {
+        console.error('[Split Payment] Coupon redemption error:', couponErr)
+      }
+    }
+
+    // Auto-accumulate Loyalty Points if customer linked
+    if (order.customerId) {
+      try {
+        const { awardOrderPoints } = await import('@/lib/customer-crm')
+        await awardOrderPoints(orderId)
+      } catch (pointsErr) {
+        console.error('[Split Payment] Points award error:', pointsErr)
+      }
+    }
 
     // Log event
     await prisma.orderEvent.create({
@@ -99,6 +191,7 @@ export async function POST(req: NextRequest) {
           splitCount: splits.length,
           total:      totalPayment,
           tip:        totalTip,
+          couponCode: couponCode || null,
         },
       },
     })

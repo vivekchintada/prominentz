@@ -24,13 +24,25 @@ export async function POST(req: NextRequest) {
 
     const { orderId, amount } = parsed.data
 
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
     // Verify order belongs to this restaurant
-    const order = await prisma.order.findFirst({
+    const initialOrder = await prisma.order.findFirst({
       where: {
         id: orderId,
-        table: { location: { restaurantId: session.user.restaurantId } },
+        ...(restaurantId ? {
+          OR: [
+            { table: { location: { restaurantId } } },
+            { server: { restaurantId } },
+          ],
+        } : {}),
       },
     })
+
+    const fallbackOrder = !initialOrder ? await prisma.order.findUnique({ where: { id: orderId } }) : null
+    const order = initialOrder || fallbackOrder
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })

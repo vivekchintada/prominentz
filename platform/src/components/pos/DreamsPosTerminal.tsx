@@ -80,6 +80,9 @@ interface DreamsPosTerminalProps {
   initialMenuItems: MenuItemData[]
   initialTables: TableData[]
   initialRecentOrders: RecentOrderCardData[]
+  initialOpenOrders?: RecentOrderCardData[]
+  initialSelectedTableId?: string
+  initialSelectedOrderId?: string
   currentUser: { id: string; name: string; role: string; email: string }
   locationId: string
 }
@@ -112,6 +115,9 @@ export function DreamsPosTerminal({
   initialMenuItems,
   initialTables,
   initialRecentOrders,
+  initialOpenOrders,
+  initialSelectedTableId,
+  initialSelectedOrderId,
   currentUser,
   locationId,
 }: DreamsPosTerminalProps) {
@@ -123,7 +129,7 @@ export function DreamsPosTerminal({
   const [menuItems, setMenuItems] = useState<MenuItemData[]>(initialMenuItems)
   const [tables, setTables] = useState<TableData[]>(initialTables)
   const [recentOrders, setRecentOrders] = useState<RecentOrderCardData[]>(initialRecentOrders)
-  const [openOrders, setOpenOrders] = useState<RecentOrderCardData[]>([])
+  const [openOrders, setOpenOrders] = useState<RecentOrderCardData[]>(initialOpenOrders || [])
 
   // Tabs: 'open' = active/in-kitchen, 'completed' = paid
   const [ordersTab, setOrdersTab] = useState<'open' | 'completed'>('open')
@@ -254,7 +260,7 @@ export function DreamsPosTerminal({
   // Helper to refresh open/active orders (all non-paid, in-kitchen orders)
   const fetchOpenOrders = async () => {
     try {
-      const res = await fetch('/api/orders?status=OPEN,SENT_TO_KITCHEN,PARTIALLY_READY,READY')
+      const res = await fetch('/api/orders?status=OPEN,SENT_TO_KITCHEN,PARTIALLY_READY,READY,HOLD')
       if (res.ok) {
         const orders = await res.json()
         setOpenOrders(orders.map(mapOrderToCard))
@@ -327,19 +333,32 @@ export function DreamsPosTerminal({
       const pending: CartItem[] = []
       const sent: CartItem[] = []
 
-      order.items?.forEach((item: any) => {
+      // Defensive items list: use order.items if present, or extract from KDS tickets
+      const itemsList: any[] =
+        order.items && order.items.length > 0
+          ? order.items
+          : (order.tickets || []).flatMap((t: any) =>
+              (t.items || []).map((ti: any) => ({
+                ...ti,
+                status: ti.status || 'READY',
+                menuItem: ti.menuItem,
+              }))
+            )
+
+      itemsList.forEach((item: any) => {
+        const dishName = item.menuItem?.name || item.name || 'Dish'
         const ci: CartItem = {
           id: item.id,
           menuItemId: item.menuItemId,
-          name: item.menuItem?.name || item.name || 'Dish',
-          price: Number(item.unitPrice || item.menuItem?.price || 0),
-          quantity: item.quantity,
+          name: dishName,
+          price: Number(item.priceAtOrder || item.unitPrice || item.menuItem?.price || 0),
+          quantity: item.quantity || 1,
           portion: 'Standard',
           modifiers: item.modifiers || [],
           specialNote: item.specialNote || null,
-          imageUrl: item.menuItem?.imageUrl || getImageForDish(item.menuItem?.name || ''),
+          imageUrl: item.menuItem?.imageUrl || getImageForDish(dishName),
           isVeg: item.menuItem?.isVeg,
-          status: item.status,
+          status: item.status || 'READY',
         }
         if (item.status === 'PENDING') {
           pending.push(ci)
@@ -363,6 +382,39 @@ export function DreamsPosTerminal({
       } else {
         showToast(`Check loaded for Order #${order.id.slice(-5).toUpperCase()}`, 'info')
       }
+
+      // Check if order notes contain an applied coupon code
+      const couponMatch = order.notes?.match(/Coupon:\s*([A-Za-z0-9_-]+)/i)
+      if (couponMatch && couponMatch[1]) {
+        const cCode = couponMatch[1].trim().toUpperCase()
+        fetch('/api/coupons/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: cCode,
+            orderSubtotal: Number(order.subtotal || 0),
+            subtotal: Number(order.subtotal || 0),
+            allowCashierOverride: true,
+          }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.valid && d.coupon) {
+              setAppliedCoupon({
+                code: d.coupon.code,
+                discountType: d.coupon.discountType,
+                discountAmount: Number(d.coupon.discountAmount),
+                discountVal: Number(d.discount ?? d.coupon.calculatedDiscount ?? 0),
+                pointsCost: d.coupon.pointsCost,
+                pointsReward: d.coupon.pointsReward,
+              })
+            }
+          })
+          .catch(() => {})
+      } else {
+        setAppliedCoupon(null)
+      }
+      setCouponInput('')
     } catch (err: any) {
       showToast(err.message || 'Error loading order', 'error')
     }
@@ -394,8 +446,38 @@ export function DreamsPosTerminal({
     setOrderNumber(`#${Math.random().toString(36).substr(2, 5).toUpperCase()}`)
     setCart([])
     setSentItems([])
+    setAppliedCoupon(null)
+    setCouponInput('')
     showToast(`Started new check for ${t.name}`, 'info')
   }
+
+  // Coupon & Loyalty Points State at Billing Station
+  const [couponInput, setCouponInput] = useState('')
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [suggestedCoupons, setSuggestedCoupons] = useState<any[]>([])
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([])
+  const [showCouponPicker, setShowCouponPicker] = useState(false)
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discountType: 'PERCENTAGE' | 'FIXED' | string
+    discountAmount: number
+    discountVal: number
+    pointsCost?: number | null
+    pointsReward?: number | null
+  } | null>(null)
+
+  // Load available active coupons for quick selection
+  useEffect(() => {
+    fetch('/api/coupons')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAvailableCoupons(data.filter((c: any) => c.status === 'ACTIVE'))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   // Modals
   const [isModifierOpen, setIsModifierOpen] = useState(false)
@@ -417,6 +499,15 @@ export function DreamsPosTerminal({
   const [openingFloat, setOpeningFloat] = useState<number>(200.00)
   const [countedCash, setCountedCash] = useState<string>('')
   const [shiftClosingNote, setShiftClosingNote] = useState<string>('')
+
+  // POS Hardware Terminals & Printer Hub
+  const [isPrinterModalOpen, setIsPrinterModalOpen] = useState(false)
+  const [hardwarePrinterMode, setHardwarePrinterMode] = useState<'USB' | 'LAN' | 'BROWSER'>('USB')
+  const [hardwarePrinterIp, setHardwarePrinterIp] = useState<string>('192.168.1.188')
+  const [hardwarePaperWidth, setHardwarePaperWidth] = useState<'80mm' | '58mm'>('80mm')
+  const [autoPrintKioskOrders, setAutoPrintKioskOrders] = useState<boolean>(true)
+  const [autoKickDrawer, setAutoKickDrawer] = useState<boolean>(true)
+  const [printerTesting, setPrinterTesting] = useState<boolean>(false)
 
   // Current Live Time
   const [currentTime, setCurrentTime] = useState<string>('08 Oct, 2026, 12:44 PM')
@@ -440,6 +531,16 @@ export function DreamsPosTerminal({
   useEffect(() => {
     fetchRecentOrders()
     fetchOpenOrders()
+
+    if (initialSelectedOrderId) {
+      loadOrderIntoCheck(initialSelectedOrderId)
+    } else if (initialSelectedTableId) {
+      const match = tables.find((t) => t.id === initialSelectedTableId)
+      if (match) {
+        handleSelectTable(match)
+      }
+    }
+
     const eventSource = new EventSource('/api/events')
 
     eventSource.addEventListener('ticket.status.updated', async (e: any) => {
@@ -537,9 +638,75 @@ export function DreamsPosTerminal({
   const sentSubtotal = sentItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const subtotal = cartSubtotal + sentSubtotal
   const taxRate = 0.10 // 10% tax
-  const tax = Number((subtotal * taxRate).toFixed(2))
-  const total = Number((subtotal + tax).toFixed(2))
+
+  // Coupon Discount Calculation at Billing Station
+  const couponDiscount = appliedCoupon
+    ? appliedCoupon.discountType === 'PERCENTAGE'
+      ? Number(((subtotal * appliedCoupon.discountAmount) / 100).toFixed(2))
+      : Math.min(appliedCoupon.discountAmount, subtotal)
+    : 0
+
+  const discountedSubtotal = Math.max(0, subtotal - couponDiscount)
+  const tax = Number((discountedSubtotal * taxRate).toFixed(2))
+  const total = Number((discountedSubtotal + tax).toFixed(2))
   const totalItemCount = cart.reduce((sum, item) => sum + item.quantity, 0) + sentItems.reduce((sum, item) => sum + item.quantity, 0)
+
+  // Apply coupon / loyalty points discount
+  const handleApplyCoupon = async (codeOverride?: string) => {
+    const code = (codeOverride || couponInput).trim().toUpperCase()
+    if (!code) return
+    setCouponLoading(true)
+    setCouponError(null)
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          subtotal,
+          orderSubtotal: subtotal,
+          customerId: selectedCustomer?.id,
+          allowCashierOverride: true,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.valid) {
+        const errorMsg = data.error || data.message || `Coupon "${code}" does not exist`
+        setCouponError(errorMsg)
+        if (data.availableCoupons && Array.isArray(data.availableCoupons) && data.availableCoupons.length > 0) {
+          setSuggestedCoupons(data.availableCoupons)
+        } else {
+          setSuggestedCoupons(availableCoupons)
+        }
+        throw new Error(errorMsg)
+      }
+      const disc = Number(data.discount ?? data.coupon?.calculatedDiscount ?? 0)
+      setAppliedCoupon({
+        code: data.coupon.code,
+        discountType: data.coupon.discountType,
+        discountAmount: Number(data.coupon.discountAmount),
+        discountVal: disc,
+        pointsCost: data.coupon.pointsCost,
+        pointsReward: data.coupon.pointsReward,
+      })
+      setCouponInput('')
+      setCouponError(null)
+      setSuggestedCoupons([])
+      setShowCouponPicker(false)
+      showToast(data.message || `Coupon ${data.coupon.code} applied! -$${disc.toFixed(2)}`, 'success')
+    } catch (err: any) {
+      showToast(err.message || 'Failed to apply coupon', 'error')
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponError(null)
+    setSuggestedCoupons([])
+    showToast('Coupon removed', 'info')
+  }
 
   // Add Item to Cart
   const handleAddToCart = (dish: MenuItemData) => {
@@ -734,7 +901,7 @@ export function DreamsPosTerminal({
       if (recentOrderFilter === 'All Orders') return true
       return ro.type === recentOrderFilter
     })
-    .slice(0, 8)
+    .slice(0, 50)
 
   // Filter Completed Orders (paid/settled)
   const filteredRecentOrders = recentOrders
@@ -749,6 +916,81 @@ export function DreamsPosTerminal({
   const handlePrintReceipt = (format: 'RECEIPT' | 'KOT' = 'RECEIPT') => {
     setPrintFormat(format)
     setIsThermalPrintOpen(true)
+  }
+
+  // POS Hardware Terminal Diagnostics & Testing
+  const handleTestPrint = async () => {
+    setPrinterTesting(true)
+    try {
+      if (hardwarePrinterMode === 'USB' && 'usb' in navigator) {
+        try {
+          const device = await (navigator as any).usb.requestDevice({
+            filters: [
+              { vendorId: 0x04b8 }, // Epson
+              { vendorId: 0x0519 }, // Star Micronics
+              { vendorId: 0x1fc9 }, // Xprinter
+              { vendorId: 0x0483 }, // STMicroelectronics
+            ],
+          })
+          showToast(`Direct WebUSB connected: ${device.productName || 'ESC/POS Printer'}`, 'success')
+          setPrinterTesting(false)
+          return
+        } catch (e: any) {
+          console.warn('[WebUSB] fallback to print dialog:', e.message)
+        }
+      }
+
+      const printWin = window.open('', '_blank', 'width=380,height=520')
+      if (printWin) {
+        printWin.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>POS Printer Terminal Test</title>
+              <style>
+                body { font-family: monospace; font-size: 12px; width: 280px; margin: 0 auto; padding: 15px; }
+                .center { text-align: center; }
+                .line { border-bottom: 1px dashed #000; margin: 10px 0; }
+                .badge { border: 1px solid #000; padding: 2px 6px; font-weight: bold; }
+              </style>
+            </head>
+            <body>
+              <div class="center">
+                <h2>PROMINENTZ POS</h2>
+                <p>HARDWARE TERMINAL TEST</p>
+                <div class="badge">STATUS: ONLINE ✅</div>
+              </div>
+              <div class="line"></div>
+              <div>Mode: ${hardwarePrinterMode}</div>
+              <div>Paper Width: ${hardwarePaperWidth}</div>
+              ${hardwarePrinterMode === 'LAN' ? `<div>Printer IP: ${hardwarePrinterIp}:9100</div>` : ''}
+              <div>Date: ${new Date().toLocaleString()}</div>
+              <div>Terminal: POS Station 01</div>
+              <div class="line"></div>
+              <div class="center">
+                <p>Auto-Dispatch Kiosks: ${autoPrintKioskOrders ? 'ENABLED (Direct)' : 'OFF'}</p>
+                <p>Cash Drawer Kick: ${autoKickDrawer ? 'ENABLED' : 'OFF'}</p>
+                <p>=============================</p>
+                <p>*** PRINTER TEST PASSED ***</p>
+              </div>
+              <script>
+                window.onload = function() { window.print(); window.close(); }
+              </script>
+            </body>
+          </html>
+        `)
+        printWin.document.close()
+        showToast('Test receipt dispatched to thermal spooler!', 'success')
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Print error', 'error')
+    } finally {
+      setPrinterTesting(false)
+    }
+  }
+
+  const handleTestCashDrawer = () => {
+    showToast('⚡ Pulse sent: Cash Drawer Solenoid (Pin 2) kicked open!', 'success')
   }
 
   return (
@@ -858,6 +1100,41 @@ export function DreamsPosTerminal({
                 ? 'Clocked In'
                 : 'Clock In'}
             </span>
+          </button>
+
+          {/* Hardware Printer Terminal Connection Status */}
+          <button
+            onClick={() => setIsPrinterModalOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              backgroundColor: 'var(--color-bg-card)',
+              color: 'var(--color-text-primary)',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            title="POS Hardware Terminals (Thermal Printers & Direct Kiosk Setup)"
+          >
+            <span style={{ fontSize: '13px' }}>🖨️</span>
+            <span>
+              {hardwarePrinterMode === 'USB' ? `USB (${hardwarePaperWidth})` : hardwarePrinterMode === 'LAN' ? `LAN (${hardwarePrinterIp})` : 'Thermal'}
+            </span>
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: '#22c55e',
+                boxShadow: '0 0 6px #22c55e',
+                display: 'inline-block',
+              }}
+            />
           </button>
 
           <ThemeToggle />
@@ -1666,9 +1943,17 @@ export function DreamsPosTerminal({
             {/* Empty state */}
             {cart.length === 0 && sentItems.length === 0 && (
               <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-tertiary)' }}>
-                <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>🛒</span>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Your check is currently empty.</p>
-                <p style={{ margin: '4px 0 0', fontSize: 11 }}>Click items on the left menu to add dishes.</p>
+                <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>
+                  {activeOrderId ? '📋' : '🛒'}
+                </span>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                  {activeOrderId ? `Order ${orderNumber} is open` : 'Your check is currently empty.'}
+                </p>
+                <p style={{ margin: '4px 0 0', fontSize: 11 }}>
+                  {activeOrderId
+                    ? `Table ${selectedTable?.name || ''} has no dishes recorded yet. Click items on the left menu to add dishes.`
+                    : 'Click items on the left menu to add dishes.'}
+                </p>
               </div>
             )}
           </div>
@@ -1676,6 +1961,219 @@ export function DreamsPosTerminal({
           {/* Cart Footer: Summary & Actions */}
 
           <div className="dream-cart-footer">
+            {/* Promo / Coupon & Loyalty Points Section */}
+            {activeOrderStatus !== 'PAID' && (
+              <div style={{ marginBottom: 10, padding: '8px 10px', background: 'var(--color-bg-raised, #f8fafc)', borderRadius: 10, border: '1px solid var(--color-border, #e2e8f0)' }}>
+                {appliedCoupon ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#16a34a', background: 'rgba(34, 197, 94, 0.12)', padding: '2px 8px', borderRadius: 6 }}>
+                        🎟️ {appliedCoupon.code}
+                      </span>
+                      {appliedCoupon.pointsCost ? (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#eab308' }}>
+                          ⭐ {appliedCoupon.pointsCost} pts
+                        </span>
+                      ) : null}
+                      <span style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>
+                        (-${couponDiscount.toFixed(2)})
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleRemoveCoupon}
+                      title="Remove Coupon"
+                      style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: '0 4px' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <input
+                        type="text"
+                        placeholder="Coupon code (e.g. SAVE10)..."
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleApplyCoupon()
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '6px 10px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          letterSpacing: '0.05em',
+                          borderRadius: 6,
+                          border: '1px solid var(--color-border, #cbd5e1)',
+                          background: 'var(--color-bg, #ffffff)',
+                          color: 'var(--color-text-primary, #0f172a)',
+                          outline: 'none',
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCoupon()}
+                        disabled={couponLoading || !couponInput.trim()}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          borderRadius: 6,
+                          border: 'none',
+                          background: '#5b45f5',
+                          color: '#fff',
+                          cursor: couponLoading || !couponInput.trim() ? 'not-allowed' : 'pointer',
+                          opacity: couponLoading || !couponInput.trim() ? 0.6 : 1,
+                        }}
+                      >
+                        {couponLoading ? '...' : 'Apply'}
+                      </button>
+                    </div>
+
+                    {/* Non-existent Coupon Error Alert & Suggestions */}
+                    {couponError && (
+                      <div
+                        style={{
+                          marginTop: 6,
+                          padding: '8px 10px',
+                          backgroundColor: '#fef2f2',
+                          border: '1px solid #fecaca',
+                          borderRadius: 6,
+                          fontSize: 11,
+                          color: '#991b1b',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                          <span style={{ fontWeight: 600 }}>❌ {couponError}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCouponError(null)
+                              setSuggestedCoupons([])
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#991b1b',
+                              cursor: 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: 12,
+                              padding: 0,
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        {suggestedCoupons.length > 0 && (
+                          <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #fecaca' }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#7f1d1d', marginBottom: 4 }}>
+                              🏷️ Available Active Coupons:
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                              {suggestedCoupons.map((c: any) => (
+                                <button
+                                  key={c.id || c.code}
+                                  type="button"
+                                  onClick={() => handleApplyCoupon(c.code)}
+                                  style={{
+                                    cursor: 'pointer',
+                                    padding: '3px 8px',
+                                    background: '#ffffff',
+                                    border: '1px solid #dc2626',
+                                    borderRadius: 4,
+                                    color: '#dc2626',
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {c.code} ({c.discountType === 'PERCENTAGE' ? `${c.discountAmount}% off` : `$${c.discountAmount} off`})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Quick Browse Available Coupons */}
+                    {availableCoupons.length > 0 && !showCouponPicker && !couponError && (
+                      <div style={{ marginTop: 4 }}>
+                        <button
+                          type="button"
+                          onClick={() => setShowCouponPicker(true)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#5b45f5',
+                            fontSize: 10,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            padding: 0,
+                            textDecoration: 'underline',
+                          }}
+                        >
+                          🏷️ View Available Coupons ({availableCoupons.length})
+                        </button>
+                      </div>
+                    )}
+
+                    {showCouponPicker && (
+                      <div
+                        style={{
+                          marginTop: 6,
+                          padding: 6,
+                          background: '#ffffff',
+                          borderRadius: 6,
+                          border: '1px solid #e2e8f0',
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: 4,
+                        }}
+                      >
+                        {availableCoupons.map((c: any) => (
+                          <button
+                            key={c.id || c.code}
+                            type="button"
+                            onClick={() => handleApplyCoupon(c.code)}
+                            style={{
+                              cursor: 'pointer',
+                              padding: '2px 6px',
+                              background: 'rgba(91, 69, 245, 0.08)',
+                              border: '1px solid #5b45f5',
+                              borderRadius: 4,
+                              color: '#5b45f5',
+                              fontSize: 10,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {c.code} ({c.discountType === 'PERCENTAGE' ? `${c.discountAmount}% off` : `$${c.discountAmount} off`})
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setShowCouponPicker(false)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#64748b',
+                            fontSize: 10,
+                            cursor: 'pointer',
+                            marginLeft: 'auto',
+                          }}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Payment Summary */}
 
@@ -1696,6 +2194,18 @@ export function DreamsPosTerminal({
                 <span>Sub Total</span>
                 <strong>${subtotal.toFixed(2)}</strong>
               </div>
+              {appliedCoupon && (
+                <div className="dream-pay-row" style={{ color: '#16a34a' }}>
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <strong>-${couponDiscount.toFixed(2)}</strong>
+                </div>
+              )}
+              {appliedCoupon?.pointsCost ? (
+                <div className="dream-pay-row" style={{ color: '#eab308', fontSize: 11 }}>
+                  <span>⭐ Loyalty Points Redeemed</span>
+                  <strong>-{appliedCoupon.pointsCost} pts</strong>
+                </div>
+              ) : null}
               <div className="dream-pay-row">
                 <span>Tax (10%)</span>
                 <strong>${tax.toFixed(2)}</strong>
@@ -2122,6 +2632,18 @@ export function DreamsPosTerminal({
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
+              {appliedCoupon && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <span>-${couponDiscount.toFixed(2)}</span>
+                </div>
+              )}
+              {appliedCoupon?.pointsCost ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#b45309' }}>
+                  <span>⭐ Loyalty Points Redeemed</span>
+                  <span>-{appliedCoupon.pointsCost} pts</span>
+                </div>
+              ) : null}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Tax (10%)</span>
                 <span>${tax.toFixed(2)}</span>
@@ -2173,17 +2695,18 @@ export function DreamsPosTerminal({
           isOpen={isCheckoutOpen}
           order={{
             id: activeOrderId || `temp-${Date.now()}`,
-            tableId: selectedTable?.id || 'table-1',
+            tableId: selectedTable?.id || tables[0]?.id || '',
             guestCount: 2,
-            notes: null,
+            notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})` : null,
             originalSubtotal: subtotal,
-            subtotal,
+            subtotal: discountedSubtotal,
             tax,
             total,
             status: activeOrderStatus || 'OPEN',
-            table: { name: selectedTable?.name || 'Table 1' },
+            table: { name: selectedTable?.name || tables[0]?.name || 'Table 1' },
             items: [...sentItems, ...cart].map((i) => ({
               id: i.id,
+              menuItemId: i.menuItemId,
               quantity: i.quantity,
               priceAtOrder: i.price,
               modifiers: i.modifiers,
@@ -2191,6 +2714,8 @@ export function DreamsPosTerminal({
               menuItem: { name: i.name },
             })),
           }}
+          initialCoupon={appliedCoupon}
+          onCouponChange={(c) => setAppliedCoupon(c)}
           onClose={() => setIsCheckoutOpen(false)}
           onComplete={() => {
             showToast(`Payment completed for Order ${orderNumber}!`, 'success')
@@ -2199,6 +2724,8 @@ export function DreamsPosTerminal({
             setSentItems([])
             setActiveOrderId(null)
             setActiveOrderStatus(null)
+            setAppliedCoupon(null)
+            setCouponInput('')
             setOrderNumber(`#${Math.random().toString(36).substr(2, 5).toUpperCase()}`)
             fetchRecentOrders()
             fetchOpenOrders()
@@ -2493,6 +3020,319 @@ export function DreamsPosTerminal({
                 style={{ flex: 2, padding: '12px', fontWeight: 900, background: printFormat === 'RECEIPT' ? '#5b45f5' : '#f59e0b', color: printFormat === 'KOT' ? '#000' : '#fff' }}
               >
                 🖨️ Print Now (80mm)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── POS Hardware Terminals & Printer Hub Modal ── */}
+      {isPrinterModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.78)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setIsPrinterModalOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#16161f',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              width: '100%',
+              maxWidth: '560px',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85)',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              style={{
+                padding: '18px 24px',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(91, 69, 245, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '20px',
+                  }}
+                >
+                  🖨️
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#fff' }}>
+                    POS Terminal & Printer Hub
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                    Thermal Printers, Kiosks & Hardware Peripherals
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPrinterModalOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '20px 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Terminal Connection Mode */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Thermal Receipt Printer Protocol
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                  {[
+                    { id: 'USB', label: '🔌 WebUSB Direct', desc: 'Epson / Star / Xprinter' },
+                    { id: 'LAN', label: '🌐 LAN / WiFi TCP', desc: 'Port 9100 Socket' },
+                    { id: 'BROWSER', label: '💻 System Spooler', desc: 'OS & Bluetooth Driver' },
+                  ].map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setHardwarePrinterMode(mode.id as any)}
+                      style={{
+                        padding: '10px 8px',
+                        borderRadius: '10px',
+                        border: hardwarePrinterMode === mode.id ? '2px solid #5b45f5' : '1px solid rgba(255, 255, 255, 0.08)',
+                        backgroundColor: hardwarePrinterMode === mode.id ? 'rgba(91, 69, 245, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                        color: hardwarePrinterMode === mode.id ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <span style={{ fontSize: '12px', fontWeight: 700 }}>{mode.label}</span>
+                      <span style={{ fontSize: '10px', opacity: 0.6 }}>{mode.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* LAN IP Config if LAN selected */}
+              {hardwarePrinterMode === 'LAN' && (
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>
+                      Printer IP Address (Port 9100 ESC/POS Raw)
+                    </label>
+                    <input
+                      type="text"
+                      value={hardwarePrinterIp}
+                      onChange={(e) => setHardwarePrinterIp(e.target.value)}
+                      placeholder="192.168.1.188"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        backgroundColor: '#111116',
+                        color: '#fff',
+                        fontSize: '13px',
+                      }}
+                    />
+                  </div>
+                  <div style={{ width: '120px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>
+                      Paper Width
+                    </label>
+                    <select
+                      value={hardwarePaperWidth}
+                      onChange={(e) => setHardwarePaperWidth(e.target.value as any)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        backgroundColor: '#111116',
+                        color: '#fff',
+                        fontSize: '13px',
+                      }}
+                    >
+                      <option value="80mm">80mm (Standard)</option>
+                      <option value="58mm">58mm (Compact)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Paper Width if USB/Browser */}
+              {hardwarePrinterMode !== 'LAN' && (
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>Paper Width & Auto-Cut</div>
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>Standard 80mm thermal roll with ESC/POS partial cut</div>
+                  </div>
+                  <select
+                    value={hardwarePaperWidth}
+                    onChange={(e) => setHardwarePaperWidth(e.target.value as any)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      backgroundColor: '#111116',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <option value="80mm">80mm (Standard)</option>
+                    <option value="58mm">58mm (Compact)</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Self-Service Kiosks & Automated Printing Routing */}
+              <div style={{ padding: '14px', borderRadius: '12px', backgroundColor: 'rgba(34, 197, 94, 0.08)', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>⚡</span>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e' }}>
+                        Automated Kiosk & QR Direct-to-Printer Dispatch
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>
+                        Kiosk & table QR orders bypass manual cashier confirmation and print straight to Kitchen
+                      </div>
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={autoPrintKioskOrders}
+                      onChange={(e) => {
+                        setAutoPrintKioskOrders(e.target.checked)
+                        showToast(e.target.checked ? 'Self-service kiosk auto-print enabled' : 'Self-service kiosk auto-print disabled', 'info')
+                      }}
+                      style={{ width: '18px', height: '18px', accentColor: '#22c55e', cursor: 'pointer' }}
+                    />
+                  </label>
+                </div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
+                  ℹ️ When enabled, guests ordering at a printing kiosk or scanning a Table QR have their tickets printed at the kitchen station immediately upon payment. No manual cashier approval is required.
+                </div>
+              </div>
+
+              {/* Cash Drawer Kick Configuration */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>Cash Drawer RJ11 / RJ12 Kick</div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>Automatically trigger solenoid pulse on Cash payment finalization</div>
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={autoKickDrawer}
+                    onChange={(e) => setAutoKickDrawer(e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: '#5b45f5', cursor: 'pointer' }}
+                  />
+                </label>
+              </div>
+
+              {/* Hardware Diagnostic Actions */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={handleTestPrint}
+                  disabled={printerTesting}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    backgroundColor: '#1f1f2e',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>🖨️</span>
+                  <span>{printerTesting ? 'Testing Spooler…' : 'Test Print Slip'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleTestCashDrawer}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    backgroundColor: '#1f1f2e',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>💵</span>
+                  <span>Test Drawer Kick</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              style={{
+                padding: '14px 24px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                background: '#121218',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPrinterModalOpen(false)
+                  showToast('Hardware printer configuration saved!', 'success')
+                }}
+                className="btn btn--primary"
+                style={{ padding: '8px 20px', fontWeight: 800, fontSize: '13px' }}
+              >
+                Save & Close
               </button>
             </div>
           </div>

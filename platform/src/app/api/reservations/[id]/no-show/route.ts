@@ -3,6 +3,8 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
 
+import { resolveUserLocation } from '@/lib/location-resolver'
+
 // ─── POST /api/reservations/[id]/no-show ──────────────────────────────────────
 export async function POST(
   _req: NextRequest,
@@ -19,8 +21,12 @@ export async function POST(
 
     const { id } = await params
 
+    const resolved = await resolveUserLocation(session.user)
     const existing = await prisma.reservation.findFirst({
-      where: { id, location: { restaurantId: session.user.restaurantId } },
+      where: {
+        id,
+        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+      },
     })
     if (!existing) {
       return NextResponse.json({ error: 'Reservation not found' }, { status: 404 })

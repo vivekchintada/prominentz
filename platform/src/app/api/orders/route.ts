@@ -20,10 +20,22 @@ export async function GET(req: NextRequest) {
     const tableId  = searchParams.get('tableId')
     const statuses = searchParams.get('status')?.split(',')
 
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
     const orders = await prisma.order.findMany({
       where: {
-        table: { location: { restaurantId: session.user.restaurantId } },
-        ...(tableId  ? { tableId }                              : {}),
+        ...(tableId
+          ? { tableId }
+          : restaurantId
+          ? {
+              OR: [
+                { table: { location: { restaurantId } } },
+                { server: { restaurantId } },
+              ],
+            }
+          : {}),
         ...(statuses ? { status: { in: statuses as never[] } } : {}),
       },
       include: {
@@ -36,7 +48,16 @@ export async function GET(req: NextRequest) {
           },
           orderBy: { createdAt: 'asc' },
         },
-        tickets: { select: { id: true, station: true, status: true, createdAt: true } },
+        tickets: {
+          include: {
+            items: {
+              include: {
+                menuItem: { select: { id: true, name: true, price: true, kdsStation: true, imageUrl: true } },
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
         _count: { select: { items: true, payments: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -75,9 +96,16 @@ export async function POST(req: NextRequest) {
       specialNote?: string
     }> = Array.isArray(body.items) ? body.items : []
 
+    const { resolveUserLocation } = await import('@/lib/location-resolver')
+    const resolved = await resolveUserLocation(session.user)
+    const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
     // Verify the table belongs to this restaurant
     const table = await prisma.table.findFirst({
-      where: { id: tableId, location: { restaurantId: session.user.restaurantId } },
+      where: {
+        id: tableId,
+        ...(restaurantId ? { location: { restaurantId } } : {}),
+      },
     })
     if (!table) {
       return NextResponse.json({ error: 'Table not found' }, { status: 404 })

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
 import { sendWhatsAppWaitlistReady } from '@/lib/whatsapp'
 import { sendWaitlistReady } from '@/lib/twilio'
+import { resolveUserLocation } from '@/lib/location-resolver'
 import { z } from 'zod'
 
 const updateWaitlistSchema = z.object({
@@ -33,8 +34,12 @@ export async function PATCH(
 
     const { status, notify, tableName } = parsed.data
 
+    const resolved = await resolveUserLocation(session.user)
     const existing = await prisma.waitlistEntry.findFirst({
-      where: { id, location: { restaurantId: session.user.restaurantId } },
+      where: {
+        id,
+        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+      },
       include: {
         location: {
           include: { restaurant: { select: { name: true } } },

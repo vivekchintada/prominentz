@@ -67,7 +67,7 @@ export async function GET() {
       const totalMs = completedTicketsToday.reduce((sum, t) => {
         const end = t.readyAt ? new Date(t.readyAt).getTime() : now.getTime()
         const start = new Date(t.createdAt).getTime()
-        return sum + (end - start)
+        return sum + Math.max(0, end - start)
       }, 0)
       avgTicketTimeMins = Number((totalMs / completedTicketsToday.length / 60000).toFixed(1))
     }

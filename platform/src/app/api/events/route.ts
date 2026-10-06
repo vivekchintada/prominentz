@@ -17,15 +17,21 @@ export async function GET(req: NextRequest) {
     async start(controller) {
       let destroyed = false
 
+      let isSubscribed = false
+
       const cleanup = async () => {
         if (destroyed) return
         destroyed = true
         clearInterval(pingInterval)
         try {
-          await sub.unsubscribe('resto:events')
-          await sub.quit()
+          if (isSubscribed) {
+            await sub.unsubscribe('resto:events')
+            await sub.quit()
+          } else {
+            sub.disconnect()
+          }
         } catch (e) {
-          console.error('[SSE] Cleanup error:', e)
+          // ignore cleanup error
         }
       }
 
@@ -41,22 +47,26 @@ export async function GET(req: NextRequest) {
       }
 
       try {
+        if (sub.status === 'wait' || sub.status === 'close') {
+          await sub.connect()
+        }
         await sub.subscribe('resto:events')
+        isSubscribed = true
       } catch (err) {
-        console.error('[SSE] Redis subscribe error:', err)
-        controller.error(err)
-        return
+        console.warn('[SSE] Redis subscription unavailable, operating in heartbeat mode:', err instanceof Error ? err.message : err)
       }
 
-      sub.on('message', (channel, message) => {
-        if (destroyed) return
-        try {
-          const parsed = JSON.parse(message)
-          sendEvent(parsed.event, parsed.payload)
-        } catch (e) {
-          console.error('[SSE] Message parsing error:', e)
-        }
-      })
+      if (isSubscribed) {
+        sub.on('message', (channel, message) => {
+          if (destroyed) return
+          try {
+            const parsed = JSON.parse(message)
+            sendEvent(parsed.event, parsed.payload)
+          } catch (e) {
+            console.error('[SSE] Message parsing error:', e)
+          }
+        })
+      }
 
       // Send initial acknowledgement
       sendEvent('connected', { success: true, timestamp: Date.now() })

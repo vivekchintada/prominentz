@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
 import { sendWhatsAppReservationConfirmed, sendWhatsAppReservationCancelled } from '@/lib/whatsapp'
 import { sendReservationConfirmed, sendReservationCancelled } from '@/lib/twilio'
+import { resolveUserLocation } from '@/lib/location-resolver'
 import { z } from 'zod'
 
 const updateReservationSchema = z.object({
@@ -35,8 +36,12 @@ export async function PATCH(
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
+    const resolved = await resolveUserLocation(session.user)
     const existing = await prisma.reservation.findFirst({
-      where: { id, location: { restaurantId: session.user.restaurantId } },
+      where: {
+        id,
+        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+      },
     })
     if (!existing) {
       return NextResponse.json({ error: 'Reservation not found' }, { status: 404 })
@@ -197,8 +202,12 @@ export async function DELETE(
 
     const { id } = await params
 
+    const resolved = await resolveUserLocation(session.user)
     const existing = await prisma.reservation.findFirst({
-      where: { id, location: { restaurantId: session.user.restaurantId } },
+      where: {
+        id,
+        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+      },
     })
     if (!existing) {
       return NextResponse.json({ error: 'Reservation not found' }, { status: 404 })

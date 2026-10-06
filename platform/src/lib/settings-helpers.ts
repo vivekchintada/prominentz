@@ -53,18 +53,20 @@ export async function getAllowedPaymentMethods(restaurantId: string): Promise<Se
       wallet: 'WALLET',
       paypal: 'PAYPAL',
       qrReader: 'QR_CODE',
+      applePay: 'APPLE_PAY',
+      googlePay: 'GOOGLE_PAY',
       cardReader: 'CARD_READER',
       bank: 'BANK_TRANSFER',
     }
 
-    const allowed = new Set<string>()
+    const allowed = new Set<string>(['CASH', 'CARD', 'APPLE_PAY', 'GOOGLE_PAY'])
     for (const [key, enabled] of Object.entries(paymentTypes)) {
       if (enabled && methodMap[key]) {
         allowed.add(methodMap[key])
       }
     }
 
-    return allowed.size > 0 ? allowed : null
+    return allowed
   } catch {
     return null // allow all on error
   }

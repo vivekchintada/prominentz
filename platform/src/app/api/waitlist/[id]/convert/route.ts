@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
+import { resolveUserLocation } from '@/lib/location-resolver'
 import { z } from 'zod'
 import { sendWaitlistReady } from '@/lib/twilio'
 
@@ -29,9 +30,13 @@ export async function POST(
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
+    const resolved = await resolveUserLocation(session.user)
     // Verify waitlist entry exists and is active
     const entry = await prisma.waitlistEntry.findFirst({
-      where: { id, location: { restaurantId: session.user.restaurantId } },
+      where: {
+        id,
+        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+      },
     })
     if (!entry) {
       return NextResponse.json({ error: 'Waitlist entry not found' }, { status: 404 })

@@ -479,7 +479,7 @@ export function MainDashboardClient({
         ? `${stats.totalOrders} total orders processed`
         : 'Place a live test order & print 80mm/58mm ticket',
       completed: hasOrders,
-      href: '/dashboard/pos',
+      href: '/pos',
       badge: hasOrders ? 'Verified' : 'Open POS',
     },
   ]
@@ -489,43 +489,7 @@ export function MainDashboardClient({
 
   return (
     <div className="dream-dashboard">
-      {/* ── RESTO IQ PROACTIVE OPERATIONS TICKER ─────────────────────────── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '10px 18px',
-          background: 'linear-gradient(90deg, rgba(37, 99, 235, 0.08), rgba(147, 51, 234, 0.06))',
-          border: '1px solid rgba(37, 99, 235, 0.2)',
-          borderRadius: 14,
-          marginBottom: 16,
-          fontSize: 13,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 16 }}>🧠</span>
-          <span style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>Resto IQ 360° Agent:</span>
-          <span style={{ color: 'var(--color-text-secondary)' }}>
-            All 10 operational domains active • 0 delayed KDS tickets • Floor occupancy at {tables.filter((t) => t.isOccupied).length}/{tables.length} tables • Real-time database telemetry connected
-          </span>
-        </div>
-        <Link
-          href="/dashboard/ai"
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#5b45f5',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Open Command Center ↗
-        </Link>
-      </div>
+
 
       {/* ── STARTER LAUNCHPAD CHECKLIST ────────────────────────────────────── */}
       {checklistDismissed ? (
@@ -1810,7 +1774,7 @@ export function MainDashboardClient({
               {selectedDashboardTable.status === 'ACTIVE' ? (
                 <>
                   <Link
-                    href={`/dashboard/pos?tableId=${selectedDashboardTable.id}`}
+                    href={`/pos?tableId=${selectedDashboardTable.id}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1882,7 +1846,7 @@ export function MainDashboardClient({
               ) : (
                 <>
                   <Link
-                    href={`/dashboard/pos?tableId=${selectedDashboardTable.id}`}
+                    href={`/pos?tableId=${selectedDashboardTable.id}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -2406,7 +2370,7 @@ export function MainDashboardClient({
                     {/* Bottom Actions */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingTop: 6 }}>
                       <Link
-                        href="/dashboard/pos"
+                        href="/pos"
                         style={{
                           padding: '9px 16px',
                           borderRadius: 10,

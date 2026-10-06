@@ -59,8 +59,12 @@ export default function WaitlistClient() {
         fetch('/api/tables'),
       ])
       if (!waitRes.ok) throw new Error('Failed to load waitlist')
-      setEntries(await waitRes.json())
-      if (tableRes.ok) setTables(await tableRes.json())
+      const waitData = await waitRes.json()
+      setEntries(Array.isArray(waitData) ? waitData : [])
+      if (tableRes.ok) {
+        const tableData = await tableRes.json()
+        setTables(Array.isArray(tableData) ? tableData : tableData?.tables || [])
+      }
     } catch (err: any) {
       showToast(err.message || 'Error loading waitlist', 'error')
     } finally {
