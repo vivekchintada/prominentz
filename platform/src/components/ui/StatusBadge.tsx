@@ -1,6 +1,6 @@
 import React from 'react'
 
-type StatusKey =
+export type StatusKey =
   | 'active'
   | 'inactive'
   | 'pending'
@@ -19,7 +19,8 @@ type StatusKey =
   | 'delayed'
   | string
 
-/** Status → { label, CSS class } */
+export type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   active:     { label: 'Active',     cls: 'badge--active' },
   inactive:   { label: 'Inactive',   cls: 'badge--inactive' },
@@ -39,22 +40,56 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   delayed:    { label: 'Delayed',    cls: 'badge--expired' },
 }
 
-interface StatusBadgeProps {
-  status: StatusKey
-  /** Override the display label */
+export interface StatusBadgeProps {
+  status?: StatusKey
+  variant?: BadgeVariant
   label?: string
+  dot?: boolean
+  size?: 'sm' | 'md'
+  className?: string
+  children?: React.ReactNode
 }
 
 /**
- * StatusBadge — maps a status string to a consistently styled coloured pill.
- * Green = positive (active/paid/available), Amber = in-progress, Red = negative.
+ * StatusBadge — maps a status string or variant to a consistently styled coloured pill.
+ * Emerald = positive, Amber = in-progress/warning, Rose = error/cancelled.
  */
-export function StatusBadge({ status, label }: StatusBadgeProps) {
-  const key = status.toLowerCase()
-  const map = STATUS_MAP[key] ?? { label: status, cls: 'badge--neutral' }
+export function StatusBadge({
+  status,
+  variant,
+  label,
+  dot = false,
+  size = 'md',
+  className = '',
+  children,
+}: StatusBadgeProps) {
+  let cls = 'badge--neutral'
+  let displayLabel = label || children
+
+  if (variant) {
+    const variantMap: Record<BadgeVariant, string> = {
+      success: 'badge--active',
+      warning: 'badge--pending',
+      danger: 'badge--error',
+      info: 'badge--processing',
+      neutral: 'badge--inactive',
+    }
+    cls = variantMap[variant]
+  } else if (status) {
+    const key = status.toLowerCase()
+    const mapped = STATUS_MAP[key]
+    if (mapped) {
+      cls = mapped.cls
+      if (!displayLabel) displayLabel = mapped.label
+    } else {
+      if (!displayLabel) displayLabel = status
+    }
+  }
+
   return (
-    <span className={`badge ${map.cls}`}>
-      {label ?? map.label}
+    <span className={`badge ${cls} ${size === 'sm' ? 'badge--sm' : ''} ${className}`}>
+      {dot && <span className="badge__dot" aria-hidden="true" />}
+      <span>{displayLabel}</span>
     </span>
   )
 }

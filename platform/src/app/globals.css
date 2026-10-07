@@ -5,42 +5,27 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
-
-/* ─── Prominentz Brand Identity ──────────────────────────────────────────── */
 :root {
-  /* ✦ Prominentz Signature Indigo */
-  --brand: #5b45f5;
-  /* Prominentz Indigo */
-  --brand-hover: #4a36d9;
-  /* pressed state */
-  --brand-light: #7b68f7;
-  /* lighter variant for gradients */
-  --brand-tint: rgba(91, 69, 245, 0.12);
-  /* tinted backgrounds */
-  --brand-glow: rgba(91, 69, 245, 0.28);
-  /* glow / focus ring */
-  --brand-gradient: linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%);
+  /* ─── Antigravity Design System Core Brand Tokens ─── */
+  --brand-emerald: #059669;
+  --brand-emerald-hover: #047857;
+  --brand-emerald-light: rgba(5, 150, 105, 0.12);
+  --brand-emerald-border: rgba(5, 150, 105, 0.28);
+  --brand-emerald-glow: rgba(5, 150, 105, 0.25);
 
-  /* Keep these for backward compat with components */
-  --color-brand-500: #5b45f5;
-  --color-brand-600: #4a36d9;
-  --color-brand-tint: rgba(91, 69, 245, 0.12);
+  --brand-amber: #d97706;
+  --brand-amber-hover: #b45309;
+  --brand-amber-light: rgba(217, 119, 6, 0.12);
+  --brand-amber-border: rgba(217, 119, 6, 0.28);
 
-  /* ✦ DreamPOS Design System Tokens */
-  --primary: #6547F5;
-  --primary-soft: #EEEAFE;
-  --canvas: #F7F8FA;
-  --surface: #FFFFFF;
-  --border: #DDE2EA;
-  --text: #07152E;
-  --text-muted: #64748B;
-
-  --success: #16B364;
-  --success-soft: #EAF8F0;
-  --warning: #F79009;
-  --warning-soft: #FFF4E5;
-  --danger: #F04438;
-  --danger-soft: #FEECEB;
+  /* Canonical Canvas & Surfaces */
+  --canvas: #0e0d0c;
+  --surface: #181715;
+  --surface-raised: #201f1c;
+  --surface-card: #201f1c;
+  --surface-card-hover: #2a2825;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-strong: rgba(255, 255, 255, 0.15);
 
   /* Apple system reference colors (for semantic use only, NOT accents) */
   --apple-blue: #007AFF;
@@ -176,48 +161,7 @@
   --z-toast: 300;
 }
 
-/* ─── Light Mode (Apple HIG Clean Slate) ─────────────────────────────────── */
-[data-theme="light"] {
-  /* Backgrounds */
-  --color-bg: #F4F4F6;
-  --color-bg-raised: #FFFFFF;
-  --color-bg-card: #FFFFFF;
-  --color-bg-card-hover: #F9FAFB;
-  --color-bg-input: #FFFFFF;
-  --color-bg-overlay: rgba(255, 255, 255, 0.92);
-  --color-bg-vibrancy: rgba(255, 255, 255, 0.85);
-  --color-bg-sidebar: #FFFFFF;
 
-  /* Separators */
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-strong: rgba(0, 0, 0, 0.16);
-  --color-border-input: rgba(0, 0, 0, 0.14);
-  --color-separator: rgba(0, 0, 0, 0.06);
-
-  /* Typography — Crisp High Contrast Dark Charcoal (WCAG AA Compliant) */
-  --color-text-primary: #111827;
-  --color-text-secondary: #374151;
-  --color-text-tertiary: #4B5563;
-  --color-text-quaternary: #6B7280;
-
-  /* Card and Drop Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
-}
-
-[data-theme="dark"] {
-  --canvas: #0b0f19;
-  --surface: #141a29;
-  --border: #232d42;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --primary-soft: rgba(101, 71, 245, 0.2);
-  --success-soft: rgba(22, 179, 100, 0.18);
-  --warning-soft: rgba(247, 144, 9, 0.18);
-  --danger-soft: rgba(240, 68, 56, 0.18);
-}
 
 /* ─── Reset & Base ───────────────────────────────────────────────────────── */
 *,
@@ -2009,6 +1953,15 @@ select.input {
 /* ─── Light Mode Theme ───────────────────────────────────────────────────── */
 /* Toggle by setting data-theme="light" on <html>                            */
 [data-theme="light"] {
+  /* Canonical Canvas & Surfaces */
+  --canvas: #fbfaf8;
+  --surface: #ffffff;
+  --surface-raised: #f5f4f0;
+  --surface-card: #ffffff;
+  --surface-card-hover: #f9f8f6;
+  --surface-border: rgba(0, 0, 0, 0.10);
+  --surface-border-strong: rgba(0, 0, 0, 0.20);
+
   /* Backgrounds — crisp clean whites */
   --color-bg: #F8FAFC;
   --color-bg-raised: #FFFFFF;
@@ -4214,7 +4167,3 @@ html.theme-transitioning *::after {
 @media (min-width: 1025px) and (max-width: 1440px) {
   /* iPad Landscape & 12-inch+ Tablets */
   .kds-tickets-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-}
