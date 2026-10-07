@@ -195,11 +195,11 @@ I am continuously monitoring and managing **every operational domain** across li
       case 'CRITICAL':
         return { bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.4)', text: '#ef4444', badge: '#ef4444' }
       case 'WARNING':
-        return { bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.4)', text: '#f59e0b', badge: '#f59e0b' }
+        return { bg: 'rgba(217, 119, 6, 0.12)', border: 'rgba(217, 119, 6, 0.4)', text: 'var(--brand-amber, #d97706)', badge: 'var(--brand-amber, #d97706)' }
       case 'OPPORTUNITY':
-        return { bg: 'rgba(48, 209, 88, 0.12)', border: 'rgba(48, 209, 88, 0.4)', text: '#30D158', badge: '#30D158' }
+        return { bg: 'rgba(5, 150, 105, 0.12)', border: 'rgba(5, 150, 105, 0.4)', text: 'var(--brand-emerald, #059669)', badge: 'var(--brand-emerald, #059669)' }
       default:
-        return { bg: 'rgba(99, 102, 241, 0.12)', border: 'rgba(99, 102, 241, 0.4)', text: '#818cf8', badge: '#818cf8' }
+        return { bg: 'rgba(5, 150, 105, 0.08)', border: 'rgba(5, 150, 105, 0.25)', text: 'var(--brand-emerald, #059669)', badge: 'var(--brand-emerald, #059669)' }
     }
   }
 
@@ -208,8 +208,8 @@ I am continuously monitoring and managing **every operational domain** across li
       {/* ── Autonomous Radar HUD Bar ──────────────────────────────── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--color-border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', backgroundColor: 'rgba(48, 209, 88, 0.15)', color: '#30D158', border: '1px solid rgba(48, 209, 88, 0.3)' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#30D158', boxShadow: '0 0 8px #30D158' }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', backgroundColor: 'rgba(5, 150, 105, 0.15)', color: 'var(--brand-emerald, #059669)', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--brand-emerald, #059669)', boxShadow: '0 0 8px var(--brand-emerald, #059669)' }} />
             AUTONOMOUS AGENT ACTIVE
           </span>
           <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
@@ -237,7 +237,7 @@ I am continuously monitoring and managing **every operational domain** across li
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
           <div className="card" style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: 600 }}>Live Sales Today</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#30D158', marginTop: '4px' }}>${telemetry.liveSales.toFixed(2)}</div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--brand-emerald, #059669)', marginTop: '4px' }}>${telemetry.liveSales.toFixed(2)}</div>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>{telemetry.activeTables} tables active</div>
           </div>
 
@@ -253,7 +253,7 @@ I am continuously monitoring and managing **every operational domain** across li
 
           <div className="card" style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: 600 }}>Labor Cost %</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: telemetry.laborPercentage > 35 ? '#f59e0b' : '#30D158', marginTop: '4px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: telemetry.laborPercentage > 35 ? 'var(--brand-amber, #d97706)' : 'var(--brand-emerald, #059669)', marginTop: '4px' }}>
               {telemetry.laborPercentage}%
             </div>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>Target &le; 30%</div>
@@ -261,7 +261,7 @@ I am continuously monitoring and managing **every operational domain** across li
 
           <div className="card" style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: 600 }}>Low Stock Alerts</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: telemetry.criticalStockCount > 0 ? '#f59e0b' : '#30D158', marginTop: '4px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: telemetry.criticalStockCount > 0 ? 'var(--brand-amber, #d97706)' : 'var(--brand-emerald, #059669)', marginTop: '4px' }}>
               {telemetry.criticalStockCount} Items
             </div>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>below minimum</div>
@@ -269,7 +269,7 @@ I am continuously monitoring and managing **every operational domain** across li
 
           <div className="card" style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: 600 }}>VIP Diners Tonight</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#c084fc', marginTop: '4px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--brand-amber, #d97706)', marginTop: '4px' }}>
               {telemetry.vipGuestsTonight} Guests
             </div>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>high LTV priority</div>
@@ -422,7 +422,7 @@ I am continuously monitoring and managing **every operational domain** across li
                     maxWidth: '85%',
                     padding: '14px 18px',
                     borderRadius: m.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                    backgroundColor: m.sender === 'user' ? '#4f46e5' : 'var(--color-bg)',
+                    backgroundColor: m.sender === 'user' ? 'var(--brand-emerald, #059669)' : 'var(--color-bg)',
                     border: m.sender === 'user' ? 'none' : '1px solid var(--color-border)',
                     color: m.sender === 'user' ? '#ffffff' : 'var(--color-text-primary)',
                     fontSize: '13px',
@@ -540,7 +540,7 @@ I am continuously monitoring and managing **every operational domain** across li
                 style={{
                   padding: '12px 24px',
                   borderRadius: '10px',
-                  background: isThinking || !inputPrompt.trim() ? '#3730a3' : 'linear-gradient(135deg, #a855f7, #6366f1)',
+                  background: isThinking || !inputPrompt.trim() ? 'rgba(5, 150, 105, 0.4)' : 'var(--brand-emerald, #059669)',
                   color: '#ffffff',
                   border: 'none',
                   fontWeight: 700,
@@ -549,6 +549,7 @@ I am continuously monitoring and managing **every operational domain** across li
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
+                  transition: 'background 0.15s ease',
                 }}
               >
                 Send Directive →
@@ -556,6 +557,92 @@ I am continuously monitoring and managing **every operational domain** across li
             </form>
           </div>
 
+        </div>
+      </div>
+
+      {/* ── Autonomous Operations Automation Rules ─────────────────── */}
+      <div style={{ marginTop: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚡</span> Autonomous Operations &amp; Safety Guardrails
+            </h3>
+            <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+              Proactive system policies triggered automatically across inventory, cook velocity, and labor thresholds
+            </p>
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-emerald, #059669)', padding: '3px 8px', borderRadius: '6px', background: 'rgba(5, 150, 105, 0.12)' }}>
+            4 / 4 Rules Active
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+          {[
+            {
+              id: 'rule-86',
+              name: 'Zero-Stock Auto 86',
+              desc: 'Automatically mark menu items unavailable on POS & QR when primary ingredient inventory reaches zero.',
+              status: 'ACTIVE',
+              trigger: 'Stock = 0 kg/unit',
+              icon: '🚫',
+            },
+            {
+              id: 'rule-kds-expedite',
+              name: 'Ticket Velocity Escalation',
+              desc: 'Highlight tickets in urgent red on expo pass when cook ticket age exceeds 15 minutes without prep bump.',
+              status: 'ACTIVE',
+              trigger: 'Age > 15 mins',
+              icon: '⏱️',
+            },
+            {
+              id: 'rule-overtime-guard',
+              name: 'Overtime Margin Guard',
+              desc: 'Proactively flag employees approaching 38 scheduled weekly hours to prevent 1.5x overtime wage surge.',
+              status: 'ACTIVE',
+              trigger: 'Hours >= 38h',
+              icon: '⚠️',
+            },
+            {
+              id: 'rule-vip-seat',
+              name: 'VIP Guest Arrival Alert',
+              desc: 'Notify manager and senior server instantly when high-LTV or VIP tier reservation is seated.',
+              status: 'ACTIVE',
+              trigger: 'VIP Diners Table Link',
+              icon: '👑',
+            },
+          ].map((rule) => (
+            <div
+              key={rule.id}
+              style={{
+                padding: '16px 18px',
+                borderRadius: '12px',
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>{rule.icon}</span>
+                    <span style={{ fontWeight: 800, fontSize: '13px', color: 'var(--color-text-primary)' }}>{rule.name}</span>
+                  </div>
+                  <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', background: 'rgba(5, 150, 105, 0.15)', color: 'var(--brand-emerald, #059669)' }}>
+                    {rule.status}
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: '1.4' }}>
+                  {rule.desc}
+                </p>
+              </div>
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+                <span>Trigger: <strong style={{ color: 'var(--color-text-primary)' }}>{rule.trigger}</strong></span>
+                <span style={{ color: 'var(--brand-emerald, #059669)', fontWeight: 700 }}>● Automated</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
