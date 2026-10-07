@@ -1,6 +1,7 @@
 import SidebarNav from '@/components/layout/SidebarNav'
 import TopBar from '@/components/layout/TopBar'
 import { SidebarCollapseProvider } from '@/components/layout/SidebarCollapseContext'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { RestoIQAssistant } from '@/components/dashboard/RestoIQAssistant'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
@@ -71,6 +72,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
           userName={userName}
           userEmail={session.user.email ?? ''}
           userRole={userRole}
+          planTier={planTier}
         />
 
         {/* ── Horizontal body: sidebar + main content ── */}
@@ -82,6 +84,9 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
           {/* Main content */}
           <main className="main-content">
+            <div style={{ padding: '16px 24px 0 24px' }}>
+              <Breadcrumbs />
+            </div>
             {children}
           </main>
         </div>

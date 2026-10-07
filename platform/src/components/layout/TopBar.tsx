@@ -6,6 +6,9 @@ import { useEffect, useState, useRef } from 'react'
 import { signOut } from 'next-auth/react'
 import { useSidebarCollapse } from './SidebarCollapseContext'
 import { NotificationsDropdown } from './NotificationsDropdown'
+import { CommandPalette } from './CommandPalette'
+import { LocationSwitcher } from './LocationSwitcher'
+import { PlanTier } from '@/lib/plans'
 
 
 /* ── Quick-nav links (centre of top bar) ── */
@@ -112,6 +115,7 @@ interface TopBarProps {
   userName?: string
   userEmail?: string
   userRole?: string
+  planTier?: PlanTier
 }
 
 export default function TopBar({
@@ -121,6 +125,7 @@ export default function TopBar({
   userName = '',
   userEmail = '',
   userRole = '',
+  planTier = 'STARTER',
 }: TopBarProps) {
   const pathname = usePathname()
   const { toggle } = useSidebarCollapse()
@@ -128,22 +133,40 @@ export default function TopBar({
   const [showNotifications, setShowNotifications] = useState(false)
   const [hasUnread, setHasUnread] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showLocationMenu, setShowLocationMenu] = useState(false)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const locationMenuRef = useRef<HTMLDivElement>(null)
 
-  // Close user menu on outside click
+  // Listen for global Cmd+K / Ctrl+K
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsCommandPaletteOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Close menus on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setShowUserMenu(false)
       }
+      if (locationMenuRef.current && !locationMenuRef.current.contains(e.target as Node)) {
+        setShowLocationMenu(false)
+      }
     }
-    if (showUserMenu) {
+    if (showUserMenu || showLocationMenu) {
       document.addEventListener('mousedown', handleClickOutside)
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showUserMenu])
+  }, [showUserMenu, showLocationMenu])
 
   // Check unread notifications on mount
   useEffect(() => {
@@ -156,7 +179,6 @@ export default function TopBar({
       })
       .catch(() => {})
   }, [])
-
 
   // Sync theme state with current html data-theme
   useEffect(() => {
@@ -181,7 +203,7 @@ export default function TopBar({
 
   return (
     <header className="top-bar">
-      {/* Left zone — hamburger + branding */}
+      {/* Left zone — hamburger + branding & location switcher */}
       <div className="top-bar__left">
         <button
           className="top-bar__icon-btn"
@@ -192,7 +214,7 @@ export default function TopBar({
           <MenuIcon />
         </button>
 
-        <div className="top-bar__brand">
+        <div className="top-bar__brand" ref={locationMenuRef} style={{ position: 'relative' }}>
           {/* Prominentz chef-toque mark */}
           <div className="top-bar__logo-mark">
             <svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -203,10 +225,46 @@ export default function TopBar({
               <line x1="35" y1="34" x2="35" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
             </svg>
           </div>
-          <span className="top-bar__restaurant-name">{restaurantName}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, flexShrink: 0 }}>
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+          <button
+            onClick={() => setShowLocationMenu((prev) => !prev)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              color: 'inherit',
+            }}
+            aria-label="Switch Outlet or Location"
+            title="Click to switch location / outlet"
+          >
+            <span className="top-bar__restaurant-name">{restaurantName}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6, flexShrink: 0 }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          {showLocationMenu && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                left: 0,
+                width: 280,
+                backgroundColor: 'var(--color-bg-card, #1c1c1e)',
+                border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+                borderRadius: '12px',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+                padding: '8px',
+                zIndex: 1100,
+                backdropFilter: 'blur(16px)',
+              }}
+            >
+              <LocationSwitcher planTier={planTier} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -229,8 +287,13 @@ export default function TopBar({
 
       {/* Right zone — actions */}
       <div className="top-bar__right">
-        {/* Search */}
-        <button className="top-bar__icon-btn" aria-label="Search" title="Search">
+        {/* Search & Command Palette shortcut */}
+        <button
+          className="top-bar__icon-btn"
+          aria-label="Search and Commands (Ctrl+K)"
+          title="Search & Commands (Ctrl+K)"
+          onClick={() => setIsCommandPaletteOpen(true)}
+        >
           <SearchIcon />
         </button>
 
@@ -441,6 +504,7 @@ export default function TopBar({
           )}
         </div>
       </div>
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
     </header>
   )
 }

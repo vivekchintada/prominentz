@@ -23,7 +23,7 @@ const NAV_GROUPS = [
         <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
       </svg>
     ),
-    hrefs: ['/dashboard', '/pos', '/server', '/kds', '/dashboard/orders'],
+    hrefs: ['/dashboard', '/pos', '/server', '/kds', '/dashboard/orders', '/dashboard/ai'],
   },
   {
     id: 'workforce',
@@ -56,7 +56,7 @@ const NAV_GROUPS = [
         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
       </svg>
     ),
-    hrefs: ['/dashboard/reports', '/dashboard/waitlist'],
+    hrefs: ['/dashboard/reports', '/dashboard/crm', '/dashboard/loyalty', '/dashboard/waitlist'],
   },
   {
     id: 'settings',
