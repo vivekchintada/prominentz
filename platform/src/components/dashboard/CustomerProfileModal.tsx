@@ -457,8 +457,8 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                     flex: 1, padding: '12px', fontSize: '13px',
                     fontWeight: tab === t ? 700 : 400,
                     background: 'none', border: 'none', cursor: 'pointer',
-                    color: tab === t ? 'var(--color-brand-500)' : 'var(--color-text-secondary)',
-                    borderBottom: tab === t ? '2px solid var(--color-brand-500)' : '2px solid transparent',
+                    color: tab === t ? 'var(--brand-emerald, #059669)' : 'var(--color-text-secondary)',
+                    borderBottom: tab === t ? '2px solid var(--brand-emerald, #059669)' : '2px solid transparent',
                     transition: 'color 0.15s, border-color 0.15s',
                   }}
                 >
@@ -564,7 +564,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                         <div style={{ fontSize: '13px', fontWeight: 600 }}>{r.reward.name}</div>
                         <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{fmtDate(r.createdAt)}</div>
                       </div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--color-brand-500)', fontWeight: 700 }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--brand-emerald, #059669)', fontWeight: 700 }}>
                         -{r.pointsRedeemed} pts
                       </div>
                     </div>

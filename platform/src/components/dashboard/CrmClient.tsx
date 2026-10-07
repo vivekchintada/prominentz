@@ -232,6 +232,31 @@ export function CrmClient() {
     return true
   })
 
+  const handleExportCSV = () => {
+    if (customers.length === 0) return
+    const headers = ['Name', 'Phone', 'Email', 'Tier', 'Points', 'Lifetime Spend', 'Visits', 'Allergies', 'Tags', 'Joined']
+    const rows = filteredCustomers.map(c => [
+      `"${c.name.replace(/"/g, '""')}"`,
+      `"${c.phone}"`,
+      `"${c.email || ''}"`,
+      `"${c.tier?.name || 'Standard'}"`,
+      c.pointsBalance,
+      Number(c.lifetimeSpend).toFixed(2),
+      c.totalVisits,
+      `"${(c.allergyTags || []).join('; ')}"`,
+      `"${(c.tags || []).join('; ')}"`,
+      `"${new Date(c.createdAt).toLocaleDateString()}"`,
+    ])
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', `guests_crm_export_${new Date().toISOString().slice(0, 10)}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div style={{ padding: '0 0 32px 0', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Top Banner Actions */}
@@ -244,7 +269,14 @@ export function CrmClient() {
             Cross-channel customer profiles from POS, QR, and online ordering with loyalty tiers and consent tracking
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleExportCSV}
+            className="btn btn--secondary btn--sm"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <span>📥</span> Export CSV
+          </button>
           <button
             onClick={() => setShowCampaignsModal(true)}
             className="btn btn--secondary btn--sm"
@@ -282,9 +314,9 @@ export function CrmClient() {
                 display: 'flex', alignItems: 'center', gap: '6px',
                 padding: '8px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
                 cursor: 'pointer', whiteSpace: 'nowrap',
-                background: isActive ? 'var(--color-brand-500)' : 'var(--color-bg-card)',
+                background: isActive ? 'var(--brand-emerald, #059669)' : 'var(--color-bg-card)',
                 color: isActive ? '#ffffff' : 'var(--color-text-secondary)',
-                border: isActive ? '1px solid var(--color-brand-500)' : '1px solid var(--color-border)',
+                border: isActive ? '1px solid var(--brand-emerald, #059669)' : '1px solid var(--color-border)',
                 transition: 'all 0.15s ease',
               }}
             >
