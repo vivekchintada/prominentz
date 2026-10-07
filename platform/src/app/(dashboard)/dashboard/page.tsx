@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { WelcomeRouter } from '@/components/dashboard/WelcomeRouter'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { ManagerOperationsBar } from '@/components/dashboard/ManagerOperationsBar'
 import {
   MainDashboardClient,
   TopSoldDish,
@@ -950,6 +951,12 @@ export default async function DashboardPage() {
       />
 
       <div className="page-body">
+        <ManagerOperationsBar
+          totalTables={tableFloorNodes.length}
+          occupiedTables={tableFloorNodes.filter((t) => t.isOccupied).length}
+          totalOrdersCount={totalOrdersCount}
+          totalSales={totalSales}
+        />
         <MainDashboardClient
           stats={statsProps}
           weeklyRevenue={weeklyRevenuePoints}
