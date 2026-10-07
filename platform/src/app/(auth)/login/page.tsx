@@ -188,15 +188,15 @@ function LoginForm() {
           {/* Key Feature Badges */}
           <div className={styles.featurePills}>
             <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>&check;</span>
+              <span className={styles.featurePillIcon}>✓</span>
               <span>Real-time station dispatch and kitchen bump bars</span>
             </div>
             <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>&check;</span>
+              <span className={styles.featurePillIcon}>✓</span>
               <span>Tableside handheld order capture with offline resilience</span>
             </div>
             <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>&check;</span>
+              <span className={styles.featurePillIcon}>✓</span>
               <span>Granular role-based access control across all staff tiers</span>
             </div>
           </div>

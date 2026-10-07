@@ -215,15 +215,9 @@ export default function TopBar({
         </button>
 
         <div className="top-bar__brand" ref={locationMenuRef} style={{ position: 'relative' }}>
-          {/* Prominentz chef-toque mark */}
-          <div className="top-bar__logo-mark">
-            <svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M8 33 C8 23 14 17 22 17 C23 13 27 9 32 9 C36 3 46 5 47 13 C52 11 56 17 54 23 C56 26 56 31 52 34 L10 34 C8.5 34 8 33.5 8 33Z" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M11 34 L11 38 Q11 41 14 41 L42 41 Q45 41 45 38 L45 34" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <line x1="21" y1="34" x2="21" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <line x1="28" y1="34" x2="28" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <line x1="35" y1="34" x2="35" y2="41" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-            </svg>
+          {/* Resto monochrome mark */}
+          <div className="top-bar__logo-mark" style={{ background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: '13px', letterSpacing: '-0.02em', borderRadius: '5px' }}>
+            R
           </div>
           <button
             onClick={() => setShowLocationMenu((prev) => !prev)}

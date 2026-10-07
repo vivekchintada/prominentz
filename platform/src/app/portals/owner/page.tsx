@@ -4,16 +4,16 @@ import type { Metadata } from 'next'
 import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
 
 export const metadata: Metadata = {
-  title: 'Restaurant Owner Operating Portal | Prominentz OS',
-  description: 'Enterprise HQ command center for restaurant owners and multi-unit hospitality operators. Unified financials, menu management, and real-time operations.',
+  title: 'Executive HQ & Owner Portal | Resto',
+  description: 'Enterprise command center for restaurant owners and multi-unit hospitality operators. Unified financials, menu management, and real-time operations.',
 }
 
 export default function OwnerPortalLandingPage() {
   const kpis = [
-    { label: 'Consolidated Revenue', value: '$148,920', trend: '+18.4% vs last mo', positive: true },
-    { label: 'Prime Cost (COGS + Labor)', value: '54.2%', trend: '-3.1% optimized', positive: true },
-    { label: 'Sample Active Outlets', value: '6 Locations', trend: '100% online sync', positive: true },
-    { label: 'Avg Table Turn Time', value: '41 min', trend: '8 min faster', positive: true },
+    { label: 'Consolidated Revenue', value: '$148,920', trend: '+18.4% vs last mo' },
+    { label: 'Prime Cost (COGS + Labor)', value: '54.2%', trend: '-3.1% optimized' },
+    { label: 'Active Outlets', value: '6 Locations', trend: '100% online sync' },
+    { label: 'Avg Table Turn Time', value: '41 min', trend: '8 min faster' },
   ]
 
   const capabilities = [
@@ -40,7 +40,7 @@ export default function OwnerPortalLandingPage() {
     {
       icon: '📦',
       title: 'Automated Purchase Orders & Par Levels',
-      desc: 'Never run out of key ingredients. Resto AI monitors consumption velocity and automatically suggests purchase orders to approved suppliers.',
+      desc: 'Never run out of key ingredients. Resto monitors consumption velocity and automatically suggests purchase orders to approved suppliers.',
     },
     {
       icon: '💳',
@@ -50,40 +50,40 @@ export default function OwnerPortalLandingPage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#07080B', color: '#ffffff', fontFamily: '-apple-system, Inter, BlinkMacSystemFont, sans-serif' }}>
-      {/* ── Top Header ────────────────────────────────────────────────────── */}
-      <header style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(14,15,19,0.85)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 50 }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#000000', color: '#ffffff', fontFamily: 'var(--font-sans)', letterSpacing: '-0.01em' }}>
+      {/* ── Top Header ── */}
+      <header style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: '1180px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Link href="/" aria-label="Prominentz Home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
-              <ProminentzLogo variant="full" size="sm" />
+            <Link href="/" aria-label="Resto Home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+              <ProminentzLogo size="sm" />
             </Link>
-            <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', backgroundColor: 'rgba(91,69,245,0.15)', color: '#a594fd', border: '1px solid rgba(91,69,245,0.3)', fontWeight: 700 }}>
-              👑 OWNER HQ
+            <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.12)', fontWeight: 600, letterSpacing: '0.04em' }}>
+              OWNER HQ
             </span>
           </div>
 
           <nav aria-label="Owner Portal Navigation" style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '13px' }}>
-            <Link href="/portals" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
+            <Link href="/portals" style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>
               All Portals
             </Link>
-            <Link href="/pricing" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
+            <Link href="/pricing" style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>
               Pricing
             </Link>
-            <Link href="/login?portal=owner" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600 }}>
+            <Link href="/login?portal=owner" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 500 }}>
               Sign In
             </Link>
             <Link
               href="/signup?role=owner"
               style={{
-                backgroundColor: '#5b45f5',
-                color: '#ffffff',
-                padding: '8px 18px',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: 700,
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: 600,
                 textDecoration: 'none',
-                boxShadow: '0 4px 14px rgba(91,69,245,0.4)',
+                border: '1px solid rgba(255,255,255,0.2)',
               }}
             >
               Start Free Trial →
@@ -92,38 +92,37 @@ export default function OwnerPortalLandingPage() {
         </div>
       </header>
 
-      {/* ── Main Content Landmark ─────────────────────────────────────────── */}
+      {/* ── Main Content ── */}
       <main id="main-content" style={{ maxWidth: '1180px', margin: '0 auto', padding: '64px 24px 100px' }}>
         {/* ── HERO SECTION ── */}
         <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 64px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '999px', backgroundColor: 'rgba(91,69,245,0.12)', border: '1px solid rgba(91,69,245,0.3)', fontSize: '13px', fontWeight: 700, color: '#a594fd', marginBottom: '24px' }}>
-            <span>👑</span>
-            <span>Executive Command Center for Restaurant Hospitality</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '24px' }}>
+            ✦ Executive Command Center
           </div>
 
-          <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 20px', lineHeight: 1.15 }}>
-            Master your entire restaurant empire with{' '}
-            <span style={{ background: 'linear-gradient(135deg, #a594fd 0%, #5b45f5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <h1 style={{ fontSize: 'clamp(36px, 5vw, 54px)', fontWeight: 600, letterSpacing: '-0.03em', margin: '0 0 20px', lineHeight: 1.15 }}>
+            Master your entire restaurant network with{' '}
+            <span style={{ fontFamily: 'var(--font-serif, "Newsreader", Georgia, serif)', fontStyle: 'italic', fontWeight: 400, color: 'rgba(255,255,255,0.85)' }}>
               complete clarity.
             </span>
           </h1>
 
-          <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, margin: '0 auto 36px', maxWidth: '680px' }}>
+          <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 auto 36px', maxWidth: '640px' }}>
             Consolidate POS revenue, live food cost depletions, multi-store labor, and customer delivery orders into one intuitive executive cockpit.
           </p>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
             <Link
               href="/signup?role=owner"
               style={{
-                backgroundColor: '#5b45f5',
-                color: '#ffffff',
-                padding: '14px 32px',
-                borderRadius: '12px',
-                fontSize: '15px',
-                fontWeight: 700,
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                padding: '12px 28px',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 600,
                 textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(91,69,245,0.4)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
@@ -135,13 +134,13 @@ export default function OwnerPortalLandingPage() {
             <Link
               href="/login?portal=owner"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.08)',
+                backgroundColor: 'transparent',
                 color: '#ffffff',
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: '14px 28px',
-                borderRadius: '12px',
-                fontSize: '15px',
-                fontWeight: 600,
+                border: '1px solid rgba(255,255,255,0.14)',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 500,
                 textDecoration: 'none',
               }}
             >
@@ -155,26 +154,26 @@ export default function OwnerPortalLandingPage() {
           <h2 id="kpis-heading" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
             Executive KPI Overview
           </h2>
-          <div style={{ backgroundColor: '#111218', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '32px', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}>
+          <div style={{ backgroundColor: '#0c0c0e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '32px', boxShadow: '0 20px 48px rgba(0,0,0,0.8)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '24px' }}>
               <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a594fd', fontWeight: 700 }}>
-                  Sample Multi-Unit Dashboard · Demo Data
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
+                  Consolidated Multi-Unit Performance
                 </span>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 0' }}>Illustrative Outlet Performance — Not Live Data</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '4px 0 0' }}>Executive Metrics Engine</h3>
               </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(48,209,88,0.12)', border: '1px solid rgba(48,209,88,0.3)', padding: '6px 14px', borderRadius: '999px', fontSize: '12px', color: '#30D158', fontWeight: 600 }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#30D158', display: 'inline-block' }} />
-                PostgreSQL &amp; NextAuth Synced
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '5px 12px', borderRadius: '999px', fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
+                Real-Time Telemetry
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               {kpis.map((k, i) => (
-                <div key={i} style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '20px' }}>
+                <div key={i} style={{ backgroundColor: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '20px' }}>
                   <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>{k.label}</div>
-                  <div style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff', marginBottom: '6px' }}>{k.value}</div>
-                  <div style={{ fontSize: '12px', color: '#30D158', fontWeight: 600 }}>{k.trend}</div>
+                  <div style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.02em', color: '#ffffff', marginBottom: '6px', fontFamily: 'var(--font-mono, monospace)' }}>{k.value}</div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{k.trend}</div>
                 </div>
               ))}
             </div>
@@ -184,29 +183,29 @@ export default function OwnerPortalLandingPage() {
         {/* ── CORE ENTERPRISE CAPABILITIES ── */}
         <section aria-labelledby="capabilities-heading" style={{ marginBottom: '80px' }}>
           <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 48px' }}>
-            <h2 id="capabilities-heading" style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 12px' }}>
+            <h2 id="capabilities-heading" style={{ fontSize: '28px', fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 12px' }}>
               Engineered for High-Volume Operators
             </h2>
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, margin: 0 }}>
-              Stop juggling disjointed POS terminals, third-party spreadsheets, and delivery tablets. Prominentz unites your entire hospitality stack.
+            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+              Stop juggling disjointed POS terminals, third-party spreadsheets, and delivery tablets. Resto unites your entire hospitality stack.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
             {capabilities.map((c, i) => (
-              <div key={i} style={{ backgroundColor: '#111218', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px', transition: 'border-color 150ms ease' }}>
-                <div style={{ fontSize: '32px', marginBottom: '16px' }}>{c.icon}</div>
-                <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 10px', color: '#ffffff' }}>{c.title}</h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>{c.desc}</p>
+              <div key={i} style={{ backgroundColor: '#0c0c0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '28px' }}>
+                <div style={{ fontSize: '24px', marginBottom: '14px' }}>{c.icon}</div>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 8px', color: '#ffffff' }}>{c.title}</h3>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>{c.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* ── HOW ONBOARDING WORKS ── */}
-        <section style={{ backgroundColor: '#111218', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '40px', marginBottom: '80px' }}>
+        <section style={{ backgroundColor: '#0c0c0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '40px', marginBottom: '80px' }}>
           <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 36px' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 12px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, margin: '0 0 12px' }}>
               Launch Your Restaurant in 3 Easy Steps
             </h2>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', margin: 0 }}>
@@ -214,62 +213,53 @@ export default function OwnerPortalLandingPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
             {[
               { step: '01', title: 'Register Your Tenant', desc: 'Create your organization in under 60 seconds with 14 days of unrestricted access.' },
               { step: '02', title: 'Upload Menus & Tables', desc: 'Start with a clean workspace, then add your real menus and floor layout.' },
               { step: '03', title: 'Invite Your Team', desc: 'Generate 4-digit PINs for waitstaff and line cooks. Real-time NextAuth synchronization takes care of the rest.' },
             ].map((s, i) => (
-              <div key={i} style={{ padding: '20px', borderRadius: '16px', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontSize: '18px', fontWeight: 800, color: '#5b45f5', marginBottom: '8px' }}>{s.step}</div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 8px' }}>{s.title}</h3>
+              <div key={i} style={{ padding: '20px', borderRadius: '10px', backgroundColor: '#111114', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', marginBottom: '8px', fontFamily: 'var(--font-mono, monospace)' }}>{s.step}</div>
+                <h3 style={{ fontSize: '15px', fontWeight: 600, margin: '0 0 8px' }}>{s.title}</h3>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', margin: 0, lineHeight: 1.5 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── TESTIMONIAL ── */}
-        <div style={{ textAlign: 'center', padding: '48px 24px', borderRadius: '24px', backgroundColor: 'rgba(91,69,245,0.06)', border: '1px solid rgba(91,69,245,0.2)', marginBottom: '80px' }}>
-          <p style={{ fontSize: '20px', fontStyle: 'italic', color: '#ffffff', maxWidth: '720px', margin: '0 auto 16px', lineHeight: 1.5 }}>
-            &ldquo;Prominentz completely replaced four separate software subscriptions. We scaled from 2 to 7 locations with zero POS downtime and cut our food waste variance by 24%.&rdquo;
-          </p>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#a594fd' }}>
-            Roberto Bianchi — Managing Partner, The Riviera Hospitality Group
-          </div>
-        </div>
-
         {/* ── BOTTOM CTA BANNER ── */}
-        <div style={{ textAlign: 'center', padding: '56px 24px', borderRadius: '24px', backgroundColor: 'linear-gradient(180deg, #161528 0%, #101018 100%)', border: '1px solid rgba(91,69,245,0.3)' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, margin: '0 0 16px' }}>Ready to elevate your restaurant operations?</h2>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', margin: '0 auto 28px', maxWidth: '540px' }}>
-            Join premier restaurateurs who trust Prominentz OS for lightning-fast table turns, tight food margins, and enterprise peace of mind.
+        <div style={{ textAlign: 'center', padding: '56px 24px', borderRadius: '14px', backgroundColor: '#0c0c0e', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 600, margin: '0 0 16px' }}>Ready to elevate your restaurant operations?</h2>
+          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', margin: '0 auto 28px', maxWidth: '540px' }}>
+            Join premier restaurateurs who trust Resto for lightning-fast table turns, tight food margins, and enterprise peace of mind.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
             <Link
               href="/signup?role=owner"
               style={{
-                backgroundColor: '#5b45f5',
-                color: '#ffffff',
-                padding: '14px 32px',
-                borderRadius: '12px',
-                fontSize: '15px',
-                fontWeight: 700,
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                padding: '12px 28px',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 600,
                 textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(91,69,245,0.4)',
+                border: '1px solid rgba(255,255,255,0.2)',
               }}
             >
-              Start 14-Day Free Owner Trial →
+              Start 14-Day Free Trial →
             </Link>
             <Link
               href="/login?portal=owner"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.08)',
+                backgroundColor: 'transparent',
                 color: '#ffffff',
-                padding: '14px 24px',
-                borderRadius: '12px',
-                fontSize: '15px',
-                fontWeight: 600,
+                border: '1px solid rgba(255,255,255,0.14)',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 500,
                 textDecoration: 'none',
               }}
             >
@@ -278,6 +268,23 @@ export default function OwnerPortalLandingPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '32px 40px', backgroundColor: '#000000' }}>
+        <div style={{ maxWidth: '1180px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: 600, color: '#ffffff' }}>Resto</span>
+            <span>© 2026. All rights reserved.</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link>
+            <Link href="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>Pricing</Link>
+            <Link href="/portals" style={{ color: 'inherit', textDecoration: 'none' }}>Portals</Link>
+            <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

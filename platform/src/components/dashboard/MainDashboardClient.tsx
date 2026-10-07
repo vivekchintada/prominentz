@@ -505,30 +505,30 @@ export function MainDashboardClient({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: '#0e0e11',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: 20,
               padding: '4px 12px',
               fontSize: 11,
-              fontWeight: 700,
-              color: '#64748b',
+              fontWeight: 600,
+              color: 'rgba(255, 255, 255, 0.7)',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
           >
             <span>🚀 Restaurant Launchpad ({completedLaunchpadCount}/{launchpadItems.length})</span>
-            <span style={{ color: '#5b45f5' }}>Show</span>
+            <span style={{ color: '#ffffff' }}>Show</span>
           </button>
         </div>
       ) : (
         <div
           style={{
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            border: '1px solid #e2e8f0',
-            borderRadius: 16,
+            background: '#0c0c0e',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: 12,
             padding: '16px 20px',
             marginBottom: 20,
-            boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.04)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
           }}
         >
           {/* Header Row */}
@@ -536,37 +536,37 @@ export function MainDashboardClient({
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
-                  background: 'linear-gradient(135deg, #5b45f5 0%, #4f46e5 100%)',
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 18,
-                  color: '#fff',
-                  boxShadow: '0 2px 6px rgba(91,69,245,0.3)',
+                  fontSize: 16,
+                  color: '#000000',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.5)',
                 }}
               >
                 🚀
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Restaurant Launchpad</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#ffffff' }}>Restaurant Launchpad</span>
                   <span
                     style={{
-                      background: completedLaunchpadCount === 5 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(37, 99, 235, 0.1)',
-                      color: completedLaunchpadCount === 5 ? '#059669' : '#5b45f5',
+                      background: completedLaunchpadCount === 5 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                      color: completedLaunchpadCount === 5 ? '#22c55e' : 'rgba(255, 255, 255, 0.85)',
                       padding: '2px 8px',
                       borderRadius: 12,
-                      fontSize: 11,
-                      fontWeight: 700,
+                      fontSize: 10,
+                      fontWeight: 600,
                     }}
                   >
                     Starter Pack {completedLaunchpadCount === 5 ? '• 100% Ready' : `• ${launchpadPercent}% Ready`}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.5)', marginTop: 2 }}>
                   Essential operational milestones to get your dining room, menu, and POS fully primed for service.
                 </div>
               </div>
@@ -575,10 +575,10 @@ export function MainDashboardClient({
             {/* Actions & Progress Summary */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: completedLaunchpadCount === 5 ? '#059669' : '#0f172a' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: completedLaunchpadCount === 5 ? '#22c55e' : '#ffffff' }}>
                   {completedLaunchpadCount} of {launchpadItems.length} Milestones
                 </span>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.4)' }}>
                   {completedLaunchpadCount === 5 ? 'All starter features verified' : 'Complete remaining steps'}
                 </div>
               </div>
@@ -587,17 +587,17 @@ export function MainDashboardClient({
                 onClick={handleToggleChecklist}
                 title={checklistCollapsed ? 'Expand checklist' : 'Collapse checklist'}
                 style={{
-                  background: '#f1f5f9',
-                  border: 'none',
-                  borderRadius: 8,
-                  width: 32,
-                  height: 32,
+                  background: '#18181c',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 6,
+                  width: 30,
+                  height: 30,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  fontSize: 12,
-                  color: '#475569',
+                  fontSize: 11,
+                  color: 'rgba(255, 255, 255, 0.7)',
                 }}
               >
                 {checklistCollapsed ? '▼' : '▲'}
@@ -609,15 +609,15 @@ export function MainDashboardClient({
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  borderRadius: 8,
-                  width: 32,
-                  height: 32,
+                  borderRadius: 6,
+                  width: 30,
+                  height: 30,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  fontSize: 15,
-                  color: '#94a3b8',
+                  fontSize: 14,
+                  color: 'rgba(255, 255, 255, 0.4)',
                 }}
               >
                 ✕
@@ -626,13 +626,13 @@ export function MainDashboardClient({
           </div>
 
           {/* Progress Bar */}
-          <div style={{ width: '100%', height: 6, background: '#e2e8f0', borderRadius: 6, marginTop: 14, overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: 4, background: 'rgba(255, 255, 255, 0.08)', borderRadius: 4, marginTop: 14, overflow: 'hidden' }}>
             <div
               style={{
                 width: `${launchpadPercent}%`,
                 height: '100%',
-                background: completedLaunchpadCount === 5 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #5b45f5, #4f46e5)',
-                borderRadius: 6,
+                background: completedLaunchpadCount === 5 ? '#22c55e' : '#ffffff',
+                borderRadius: 4,
                 transition: 'width 0.4s ease',
               }}
             />
@@ -652,9 +652,9 @@ export function MainDashboardClient({
                 <div
                   key={item.id}
                   style={{
-                    background: item.completed ? 'rgba(16, 185, 129, 0.04)' : '#ffffff',
-                    border: `1px solid ${item.completed ? 'rgba(16, 185, 129, 0.3)' : '#e2e8f0'}`,
-                    borderRadius: 12,
+                    background: item.completed ? 'rgba(34, 197, 94, 0.04)' : '#111114',
+                    border: `1px solid ${item.completed ? 'rgba(34, 197, 94, 0.25)' : 'rgba(255, 255, 255, 0.08)'}`,
+                    borderRadius: 10,
                     padding: '12px 14px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -670,13 +670,13 @@ export function MainDashboardClient({
                           width: 20,
                           height: 20,
                           borderRadius: '50%',
-                          background: item.completed ? '#10b981' : '#e2e8f0',
-                          color: item.completed ? '#fff' : '#64748b',
+                          background: item.completed ? '#22c55e' : 'rgba(255, 255, 255, 0.12)',
+                          color: item.completed ? '#000' : 'rgba(255, 255, 255, 0.7)',
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: 11,
-                          fontWeight: 800,
+                          fontSize: 10,
+                          fontWeight: 700,
                         }}
                       >
                         {item.completed ? '✓' : item.step}
@@ -684,21 +684,21 @@ export function MainDashboardClient({
                       <span
                         style={{
                           fontSize: 10,
-                          fontWeight: 700,
-                          color: item.completed ? '#059669' : '#64748b',
-                          background: item.completed ? 'rgba(16, 185, 129, 0.1)' : '#f1f5f9',
+                          fontWeight: 600,
+                          color: item.completed ? '#22c55e' : 'rgba(255, 255, 255, 0.5)',
+                          background: item.completed ? 'rgba(34, 197, 94, 0.12)' : 'rgba(255, 255, 255, 0.05)',
                           padding: '2px 6px',
-                          borderRadius: 6,
+                          borderRadius: 4,
                         }}
                       >
                         {item.badge}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 3 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', marginBottom: 3 }}>
                       {item.title}
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4, marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.5)', lineHeight: 1.4, marginBottom: 12 }}>
                       {item.desc}
                     </div>
                   </div>
@@ -711,13 +711,13 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 4,
                       padding: '6px 10px',
-                      borderRadius: 8,
+                      borderRadius: 6,
                       fontSize: 11,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       textDecoration: 'none',
-                      color: item.completed ? '#059669' : '#5b45f5',
-                      background: item.completed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(37, 99, 235, 0.08)',
-                      border: `1px solid ${item.completed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(37, 99, 235, 0.2)'}`,
+                      color: item.completed ? '#22c55e' : '#ffffff',
+                      background: item.completed ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.08)',
+                      border: `1px solid ${item.completed ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.12)'}`,
                       transition: 'background 0.15s ease',
                     }}
                   >
@@ -911,9 +911,9 @@ export function MainDashboardClient({
                     {/* Top percentage pill */}
                     <span
                       style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: isHovered ? '#5b45f5' : 'var(--color-text-secondary)',
+                        fontSize: 10,
+                        fontWeight: 600,
+                        color: isHovered ? '#ffffff' : 'rgba(255, 255, 255, 0.45)',
                         transition: 'color var(--transition-fast)',
                       }}
                     >
@@ -921,17 +921,17 @@ export function MainDashboardClient({
                     </span>
 
                     {/* Bar Pillar */}
-                    <div style={{ height: 130, display: 'flex', alignItems: 'flex-end', width: '65%', maxWidth: 36, minWidth: 20 }}>
+                    <div style={{ height: 130, display: 'flex', alignItems: 'flex-end', width: '65%', maxWidth: 32, minWidth: 18 }}>
                       <div
                         style={{
                           width: '100%',
                           height: `${bar.height}%`,
                           background: isHovered
-                            ? 'linear-gradient(180deg, #5b45f5 0%, #4a36d9 100%)'
-                            : 'linear-gradient(180deg, #7b68f7 0%, #5b45f5 100%)',
-                          borderRadius: '8px 8px 0 0',
-                          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                          boxShadow: isHovered ? '0 6px 16px rgba(37, 99, 235, 0.35)' : 'none',
+                            ? '#ffffff'
+                            : 'rgba(255, 255, 255, 0.28)',
+                          borderRadius: '4px 4px 0 0',
+                          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                          boxShadow: isHovered ? '0 0 16px rgba(255, 255, 255, 0.2)' : 'none',
                         }}
                       />
                     </div>
@@ -1715,40 +1715,40 @@ export function MainDashboardClient({
             {selectedDashboardTable.activeOrder ? (
               <div
                 style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 12,
+                  backgroundColor: '#111114',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 10,
                   padding: '14px',
                   marginBottom: 16,
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Active Order Check
                   </span>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>
+                  <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.45)' }}>
                     {selectedDashboardTable.activeOrder.guestCount} Guests
                   </span>
                 </div>
 
                 {selectedDashboardTable.activeOrder.items && selectedDashboardTable.activeOrder.items.length > 0 ? (
-                  <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 10px', backgroundColor: '#ffffff', marginBottom: 10 }}>
+                  <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 6, padding: '6px 10px', backgroundColor: '#09090b', marginBottom: 10 }}>
                     {selectedDashboardTable.activeOrder.items.map((it, idx) => (
                       <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '3px 0' }}>
-                        <span style={{ color: '#334155' }}>{it.quantity}× {it.name}</span>
-                        <span style={{ fontWeight: 600, color: '#0f172a' }}>${(it.price * it.quantity).toFixed(2)}</span>
+                        <span style={{ color: 'rgba(255, 255, 255, 0.8)' }}>{it.quantity}× {it.name}</span>
+                        <span style={{ fontWeight: 600, color: '#ffffff' }}>${(it.price * it.quantity).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginBottom: 8 }}>
                     Tab opened · No dishes added yet
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>Running Bill:</span>
-                  <span style={{ fontSize: 16, fontWeight: 800, color: '#16a34a' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>Running Bill:</span>
+                  <span style={{ fontSize: 16, fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono, monospace)' }}>
                     ${selectedDashboardTable.activeOrder.total.toFixed(2)}
                   </span>
                 </div>
@@ -1756,13 +1756,13 @@ export function MainDashboardClient({
             ) : selectedDashboardTable.status === 'ACTIVE' ? (
               <div
                 style={{
-                  backgroundColor: '#fef2f2',
-                  border: '1px solid #fee2e2',
-                  borderRadius: 12,
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: 10,
                   padding: '12px 14px',
                   marginBottom: 16,
                   fontSize: 13,
-                  color: '#991b1b',
+                  color: '#ef4444',
                 }}
               >
                 🪑 Table is currently occupied by walk-in guests.
@@ -1781,12 +1781,13 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 8,
                       padding: '11px',
-                      backgroundColor: '#5b45f5',
-                      color: '#ffffff',
-                      borderRadius: 10,
-                      fontWeight: 700,
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      borderRadius: 6,
+                      fontWeight: 600,
                       fontSize: 13,
                       textDecoration: 'none',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                     }}
                   >
                     🧾 Open Table in POS / Add Items
@@ -1796,10 +1797,10 @@ export function MainDashboardClient({
                     onClick={() => handleClearTable(selectedDashboardTable.id)}
                     style={{
                       padding: '10px',
-                      backgroundColor: '#ffffff',
-                      color: '#dc2626',
-                      border: '1px solid #fecdd3',
-                      borderRadius: 10,
+                      backgroundColor: '#18181c',
+                      color: '#ef4444',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: 6,
                       fontWeight: 600,
                       fontSize: 13,
                       cursor: actionLoading ? 'not-allowed' : 'pointer',

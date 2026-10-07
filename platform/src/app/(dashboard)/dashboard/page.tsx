@@ -17,7 +17,7 @@ import {
 } from '@/components/dashboard/MainDashboardClient'
 
 export const metadata = {
-  title: 'Dashboard | Prominentz',
+  title: 'Dashboard | Resto',
   description: 'Real-time restaurant operations, revenue analytics, trending menus, and table reservations.',
 }
 

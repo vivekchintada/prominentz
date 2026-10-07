@@ -109,7 +109,7 @@ export function Breadcrumbs() {
                 transition: 'color 140ms ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--brand-emerald, #059669)'
+                e.currentTarget.style.color = '#ffffff'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = 'var(--color-text-secondary, rgba(255, 255, 255, 0.7))'

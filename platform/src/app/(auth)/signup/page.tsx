@@ -194,15 +194,15 @@ function SignupForm() {
           {/* Key Perks */}
           <div className={styles.featurePills}>
             <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>&check;</span>
+              <span className={styles.featurePillIcon}>✓</span>
               <span>Full front-of-house and kitchen display sync</span>
             </div>
             <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>&check;</span>
+              <span className={styles.featurePillIcon}>✓</span>
               <span>Encrypted cloud sessions with role-based access</span>
             </div>
             <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>&check;</span>
+              <span className={styles.featurePillIcon}>✓</span>
               <span>Mobile handheld and tablet responsive terminals</span>
             </div>
           </div>
