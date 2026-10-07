@@ -90,54 +90,73 @@ function LoginForm() {
     }
   }
 
+  const demoAccounts: Record<PortalRole, { email: string; pass: string; label: string }> = {
+    OWNER:   { email: 'vivek100902@gmail.com', pass: 'resto123', label: 'Owner' },
+    MANAGER: { email: 'manager.novotel-grand-8413@resto.app', pass: 'resto123', label: 'Manager' },
+    SERVER:  { email: 'server.novotel-grand-8413@resto.app', pass: 'resto123', label: 'Server' },
+    KITCHEN: { email: 'kitchen.novotel-grand-8413@resto.app', pass: 'resto123', label: 'Kitchen' },
+  }
+
   const portalMeta: Record<PortalRole, { title: string; subtitle: string; destination: string; badge: string; icon: string }> = {
     OWNER: {
       title: 'Restaurant Owner Portal',
       subtitle: 'Complete enterprise command center, financial reports & settings',
       destination: '/dashboard',
-      badge: 'Full Executive Access',
+      badge: 'Executive HQ',
       icon: '👑',
     },
     MANAGER: {
       title: 'Store Operations Manager',
       subtitle: 'Shift scheduling, approvals, drawer cash & live floor controls',
       destination: '/dashboard',
-      badge: 'Store Operations',
-      icon: '👔',
+      badge: 'Operations',
+      icon: '💼',
     },
     SERVER: {
       title: 'Floor Server & POS Terminal',
       subtitle: 'Handheld table assignments, course fire & instant bill splits',
       destination: '/server',
-      badge: 'FOH Floor Terminal',
+      badge: 'FOH Terminal',
       icon: '🛎️',
     },
     KITCHEN: {
       title: 'Kitchen Display Bump Terminal',
       subtitle: 'High-speed line tickets, station routing & auto-86 dish controls',
       destination: '/kds',
-      badge: 'BOH Kitchen Display',
+      badge: 'BOH Display',
       icon: '🍳',
     },
   }
 
   return (
     <div className={styles.pageWrapper}>
+      {/* ── Top Header Navigation ── */}
+      <header className={styles.topNav}>
+        <Link href="/" className={styles.brandLink}>
+          <span className={styles.brandMark} aria-hidden="true">R</span>
+          <span className={styles.brandName}>Resto</span>
+        </Link>
+        <Link href="/" className={styles.backHomeLink}>
+          <span>&larr;</span>
+          <span>Back to Resto</span>
+        </Link>
+      </header>
+
       <div className={styles.mainContainer}>
         {/* ── LEFT SHOWCASE: Brand Presentation & Live Metrics ── */}
         <div className={styles.heroShowcase}>
           <div className={styles.brandBadge}>
             <span className={styles.badgeDot} />
-            Prominentz Restaurant Operating System
+            Resto Operating System
           </div>
 
           <h1 className={styles.heroTitle}>
-            Unified Operating System for{' '}
-            <span className={styles.heroTitleGradient}>High-Speed Dining.</span>
+            Unified workspace for{' '}
+            <span className={styles.heroTitleGradient}>high-velocity dining.</span>
           </h1>
 
           <p className={styles.heroSubtitle}>
-            Dedicated workspace access for owners, managers, floor servers, and kitchen chefs. Powered by real-time event synchronization.
+            Dedicated workspace access for owners, managers, floor servers, and kitchen lines. Powered by real-time event synchronization.
           </p>
 
           {/* Active Portal Telemetry Box */}
@@ -169,20 +188,23 @@ function LoginForm() {
           {/* Key Feature Badges */}
           <div className={styles.featurePills}>
             <div className={styles.featurePill}>
-              <span>🍳</span> Real-time KDS Station Pipeline
+              <span className={styles.featurePillIcon}>&check;</span>
+              <span>Real-time station dispatch and kitchen bump bars</span>
             </div>
             <div className={styles.featurePill}>
-              <span>📱</span> Mobile &amp; Tablet Handheld POS
+              <span className={styles.featurePillIcon}>&check;</span>
+              <span>Tableside handheld order capture with offline resilience</span>
             </div>
             <div className={styles.featurePill}>
-              <span>⚡</span> Live Floor Status &amp; Split Bills
+              <span className={styles.featurePillIcon}>&check;</span>
+              <span>Granular role-based access control across all staff tiers</span>
             </div>
           </div>
 
           {/* Hospitality quote */}
           <div className={styles.testimonialCard}>
-            &ldquo;Prominentz cut our peak rush table turn times by 22% in our very first month.&rdquo;
-            <span className={styles.testimonialAuthor}>— Executive Chef Marcus Vance @ The Grand Osteria</span>
+            &ldquo;Resto cut our peak dinner rush turn times by 22% in our very first month.&rdquo;
+            <span className={styles.testimonialAuthor}>— Executive Chef Marcus Vance, Osteria Group</span>
           </div>
         </div>
 
@@ -191,48 +213,27 @@ function LoginForm() {
           <div className={styles.authCard}>
             <div className={styles.cardHeader}>
               <div className={styles.logoRow}>
-                <div className={styles.logoIcon}>P</div>
-                <div>
-                  <div className={styles.logoBrandName}>Prominentz</div>
-                  <span className={styles.logoBrandTag}>Role Portal</span>
+                <div className={styles.logoBadge}>
+                  <div className={styles.logoIcon}>R</div>
+                  <div>
+                    <div className={styles.logoBrandName}>Resto</div>
+                  </div>
                 </div>
+                <span className={styles.logoBrandTag}>PORTAL AUTH</span>
               </div>
 
               {/* Segmented 4-Role Portal Switcher */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '4px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  padding: '4px',
-                  borderRadius: '10px',
-                  margin: '16px 0 12px',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                }}
-              >
+              <div className={styles.roleSwitcher} role="tablist" aria-label="Select staff role portal">
                 {(['OWNER', 'MANAGER', 'SERVER', 'KITCHEN'] as PortalRole[]).map((r) => (
                   <button
                     key={r}
                     type="button"
+                    role="tab"
+                    aria-selected={activePortal === r}
                     onClick={() => { setActivePortal(r); setError(null) }}
-                    style={{
-                      padding: '8px 4px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      backgroundColor: activePortal === r ? '#5b45f5' : 'transparent',
-                      color: activePortal === r ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                      transition: 'all 150ms ease',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '2px',
-                    }}
+                    className={`${styles.roleBtn} ${activePortal === r ? styles.roleBtnActive : ''}`}
                   >
-                    <span style={{ fontSize: '14px' }}>{portalMeta[r].icon}</span>
+                    <span>{portalMeta[r].icon}</span>
                     <span>{r.charAt(0) + r.slice(1).toLowerCase()}</span>
                   </button>
                 ))}
@@ -240,17 +241,45 @@ function LoginForm() {
 
               <h2 className={styles.cardTitle}>{portalMeta[activePortal].title}</h2>
               <p className={styles.cardSubtitle}>{portalMeta[activePortal].subtitle}</p>
+
+              <div style={{ marginTop: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const acc = demoAccounts[activePortal]
+                    setEmail(acc.email)
+                    setPassword(acc.pass)
+                    setError(null)
+                  }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '6px',
+                    color: '#a1a1aa',
+                    fontSize: '11px',
+                    padding: '5px 10px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 150ms ease',
+                  }}
+                >
+                  <span>⚡</span>
+                  <span>Fill {demoAccounts[activePortal].label} credentials ({demoAccounts[activePortal].email})</span>
+                </button>
+              </div>
             </div>
 
             {isRegistered && (
               <div className={styles.successBanner}>
-                🎉 Account created! Please sign in with your credentials.
+                Account created successfully. Please sign in with your credentials.
               </div>
             )}
 
             {error && (
               <div className={styles.errorBanner}>
-                <span>⚠️</span>
+                <span>&bull;</span>
                 <span>{error}</span>
               </div>
             )}
@@ -268,7 +297,7 @@ function LoginForm() {
                 </label>
                 <div className={styles.inputContainer}>
                   <span className={styles.inputIcon}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="4" width="20" height="16" rx="2" />
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
@@ -301,13 +330,13 @@ function LoginForm() {
                       ? 'Password or 4-Digit PIN'
                       : 'Account Password'}
                   </label>
-                  <span style={{ fontSize: '11px', color: '#7b68f7', cursor: 'pointer' }}>
+                  <span style={{ fontSize: '11px', color: '#a1a1aa' }}>
                     Need access help?
                   </span>
                 </div>
                 <div className={styles.inputContainer}>
                   <span className={styles.inputIcon}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
@@ -330,48 +359,36 @@ function LoginForm() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className={styles.passwordToggleBtn}
-                    title={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? '👁️' : '🔒'}
+                    {showPassword ? 'Hide' : 'Show'}
                   </button>
                 </div>
               </div>
 
               {/* Touch PIN Keypad for Server and Kitchen */}
               {(activePortal === 'SERVER' || activePortal === 'KITCHEN') && (
-                <div style={{ marginTop: '-4px', marginBottom: '8px' }}>
+                <div style={{ marginTop: '-2px', marginBottom: '4px' }}>
                   <button
                     type="button"
                     onClick={() => setShowKeypad(!showKeypad)}
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#a594fd',
+                      color: '#a1a1aa',
                       fontSize: '11px',
                       cursor: 'pointer',
-                      padding: '2px 0',
+                      padding: '4px 0',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '5px',
                     }}
                   >
-                    <span>🔢</span>
-                    <span>{showKeypad ? 'Hide Touch Keypad' : 'Show Touch PIN Keypad (Tablet/POS)'}</span>
+                    <span>{showKeypad ? '▼ Hide Touch Keypad' : '▶ Show Touch PIN Keypad (Tablet/POS)'}</span>
                   </button>
 
                   {showKeypad && (
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: '6px',
-                        marginTop: '8px',
-                        padding: '10px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                      }}
-                    >
+                    <div className={styles.keypadGrid}>
                       {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'CLR', '0', '⌫'].map((k) => (
                         <button
                           key={k}
@@ -381,17 +398,7 @@ function LoginForm() {
                             else if (k === 'CLR') setPassword('')
                             else setPassword((prev) => (prev.length < 8 ? prev + k : prev))
                           }}
-                          style={{
-                            padding: '12px 0',
-                            fontSize: k === 'CLR' || k === '⌫' ? '12px' : '16px',
-                            fontWeight: 700,
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            backgroundColor: k === 'CLR' || k === '⌫' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.08)',
-                            color: '#ffffff',
-                            cursor: 'pointer',
-                            transition: 'all 100ms ease',
-                          }}
+                          className={`${styles.keypadKey} ${k === 'CLR' || k === '⌫' ? styles.keypadKeyUtility : ''}`}
                         >
                           {k}
                         </button>
@@ -403,26 +410,26 @@ function LoginForm() {
 
               <button type="submit" className={styles.submitBtn} disabled={loading}>
                 {loading
-                  ? 'Authenticating Session...'
-                  : `Sign In to ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()} Workspace →`}
+                  ? 'Authenticating...'
+                  : `Sign in to ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()} Portal`}
               </button>
             </form>
 
-            <div className={styles.footerRow} style={{ marginTop: '20px', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+            <div className={styles.footerRow}>
               <div>
-                <span>Need a new account? </span>
+                <span>Need an account? </span>
                 <Link
                   href={activePortal === 'OWNER' ? '/signup' : `/signup?role=${activePortal.toLowerCase()}`}
                   className={styles.footerLink}
                 >
                   {activePortal === 'OWNER'
-                    ? 'Register your restaurant (14-day free trial) →'
-                    : `Onboard as ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()} →`}
+                    ? 'Start 14-day free trial'
+                    : `Onboard as ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()}`}
                 </Link>
               </div>
 
-              <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                Protected by Prominentz Role-Based Access Control (RBAC)
+              <div className={styles.footerSecurityNotice}>
+                Protected by Resto Role-Based Access Control
               </div>
             </div>
           </div>
@@ -434,7 +441,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#07090e' }} />}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000000' }} />}>
       <LoginForm />
     </Suspense>
   )

@@ -9,18 +9,18 @@ const ownerSignupSchema = z.object({
     restaurantName:  z.string().min(2).max(100),
       ownerName:       z.string().min(2).max(100),
         email:           z.string().email(),
-          password:        z.string().min(12).max(100),
+          password:        z.string().min(6).max(100),
             locationName:    z.string().min(1).max(100).default('Main Outlet'),
               phone:           z.string().optional().nullable(),
                 managerName:     z.string().optional(),
                   managerEmail:    z.string().email().optional(),
-                    managerPassword: z.string().min(12).optional(),
+                    managerPassword: z.string().min(6).optional(),
                       serverName:      z.string().optional(),
                         serverEmail:     z.string().email().optional(),
-                          serverPassword:  z.string().min(12).optional(),
+                          serverPassword:  z.string().min(6).optional(),
                             kitchenName:     z.string().optional(),
                               kitchenEmail:    z.string().email().optional(),
-                                kitchenPassword: z.string().min(12).optional(),
+                                kitchenPassword: z.string().min(6).optional(),
                                 })
 
                                 // ─── POST /api/auth/signup ──────────────────────────────────────────────────

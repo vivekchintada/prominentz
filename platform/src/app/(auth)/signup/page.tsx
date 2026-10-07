@@ -104,12 +104,24 @@ function SignupForm() {
 
   return (
     <div className={styles.pageWrapper}>
+      {/* ── Top Header Navigation ── */}
+      <header className={styles.topNav}>
+        <Link href="/" className={styles.brandLink}>
+          <span className={styles.brandMark} aria-hidden="true">R</span>
+          <span className={styles.brandName}>Resto</span>
+        </Link>
+        <Link href="/" className={styles.backHomeLink}>
+          <span>&larr;</span>
+          <span>Back to Resto</span>
+        </Link>
+      </header>
+
       <div className={styles.mainContainer}>
         {/* ── LEFT SHOWCASE: Brand Presentation & Role Overview ── */}
         <div className={styles.heroShowcase}>
           <div className={styles.brandBadge}>
             <span className={styles.badgeDot} />
-            Prominentz Platform Onboarding
+            Resto Platform Onboarding
           </div>
 
           <h1 className={styles.heroTitle}>
@@ -121,15 +133,15 @@ function SignupForm() {
             ) : (
               <>
                 Join your restaurant team{' '}
-                <span className={styles.heroTitleGradient}>with high-speed access.</span>
+                <span className={styles.heroTitleGradient}>with instant access.</span>
               </>
             )}
           </h1>
 
           <p className={styles.heroSubtitle}>
             {accountType === 'OWNER'
-              ? 'Complete cloud operating system for restaurant groups: Point-of-Sale, Kitchen Display Systems, floor tables, QR ordering, and live inventory.'
-              : 'Direct-access portal for managers, floor servers, and kitchen line cooks. Seamless order entry, bump displays, and shift management.'}
+              ? 'Complete cloud operating system for modern restaurants: Point-of-Sale, Kitchen Display Systems, live floor management, and real-time inventory.'
+              : 'Direct-access workspace for floor servers, kitchen lines, and operational managers. Seamless order entry, bump displays, and shift management.'}
           </p>
 
           {/* Onboarding Highlights Card */}
@@ -151,10 +163,10 @@ function SignupForm() {
                   </div>
                   <div className={styles.metricBox}>
                     <span className={styles.metricValue}>Clean Start</span>
-                    <span className={styles.metricLabel}>Add Your Own Menu &amp; Tables</span>
+                    <span className={styles.metricLabel}>Custom Menu &amp; Tables</span>
                   </div>
                   <div className={styles.metricBox}>
-                    <span className={styles.metricValue}>All Access</span>
+                    <span className={styles.metricValue}>Full Access</span>
                     <span className={styles.metricLabel}>FOH + BOH + HQ</span>
                   </div>
                 </>
@@ -162,7 +174,7 @@ function SignupForm() {
                 <>
                   <div className={styles.metricBox}>
                     <span className={styles.metricValue}>
-                      {staffRole === 'MANAGER' ? '👔 Ops' : staffRole === 'SERVER' ? '🛎️ Floor' : '🍳 KDS'}
+                      {staffRole === 'MANAGER' ? 'Ops' : staffRole === 'SERVER' ? 'Floor' : 'KDS'}
                     </span>
                     <span className={styles.metricLabel}>Role Assigned</span>
                   </div>
@@ -182,14 +194,22 @@ function SignupForm() {
           {/* Key Perks */}
           <div className={styles.featurePills}>
             <div className={styles.featurePill}>
-              <span>⚡</span> Real-time KDS Kitchen Pipeline
+              <span className={styles.featurePillIcon}>&check;</span>
+              <span>Full front-of-house and kitchen display sync</span>
             </div>
             <div className={styles.featurePill}>
-              <span>🔒</span> Encrypted Cloud Sessions
+              <span className={styles.featurePillIcon}>&check;</span>
+              <span>Encrypted cloud sessions with role-based access</span>
             </div>
             <div className={styles.featurePill}>
-              <span>📱</span> Mobile Handheld &amp; Tablet Ready
+              <span className={styles.featurePillIcon}>&check;</span>
+              <span>Mobile handheld and tablet responsive terminals</span>
             </div>
+          </div>
+
+          <div className={styles.testimonialCard}>
+            &ldquo;Setting up Resto took under ten minutes. The floor team was taking orders on handhelds the same evening.&rdquo;
+            <span className={styles.testimonialAuthor}>— Elena Rostova, General Manager @ Atelier Bistro</span>
           </div>
         </div>
 
@@ -198,22 +218,25 @@ function SignupForm() {
           <div className={styles.authCard}>
             <div className={styles.cardHeader}>
               <div className={styles.logoRow}>
-                <div className={styles.logoIcon}>P</div>
-                <div>
-                  <div className={styles.logoBrandName}>Prominentz</div>
-                  <span className={styles.logoBrandTag}>Account Setup</span>
+                <div className={styles.logoBadge}>
+                  <div className={styles.logoIcon}>R</div>
+                  <div>
+                    <div className={styles.logoBrandName}>Resto</div>
+                  </div>
                 </div>
+                <span className={styles.logoBrandTag}>ACCOUNT SETUP</span>
               </div>
 
               {/* Segmented Account Type Toggle */}
               <div
                 style={{
                   display: 'flex',
-                  gap: '6px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  gap: '4px',
+                  backgroundColor: '#121215',
                   padding: '4px',
-                  borderRadius: '10px',
-                  margin: '16px 0 8px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  margin: '16px 0 16px',
                 }}
               >
                 <button
@@ -222,17 +245,17 @@ function SignupForm() {
                   style={{
                     flex: 1,
                     padding: '8px 12px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: 'none',
                     fontSize: '12px',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    backgroundColor: accountType === 'OWNER' ? '#5b45f5' : 'transparent',
-                    color: accountType === 'OWNER' ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                    transition: 'all 150ms ease',
+                    backgroundColor: accountType === 'OWNER' ? '#27272a' : 'transparent',
+                    color: accountType === 'OWNER' ? '#ffffff' : '#71717a',
+                    transition: 'all 120ms ease',
                   }}
                 >
-                  👑 New Restaurant Owner
+                  Restaurant Owner
                 </button>
                 <button
                   type="button"
@@ -243,17 +266,17 @@ function SignupForm() {
                   style={{
                     flex: 1,
                     padding: '8px 12px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: 'none',
                     fontSize: '12px',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    backgroundColor: accountType === 'STAFF' ? '#5b45f5' : 'transparent',
-                    color: accountType === 'STAFF' ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                    transition: 'all 150ms ease',
+                    backgroundColor: accountType === 'STAFF' ? '#27272a' : 'transparent',
+                    color: accountType === 'STAFF' ? '#ffffff' : '#71717a',
+                    transition: 'all 120ms ease',
                   }}
                 >
-                  🔒 Staff Access Is Invite-Only
+                  Staff (Invite-Only)
                 </button>
               </div>
 
@@ -269,7 +292,7 @@ function SignupForm() {
 
             {error && (
               <div className={styles.errorBanner}>
-                <span>⚠️</span>
+                <span>&bull;</span>
                 <span>{error}</span>
               </div>
             )}
@@ -277,75 +300,62 @@ function SignupForm() {
             {createdData ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                  <div style={{ fontSize: '42px', marginBottom: '6px' }}>🎉</div>
-                  <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', margin: 0 }}>
-                    {createdData.restaurant?.name} is Ready!
+                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff', margin: '0 0 6px' }}>
+                    {createdData.restaurant?.name} is Ready
                   </h2>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '6px 0 0' }}>
+                  <p style={{ fontSize: '13px', color: '#a1a1aa', margin: 0 }}>
                     Your restaurant SaaS account and core team roles have been created with your master password:
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {/* Owner */}
                   <div style={{
                     padding: '12px 14px',
-                    borderRadius: '10px',
-                    background: 'rgba(91, 69, 245, 0.12)',
-                    border: '1px solid rgba(91, 69, 245, 0.3)',
+                    borderRadius: '8px',
+                    background: '#121215',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '14px' }}>👑</span>
-                        <span style={{ fontWeight: 700, fontSize: '13px', color: '#fff' }}>Owner & General Manager</span>
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '13px', color: '#ffffff' }}>Owner &amp; General Manager</div>
+                      <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
                         {createdData.user?.email}
                       </div>
                     </div>
-                    <span style={{ fontSize: '11px', color: '#7b68f7', fontWeight: 700 }}>
-                      Dashboard Console
+                    <span style={{ fontSize: '11px', color: '#ffffff', fontWeight: 600 }}>
+                      Dashboard
                     </span>
                   </div>
 
-                  {/* Starter Staff Accounts (Manager, Server, Kitchen) */}
+                  {/* Starter Staff Accounts */}
                   {createdData.starterAccounts?.map((acc: any) => (
                     <div
                       key={acc.role}
                       style={{
                         padding: '12px 14px',
-                        borderRadius: '10px',
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '8px',
+                        background: '#121215',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                       }}
                     >
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontSize: '14px' }}>
-                            {acc.role === 'MANAGER' ? '💼' : acc.role === 'SERVER' ? '🍽️' : '🍳'}
-                          </span>
-                          <span style={{ fontWeight: 700, fontSize: '13px', color: '#fff' }}>
-                            {acc.name}
-                          </span>
+                        <div style={{ fontWeight: 600, fontSize: '13px', color: '#ffffff' }}>
+                          {acc.name}
                         </div>
-                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>
+                        <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
                           {acc.email}
                         </div>
                       </div>
                       <span style={{
-                        fontSize: '10px',
-                        fontWeight: 800,
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(91, 69, 245, 0.15)',
-                        color: '#7b68f7',
-                        border: '1px solid rgba(91, 69, 245, 0.3)',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#a1a1aa',
                       }}>
                         {acc.portal}
                       </span>
@@ -357,21 +367,20 @@ function SignupForm() {
                   padding: '10px 14px',
                   borderRadius: '8px',
                   background: 'rgba(16, 185, 129, 0.08)',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
-                  fontSize: '11px',
-                  color: '#34d399',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  fontSize: '12px',
+                  color: '#10b981',
                   textAlign: 'center',
                 }}>
-                  🔑 All operational accounts are pre-configured with the master password you just set.
+                  All operational accounts are configured with your master password.
                 </div>
 
                 <button
                   type="button"
                   onClick={() => router.push(`/login?registered=true&portal=owner&email=${encodeURIComponent(createdData.user?.email || email)}`)}
                   className={styles.submitBtn}
-                  style={{ marginTop: '8px' }}
                 >
-                  Proceed to Owner Sign In →
+                  Proceed to Owner Sign In
                 </button>
               </div>
             ) : (
@@ -386,7 +395,7 @@ function SignupForm() {
                     <input
                       id="restaurantName"
                       type="text"
-                      className={styles.customInput}
+                      className={styles.customInputNoIcon}
                       value={restaurantName}
                       onChange={(e) => setRestaurantName(e.target.value)}
                       placeholder="e.g. Osteria Stella"
@@ -401,7 +410,7 @@ function SignupForm() {
                     <input
                       id="ownerName"
                       type="text"
-                      className={styles.customInput}
+                      className={styles.customInputNoIcon}
                       value={ownerName}
                       onChange={(e) => setOwnerName(e.target.value)}
                       placeholder="e.g. Marcus Vance"
@@ -416,7 +425,7 @@ function SignupForm() {
                     <input
                       id="locationName"
                       type="text"
-                      className={styles.customInput}
+                      className={styles.customInputNoIcon}
                       value={locationName}
                       onChange={(e) => setLocationName(e.target.value)}
                       placeholder="e.g. Downtown Flagship"
@@ -432,11 +441,11 @@ function SignupForm() {
                     <label className={styles.label} htmlFor="staffRole">
                       Your Restaurant Role *
                     </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
                       {[
-                        { id: 'SERVER', label: '🛎️ Server', desc: 'Floor & POS' },
-                        { id: 'KITCHEN', label: '🍳 Kitchen', desc: 'KDS Screens' },
-                        { id: 'MANAGER', label: '👔 Manager', desc: 'Store Ops' },
+                        { id: 'SERVER', label: 'Server', desc: 'Floor & POS' },
+                        { id: 'KITCHEN', label: 'Kitchen', desc: 'KDS Screens' },
+                        { id: 'MANAGER', label: 'Manager', desc: 'Store Ops' },
                       ].map((r) => (
                         <button
                           key={r.id}
@@ -444,16 +453,16 @@ function SignupForm() {
                           onClick={() => setStaffRole(r.id as any)}
                           style={{
                             padding: '10px 8px',
-                            borderRadius: '10px',
-                            border: staffRole === r.id ? '1.5px solid #7b68f7' : '1px solid rgba(255,255,255,0.1)',
-                            backgroundColor: staffRole === r.id ? 'rgba(91,69,245,0.2)' : 'rgba(255,255,255,0.03)',
+                            borderRadius: '8px',
+                            border: staffRole === r.id ? '1px solid #ffffff' : '1px solid rgba(255,255,255,0.08)',
+                            backgroundColor: staffRole === r.id ? '#27272a' : '#121215',
                             color: '#ffffff',
                             cursor: 'pointer',
                             textAlign: 'center',
                           }}
                         >
-                          <div style={{ fontWeight: 700, fontSize: '12px' }}>{r.label}</div>
-                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{r.desc}</div>
+                          <div style={{ fontWeight: 600, fontSize: '12px' }}>{r.label}</div>
+                          <div style={{ fontSize: '10px', color: '#71717a' }}>{r.desc}</div>
                         </button>
                       ))}
                     </div>
@@ -466,7 +475,7 @@ function SignupForm() {
                     <input
                       id="staffName"
                       type="text"
-                      className={styles.customInput}
+                      className={styles.customInputNoIcon}
                       value={staffName}
                       onChange={(e) => setStaffName(e.target.value)}
                       placeholder="e.g. Alex Taylor"
@@ -481,14 +490,14 @@ function SignupForm() {
                     <input
                       id="restaurantCode"
                       type="text"
-                      className={styles.customInput}
+                      className={styles.customInputNoIcon}
                       value={restaurantCode}
                       onChange={(e) => setRestaurantCode(e.target.value)}
                       placeholder="e.g. osteria-stella-1042 or store ID"
                       required
                     />
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '4px', display: 'block' }}>
-                      Provided by your General Manager or on your shift schedule.
+                    <span style={{ fontSize: '11px', color: '#71717a', marginTop: '4px', display: 'block' }}>
+                      Provided by your General Manager or shift schedule.
                     </span>
                   </div>
                 </>
@@ -499,16 +508,24 @@ function SignupForm() {
                 <label className={styles.label} htmlFor="email">
                   {accountType === 'OWNER' ? 'Work Email Address *' : 'Staff Email Address *'}
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  className={styles.customInput}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@restaurant.com"
-                  autoComplete="email"
-                  required
-                />
+                <div className={styles.inputContainer}>
+                  <span className={styles.inputIcon}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                  </span>
+                  <input
+                    id="email"
+                    type="email"
+                    className={styles.customInput}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@restaurant.com"
+                    autoComplete="email"
+                    required
+                  />
+                </div>
               </div>
 
               <div className={styles.inputGroup}>
@@ -518,6 +535,12 @@ function SignupForm() {
                   </label>
                 </div>
                 <div className={styles.inputContainer}>
+                  <span className={styles.inputIcon}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -532,9 +555,9 @@ function SignupForm() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className={styles.passwordToggleBtn}
-                    title={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? '👁️' : '🔒'}
+                    {showPassword ? 'Hide' : 'Show'}
                   </button>
                 </div>
               </div>
@@ -546,7 +569,7 @@ function SignupForm() {
                 <input
                   id="phone"
                   type="tel"
-                  className={styles.customInput}
+                  className={styles.customInputNoIcon}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+1 (555) 000-0000"
@@ -557,20 +580,19 @@ function SignupForm() {
               {accountType === 'OWNER' && (
                 <div style={{
                   padding: '12px 14px',
-                  borderRadius: '12px',
-                  background: 'rgba(91, 69, 245, 0.08)',
-                  border: '1px solid rgba(91, 69, 245, 0.25)',
-                  marginTop: '12px',
-                  marginBottom: '16px',
+                  borderRadius: '8px',
+                  background: '#121215',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  marginTop: '4px',
+                  marginBottom: '4px',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '15px' }}>✨</span>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#7b68f7' }}>
-                      Included Core Operational Staff
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
+                      Includes Operational Team Accounts
                     </span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.45 }}>
-                    Your restaurant automatically includes pre-configured <strong>Manager</strong>, <strong>Server</strong>, and <strong>Kitchen</strong> operational accounts using your master password so your floor, kitchen, and management teams can start immediately.
+                  <p style={{ margin: 0, fontSize: '11px', color: '#71717a', lineHeight: 1.45 }}>
+                    Your restaurant automatically configures starter <strong>Manager</strong>, <strong>Server</strong>, and <strong>Kitchen</strong> operational accounts using your master password.
                   </p>
                 </div>
               )}
@@ -579,17 +601,23 @@ function SignupForm() {
                 {loading
                   ? 'Creating Account...'
                   : accountType === 'OWNER'
-                  ? 'Launch Restaurant OS (14 Days Free) →'
-                  : `Complete ${staffRole} Registration →`}
+                  ? 'Start 14-Day Free Trial'
+                  : `Complete ${staffRole} Registration`}
               </button>
             </form>
             )}
 
             <div className={styles.footerRow}>
-              <span>Already have an account? </span>
-              <Link href="/login" className={styles.footerLink}>
-                Sign in to your portal →
-              </Link>
+              <div>
+                <span>Already have an account? </span>
+                <Link href="/login" className={styles.footerLink}>
+                  Sign in to your portal
+                </Link>
+              </div>
+
+              <div className={styles.footerSecurityNotice}>
+                Protected by Resto Role-Based Access Control
+              </div>
             </div>
           </div>
         </div>
@@ -600,7 +628,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#07090e' }} />}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000000' }} />}>
       <SignupForm />
     </Suspense>
   )

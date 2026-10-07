@@ -2,15 +2,15 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const viewport: Viewport = {
-  themeColor: '#5b45f5',
+  themeColor: '#000000',
 }
 
 export const metadata: Metadata = {
   title: {
-    default: 'Prominentz — Restaurant Operating Platform',
-    template: '%s | Prominentz',
+    default: 'Resto — The Operating System for Modern Restaurants',
+    template: '%s | Resto',
   },
-  description: 'Unified FOH + BOH Operating Platform for modern restaurants, cafes, and bars.',
+  description: 'The operating system for modern restaurants. Front-of-house, kitchen bump bars, and manager controls in one unified platform.',
   icons: {
     icon: [
       { url: '/prominentz-icon.svg', type: 'image/svg+xml' },
@@ -31,6 +31,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&display=swap"
+        />
         {/* Inline theme init — runs before first paint to avoid flash */}
         <script
           dangerouslySetInnerHTML={{
