@@ -55,23 +55,23 @@
   gap: 8px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(91,69,245,0.12);
-  border: 1px solid rgba(91,69,245,0.3);
-  color: #60a5fa;
+  background: rgba(5, 150, 105, 0.12);
+  border: 1px solid rgba(5, 150, 105, 0.3);
+  color: var(--brand-emerald, #059669);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   width: fit-content;
-  box-shadow: 0 4px 20px rgba(91,69,245,0.15);
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.15);
 }
 
 .badgeDot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #7b68f7;
-  box-shadow: 0 0 10px #7b68f7;
+  background-color: var(--brand-emerald, #059669);
+  box-shadow: 0 0 10px var(--brand-emerald, #059669);
   animation: pulseDot 2s infinite ease-in-out;
 }
 
@@ -263,14 +263,14 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #5b45f5, #7c3aed);
+  background: linear-gradient(135deg, var(--brand-emerald, #059669), #047857);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   color: #ffffff;
   font-weight: 900;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
 }
 
 .logoBrandName {
@@ -361,9 +361,9 @@
 }
 
 .customInput:focus {
-  border-color: #7b68f7;
+  border-color: var(--brand-emerald, #059669);
   background: rgba(15, 23, 42, 0.9);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
 }
 
 .customInput::placeholder {
@@ -390,7 +390,7 @@
 .submitBtn {
   width: 100%;
   height: 48px;
-  background: linear-gradient(135deg, #5b45f5 0%, #4a36d9 100%);
+  background: linear-gradient(135deg, var(--brand-emerald, #059669) 0%, #047857 100%);
   border: none;
   border-radius: 12px;
   color: #ffffff;
@@ -402,15 +402,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
   transition: all 0.18s ease;
   margin-top: 4px;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #7b68f7 0%, #5b45f5 100%);
+  background: linear-gradient(135deg, #10b981 0%, var(--brand-emerald, #059669) 100%);
   transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5);
 }
 
 .submitBtn:active:not(:disabled) {
@@ -491,8 +491,8 @@
 }
 
 .demoRoleChip:hover {
-  background: rgba(91,69,245,0.12);
-  border-color: rgba(37, 99, 235, 0.35);
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(5, 150, 105, 0.35);
   transform: translateY(-1px);
 }
 

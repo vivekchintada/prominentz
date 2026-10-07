@@ -353,15 +353,14 @@ export default function SaaSLandingClient() {
             </div>
           </div>
 
-          <div className="pricing-grid" style={{ maxWidth: '820px', margin: '0 auto' }}>
-            {/* Basic Plan — Featured */}
-            <div className="pricing-card pricing-card--featured card--glass">
-              <div className="featured-badge">MOST POPULAR · $40/MO</div>
+          <div className="pricing-grid" style={{ maxWidth: '1080px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            {/* Starter Plan */}
+            <div className="pricing-card card--glass">
               <div className="pricing-header">
-                <h4 className="pricing-title">Basic Plan</h4>
-                <p className="pricing-desc">Complete, high-speed restaurant operating foundation.</p>
+                <h4 className="pricing-title">Starter Plan</h4>
+                <p className="pricing-desc">Everything single-venue restaurants need for day-to-day operations.</p>
                 <div className="pricing-price">
-                  <span className="amount">${billingCycle === 'annual' ? '32' : '40'}</span>
+                  <span className="amount">${billingCycle === 'annual' ? '39' : '49'}</span>
                   <span className="period">/ month</span>
                 </div>
               </div>
@@ -369,17 +368,40 @@ export default function SaaSLandingClient() {
                 <li>✓ Full POS Terminal &amp; Floor Management</li>
                 <li>✓ Real-Time Kitchen Display System (KDS)</li>
                 <li>✓ Table &amp; Menu QR Code Studio (Direct-to-KDS)</li>
-                <li>✓ Table Quick Status Switcher &amp; Bill Splitter</li>
+                <li>✓ Table Status Switcher &amp; Bill Splitter</li>
                 <li>✓ Table-Side Cash &amp; Card Payments</li>
-                <li>✓ Inventory Stock &amp; Depletion Tracking</li>
+                <li>✓ Inventory Stock &amp; Recipe Depletion</li>
                 <li>✓ Staff Clock-In &amp; Shift Management</li>
                 <li>✓ End-of-Day Z-Reports &amp; Sales Analytics</li>
               </ul>
-              <div style={{ padding: '8px 12px', borderRadius: '8px', backgroundColor: 'rgba(239,68,68,0.1)', border: '0.5px solid rgba(239,68,68,0.25)', fontSize: '11px', color: 'rgba(255,255,255,0.7)', margin: '12px 0' }}>
-                <span style={{ color: '#ef4444', fontWeight: 800 }}>✕ Not in Basic:</span> Intelligence (AI Agent), Guest CRM &amp; Loyalty Rewards (in development).
+              <Link href="/pricing/starter" className="btn btn--secondary btn--full mt-6">
+                Start Free Trial
+              </Link>
+            </div>
+
+            {/* Professional Plan — Featured */}
+            <div className="pricing-card pricing-card--featured card--glass">
+              <div className="featured-badge" style={{ backgroundColor: 'var(--brand-emerald, #059669)' }}>MOST POPULAR · $129/MO</div>
+              <div className="pricing-header">
+                <h4 className="pricing-title">Professional</h4>
+                <p className="pricing-desc">Complete high-performance suite with QR ordering, CRM, and AI.</p>
+                <div className="pricing-price">
+                  <span className="amount">${billingCycle === 'annual' ? '109' : '129'}</span>
+                  <span className="period">/ month</span>
+                </div>
               </div>
-              <Link href="/pricing/starter" className="btn btn--primary btn--full mt-4">
-                Get Started with Basic ($40/mo)
+              <ul className="pricing-features">
+                <li>✓ <strong>Everything in Starter Plan</strong></li>
+                <li>✓ Multi-Location Switching &amp; Outlets</li>
+                <li>✓ RestoIQ AI Operations Assistant</li>
+                <li>✓ Guest CRM &amp; Automatic Loyalty Accrual</li>
+                <li>✓ Staff Overtime Tracking &amp; Shift Swaps</li>
+                <li>✓ UrbanPiper Delivery Aggregators (DoorDash/UberEats)</li>
+                <li>✓ Kiosk Self-Service &amp; ESC/POS Printing</li>
+                <li>✓ Advanced Profit Margins &amp; Labor Analytics</li>
+              </ul>
+              <Link href="/pricing/pro" className="btn btn--primary btn--full mt-6">
+                Get Started with Pro ($129/mo)
               </Link>
             </div>
 
@@ -387,18 +409,19 @@ export default function SaaSLandingClient() {
             <div className="pricing-card card--glass">
               <div className="pricing-header">
                 <h4 className="pricing-title">Enterprise</h4>
-                <p className="pricing-desc">For high-volume chains &amp; franchise operators.</p>
+                <p className="pricing-desc">For high-volume chains, franchisors &amp; hospitality groups.</p>
                 <div className="pricing-price">
                   <span className="amount">Custom</span>
                 </div>
               </div>
               <ul className="pricing-features">
-                <li>✓ Multi-Location HQ Hierarchy</li>
-                <li>✓ Dedicated Database Cluster</li>
-                <li>✓ Custom POS Hardware Integrations</li>
+                <li>✓ Multi-Location HQ Central Hierarchy</li>
+                <li>✓ Dedicated Database Cluster &amp; SLA</li>
+                <li>✓ Custom POS Hardware &amp; ERP Integrations</li>
                 <li>✓ High-Volume Transaction Volume SLA</li>
                 <li>✓ 24/7 Dedicated Account Manager</li>
-                <li>✓ Priority Engineering Support</li>
+                <li>✓ Custom Central Menu &amp; Recipe Matrix</li>
+                <li>✓ Priority 24/7 Engineering Support</li>
               </ul>
               <Link href="/pricing/enterprise" className="btn btn--secondary btn--full mt-6">
                 Contact Enterprise Sales
