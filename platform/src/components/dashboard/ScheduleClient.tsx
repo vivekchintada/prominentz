@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast, ToastContainer } from '../ui/Toast';
+import { ShiftSwapDrawer } from './ShiftSwapDrawer';
 
 interface ShiftNote {
     id: string;
@@ -151,6 +152,8 @@ export function ScheduleClient() {
     const [forecasts, setForecasts] = useState<Record<number, DayForecast>>({});
     const [coverageEvaluations, setCoverageEvaluations] = useState<Record<number, CoverageEvaluation[]>>({});
     const [claimingShiftId, setClaimingShiftId] = useState<string | null>(null);
+    const [isSwapDrawerOpen, setIsSwapDrawerOpen] = useState(false);
+    const [pendingSwapsCount, setPendingSwapsCount] = useState(0);
 
     // Calculate current Monday-Sunday window based on weekOffset
     const { weekDays, startDateStr, endDateStr, weekLabel } = useMemo(() => {
@@ -223,6 +226,15 @@ export function ScheduleClient() {
                     setCoverageEvaluations(cMap);
                 }
             }
+            try {
+                const swapRes = await fetch('/api/shifts/swap');
+                if (swapRes.ok) {
+                    const swapData = await swapRes.json();
+                    if (Array.isArray(swapData)) {
+                        setPendingSwapsCount(swapData.filter((t: any) => t.status?.includes('PENDING')).length);
+                    }
+                }
+            } catch {}
         } catch (err) {
             console.error('Failed to load schedule:', err);
             showToast('Failed to load weekly schedule', 'error');
@@ -629,6 +641,65 @@ export function ScheduleClient() {
                 ))}
             </div>
 
+            {/* ── Labor vs Sales Cost % Live Summary Bar ────────── */}
+            {(() => {
+                const projectedSales = 18500;
+                const laborPct = (estLaborCost / projectedSales) * 100;
+                const isOptimal = laborPct >= 24 && laborPct <= 30;
+                const isHigh = laborPct > 30;
+
+                return (
+                    <div
+                        style={{
+                            background: 'var(--color-bg-card)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--radius-xl)',
+                            padding: '14px 20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '15px' }}>📊</span>
+                                <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+                                    Labor-to-Sales Efficiency Bar
+                                </span>
+                                <span
+                                    style={{
+                                        fontSize: '11px',
+                                        fontWeight: 800,
+                                        padding: '2px 8px',
+                                        borderRadius: '6px',
+                                        background: isOptimal ? 'rgba(5, 150, 105, 0.15)' : isHigh ? 'rgba(239, 68, 68, 0.15)' : 'rgba(217, 119, 6, 0.15)',
+                                        color: isOptimal ? 'var(--brand-emerald, #059669)' : isHigh ? '#ef4444' : 'var(--brand-amber, #d97706)',
+                                    }}
+                                >
+                                    {laborPct.toFixed(1)}% of Sales ({isOptimal ? 'Optimal Range 25-30%' : isHigh ? 'Over Target >30%' : 'Under Benchmark'})
+                                </span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                                Projected Sales: ${projectedSales.toLocaleString()} · Scheduled Labor: ${estLaborCost.toFixed(0)}
+                            </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div style={{ width: '100%', height: '8px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.08)', overflow: 'hidden' }}>
+                            <div
+                                style={{
+                                    width: `${Math.min(100, (laborPct / 40) * 100)}%`,
+                                    height: '100%',
+                                    borderRadius: '4px',
+                                    background: isOptimal ? 'var(--brand-emerald, #059669)' : isHigh ? '#ef4444' : 'var(--brand-amber, #d97706)',
+                                    transition: 'width 0.3s ease',
+                                }}
+                            />
+                        </div>
+                    </div>
+                );
+            })()}
+
             {/* ── Navigation & Actions Toolbar ─────────────────────── */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -659,6 +730,26 @@ export function ScheduleClient() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => setIsSwapDrawerOpen(true)}
+                        style={{
+                            padding: '8px 14px',
+                            background: 'var(--color-bg-card)',
+                            border: pendingSwapsCount > 0 ? '1px solid var(--brand-amber, #d97706)' : '1px solid var(--color-border)',
+                            color: pendingSwapsCount > 0 ? 'var(--brand-amber, #d97706)' : 'var(--color-text-primary)',
+                            borderRadius: 'var(--radius-lg)',
+                            fontWeight: 700,
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                        }}
+                    >
+                        <span>🔄</span>
+                        <span>Shift Swaps ({pendingSwapsCount})</span>
+                    </button>
+
                     <button
                         onClick={handleExportPayroll}
                         style={{
@@ -1002,17 +1093,49 @@ export function ScheduleClient() {
                                     </td>
                                 </tr>
                             ) : (
-                                employees.map((emp) => (
-                                    <tr key={emp.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                        {/* Staff row label */}
-                                        <td style={{ padding: '12px 14px', borderRight: '1px solid var(--color-border)', background: 'var(--color-bg-card)', verticalAlign: 'top' }}>
-                                            <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--color-text-primary)' }}>
-                                                {emp.user.name || 'Staff Member'}
-                                            </div>
-                                            <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>
-                                                {emp.jobTitle || emp.user.role}
-                                            </div>
-                                        </td>
+                                employees.map((emp) => {
+                                    const empHours = shifts.filter(s => s.employeeId === emp.id).reduce((acc, s) => {
+                                        const start = new Date(s.scheduledStart).getTime();
+                                        const end = new Date(s.scheduledEnd).getTime();
+                                        return acc + Math.max(0, (end - start) / (1000 * 60 * 60));
+                                    }, 0);
+                                    const isOvertime = empHours > 40;
+                                    const weeklyCost = empHours * Number(emp.hourlyRate || 16.5);
+
+                                    return (
+                                        <tr key={emp.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                            {/* Staff row label */}
+                                            <td style={{ padding: '12px 14px', borderRight: '1px solid var(--color-border)', background: 'var(--color-bg-card)', verticalAlign: 'top' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--color-text-primary)' }}>
+                                                        {emp.user.name || 'Staff Member'}
+                                                    </div>
+                                                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
+                                                        {empHours.toFixed(1)}h
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>
+                                                    <span>{emp.jobTitle || emp.user.role}</span>
+                                                    <span>${weeklyCost.toFixed(0)}</span>
+                                                </div>
+                                                {isOvertime && (
+                                                    <span
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            marginTop: '4px',
+                                                            padding: '1px 6px',
+                                                            borderRadius: '4px',
+                                                            background: 'rgba(239, 68, 68, 0.15)',
+                                                            color: '#ef4444',
+                                                            fontSize: '10px',
+                                                            fontWeight: 800,
+                                                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                                                        }}
+                                                    >
+                                                        ⚠️ OT: +{(empHours - 40).toFixed(1)}h
+                                                    </span>
+                                                )}
+                                            </td>
 
                                         {/* 7 Days */}
                                         {weekDays.map((d, dIdx) => {
@@ -1107,8 +1230,9 @@ export function ScheduleClient() {
                                             );
                                         })}
                                     </tr>
-                                ))
-                            )}
+                                );
+                            })
+                        )}
                         </tbody>
                     </table>
                 </div>
@@ -1500,6 +1624,12 @@ export function ScheduleClient() {
                     </div>
                 </div>
             )}
+
+            <ShiftSwapDrawer
+                isOpen={isSwapDrawerOpen}
+                onClose={() => setIsSwapDrawerOpen(false)}
+                onSuccess={() => fetchScheduleData()}
+            />
         </div>
     );
 }
