@@ -32,14 +32,14 @@ function PlanCard({
     <div
       className="card card--elevated animate-fade-in"
       style={{
-        backgroundColor: isPopular ? 'rgba(91, 69, 245, 0.05)' : 'var(--color-bg-card)',
-        border: isPopular ? '2px solid #5b45f5' : '1px solid var(--color-border)',
+        backgroundColor: isPopular ? 'rgba(5, 150, 105, 0.05)' : 'var(--color-bg-card)',
+        border: isPopular ? '2px solid var(--brand-emerald, #059669)' : '1px solid var(--color-border)',
         borderRadius: '20px',
         padding: '32px 28px',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        boxShadow: isPopular ? '0 16px 40px rgba(91, 69, 245, 0.18)' : 'var(--shadow-md)',
+        boxShadow: isPopular ? '0 16px 40px rgba(5, 150, 105, 0.18)' : 'var(--shadow-md)',
       }}
     >
       {isPopular && (
@@ -48,14 +48,14 @@ function PlanCard({
             position: 'absolute',
             top: '-12px',
             right: '24px',
-            backgroundColor: '#5b45f5',
+            backgroundColor: 'var(--brand-emerald, #059669)',
             color: '#ffffff',
             fontSize: '11px',
             fontWeight: 900,
             padding: '4px 12px',
             borderRadius: '999px',
             letterSpacing: '0.04em',
-            boxShadow: '0 4px 14px rgba(91, 69, 245, 0.4)',
+            boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)',
           }}
         >
           ★ POPULAR
@@ -111,6 +111,8 @@ function PlanCard({
           ? `● Current Active Plan ($${price}/mo)`
           : tier === 'PRO'
           ? `Upgrade to Professional ($${price}/mo)`
+          : tier === 'ENTERPRISE'
+          ? `Upgrade to Enterprise ($${price}/mo)`
           : `Switch to Starter ($${price}/mo)`}
       </button>
     </div>
@@ -124,6 +126,9 @@ export function BillingManagerClient() {
   const [loadingTier, setLoadingTier] = useState<PlanTier | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponStatus, setCouponStatus] = useState<string | null>(null)
+  const [couponValidating, setCouponValidating] = useState(false)
 
   const reloadPlanInfo = async () => {
     try {
@@ -308,8 +313,8 @@ export function BillingManagerClient() {
         </div>
       </div>
 
-      {/* 2-Tier Pricing Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '28px', marginBottom: '40px' }}>
+      {/* 3-Tier Pricing Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
         <PlanCard
           tier="STARTER"
           title="Starter Plan"
@@ -321,7 +326,7 @@ export function BillingManagerClient() {
           features={[
             '1 Single Location',
             'Full POS Terminal & Order Entry',
-            'Thermal Receipt & Kitchen Printer Integration (USB, LAN & Bluetooth)',
+            'Thermal Receipt & Kitchen Printer Integration',
             'Real-Time Kitchen Display System (KDS)',
             'Table & Menu QR Code Studio (Direct-to-KDS)',
             'Up to 5 Staff User Accounts',
@@ -335,22 +340,179 @@ export function BillingManagerClient() {
           title="Professional Plan"
           price={129}
           description="The complete high-performance restaurant suite with QR ordering, CRM, and AI."
-          isCurrent={currentPlan === 'PRO' || currentPlan === 'ENTERPRISE'}
+          isCurrent={currentPlan === 'PRO'}
           isPopular={true}
           onSelect={handleSubscribe}
           loadingTier={loadingTier}
           features={[
             'Multi-Location Switching & Outlets',
-            'Automated Self-Service Kiosk & Direct-to-Printer Hub',
-            'Table & Food Menu QR Code Studio (Direct-to-KDS)',
+            'Automated Self-Service Kiosk & Print Hub',
+            'Table & Food Menu QR Code Studio',
             'Guest CRM & Automatic Loyalty Accrual',
             'Recipe Costing & Real-time Inventory Depletion',
             'UrbanPiper Aggregators (Zomato / Swiggy / DoorDash)',
-            'Deputy HR Staff Shift Scheduling & Timeclock',
-            'RestoIQ AI Conversational Analytics',
-            'POS Seat-by-Seat Split Checks & ESC/POS Printing',
+            'Staff Shift Scheduling & Timeclock Overtime',
+            'RestoIQ AI Conversational Operations Agent',
+            'Seat-by-Seat Split Checks & ESC/POS Printing',
           ]}
         />
+
+        <PlanCard
+          tier="ENTERPRISE"
+          title="Enterprise Suite"
+          price={299}
+          description="Multi-unit groups, franchisors, and high-volume venues needing bespoke scale."
+          isCurrent={currentPlan === 'ENTERPRISE'}
+          onSelect={handleSubscribe}
+          loadingTier={loadingTier}
+          features={[
+            'Unlimited Restaurant Outlets & Hubs',
+            'Dedicated Account Manager & 24/7 SLA',
+            'Custom POS / ERP Integrations & API Access',
+            'Unlimited Autonomous AI RestoIQ Audits',
+            'Central Master Menu & Master Recipe Matrix',
+            'Custom Hardware Fleet Management',
+            'Multi-Entity Consolidated Tax & Ledger',
+            'Custom Role Permissions & Security Matrix',
+          ]}
+        />
+      </div>
+
+      {/* ── Operational Add-Ons & Hardware Subscriptions ───────────── */}
+      <div style={{ marginBottom: '40px' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
+            🧩 Modular Add-Ons &amp; Extended Capabilities
+          </h3>
+          <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Expand your restaurant tech stack on demand with zero commitment
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+          {[
+            { name: 'RestoIQ AI Copilot', price: '$29/mo', desc: 'Continuous operations telemetry & autonomous inventory drafts', active: true, icon: '🧠' },
+            { name: 'Offline Sync Handhelds', price: '$19/mo', desc: 'IndexedDB background mesh sync for spotty Wi-Fi floors', active: true, icon: '📱' },
+            { name: 'Extra KDS Expo Screen', price: '$15/mo', desc: 'Add secondary expo passes or dedicated bar prep monitors', active: false, icon: '🍳' },
+            { name: 'Delivery Aggregator Hub', price: '$39/mo', desc: 'Direct two-way UrbanPiper push for DoorDash & UberEats', active: false, icon: '🛵' },
+          ].map((addon) => (
+            <div
+              key={addon.name}
+              style={{
+                padding: '18px 20px',
+                borderRadius: '14px',
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '20px' }}>{addon.icon}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 900, color: 'var(--brand-emerald, #059669)', fontFamily: 'monospace' }}>{addon.price}</span>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--color-text-primary)' }}>{addon.name}</div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '4px', lineHeight: 1.4 }}>{addon.desc}</div>
+              </div>
+              <div style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: addon.active ? 'var(--brand-emerald, #059669)' : 'var(--color-text-tertiary)' }}>
+                  {addon.active ? '● Included in Plan' : '○ Available Add-on'}
+                </span>
+                {!addon.active && (
+                  <button
+                    onClick={handleOpenPortal}
+                    className="btn btn--secondary btn--sm"
+                    style={{ fontSize: '11px', padding: '3px 8px' }}
+                  >
+                    + Add
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Promo Code & Coupon Redemption ────────────────────────── */}
+      <div
+        style={{
+          padding: '20px 24px',
+          borderRadius: '16px',
+          background: 'var(--color-bg-card)',
+          border: '1px solid var(--color-border)',
+          marginBottom: '32px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
+        <div>
+          <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🏷️</span> Have a Partner Promo or Early-Adopter Coupon?
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+            Enter your promotion code below to apply lifetime percentage or flat rate discounts to your Stripe billing account.
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            placeholder="PROMO CODE"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: 'var(--color-bg-input)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+              fontSize: '13px',
+              fontWeight: 800,
+              fontFamily: 'monospace',
+              letterSpacing: '0.05em',
+              width: '160px',
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={async () => {
+              if (!couponCode.trim()) return
+              setCouponValidating(true)
+              try {
+                const res = await fetch('/api/coupons/validate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ code: couponCode.trim(), subtotal: 129 }),
+                })
+                const data = await res.json()
+                if (data.valid) {
+                  setCouponStatus(`✅ Coupon applied: ${data.coupon?.code || couponCode} (${data.coupon?.discountType === 'PERCENT' ? `${data.coupon.discountValue}% off` : `$${data.coupon?.discountValue} discount`})`)
+                } else {
+                  setCouponStatus(`❌ ${data.message || 'Invalid or expired coupon code'}`)
+                }
+              } catch {
+                setCouponStatus('❌ Error verifying coupon')
+              } finally {
+                setCouponValidating(false)
+              }
+            }}
+            disabled={couponValidating || !couponCode.trim()}
+            className="btn btn--secondary"
+            style={{ fontSize: '12px', padding: '8px 14px' }}
+          >
+            {couponValidating ? 'Checking...' : 'Apply Code'}
+          </button>
+        </div>
+        {couponStatus && (
+          <div style={{ width: '100%', fontSize: '12px', fontWeight: 700, color: couponStatus.startsWith('✅') ? 'var(--brand-emerald, #059669)' : '#ef4444', marginTop: '4px' }}>
+            {couponStatus}
+          </div>
+        )}
       </div>
 
       {/* Footer Assurance */}
