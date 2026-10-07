@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import InvoicesTableView from './InvoicesTableView'
 
 interface PaymentItem {
@@ -169,6 +170,7 @@ export default function ReportsClient() {
   const hourlySales = data?.hourlySales || Array(24).fill(0)
   const stationPerformance = data?.stationPerformance || []
   const paymentMethods = data?.paymentMethods || []
+  const serverPerformance = data?.serverPerformance || []
 
   const chartHours = Array.from({ length: 16 }, (_, i) => i + 8)
   const maxHourlySales = Math.max(...chartHours.map((h) => hourlySales[h] || 0), 100)
@@ -206,11 +208,12 @@ export default function ReportsClient() {
               padding: '8px 16px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: activeTab === 'analytics' ? '#5b45f5' : 'transparent',
+              backgroundColor: activeTab === 'analytics' ? 'var(--brand-emerald, #059669)' : 'transparent',
               color: activeTab === 'analytics' ? '#ffffff' : 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 800,
               cursor: 'pointer',
+              transition: 'all 0.15s ease',
             }}
           >
             📈 Sales Analytics
@@ -221,11 +224,12 @@ export default function ReportsClient() {
               padding: '8px 16px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: activeTab === 'invoices' ? '#5b45f5' : 'transparent',
+              backgroundColor: activeTab === 'invoices' ? 'var(--brand-emerald, #059669)' : 'transparent',
               color: activeTab === 'invoices' ? '#ffffff' : 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 800,
               cursor: 'pointer',
+              transition: 'all 0.15s ease',
             }}
           >
             🧾 Invoices
@@ -236,11 +240,12 @@ export default function ReportsClient() {
               padding: '8px 16px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: activeTab === 'zreport' ? '#5b45f5' : 'transparent',
+              backgroundColor: activeTab === 'zreport' ? 'var(--brand-emerald, #059669)' : 'transparent',
               color: activeTab === 'zreport' ? '#ffffff' : 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 800,
               cursor: 'pointer',
+              transition: 'all 0.15s ease',
             }}
           >
             📑 End-of-Day Z-Report
@@ -482,12 +487,13 @@ export default function ReportsClient() {
                   style={{
                     padding: '6px 14px',
                     borderRadius: '8px',
-                    border: preset === p ? '1px solid #5b45f5' : '1px solid var(--color-border)',
-                    backgroundColor: preset === p ? 'rgba(91,69,245,0.15)' : 'var(--color-bg-input)',
-                    color: preset === p ? '#5b45f5' : 'var(--color-text-secondary)',
+                    border: preset === p ? '1px solid var(--brand-emerald, #059669)' : '1px solid var(--color-border)',
+                    backgroundColor: preset === p ? 'rgba(5, 150, 105, 0.15)' : 'var(--color-bg-input)',
+                    color: preset === p ? 'var(--brand-emerald, #059669)' : 'var(--color-text-secondary)',
                     fontSize: '12px',
                     fontWeight: 700,
                     cursor: 'pointer',
+                    transition: 'all 0.15s ease',
                   }}
                 >
                   {p === 'today' ? 'Today' : p === '7d' ? 'Last 7 Days' : 'Last 30 Days'}
@@ -495,7 +501,7 @@ export default function ReportsClient() {
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <input
                 type="date"
                 value={startDate}
@@ -518,9 +524,16 @@ export default function ReportsClient() {
               <button
                 onClick={handleExportCSV}
                 className="btn btn--secondary"
-                style={{ fontSize: '12px', padding: '6px 12px' }}
+                style={{ fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '5px' }}
               >
-                📥 Export CSV
+                <span>📥</span> Export CSV
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="btn btn--secondary"
+                style={{ fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '5px' }}
+              >
+                <span>🖨️</span> Print Summary
               </button>
             </div>
           </div>
@@ -584,7 +597,7 @@ export default function ReportsClient() {
                             style={{
                               width: '100%',
                               height: `${Math.max(pct, 4)}%`,
-                              backgroundColor: val > 0 ? '#5b45f5' : 'var(--color-border)',
+                              backgroundColor: val > 0 ? 'var(--brand-emerald, #059669)' : 'var(--color-border)',
                               borderRadius: '4px 4px 0 0',
                               transition: 'height 0.3s ease',
                             }}
@@ -626,6 +639,152 @@ export default function ReportsClient() {
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+
+              {/* ── Payment Methods & Tender Breakdown ──────────────── */}
+              <div className="card" style={{ padding: '24px', borderRadius: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 16px 0' }}>
+                  💳 Tender &amp; Payment Method Breakdown
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                  {paymentMethods.length === 0 ? (
+                    <div style={{ color: 'var(--color-text-tertiary)', fontSize: '13px' }}>No payment records in selected period.</div>
+                  ) : (
+                    paymentMethods.map((pm) => {
+                      const pct = s.total > 0 ? (pm.total / s.total) * 100 : 0
+                      return (
+                        <div
+                          key={pm.method}
+                          style={{
+                            padding: '14px 16px',
+                            background: 'var(--color-bg-input)',
+                            borderRadius: '12px',
+                            border: '1px solid var(--color-border)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span style={{ fontWeight: 800, fontSize: '13px', color: 'var(--color-text-primary)' }}>
+                              {pm.method}
+                            </span>
+                            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-emerald, #059669)' }}>
+                              {pct.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '18px', fontWeight: 900, fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>
+                            ${pm.total.toFixed(2)}
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>
+                            {pm.count} transactions settled
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* ── Server Performance Leaderboard ───────────────────── */}
+              <div className="card" style={{ padding: '24px', borderRadius: '16px', overflowX: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
+                      🏆 Server &amp; Staff Performance Leaderboard
+                    </h3>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                      Revenue volume, turn counts, average ticket checks, and tip earnings by staff member
+                    </p>
+                  </div>
+                </div>
+
+                {serverPerformance.length === 0 ? (
+                  <div style={{ padding: '30px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '13px' }}>
+                    No staff sales data recorded for this date range.
+                  </div>
+                ) : (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--color-border)', textAlign: 'left', color: 'var(--color-text-secondary)', fontSize: '11px', textTransform: 'uppercase' }}>
+                        <th style={{ padding: '10px 12px' }}>Staff Member</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right' }}>Orders Closed</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right' }}>Total Revenue</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right' }}>Average Check</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right' }}>Gratuity Earned</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {serverPerformance
+                        .slice()
+                        .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                        .map((sp, idx) => (
+                          <tr key={sp.name} style={{ borderBottom: '1px solid var(--color-border)', height: '44px' }}>
+                            <td style={{ padding: '10px 12px', fontWeight: 700, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: idx === 0 ? 'rgba(217,119,6,0.15)' : 'var(--color-bg-input)', color: idx === 0 ? 'var(--brand-amber, #d97706)' : 'var(--color-text-tertiary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 900 }}>
+                                {idx + 1}
+                              </span>
+                              {sp.name}
+                            </td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>
+                              {sp.ordersClosed}
+                            </td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, fontFamily: 'monospace', color: 'var(--brand-emerald, #059669)' }}>
+                              ${sp.totalRevenue.toFixed(2)}
+                            </td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600, fontFamily: 'monospace' }}>
+                              ${sp.averageCheck.toFixed(2)}
+                            </td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, fontFamily: 'monospace', color: '#10b981' }}>
+                              ${sp.totalTips.toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* ── Operational Efficiency & Variance Link ───────────── */}
+              <div
+                style={{
+                  padding: '20px 24px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(217, 119, 6, 0.05) 100%)',
+                  border: '1px solid var(--color-border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '16px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--brand-emerald, #059669)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                    ⚖️
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                      Inventory Variance &amp; Prime Cost Integrity
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+                      Cross-reference actual ingredient consumption with recipe theoretical usage to identify stock shrinkage and wastage.
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <Link
+                    href="/dashboard/inventory"
+                    className="btn btn--secondary"
+                    style={{ fontSize: '12px', padding: '8px 14px', textDecoration: 'none' }}
+                  >
+                    Audit Inventory &rarr;
+                  </Link>
+                  <Link
+                    href="/dashboard/schedule"
+                    className="btn btn--secondary"
+                    style={{ fontSize: '12px', padding: '8px 14px', textDecoration: 'none' }}
+                  >
+                    Labor Roster &rarr;
+                  </Link>
                 </div>
               </div>
             </div>
