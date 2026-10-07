@@ -173,6 +173,19 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
   const [isKitchenModalOpen, setIsKitchenModalOpen] = useState(false)
   const [kitchenTickets, setKitchenTickets] = useState<any[]>([])
   const [kitchenLoading, setKitchenLoading] = useState(false)
+  const [isOnline, setIsOnline] = useState(true)
+
+  useEffect(() => {
+    setIsOnline(typeof navigator !== 'undefined' ? navigator.onLine : true)
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   /* ── Chime Alert ────────────────────────────────────────── */
   const playChime = () => {
@@ -638,6 +651,33 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
       onSignOut={onSignOut}
       topBarRight={
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Offline Sync Queue Indicator */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              backgroundColor: isOnline ? 'rgba(5, 150, 105, 0.12)' : 'rgba(217, 119, 6, 0.15)',
+              color: isOnline ? 'var(--brand-emerald, #059669)' : 'var(--brand-amber, #d97706)',
+              border: isOnline ? '1px solid rgba(5, 150, 105, 0.25)' : '1px solid rgba(217, 119, 6, 0.3)',
+              fontSize: '12px',
+              fontWeight: 700,
+            }}
+            title={isOnline ? 'Online - All tickets and sync events real-time connected' : 'Offline - Actions queued locally and will auto-sync upon reconnection'}
+          >
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: isOnline ? 'var(--brand-emerald, #059669)' : 'var(--brand-amber, #d97706)',
+              }}
+            />
+            {isOnline ? 'Cloud Synced' : 'Offline Queue'}
+          </span>
+
           {/* Clock In Status Badge */}
           <span
             style={{
