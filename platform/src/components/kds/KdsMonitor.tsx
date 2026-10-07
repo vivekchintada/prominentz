@@ -57,14 +57,15 @@ interface KdsMonitorProps {
 }
 
 /* ── Helpers ──────────────────────────────────────────────── */
-function getElapsedTimer(createdAt: string): { mins: number; secs: number; formatted: string; isDelayed: boolean } {
+function getElapsedTimer(createdAt: string): { mins: number; secs: number; formatted: string; isDelayed: boolean; tier: 'normal' | 'warning' | 'urgent' } {
   const diffMs = Math.max(0, Date.now() - new Date(createdAt).getTime())
   const totalSecs = Math.floor(diffMs / 1000)
   const mins = Math.floor(totalSecs / 60)
   const secs = totalSecs % 60
   const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
   const isDelayed = mins >= 15
-  return { mins, secs, formatted, isDelayed }
+  const tier: 'normal' | 'warning' | 'urgent' = mins < 10 ? 'normal' : mins < 20 ? 'warning' : 'urgent'
+  return { mins, secs, formatted, isDelayed, tier }
 }
 
 function extractAllergies(ticket: KdsTicket): string[] {
@@ -1536,14 +1537,16 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   let cardBorder = '1px solid var(--border)'
                   let topBorder = 'none'
 
-                  if (isDelayed) {
-                    cardBorder = '3px solid var(--danger)'
+                  if (timer.tier === 'urgent') {
+                    cardBorder = '3px solid #ef4444'
+                  } else if (timer.tier === 'warning') {
+                    cardBorder = '2px solid #d97706'
                   } else if (isNew) {
                     topBorder = '4px solid var(--primary)'
                   } else if (isPreparing) {
-                    topBorder = '4px solid var(--warning)'
+                    topBorder = '4px solid #d97706'
                   } else if (isReady) {
-                    topBorder = '4px solid var(--success)'
+                    topBorder = '4px solid #059669'
                   }
 
                   return (
