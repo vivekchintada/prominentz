@@ -58,14 +58,13 @@ export function Breadcrumbs() {
   }
 
   // Generate crumbs with cumulative paths
-  let accumulatedPath = ''
   const crumbs = segments.map((seg, index) => {
-    accumulatedPath += `/${seg}`
+    const href = '/' + segments.slice(0, index + 1).join('/')
     const isLast = index === segments.length - 1
     const label = ROUTE_LABELS[seg] || seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, ' ')
 
     return {
-      href: accumulatedPath,
+      href,
       label,
       isLast,
     }
