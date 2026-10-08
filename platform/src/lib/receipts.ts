@@ -5,7 +5,7 @@ interface ReceiptItem {
   name:        string
   quantity:    number
   price:       number
-  modifiers:   any // json array
+  modifiers: unknown // json array
   specialNote: string | null
 }
 

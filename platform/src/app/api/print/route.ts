@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       receiptData,
       escPosBase64: base64Bytes,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/print]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

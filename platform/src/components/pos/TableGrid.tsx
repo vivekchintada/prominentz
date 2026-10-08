@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { Button } from '../ui/Button'
 
 export interface TableOrder {
   id:         string
@@ -36,8 +37,8 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
   const STATUS_COLORS = {
     EMPTY:    { bg: 'var(--color-bg-card)', border: 'var(--color-border)', text: 'var(--color-text-secondary)', dot: 'var(--color-table-empty)' },
     ACTIVE:   { bg: 'rgba(249,115,22,0.08)', border: 'var(--color-brand-500)', text: 'var(--color-text-primary)', dot: 'var(--color-table-active)' },
-    PAYING:   { bg: 'rgba(139,92,246,0.08)', border: 'var(--color-table-paying)', text: 'var(--color-text-primary)', dot: 'var(--color-table-paying)' },
-    RESERVED: { bg: 'rgba(59,130,246,0.08)', border: 'var(--color-table-reserved)', text: 'var(--color-text-primary)', dot: 'var(--color-table-reserved)' },
+    PAYING:   { bg: 'var(--brand-tint)', border: 'var(--color-table-paying)', text: 'var(--color-text-primary)', dot: 'var(--color-table-paying)' },
+    RESERVED: { bg: 'rgba(255, 255, 255, 0.08)', border: 'var(--color-table-reserved)', text: 'var(--color-text-primary)', dot: 'var(--color-table-reserved)' },
   }
 
   // Render a single table card
@@ -89,7 +90,7 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
             </span>
             <div className="flex items-center gap-2">
               {onOpenNoteModal && (
-                <button
+                <Button
                   type="button"
                   title={table.note ? `Edit note: ${table.note}` : 'Add table note'}
                   onClick={(e) => {
@@ -113,7 +114,7 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
                   }}
                 >
                   📝 {table.note ? 'Note' : '+ Note'}
-                </button>
+                </Button>
               )}
               <span
                 className="status-dot"

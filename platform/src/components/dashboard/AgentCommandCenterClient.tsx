@@ -19,7 +19,7 @@ interface ChatMessage {
   sender: 'user' | 'agent'
   text: string
   actionType?: string
-  actionData?: any
+  actionData?: unknown
   executedTools?: string[]
   actionDirectives?: Array<{
     id: string
@@ -155,7 +155,7 @@ I am continuously monitoring and managing **every operational domain** across li
       }
 
       const toolsUsed = Array.isArray(data.executedTools)
-        ? data.executedTools.map((t: any) => typeof t === 'string' ? t : t.tool)
+        ? data.executedTools.map((t: unknown) => typeof t === 'string' ? t : t.tool)
         : []
 
       const agentMsg: ChatMessage = {
@@ -175,7 +175,7 @@ I am continuously monitoring and managing **every operational domain** across li
       if (data.actionType) {
         runAuditScan()
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setMessages((prev) => [
         ...prev,
         {
@@ -363,7 +363,7 @@ I am continuously monitoring and managing **every operational domain** across li
           {/* Console Header */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--color-bg-card)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #a855f7, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-raised)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
                 🧠
               </div>
               <div>

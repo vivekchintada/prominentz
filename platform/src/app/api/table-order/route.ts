@@ -12,7 +12,7 @@ interface TableOrderPayload {
       items: Array<{
           menuItemId: string
               quantity: number
-                  modifiers?: any
+                  modifiers?: unknown
                       specialNote?: string
                         }>
                           guestName?: string

@@ -43,11 +43,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   let restaurantName = 'My Restaurant'
 
   try {
-    let restaurantId: string | undefined = session?.user?.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst()
-      restaurantId = fb?.id
-    }
+    const restaurantId: string | undefined = session?.user?.restaurantId
     if (restaurantId) {
       const restaurant = await prisma.restaurant.findUnique({
         where: { id: restaurantId },

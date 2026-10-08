@@ -136,8 +136,8 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
         setCart([])
         setShowCartDrawer(false)
       }
-    } catch (err: any) {
-      alert(err?.message || 'Error submitting order')
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error submitting order')
     } finally {
       setSubmittingOrder(false)
     }
@@ -158,7 +158,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#0a0a0c', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#5b45f5', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <div style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Loading Digital Food Menu...</div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -178,7 +178,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
           <div style={{ backgroundColor: '#1b1b22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', marginBottom: '24px', textAlign: 'left' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>Dining Table:</span>
-              <span style={{ fontSize: '14px', fontWeight: 800, color: '#5b45f5' }}>{orderSuccess.tableName}</span>
+              <span style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff' }}>{orderSuccess.tableName}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>Status:</span>
@@ -194,7 +194,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
 
           <button
             onClick={() => setOrderSuccess(null)}
-            style={{ width: '100%', padding: '14px', backgroundColor: '#5b45f5', color: '#ffffff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: 'pointer' }}
+            style={{ width: '100%', padding: '14px', backgroundColor: 'var(--color-bg-card)', color: '#000000', border: '1px solid #ffffff', borderRadius: '12px', fontSize: '15px', fontWeight: 700, cursor: 'pointer' }}
           >
             ➕ Order More Food &amp; Drinks
           </button>
@@ -210,10 +210,10 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Prominentz
+              <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
+                Resto
               </span>
-              <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(91,69,245,0.15)', color: '#5b45f5', border: '1px solid rgba(91,69,245,0.3)' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.12)' }}>
                 📱 DINE-IN DIGITAL MENU
               </span>
             </div>
@@ -224,12 +224,12 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
 
           <button
             onClick={() => setShowCartDrawer(true)}
-            style={{ position: 'relative', padding: '8px 14px', backgroundColor: '#5b45f5', border: 'none', borderRadius: '10px', color: '#ffffff', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            style={{ position: 'relative', padding: '8px 14px', backgroundColor: 'var(--color-bg-card)', border: '1px solid #ffffff', borderRadius: '8px', color: '#000000', fontWeight: 700, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <span>🛒</span>
             <span>Check</span>
             {totalItemCount > 0 && (
-              <span style={{ backgroundColor: '#ffffff', color: '#5b45f5', borderRadius: '999px', padding: '1px 7px', fontSize: '11px', fontWeight: 900 }}>
+              <span style={{ backgroundColor: '#000000', color: '#ffffff', borderRadius: '999px', padding: '1px 7px', fontSize: '11px', fontWeight: 800 }}>
                 {totalItemCount}
               </span>
             )}
@@ -282,9 +282,9 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
             style={{
               padding: '6px 14px',
               borderRadius: '999px',
-              border: activeCategoryId === 'ALL' ? '1px solid #5b45f5' : '1px solid rgba(255,255,255,0.1)',
-              backgroundColor: activeCategoryId === 'ALL' ? 'rgba(37,99,235,0.2)' : '#16161c',
-              color: activeCategoryId === 'ALL' ? '#5b45f5' : 'rgba(255,255,255,0.7)',
+              border: activeCategoryId === 'ALL' ? '1px solid #ffffff' : '1px solid rgba(255,255,255,0.1)',
+              backgroundColor: activeCategoryId === 'ALL' ? '#ffffff' : '#16161c',
+              color: activeCategoryId === 'ALL' ? '#000000' : 'rgba(255,255,255,0.7)',
               fontSize: '12px',
               fontWeight: 700,
               cursor: 'pointer',
@@ -300,9 +300,9 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
               style={{
                 padding: '6px 14px',
                 borderRadius: '999px',
-                border: activeCategoryId === cat.id ? '1px solid #5b45f5' : '1px solid rgba(255,255,255,0.1)',
-                backgroundColor: activeCategoryId === cat.id ? 'rgba(37,99,235,0.2)' : '#16161c',
-                color: activeCategoryId === cat.id ? '#5b45f5' : 'rgba(255,255,255,0.7)',
+                border: activeCategoryId === cat.id ? '1px solid #ffffff' : '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: activeCategoryId === cat.id ? '#ffffff' : '#16161c',
+                color: activeCategoryId === cat.id ? '#000000' : 'rgba(255,255,255,0.7)',
                 fontSize: '12px',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -369,20 +369,20 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
                           onClick={() => addToCart(item)}
                           style={{
                             padding: '8px 16px',
-                            backgroundColor: '#5b45f5',
-                            border: 'none',
-                            borderRadius: '10px',
-                            color: '#ffffff',
-                            fontWeight: 800,
+                            backgroundColor: 'var(--color-bg-card)',
+                            border: '1px solid #ffffff',
+                            borderRadius: '8px',
+                            color: '#000000',
+                            fontWeight: 700,
                             fontSize: '13px',
                             cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(37,99,235,0.25)',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                           }}
                         >
                           + Add
                         </button>
                         {cartEntry && (
-                          <span style={{ fontSize: '11px', color: '#5b45f5', fontWeight: 700, marginTop: '6px' }}>
+                          <span style={{ fontSize: '11px', color: '#a1a1aa', fontWeight: 600, marginTop: '6px' }}>
                             {cartEntry.quantity} in check
                           </span>
                         )}
@@ -402,23 +402,24 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
           <div
             onClick={() => setShowCartDrawer(true)}
             style={{
-              backgroundColor: '#5b45f5',
-              borderRadius: '16px',
+              backgroundColor: 'var(--color-bg-card)',
+              borderRadius: '12px',
               padding: '14px 20px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               cursor: 'pointer',
-              boxShadow: '0 10px 30px rgba(37,99,235,0.4)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ backgroundColor: '#ffffff', color: '#5b45f5', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '13px' }}>
+              <span style={{ backgroundColor: '#000000', color: '#ffffff', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px' }}>
                 {totalItemCount}
               </span>
-              <span style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff' }}>View Table Check</span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>View Table Check</span>
             </div>
-            <div style={{ fontSize: '17px', fontWeight: 900, color: '#ffffff', fontFamily: 'monospace' }}>
+            <div style={{ fontSize: '16px', fontWeight: 800, color: '#000000', fontFamily: 'monospace' }}>
               ${total.toFixed(2)} →
             </div>
           </div>
@@ -452,7 +453,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <button onClick={() => updateQuantity(item.menuItem.id, -1)} style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#272730', border: 'none', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>-</button>
                     <span style={{ fontSize: '14px', fontWeight: 800, width: '20px', textAlign: 'center' }}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.menuItem.id, 1)} style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#5b45f5', border: 'none', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>+</button>
+                    <button onClick={() => updateQuantity(item.menuItem.id, 1)} style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: 'var(--color-bg-card)', border: '1px solid #ffffff', color: '#000000', fontWeight: 700, cursor: 'pointer' }}>+</button>
                   </div>
                 </div>
               ))}
@@ -518,12 +519,12 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
                 style={{
                   width: '100%',
                   padding: '14px',
-                  backgroundColor: '#5b45f5',
-                  border: 'none',
+                  backgroundColor: 'var(--color-bg-card)',
+                  border: '1px solid #ffffff',
                   borderRadius: '12px',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  fontWeight: 800,
+                  color: '#000000',
+                  fontSize: '15px',
+                  fontWeight: 700,
                   cursor: 'pointer',
                   opacity: submittingOrder || cart.length === 0 ? 0.6 : 1,
                   display: 'flex',

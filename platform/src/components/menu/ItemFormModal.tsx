@@ -30,7 +30,7 @@ export interface MenuItemData {
   isVeg?: boolean
   kdsStation?: 'HOT' | 'COLD' | 'BAR' | 'EXPO'
   isAvailable?: boolean
-  modifiers?: any[]
+  modifiers?: unknown[]
 }
 
 interface ItemFormModalProps {
@@ -102,9 +102,9 @@ export default function ItemFormModal({
       // Map modifiers to variations if any
       const existingVars: { id?: string; name: string; priceAdjustment: number }[] = []
       if (initialItem.modifiers && initialItem.modifiers.length > 0) {
-        initialItem.modifiers.forEach((m: any) => {
+        initialItem.modifiers.forEach((m: unknown) => {
           if (m.options) {
-            m.options.forEach((opt: any) => {
+            m.options.forEach((opt: unknown) => {
               existingVars.push({
                 id: opt.id,
                 name: opt.name,
@@ -143,7 +143,7 @@ export default function ItemFormModal({
     setVariations((prev) => prev.filter((_, i) => i !== idx))
   }
 
-  const handleVariationChange = (idx: number, field: 'name' | 'priceAdjustment', val: any) => {
+  const handleVariationChange = (idx: number, field: 'name' | 'priceAdjustment', val: unknown) => {
     setVariations((prev) => {
       const next = [...prev]
       next[idx] = { ...next[idx], [field]: val }
@@ -208,7 +208,7 @@ export default function ItemFormModal({
       if (showToast) showToast('Item saved successfully!', 'success')
       onSave()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
       alert(err.message || 'Error saving item')
     } finally {
@@ -233,7 +233,7 @@ export default function ItemFormModal({
     >
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 16,
           width: '100%',
           maxWidth: 700,
@@ -249,13 +249,13 @@ export default function ItemFormModal({
         <div
           style={{
             padding: '18px 24px',
-            borderBottom: '1px solid #e2e8f0',
+            borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
             {initialItem ? 'Edit Item' : 'New Item'}
           </h2>
           <button
@@ -278,7 +278,7 @@ export default function ItemFormModal({
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
             {/* 1. Item Image Section */}
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8 }}>
                 Item Image <span style={{ color: '#ef4444' }}>*</span>
               </label>
 
@@ -290,7 +290,7 @@ export default function ItemFormModal({
                     height: 110,
                     borderRadius: 12,
                     border: '1px dashed #cbd5e1',
-                    background: '#f8fafc',
+                    background: 'var(--color-bg-card-hover)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -329,13 +329,13 @@ export default function ItemFormModal({
                         width: 36,
                         height: 36,
                         borderRadius: 8,
-                        border: '1px solid #e2e8f0',
-                        background: '#ffffff',
+                        border: '1px solid var(--color-border)',
+                        background: 'var(--color-bg-card)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        color: '#475569',
+                        color: 'var(--color-text-secondary)',
                       }}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -372,7 +372,7 @@ export default function ItemFormModal({
 
             {/* 2. Item Name */}
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 6 }}>
                 Item Name <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
@@ -385,17 +385,17 @@ export default function ItemFormModal({
                   width: '100%',
                   padding: '10px 14px',
                   borderRadius: 8,
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--color-border)',
                   fontSize: 14,
                   outline: 'none',
-                  color: '#0f172a',
+                  color: 'var(--color-text-primary)',
                 }}
               />
             </div>
 
             {/* 3. Description */}
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 6 }}>
                 Description <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <textarea
@@ -407,10 +407,10 @@ export default function ItemFormModal({
                   width: '100%',
                   padding: '10px 14px',
                   borderRadius: 8,
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--color-border)',
                   fontSize: 13,
                   outline: 'none',
-                  color: '#0f172a',
+                  color: 'var(--color-text-primary)',
                   resize: 'vertical',
                 }}
               />
@@ -422,7 +422,7 @@ export default function ItemFormModal({
             {/* 4. Price and Net Price (2 columns) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 6 }}>
                   Price <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -438,17 +438,17 @@ export default function ItemFormModal({
                       width: '100%',
                       padding: '10px 14px 10px 28px',
                       borderRadius: 8,
-                      border: '1px solid #e2e8f0',
+                      border: '1px solid var(--color-border)',
                       fontSize: 14,
                       outline: 'none',
-                      color: '#0f172a',
+                      color: 'var(--color-text-primary)',
                     }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 6 }}>
                   Net Price <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -463,10 +463,10 @@ export default function ItemFormModal({
                       width: '100%',
                       padding: '10px 14px 10px 28px',
                       borderRadius: 8,
-                      border: '1px solid #e2e8f0',
+                      border: '1px solid var(--color-border)',
                       fontSize: 14,
                       outline: 'none',
-                      color: '#0f172a',
+                      color: 'var(--color-text-primary)',
                     }}
                   />
                 </div>
@@ -476,7 +476,7 @@ export default function ItemFormModal({
             {/* 5. Category & Tax (2 columns) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 6 }}>
                   Category <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
@@ -486,11 +486,11 @@ export default function ItemFormModal({
                     width: '100%',
                     padding: '10px 14px',
                     borderRadius: 8,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--color-border)',
                     fontSize: 14,
                     outline: 'none',
-                    color: '#0f172a',
-                    background: '#ffffff',
+                    color: 'var(--color-text-primary)',
+                    background: 'var(--color-bg-card)',
                     cursor: 'pointer',
                   }}
                 >
@@ -502,7 +502,7 @@ export default function ItemFormModal({
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 6 }}>
                   Tax <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
@@ -512,11 +512,11 @@ export default function ItemFormModal({
                     width: '100%',
                     padding: '10px 14px',
                     borderRadius: 8,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--color-border)',
                     fontSize: 14,
                     outline: 'none',
-                    color: '#0f172a',
-                    background: '#ffffff',
+                    color: 'var(--color-text-primary)',
+                    background: 'var(--color-bg-card)',
                     cursor: 'pointer',
                   }}
                 >
@@ -530,7 +530,7 @@ export default function ItemFormModal({
 
             {/* Dietary Preference: Veg / Non-Veg */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Dietary Type:</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>Dietary Type:</span>
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, color: '#16a34a', fontWeight: 600 }}>
                 <input
                   type="radio"
@@ -552,12 +552,12 @@ export default function ItemFormModal({
             </div>
 
             {/* 6. Accordion 1: Variations */}
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden' }}>
               <div
                 onClick={() => setIsVariationsOpen(!isVariationsOpen)}
                 style={{
                   padding: '14px 18px',
-                  background: '#f8fafc',
+                  background: 'var(--color-bg-card-hover)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -565,12 +565,12 @@ export default function ItemFormModal({
                   userSelect: 'none',
                 }}
               >
-                <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Variations</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-primary)' }}>Variations</span>
                 <span style={{ fontSize: 14, color: '#64748b' }}>{isVariationsOpen ? '▲' : '▼'}</span>
               </div>
 
               {isVariationsOpen && (
-                <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12, background: '#ffffff' }}>
+                <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12, background: 'var(--color-bg-card)' }}>
                   {variations.length === 0 ? (
                     <p style={{ margin: 0, fontSize: 13, color: '#94a3b8' }}>No variations added yet.</p>
                   ) : (
@@ -634,7 +634,7 @@ export default function ItemFormModal({
                       gap: 6,
                       background: '#eff6ff',
                       border: '1px solid #bfdbfe',
-                      color: '#5b45f5',
+                      color: 'var(--brand)',
                       borderRadius: 8,
                       padding: '7px 14px',
                       fontSize: 13,
@@ -650,12 +650,12 @@ export default function ItemFormModal({
             </div>
 
             {/* 7. Accordion 2: Add Ons */}
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden' }}>
               <div
                 onClick={() => setIsAddonsOpen(!isAddonsOpen)}
                 style={{
                   padding: '14px 18px',
-                  background: '#f8fafc',
+                  background: 'var(--color-bg-card-hover)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -663,12 +663,12 @@ export default function ItemFormModal({
                   userSelect: 'none',
                 }}
               >
-                <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Add Ons</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-primary)' }}>Add Ons</span>
                 <span style={{ fontSize: 14, color: '#64748b' }}>{isAddonsOpen ? '▲' : '▼'}</span>
               </div>
 
               {isAddonsOpen && (
-                <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10, background: '#ffffff' }}>
+                <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10, background: 'var(--color-bg-card)' }}>
                   {availableAddons.length === 0 ? (
                     <p style={{ margin: 0, fontSize: 13, color: '#94a3b8' }}>No add-ons created yet. Add them in the Addons tab.</p>
                   ) : (
@@ -684,7 +684,7 @@ export default function ItemFormModal({
                               justifyContent: 'space-between',
                               padding: '8px 12px',
                               borderRadius: 8,
-                              border: checked ? '1px solid #5b45f5' : '1px solid #e2e8f0',
+                              border: checked ? '1px solid var(--brand)' : '1px solid #e2e8f0',
                               background: checked ? '#eff6ff' : '#ffffff',
                               cursor: 'pointer',
                             }}
@@ -695,9 +695,9 @@ export default function ItemFormModal({
                                 checked={checked}
                                 onChange={() => toggleAddon(addon.id)}
                               />
-                              <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{addon.name}</span>
+                              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>{addon.name}</span>
                             </div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#5b45f5' }}>+${Number(addon.price).toFixed(2)}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand)' }}>+${Number(addon.price).toFixed(2)}</span>
                           </label>
                         )
                       })}
@@ -712,12 +712,12 @@ export default function ItemFormModal({
           <div
             style={{
               padding: '16px 24px',
-              borderTop: '1px solid #e2e8f0',
+              borderTop: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
               gap: 12,
-              background: '#f8fafc',
+              background: 'var(--color-bg-card-hover)',
             }}
           >
             <button
@@ -725,12 +725,12 @@ export default function ItemFormModal({
               onClick={onClose}
               style={{
                 padding: '9px 18px',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 8,
                 fontSize: 14,
                 fontWeight: 600,
-                color: '#475569',
+                color: 'var(--color-text-secondary)',
                 cursor: 'pointer',
               }}
             >
@@ -741,7 +741,7 @@ export default function ItemFormModal({
               disabled={isSaving}
               style={{
                 padding: '9px 24px',
-                background: '#5b45f5',
+                background: 'var(--brand)',
                 border: 'none',
                 borderRadius: 8,
                 fontSize: 14,

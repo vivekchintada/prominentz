@@ -32,7 +32,7 @@ export async function PATCH(
       where: { userId: session.user.id },
     })
 
-    let updatedTrade: any = null
+    let updatedTrade: unknown = null
 
     if (action === 'ACCEPT_PEER') {
       // Coworker accepts open/offered shift trade -> moves to PENDING_MANAGER

@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ campaign, eligibleRecipients: eligible.length }, { status: 201 })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[POST /api/campaigns]', err)
     return NextResponse.json({ error: err?.message || 'Failed to create campaign' }, { status: 500 })
   }

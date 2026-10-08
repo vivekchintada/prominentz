@@ -24,7 +24,7 @@ export interface MenuItemData {
   imageUrl?: string | null
   isAvailable: boolean
   category?: { id: string; name: string }
-  modifiers?: any[]
+  modifiers?: unknown[]
   isTrending?: boolean
   isMustTry?: boolean
   isVeg?: boolean
@@ -44,7 +44,7 @@ export interface CartItem {
   price: number
   quantity: number
   portion?: string
-  modifiers: any[]
+  modifiers: unknown[]
   specialNote?: string | null
   imageUrl: string
   isVeg?: boolean
@@ -72,7 +72,7 @@ export interface TableData {
   name: string
   capacity: number
   status: 'EMPTY' | 'ACTIVE' | 'PAYING' | 'RESERVED'
-  orders?: any[]
+  orders?: unknown[]
 }
 
 interface DreamsPosTerminalProps {
@@ -191,7 +191,7 @@ export function DreamsPosTerminal({
       } else {
         showToast(data.error || 'Failed to update timeclock', 'error')
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e?.message || 'Failed to connect to timeclock', 'error')
     } finally {
       setClockLoading(false)
@@ -206,7 +206,7 @@ export function DreamsPosTerminal({
   const [sentItems, setSentItems] = useState<CartItem[]>([])
 
   // Shared helper: map raw API order → RecentOrderCardData
-  const mapOrderToCard = (o: any): RecentOrderCardData => {
+  const mapOrderToCard = (o: unknown): RecentOrderCardData => {
     const date = new Date(o.createdAt)
     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     const n = (o.notes || '').toLowerCase()
@@ -278,7 +278,7 @@ export function DreamsPosTerminal({
       const order = await res.json()
       setStatementOrder(order)
       setIsStatementModalOpen(true)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error opening statement', 'error')
     }
   }
@@ -334,18 +334,18 @@ export function DreamsPosTerminal({
       const sent: CartItem[] = []
 
       // Defensive items list: use order.items if present, or extract from KDS tickets
-      const itemsList: any[] =
+      const itemsList: unknown[] =
         order.items && order.items.length > 0
           ? order.items
-          : (order.tickets || []).flatMap((t: any) =>
-              (t.items || []).map((ti: any) => ({
+          : (order.tickets || []).flatMap((t: unknown) =>
+              (t.items || []).map((ti: unknown) => ({
                 ...ti,
                 status: ti.status || 'READY',
                 menuItem: ti.menuItem,
               }))
             )
 
-      itemsList.forEach((item: any) => {
+      itemsList.forEach((item: unknown) => {
         const dishName = item.menuItem?.name || item.name || 'Dish'
         const ci: CartItem = {
           id: item.id,
@@ -415,7 +415,7 @@ export function DreamsPosTerminal({
         setAppliedCoupon(null)
       }
       setCouponInput('')
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading order', 'error')
     }
   }
@@ -430,7 +430,7 @@ export function DreamsPosTerminal({
       const res = await fetch(`/api/orders?tableId=${t.id}`)
       if (res.ok) {
         const orders = await res.json()
-        const active = orders.find((o: any) => o.status !== 'PAID' && o.status !== 'VOIDED')
+        const active = orders.find((o: unknown) => o.status !== 'PAID' && o.status !== 'VOIDED')
         if (active) {
           await loadOrderIntoCheck(active.id)
           showToast(`Loaded active order for ${t.name}`, 'success')
@@ -473,7 +473,7 @@ export function DreamsPosTerminal({
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setAvailableCoupons(data.filter((c: any) => c.status === 'ACTIVE'))
+          setAvailableCoupons(data.filter((c: unknown) => c.status === 'ACTIVE'))
         }
       })
       .catch(() => {})
@@ -543,7 +543,7 @@ export function DreamsPosTerminal({
 
     const eventSource = new EventSource('/api/events')
 
-    eventSource.addEventListener('ticket.status.updated', async (e: any) => {
+    eventSource.addEventListener('ticket.status.updated', async (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (data.status === 'READY') {
@@ -562,7 +562,7 @@ export function DreamsPosTerminal({
       }
     })
 
-    eventSource.addEventListener('order.modified', async (e: any) => {
+    eventSource.addEventListener('order.modified', async (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         fetchRecentOrders()
@@ -576,7 +576,7 @@ export function DreamsPosTerminal({
       } catch {}
     })
 
-    eventSource.addEventListener('payment.processed', async (e: any) => {
+    eventSource.addEventListener('payment.processed', async (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         fetchRecentOrders()
@@ -594,7 +594,7 @@ export function DreamsPosTerminal({
       } catch {}
     })
 
-    eventSource.addEventListener('table.assistance.requested', async (e: any) => {
+    eventSource.addEventListener('table.assistance.requested', async (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         const desc = data.type === 'REQUEST_BILL' ? '🧾 requested their bill' : `🔔 needs assistance (${data.type})`
@@ -602,7 +602,7 @@ export function DreamsPosTerminal({
       } catch {}
     })
 
-    eventSource.addEventListener('ticket.completed', async (e: any) => {
+    eventSource.addEventListener('ticket.completed', async (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         fetchRecentOrders()
@@ -694,7 +694,7 @@ export function DreamsPosTerminal({
       setSuggestedCoupons([])
       setShowCouponPicker(false)
       showToast(data.message || `Coupon ${data.coupon.code} applied! -$${disc.toFixed(2)}`, 'success')
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Failed to apply coupon', 'error')
     } finally {
       setCouponLoading(false)
@@ -874,7 +874,7 @@ export function DreamsPosTerminal({
         showToast(`Kitchen send failed: ${errData.error || sendRes.statusText}`, 'error')
         return
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message || 'Error sending order to kitchen', 'error')
     }
   }
@@ -935,7 +935,7 @@ export function DreamsPosTerminal({
           showToast(`Direct WebUSB connected: ${device.productName || 'ESC/POS Printer'}`, 'success')
           setPrinterTesting(false)
           return
-        } catch (e: any) {
+        } catch (e: unknown) {
           console.warn('[WebUSB] fallback to print dialog:', e.message)
         }
       }
@@ -982,7 +982,7 @@ export function DreamsPosTerminal({
         printWin.document.close()
         showToast('Test receipt dispatched to thermal spooler!', 'success')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Print error', 'error')
     } finally {
       setPrinterTesting(false)
@@ -1019,7 +1019,7 @@ export function DreamsPosTerminal({
           >
             <ProminentzLogo variant="full" size="sm" />
             {currentUser.role === 'SERVER' && (
-              <span style={{ fontSize: '10px', background: 'rgba(59,130,246,0.15)', color: '#60a5fa', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 800 }}>
+              <span style={{ fontSize: '10px', background: 'rgba(255, 255, 255, 0.08)', color: '#60a5fa', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 800 }}>
                 SERVER
               </span>
             )}
@@ -1155,7 +1155,8 @@ export function DreamsPosTerminal({
                 width: 34,
                 height: 34,
                 borderRadius: '50%',
-                background: '#5b45f5',
+                background: '#18181B',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
                 color: '#fff',
                 fontWeight: 800,
                 fontSize: 12,
@@ -1272,7 +1273,7 @@ export function DreamsPosTerminal({
                   {filteredOpenOrders.map((ro) => {
                     const statusColor =
                       ro.timerLabel.includes('Ready') ? '#16a34a' :
-                      ro.timerLabel.includes('Kitchen') ? '#f97316' : '#6366f1'
+                      ro.timerLabel.includes('Kitchen') ? '#f97316' : 'var(--color-text-primary)'
                     const isLoaded = activeOrderId === ro.id
                     return (
                       <div
@@ -1282,8 +1283,8 @@ export function DreamsPosTerminal({
                         title="Click to load into billing check drawer"
                         style={{
                           cursor: 'pointer',
-                          borderColor: isLoaded ? '#5b45f5' : `${statusColor}55`,
-                          background: isLoaded ? 'rgba(37,99,235,0.06)' : 'var(--color-bg-card)',
+                          borderColor: isLoaded ? 'var(--brand)' : `${statusColor}55`,
+                          background: isLoaded ? 'rgba(0,0,0,0.04)' : 'var(--color-bg-card)',
                         }}
                       >
                         <div className="dream-order-pill-top">
@@ -1297,8 +1298,8 @@ export function DreamsPosTerminal({
                           </div>
                           <span style={{
                             fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
-                            background: ro.type === 'Take Away' ? 'rgba(234,179,8,0.15)' : ro.type === 'Delivery' ? 'rgba(139,92,246,0.15)' : 'rgba(91,69,245,0.12)',
-                            color: ro.type === 'Take Away' ? '#b45309' : ro.type === 'Delivery' ? '#7c3aed' : '#5b45f5',
+                            background: ro.type === 'Take Away' ? 'rgba(234,179,8,0.15)' : ro.type === 'Delivery' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0,0,0,0.06)',
+                            color: ro.type === 'Take Away' ? '#b45309' : ro.type === 'Delivery' ? '#2563eb' : 'var(--brand)',
                           }}>
                             {ro.type === 'Delivery' && '🚚 Delivery'}
                             {ro.type === 'Take Away' && '🛍️ Take Away'}
@@ -1311,7 +1312,7 @@ export function DreamsPosTerminal({
                             <h4 style={{ margin: 0, fontSize: 13, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                               {ro.customerName}
                             </h4>
-                            <span style={{ fontSize: 11, color: '#5b45f5', marginTop: 2, display: 'block', fontWeight: 600 }}>
+                            <span style={{ fontSize: 11, color: 'var(--brand)', marginTop: 2, display: 'block', fontWeight: 600 }}>
                               {isLoaded ? '✅ Loaded in Billing' : '💳 Click to Bill'}
                             </span>
                           </div>
@@ -1401,9 +1402,9 @@ export function DreamsPosTerminal({
                     fontSize: 12,
                     fontWeight: 700,
                     borderRadius: 8,
-                    border: '1px solid #5b45f5',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    color: '#5b45f5',
+                    border: '1px solid var(--brand)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    color: 'var(--brand)',
                     cursor: 'pointer',
                   }}
                   title="Upload dish photo and add custom menu item"
@@ -1721,10 +1722,10 @@ export function DreamsPosTerminal({
                   style={{
                     padding: '0 8px',
                     borderRadius: '8px',
-                    border: '1px solid var(--color-border)',
-                    backgroundColor: '#5b45f5',
+                    border: '1px solid #18181B',
+                    backgroundColor: '#18181B',
                     color: '#ffffff',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: 'pointer',
                   }}
                 >
@@ -1771,7 +1772,7 @@ export function DreamsPosTerminal({
                         onClick={() => openOrderStatement(activeOrderId!)}
                         style={{
                           flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #22c55e',
-                          backgroundColor: '#ffffff', color: '#16a34a', fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                          backgroundColor: 'var(--color-bg-card)', color: '#16a34a', fontWeight: 700, fontSize: 12, cursor: 'pointer',
                         }}
                       >
                         📄 View Statement / Receipt
@@ -1807,17 +1808,17 @@ export function DreamsPosTerminal({
                 ) : sentItems.every((i) => i.status === 'READY' || i.status === 'SERVED') ? (
                   <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8,
-                    padding: '8px 12px', background: 'rgba(59, 130, 246, 0.12)', borderRadius: 8,
-                    border: '1px solid #7b68f7',
+                    padding: '8px 12px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: 8,
+                    border: '1px solid var(--color-text-primary)',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 16 }}>🔔</span>
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: '#5b45f5' }}>Dishes Ready at Pass</div>
-                        <div style={{ fontSize: 10, color: '#4a36d9' }}>Kitchen finished cooking · Deliver to table</div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--brand)' }}>Dishes Ready at Pass</div>
+                        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>Kitchen finished cooking · Deliver to table</div>
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: '#7b68f7', color: '#fff' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: 'var(--brand)', color: '#fff' }}>
                       🔔 READY
                     </span>
                   </div>
@@ -1844,7 +1845,7 @@ export function DreamsPosTerminal({
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 12px', marginBottom: 6,
                     background: 'var(--color-bg-raised)', borderRadius: 8,
-                    borderLeft: `3px solid ${item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? '#5b45f5' : '#f59e0b'}`,
+                    borderLeft: `3px solid ${item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? 'var(--brand)' : '#f59e0b'}`,
                     opacity: 0.95,
                   }}>
                     <Image
@@ -1871,8 +1872,8 @@ export function DreamsPosTerminal({
                         fontWeight: 800,
                         padding: '1px 6px',
                         borderRadius: 4,
-                        background: item.status === 'SERVED' ? 'rgba(34, 197, 94, 0.15)' : item.status === 'READY' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                        color: item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? '#5b45f5' : '#d97706',
+                        background: item.status === 'SERVED' ? 'rgba(34, 197, 94, 0.15)' : item.status === 'READY' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(245, 158, 11, 0.15)',
+                        color: item.status === 'SERVED' ? '#16a34a' : item.status === 'READY' ? 'var(--brand)' : '#d97706',
                       }}>
                         {item.status === 'SERVED' ? '🍽️ Served' : item.status === 'READY' ? '🔔 Ready' : '🍳 Cooking'}
                       </span>
@@ -2023,8 +2024,8 @@ export function DreamsPosTerminal({
                           fontSize: 12,
                           fontWeight: 700,
                           borderRadius: 6,
-                          border: 'none',
-                          background: '#5b45f5',
+                          border: '1px solid #18181B',
+                          background: '#18181B',
                           color: '#fff',
                           cursor: couponLoading || !couponInput.trim() ? 'not-allowed' : 'pointer',
                           opacity: couponLoading || !couponInput.trim() ? 0.6 : 1,
@@ -2075,7 +2076,7 @@ export function DreamsPosTerminal({
                               🏷️ Available Active Coupons:
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                              {suggestedCoupons.map((c: any) => (
+                              {suggestedCoupons.map((c: unknown) => (
                                 <button
                                   key={c.id || c.code}
                                   type="button"
@@ -2083,7 +2084,7 @@ export function DreamsPosTerminal({
                                   style={{
                                     cursor: 'pointer',
                                     padding: '3px 8px',
-                                    background: '#ffffff',
+                                    background: 'var(--color-bg-card)',
                                     border: '1px solid #dc2626',
                                     borderRadius: 4,
                                     color: '#dc2626',
@@ -2109,7 +2110,7 @@ export function DreamsPosTerminal({
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: '#5b45f5',
+                            color: 'var(--brand)',
                             fontSize: 10,
                             fontWeight: 600,
                             cursor: 'pointer',
@@ -2127,15 +2128,15 @@ export function DreamsPosTerminal({
                         style={{
                           marginTop: 6,
                           padding: 6,
-                          background: '#ffffff',
+                          background: 'var(--color-bg-card)',
                           borderRadius: 6,
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--color-border)',
                           display: 'flex',
                           flexWrap: 'wrap',
                           gap: 4,
                         }}
                       >
-                        {availableCoupons.map((c: any) => (
+                        {availableCoupons.map((c: unknown) => (
                           <button
                             key={c.id || c.code}
                             type="button"
@@ -2143,10 +2144,10 @@ export function DreamsPosTerminal({
                             style={{
                               cursor: 'pointer',
                               padding: '2px 6px',
-                              background: 'rgba(91, 69, 245, 0.08)',
-                              border: '1px solid #5b45f5',
+                              background: 'rgba(0, 0, 0, 0.05)',
+                              border: '1px solid var(--brand)',
                               borderRadius: 4,
-                              color: '#5b45f5',
+                              color: 'var(--brand)',
                               fontSize: 10,
                               fontWeight: 700,
                             }}
@@ -2212,7 +2213,7 @@ export function DreamsPosTerminal({
               </div>
               <div className="dream-pay-total-row">
                 <span>{activeOrderStatus === 'PAID' ? 'Total Paid (Settled)' : 'Amount to be Paid'}</span>
-                <span style={{ color: activeOrderStatus === 'PAID' ? '#16a34a' : '#5b45f5' }}>
+                <span style={{ color: activeOrderStatus === 'PAID' ? '#16a34a' : 'var(--color-text-primary)' }}>
                   ${total.toFixed(2)}
                 </span>
               </div>
@@ -2247,10 +2248,10 @@ export function DreamsPosTerminal({
                     flex: 1,
                     padding: '12px 14px',
                     borderRadius: 10,
-                    border: 'none',
-                    background: '#5b45f5',
+                    border: '1px solid #18181B',
+                    background: '#18181B',
                     color: '#ffffff',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     fontSize: 13,
                     cursor: 'pointer',
                     display: 'flex',
@@ -2392,8 +2393,8 @@ export function DreamsPosTerminal({
             setIsModifierOpen(false)
             setSelectedMenuItem(null)
           }}
-          onConfirm={(mods: any[]) => {
-            const extraDelta = mods.reduce((sum: number, m: any) => sum + m.priceDelta, 0)
+          onConfirm={(mods: unknown[]) => {
+            const extraDelta = mods.reduce((sum: number, m: unknown) => sum + m.priceDelta, 0)
             setCart((prev) => [
               ...prev,
               {
@@ -2402,7 +2403,7 @@ export function DreamsPosTerminal({
                 name: selectedMenuItem.name,
                 price: selectedMenuItem.price + extraDelta,
                 quantity: 1,
-                portion: mods.length > 0 ? mods.map((m: any) => m.optionName).join(', ') : 'Custom',
+                portion: mods.length > 0 ? mods.map((m: unknown) => m.optionName).join(', ') : 'Custom',
                 modifiers: mods,
                 specialNote: null,
                 imageUrl: selectedMenuItem.imageUrl || getImageForDish(selectedMenuItem.name),
@@ -2472,11 +2473,11 @@ export function DreamsPosTerminal({
                 style={{
                   flex: 1,
                   padding: '10px',
-                  backgroundColor: '#5b45f5',
+                  backgroundColor: '#18181B',
                   color: '#fff',
-                  border: 'none',
+                  border: '1px solid #18181B',
                   borderRadius: 8,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
@@ -2549,7 +2550,7 @@ export function DreamsPosTerminal({
                   }}
                   style={{
                     backgroundColor: selectedTable?.id === t.id ? 'rgba(37, 99, 235, 0.1)' : 'var(--color-bg)',
-                    border: `1.5px solid ${selectedTable?.id === t.id ? '#5b45f5' : 'var(--color-border)'}`,
+                    border: `1.5px solid ${selectedTable?.id === t.id ? 'var(--brand)' : 'var(--color-border)'}`,
                     borderRadius: 'var(--radius-lg)',
                     padding: '16px',
                     display: 'flex',
@@ -2572,8 +2573,8 @@ export function DreamsPosTerminal({
                       fontWeight: 700,
                       padding: '2px 8px',
                       borderRadius: 12,
-                      backgroundColor: t.status === 'ACTIVE' ? 'rgba(91,69,245,0.15)' : 'rgba(34, 197, 94, 0.15)',
-                      color: t.status === 'ACTIVE' ? '#5b45f5' : '#16a34a',
+                      backgroundColor: t.status === 'ACTIVE' ? 'rgba(24, 24, 27, 0.08)' : 'rgba(34, 197, 94, 0.15)',
+                      color: t.status === 'ACTIVE' ? 'var(--brand)' : '#16a34a',
                     }}
                   >
                     {t.status === 'ACTIVE' ? 'Occupied' : 'Available'}
@@ -2602,8 +2603,8 @@ export function DreamsPosTerminal({
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
-              color: '#0f172a',
+              backgroundColor: 'var(--color-bg-card)',
+              color: 'var(--color-text-primary)',
               borderRadius: 'var(--radius-xl)',
               padding: 24,
               width: '90%',
@@ -2660,11 +2661,11 @@ export function DreamsPosTerminal({
                 style={{
                   flex: 1,
                   padding: '10px',
-                  backgroundColor: '#5b45f5',
+                  backgroundColor: '#18181B',
                   color: '#fff',
-                  border: 'none',
+                  border: '1px solid #18181B',
                   borderRadius: 8,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
@@ -2675,7 +2676,7 @@ export function DreamsPosTerminal({
                 style={{
                   padding: '10px 16px',
                   backgroundColor: '#e2e8f0',
-                  color: '#0f172a',
+                  color: 'var(--color-text-primary)',
                   border: 'none',
                   borderRadius: 8,
                   fontWeight: 700,
@@ -2751,7 +2752,7 @@ export function DreamsPosTerminal({
               if (res.ok) {
                 const freshItems = await res.json()
                 setMenuItems(
-                  freshItems.map((m: any, idx: number) => ({
+                  freshItems.map((m: unknown, idx: number) => ({
                     id: m.id,
                     categoryId: m.categoryId,
                     name: m.name,
@@ -2862,7 +2863,7 @@ export function DreamsPosTerminal({
                   fontSize: '12px',
                   fontWeight: 700,
                   cursor: 'pointer',
-                  backgroundColor: printFormat === 'RECEIPT' ? '#5b45f5' : '#272732',
+                  backgroundColor: printFormat === 'RECEIPT' ? '#18181B' : '#272732',
                   color: '#fff',
                 }}
               >
@@ -2892,7 +2893,7 @@ export function DreamsPosTerminal({
                 id="resto-thermal-ticket"
                 style={{
                   width: '300px',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--color-bg-card)',
                   color: '#000000',
                   fontFamily: '"Courier New", Courier, monospace',
                   fontSize: '12px',
@@ -2929,7 +2930,7 @@ export function DreamsPosTerminal({
                         </div>
                         {item.modifiers && item.modifiers.length > 0 && (
                           <div style={{ fontSize: '10px', color: '#555', paddingLeft: '14px' }}>
-                            + {item.modifiers.map((m: any) => typeof m === 'string' ? m : m.name).join(', ')}
+                            + {item.modifiers.map((m: unknown) => typeof m === 'string' ? m : m.name).join(', ')}
                           </div>
                         )}
                         {item.specialNote && (
@@ -2987,7 +2988,7 @@ export function DreamsPosTerminal({
                         </div>
                         {item.modifiers && item.modifiers.length > 0 && (
                           <div style={{ fontSize: '11px', fontWeight: 'bold', paddingLeft: '12px', color: '#333' }}>
-                            + {item.modifiers.map((m: any) => typeof m === 'string' ? m : m.name).join(', ')}
+                            + {item.modifiers.map((m: unknown) => typeof m === 'string' ? m : m.name).join(', ')}
                           </div>
                         )}
                         {item.specialNote && (
@@ -3017,7 +3018,7 @@ export function DreamsPosTerminal({
               <button
                 onClick={() => window.print()}
                 className="btn btn--primary"
-                style={{ flex: 2, padding: '12px', fontWeight: 900, background: printFormat === 'RECEIPT' ? '#5b45f5' : '#f59e0b', color: printFormat === 'KOT' ? '#000' : '#fff' }}
+                style={{ flex: 2, padding: '12px', fontWeight: 700, background: printFormat === 'RECEIPT' ? '#18181B' : '#b45309', color: '#fff', border: '1px solid #18181B' }}
               >
                 🖨️ Print Now (80mm)
               </button>
@@ -3073,7 +3074,7 @@ export function DreamsPosTerminal({
                     width: '38px',
                     height: '38px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(91, 69, 245, 0.15)',
+                    backgroundColor: 'var(--brand-tint)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -3126,8 +3127,8 @@ export function DreamsPosTerminal({
                       style={{
                         padding: '10px 8px',
                         borderRadius: '10px',
-                        border: hardwarePrinterMode === mode.id ? '2px solid #5b45f5' : '1px solid rgba(255, 255, 255, 0.08)',
-                        backgroundColor: hardwarePrinterMode === mode.id ? 'rgba(91, 69, 245, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                        border: hardwarePrinterMode === mode.id ? '2px solid #ffffff' : '1px solid rgba(255, 255, 255, 0.08)',
+                        backgroundColor: hardwarePrinterMode === mode.id ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.03)',
                         color: hardwarePrinterMode === mode.id ? '#fff' : 'rgba(255, 255, 255, 0.7)',
                         cursor: 'pointer',
                         textAlign: 'center',
@@ -3258,7 +3259,7 @@ export function DreamsPosTerminal({
                     type="checkbox"
                     checked={autoKickDrawer}
                     onChange={(e) => setAutoKickDrawer(e.target.checked)}
-                    style={{ width: '18px', height: '18px', accentColor: '#5b45f5', cursor: 'pointer' }}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--brand)', cursor: 'pointer' }}
                   />
                 </label>
               </div>
@@ -3412,7 +3413,7 @@ export function DreamsPosTerminal({
                     const next = prompt('Enter new opening float amount ($):', openingFloat.toString())
                     if (next && !isNaN(parseFloat(next))) setOpeningFloat(parseFloat(next))
                   }}
-                  style={{ background: 'none', border: 'none', color: '#7b68f7', fontSize: '11px', cursor: 'pointer', padding: 0, marginTop: '4px', textDecoration: 'underline' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', fontSize: '11px', cursor: 'pointer', padding: 0, marginTop: '4px', textDecoration: 'underline' }}
                 >
                   Adjust Float
                 </button>
@@ -3487,11 +3488,11 @@ export function DreamsPosTerminal({
                   backgroundColor:
                     Math.abs(parseFloat(countedCash) - (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0))) < 0.01
                       ? 'rgba(16,185,129,0.15)'
-                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)'),
+                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(239,68,68,0.15)'),
                   border:
                     Math.abs(parseFloat(countedCash) - (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0))) < 0.01
                       ? '1px solid #10b981'
-                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? '1px solid #7b68f7' : '1px solid #ef4444'),
+                      : (parseFloat(countedCash) > (openingFloat + recentOrders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (o.total || 0), 0)) ? '1px solid var(--color-text-primary)' : '1px solid #ef4444'),
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',

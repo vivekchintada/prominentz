@@ -790,7 +790,7 @@ export function MainDashboardClient({
               <span className="dream-kpi-badge dream-kpi-badge--down">{stats.avgGrowth}</span>
             </div>
             <span className="dream-kpi-label">Average Value</span>
-            <span className="dream-kpi-drilldown-hint" style={{ color: '#8b5cf6' }}>View Details & Breakdown →</span>
+            <span className="dream-kpi-drilldown-hint" style={{ color: 'var(--color-text-secondary)' }}>View Details & Breakdown →</span>
           </div>
           <div className="dream-kpi-icon dream-kpi-icon--average">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -852,7 +852,7 @@ export function MainDashboardClient({
               </div>
             </div>
             <div className="dream-rev-legend">
-              <span style={{ width: 12, height: 12, borderRadius: 2, background: '#7b68f7', display: 'inline-block' }} />
+              <span style={{ width: 12, height: 12, borderRadius: 2, background: 'var(--color-text-primary)', display: 'inline-block' }} />
               Revenue
             </div>
           </div>
@@ -1007,7 +1007,7 @@ export function MainDashboardClient({
           {/* Ranked List of other sold items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 4 }}>
             {filteredRanked.slice(0, 4).map((dish, i) => {
-              const colors = ['#7b68f7', '#f59e0b', '#10b981', '#a855f7']
+              const colors = ['var(--color-text-primary)', 'var(--color-text-secondary)', 'var(--color-text-tertiary)', 'var(--color-border-strong)']
               const color = colors[i % colors.length]
               const maxQty = mostOrdered ? Math.max(mostOrdered.ordersCount, 1) : 20
               const barWidth = Math.max(Math.round((dish.ordersCount / maxQty) * 100), 20)
@@ -1136,8 +1136,8 @@ export function MainDashboardClient({
             <svg viewBox="0 0 300 120" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
               <defs>
                 <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#7b68f7" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#7b68f7" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="var(--color-text-primary)" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="var(--color-text-primary)" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               <path
@@ -1147,7 +1147,7 @@ export function MainDashboardClient({
               <path
                 d="M 0 85 C 40 85, 60 95, 90 80 C 130 60, 160 80, 200 60 C 230 45, 260 70, 280 20 L 300 15"
                 fill="none"
-                stroke="#7b68f7"
+                stroke="var(--color-text-primary)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -1199,7 +1199,7 @@ export function MainDashboardClient({
             </button>
             <Link
               href="/dashboard/team"
-              style={{ fontSize: 12, fontWeight: 700, color: '#5b45f5', textDecoration: 'none' }}
+              style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand)', textDecoration: 'none' }}
             >
               Manage Staff & Shifts →
             </Link>
@@ -1237,8 +1237,8 @@ export function MainDashboardClient({
             {clockedInStaff.map((member) => {
               const isServer = member.role === 'SERVER'
               const isKitchen = member.role === 'KITCHEN'
-              const roleBadgeBg = isServer ? 'rgba(91,69,245,0.12)' : isKitchen ? 'rgba(249,115,22,0.12)' : 'rgba(168,85,247,0.12)'
-              const roleBadgeColor = isServer ? '#5b45f5' : isKitchen ? '#ea580c' : '#9333ea'
+              const roleBadgeBg = isServer ? 'var(--brand-tint)' : isKitchen ? 'rgba(249,115,22,0.12)' : 'rgba(168,85,247,0.12)'
+              const roleBadgeColor = isServer ? 'var(--brand)' : isKitchen ? '#ea580c' : '#9333ea'
 
               return (
                 <div
@@ -1257,9 +1257,8 @@ export function MainDashboardClient({
                     style={{
                       width: 40,
                       height: 40,
-                      borderRadius: '50%',
-                      background: isServer ? 'linear-gradient(135deg, #5b45f5, #4a36d9)' : isKitchen ? 'linear-gradient(135deg, #f97316, #c2410c)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-                      color: '#ffffff',
+                      background: '#18181B',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1370,7 +1369,7 @@ export function MainDashboardClient({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 13, color: '#5b45f5' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 13, color: 'var(--brand)' }}>
                 <span>🔄</span>
                 <span>Shift Swap Approval Queue ({pendingTrades.length} Pending)</span>
               </div>
@@ -1504,7 +1503,7 @@ export function MainDashboardClient({
             <div className="dream-card-title">
               <span>🪑</span> Tables Available
             </div>
-            <Link href="/dashboard/tables" style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-brand-600, #5b45f5)', textDecoration: 'none' }}>
+            <Link href="/dashboard/tables" style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-brand-600, var(--brand))', textDecoration: 'none' }}>
               View All Floor Plan →
             </Link>
           </div>
@@ -1623,13 +1622,14 @@ export function MainDashboardClient({
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 18,
               width: '100%',
               maxWidth: 460,
               padding: 24,
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              color: '#0f172a',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              color: 'var(--color-text-primary)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1637,7 +1637,7 @@ export function MainDashboardClient({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h3 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: '#0f172a' }}>
+                  <h3 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                     {selectedDashboardTable.name}
                   </h3>
                   <span
@@ -1832,9 +1832,9 @@ export function MainDashboardClient({
                     onClick={() => handleClearTable(selectedDashboardTable.id)}
                     style={{
                       padding: '10px',
-                      backgroundColor: '#ffffff',
-                      color: '#64748b',
-                      border: '1px solid #cbd5e1',
+                      backgroundColor: 'var(--color-bg-card-hover)',
+                      color: 'var(--color-text-secondary)',
+                      border: '1px solid var(--color-border)',
                       borderRadius: 10,
                       fontWeight: 600,
                       fontSize: 13,
@@ -1854,7 +1854,7 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 8,
                       padding: '11px',
-                      backgroundColor: '#5b45f5',
+                      backgroundColor: 'var(--brand)',
                       color: '#ffffff',
                       borderRadius: 10,
                       fontWeight: 700,
@@ -1872,9 +1872,9 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 8,
                       padding: '10px',
-                      backgroundColor: '#ffffff',
-                      color: '#334155',
-                      border: '1px solid #cbd5e1',
+                      backgroundColor: 'var(--color-bg-card-hover)',
+                      color: 'var(--color-text-secondary)',
+                      border: '1px solid var(--color-border)',
                       borderRadius: 10,
                       fontWeight: 600,
                       fontSize: 13,
@@ -1891,7 +1891,7 @@ export function MainDashboardClient({
                 style={{
                   fontSize: 12,
                   textAlign: 'center',
-                  color: '#5b45f5',
+                  color: 'var(--brand)',
                   fontWeight: 600,
                   textDecoration: 'none',
                   marginTop: 4,
@@ -2072,7 +2072,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>In Kitchen / Live</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#5b45f5', marginTop: 4 }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand)', marginTop: 4 }}>
                           {kpiData.orders.statusCounts.open + kpiData.orders.statusCounts.sentToKitchen + kpiData.orders.statusCounts.ready}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Active tickets</div>
@@ -2103,9 +2103,9 @@ export function MainDashboardClient({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           {[
                             { label: 'Paid & Completed', count: kpiData.orders.statusCounts.paid, color: '#16a34a' },
-                            { label: 'Sent to Kitchen', count: kpiData.orders.statusCounts.sentToKitchen, color: '#5b45f5' },
+                            { label: 'Sent to Kitchen', count: kpiData.orders.statusCounts.sentToKitchen, color: 'var(--brand)' },
                             { label: 'Open / Unsent', count: kpiData.orders.statusCounts.open, color: '#f59e0b' },
-                            { label: 'Ready for Service', count: kpiData.orders.statusCounts.ready, color: '#8b5cf6' },
+                            { label: 'Ready for Service', count: kpiData.orders.statusCounts.ready, color: 'var(--color-text-secondary)' },
                             { label: 'Voided', count: kpiData.orders.statusCounts.voided, color: '#dc2626' },
                           ].map((s) => {
                             const pct = kpiData.orders.totalCount > 0 ? Math.round((s.count / kpiData.orders.totalCount) * 100) : 0
@@ -2131,7 +2131,7 @@ export function MainDashboardClient({
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                           {[
-                            { label: 'POS Terminal & Dine-In', count: kpiData.orders.channelCounts.pos, icon: '🖥️', color: '#5b45f5' },
+                            { label: 'POS Terminal & Dine-In', count: kpiData.orders.channelCounts.pos, icon: '🖥️', color: 'var(--brand)' },
                             { label: 'QR Self-Order Tabletop', count: kpiData.orders.channelCounts.qrTable, icon: '📱', color: '#10b981' },
                             { label: 'Delivery Apps (DoorDash/Uber)', count: kpiData.orders.channelCounts.delivery, icon: '🛵', color: '#f59e0b' },
                           ].map((c) => {
@@ -2193,8 +2193,8 @@ export function MainDashboardClient({
                                         borderRadius: 6,
                                         fontSize: 10,
                                         fontWeight: 800,
-                                        background: o.status === 'PAID' ? 'rgba(34, 197, 94, 0.15)' : o.status === 'SENT_TO_KITCHEN' ? 'rgba(91,69,245,0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                        color: o.status === 'PAID' ? '#16a34a' : o.status === 'SENT_TO_KITCHEN' ? '#5b45f5' : '#d97706',
+                                        background: o.status === 'PAID' ? 'rgba(34, 197, 94, 0.15)' : o.status === 'SENT_TO_KITCHEN' ? 'var(--brand-tint)' : 'rgba(245, 158, 11, 0.15)',
+                                        color: o.status === 'PAID' ? '#16a34a' : o.status === 'SENT_TO_KITCHEN' ? 'var(--brand)' : '#d97706',
                                       }}
                                     >
                                       {o.status}
@@ -2231,12 +2231,12 @@ export function MainDashboardClient({
                         style={{
                           padding: '9px 18px',
                           borderRadius: 10,
-                          background: '#5b45f5',
+                          background: 'var(--brand)',
                           color: '#ffffff',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',
-                          boxShadow: '0 4px 12px rgba(91,69,245,0.3)',
+                          boxShadow: '0 4px 12px var(--brand-tint)',
                         }}
                       >
                         📦 Open Live Orders Workspace →
@@ -2276,7 +2276,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Tips & Gratuity</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#8b5cf6', marginTop: 4 }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                           ${kpiData.sales.totalTips.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Staff tips pool</div>
@@ -2292,7 +2292,7 @@ export function MainDashboardClient({
                       {/* Multi-segment bar */}
                       <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: 14, background: 'var(--color-border)' }}>
                         {kpiData.sales.paymentMethods.map((pm, idx) => {
-                          const colors = ['#5b45f5', '#16a34a', '#8b5cf6', '#f59e0b']
+                          const colors = ['var(--brand)', '#16a34a', 'var(--color-text-secondary)', '#f59e0b']
                           return (
                             <div
                               key={pm.method}
@@ -2310,7 +2310,7 @@ export function MainDashboardClient({
                       {/* Method Cards */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                         {kpiData.sales.paymentMethods.map((pm, idx) => {
-                          const colors = ['#5b45f5', '#16a34a', '#8b5cf6', '#f59e0b']
+                          const colors = ['var(--brand)', '#16a34a', 'var(--color-text-secondary)', '#f59e0b']
                           return (
                             <div
                               key={pm.method}
@@ -2361,7 +2361,7 @@ export function MainDashboardClient({
                         </div>
                         <div style={{ padding: '10px 12px', background: 'var(--color-bg-card)', borderRadius: 10, border: '1px solid var(--color-border)' }}>
                           <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Digital Payment Ratio</span>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: '#5b45f5', marginTop: 2 }}>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--brand)', marginTop: 2 }}>
                             78.0% Non-Cash
                           </div>
                         </div>
@@ -2411,7 +2411,7 @@ export function MainDashboardClient({
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Average Order Value</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#8b5cf6', marginTop: 4 }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                           ${kpiData.aov.avgOrderValue.toFixed(2)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Per completed transaction</div>
@@ -2449,7 +2449,7 @@ export function MainDashboardClient({
                       </h4>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                         {kpiData.aov.tierDistribution.map((t, idx) => {
-                          const tierColors = ['#06b6d4', '#7b68f7', '#8b5cf6', '#ec4899']
+                          const tierColors = ['var(--color-text-primary)', 'var(--color-text-secondary)', 'var(--color-text-tertiary)', 'var(--color-text-primary)']
                           return (
                             <div
                               key={t.label}
@@ -2528,12 +2528,12 @@ export function MainDashboardClient({
                         style={{
                           padding: '9px 18px',
                           borderRadius: 10,
-                          background: '#8b5cf6',
+                          background: 'var(--color-text-secondary)',
                           color: '#ffffff',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',
-                          boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+                          boxShadow: '0 4px 12px var(--brand-tint)',
                         }}
                       >
                         📊 Analyze Ticket Sizing in Reports →
@@ -2561,7 +2561,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Currently Seated</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#5b45f5', marginTop: 4 }}>{kpiData.reservations.statusCounts.seated}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand)', marginTop: 4 }}>{kpiData.reservations.statusCounts.seated}</div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Dining right now</div>
                       </div>
 
@@ -2611,8 +2611,8 @@ export function MainDashboardClient({
                                       borderRadius: 6,
                                       fontSize: 10,
                                       fontWeight: 800,
-                                      background: r.status === 'Booked' || r.status === 'CONFIRMED' ? 'rgba(34, 197, 94, 0.15)' : r.status === 'Seated' || r.status === 'SEATED' ? 'rgba(91,69,245,0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                      color: r.status === 'Booked' || r.status === 'CONFIRMED' ? '#16a34a' : r.status === 'Seated' || r.status === 'SEATED' ? '#5b45f5' : '#d97706',
+                                      background: r.status === 'Booked' || r.status === 'CONFIRMED' ? 'rgba(34, 197, 94, 0.15)' : r.status === 'Seated' || r.status === 'SEATED' ? 'var(--brand-tint)' : 'rgba(245, 158, 11, 0.15)',
+                                      color: r.status === 'Booked' || r.status === 'CONFIRMED' ? '#16a34a' : r.status === 'Seated' || r.status === 'SEATED' ? 'var(--brand)' : '#d97706',
                                     }}
                                   >
                                     {r.status}

@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json(entries)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/waitlist]', error)
     return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
   }
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     return NextResponse.json(entry, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/waitlist]', error)
     return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
   }

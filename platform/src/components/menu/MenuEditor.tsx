@@ -24,7 +24,7 @@ interface MenuItem {
   kdsStation:   'HOT' | 'COLD' | 'BAR' | 'EXPO'
   displayOrder: number
   category:     { id: string; name: string }
-  modifiers:    any[]
+  modifiers: unknown[]
 }
 
 export default function MenuEditor() {
@@ -64,7 +64,7 @@ export default function MenuEditor() {
       } else {
         setSelectedCategoryId('')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading categories', 'error')
     } finally {
       setLoadingCategories(false)
@@ -83,7 +83,7 @@ export default function MenuEditor() {
       if (!res.ok) throw new Error('Failed to load items')
       const data = await res.json()
       setItems(data)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading menu items', 'error')
     } finally {
       setLoadingItems(false)
@@ -131,7 +131,7 @@ export default function MenuEditor() {
       setNewCategoryName('')
       await fetchCategories()
       setSelectedCategoryId(newCat.id)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error creating category', 'error')
     } finally {
       setIsCreatingCategory(false)
@@ -156,7 +156,7 @@ export default function MenuEditor() {
       showToast('Category name updated', 'success')
       setEditingCategoryId(null)
       fetchCategories()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating category', 'error')
     }
   }
@@ -182,7 +182,7 @@ export default function MenuEditor() {
       if (selectedCategoryId === id) {
         setSelectedCategoryId(remains[0]?.id ?? '')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error deleting category', 'error')
     }
   }
@@ -234,7 +234,7 @@ export default function MenuEditor() {
 
       showToast(`Item "${name}" deleted`, 'success')
       fetchItems(selectedCategoryId)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error deleting item', 'error')
     }
   }

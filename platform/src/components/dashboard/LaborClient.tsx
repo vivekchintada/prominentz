@@ -172,7 +172,7 @@ export default function LaborClient() {
           <div className={styles.kpiIcon}>📊</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Labor / Sales %</span>
-            <span className={styles.kpiValue} style={{ color: '#5b45f5' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--brand)' }}>
               {loading ? '—' : `${(summary?.laborPercent ?? 0).toFixed(1)}%`}
             </span>
             <span className={styles.kpiSubtext}>{money(summary?.sales ?? 0)} net sales</span>
@@ -183,7 +183,7 @@ export default function LaborClient() {
           <div className={styles.kpiIcon}>⚡</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Sales / Labor Hr</span>
-            <span className={styles.kpiValue} style={{ color: '#a855f7' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--color-text-primary)' }}>
               {loading ? '—' : money(summary?.salesPerLaborHour ?? 0)}
             </span>
             <span className={styles.kpiSubtext}>{(summary?.overtimeHours ?? 0).toFixed(1)} overtime hours</span>
@@ -314,7 +314,7 @@ export default function LaborClient() {
                   <tr key={e.id}>
                     <td>
                       <div className={styles.empCell}>
-                        <div className={styles.avatar} style={{ background: isApproved ? '#5b45f5' : '#f59e0b' }}>
+                        <div className={styles.avatar} style={{ background: isApproved ? 'var(--brand)' : '#f59e0b' }}>
                           {(e.employee.user.name ?? e.employee.user.email).charAt(0).toUpperCase()}
                         </div>
                         <div>

@@ -35,7 +35,7 @@ export default function PosError({
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             onClick={reset}
-            style={{ height: 44, padding: '0 28px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #5b45f5, #7b68f7)', color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+            style={{ height: 44, padding: '0 28px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, var(--brand), var(--color-text-primary))', color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
           >
             Reload POS
           </button>

@@ -18,7 +18,7 @@ export default async function InvoicesPage() {
   if (!session?.user) redirect('/login')
 
   return (
-    <div style={{ padding: '24px 32px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ padding: '24px 32px', backgroundColor: 'var(--color-bg)', minHeight: '100vh' }}>
       <InvoicesTableView />
     </div>
   )

@@ -115,7 +115,7 @@ export async function POST(
     } catch {}
 
     return NextResponse.json({ success: true, message: `Staff member ${target.user.name} has been suspended.` })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/staff/:membershipId/suspend]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

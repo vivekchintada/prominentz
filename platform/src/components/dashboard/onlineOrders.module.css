@@ -224,9 +224,9 @@
 }
 
 .pillPickup {
-  background: rgba(91,69,245,0.15);
+  background: var(--brand-tint);
   color: var(--brand-light);
-  border: 0.5px solid rgba(91,69,245,0.3);
+  border: 0.5px solid var(--brand-tint);
 }
 
 .pillDelivery {
@@ -236,9 +236,9 @@
 }
 
 .pillDineIn {
-  background: rgba(191, 90, 242, 0.15);
-  color: #BF5AF2;
-  border: 0.5px solid rgba(191, 90, 242, 0.3);
+  background: var(--surface-raised);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border);
 }
 
 .customerName {

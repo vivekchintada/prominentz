@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
     try {
       event = stripe.webhooks.constructEvent(Buffer.from(rawBody), signature, webhookSecret)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[Stripe Webhook] Signature verification failed:', err.message)
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 })
     }
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       } else {
         event = JSON.parse(Buffer.from(rawBody).toString('utf-8'))
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[Stripe Webhook] Dev parsing failed:', err.message)
       return NextResponse.json({ error: 'Webhook parsing failed' }, { status: 400 })
     }

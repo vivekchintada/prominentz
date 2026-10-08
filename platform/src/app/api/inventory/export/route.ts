@@ -9,7 +9,10 @@ function toCsvRow(fields: (string | number | null | undefined)[]): string {
   return fields
     .map((val) => {
       if (val === null || val === undefined) return '""'
-      const str = String(val).replace(/"/g, '""')
+      let str = String(val).replace(/"/g, '""')
+      if (/^[=+\-@\t\r]/.test(str)) {
+        str = `'${str}`
+      }
       return `"${str}"`
     })
     .join(',')
@@ -31,7 +34,7 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get('type') || 'stock'
 
     let csvContent = ''
-    let filename = `inventory-${type}-${new Date().toISOString().slice(0, 10)}.csv`
+    const filename = `inventory-${type}-${new Date().toISOString().slice(0, 10)}.csv`
 
     if (type === 'stock') {
       const items = await prisma.inventoryItem.findMany({

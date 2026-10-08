@@ -241,7 +241,7 @@ interface SidebarNavProps {
 
 export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: SidebarNavProps) {
   const pathname = usePathname()
-  const { collapsed } = useSidebarCollapse()
+  const { collapsed, setCollapsed } = useSidebarCollapse()
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null)
   const [upgradeModal, setUpgradeModal] = useState<{ tier: PlanTier; label: string } | null>(null)
 
@@ -271,7 +271,12 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
   const openGroupId = activeGroupId ?? currentActiveGroupId
 
   const handleRailClick = (groupId: string) => {
-    setActiveGroupId(activeGroupId === groupId ? null : groupId)
+    if (collapsed) {
+      setCollapsed(false)
+      setActiveGroupId(groupId)
+    } else {
+      setActiveGroupId(activeGroupId === groupId ? null : groupId)
+    }
   }
 
   // Build the open group's nav items
@@ -326,7 +331,10 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
         {/* Section header */}
         {openGroup && (
           <div className="sidebar-panel__section-header">
-            {openGroup.label}
+            <span>{openGroup.label}</span>
+            <span style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, letterSpacing: '0.04em' }}>
+              {openGroupItems.length} {openGroupItems.length === 1 ? 'PAGE' : 'PAGES'}
+            </span>
           </div>
         )}
 

@@ -63,7 +63,7 @@ export async function PATCH(
     } catch {}
 
     return NextResponse.json({ task: updated })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[PATCH /api/tasks/[id]]', error)
     return NextResponse.json({ error: error?.message || 'Failed to update task' }, { status: 500 })
   }

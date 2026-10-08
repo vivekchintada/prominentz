@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      const sendEvent = (event: string, data: any) => {
+      const sendEvent = (event: string, data: unknown) => {
         if (destroyed) return
         try {
           controller.enqueue(

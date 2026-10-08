@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ success: true, logoUrl })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/settings/logo]', error)
     return NextResponse.json({ error: error.message || 'Failed to save logo' }, { status: 500 })
   }
@@ -124,7 +124,7 @@ export async function DELETE(req: NextRequest) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error.message || 'Failed to remove logo' }, { status: 500 })
   }
 }

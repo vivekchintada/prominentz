@@ -51,24 +51,7 @@ export async function resolveUserLocation(sessionUser: {
       }
     }
 
-    // 2. If restaurantId still missing, check if user owns any restaurant or pick first
-    if (!restaurantId) {
-      const firstRest = await prisma.restaurant.findFirst({
-        include: {
-          locations: {
-            select: { id: true, name: true, isHeadquarters: true },
-            orderBy: { isHeadquarters: 'desc' },
-          },
-        },
-      })
-      if (firstRest) {
-        restaurantId = firstRest.id
-        if (!locationId && firstRest.locations?.[0]?.id) {
-          locationId = firstRest.locations[0].id
-        }
-      }
-    }
-
+    // 2. If restaurantId still missing, user has no bound tenant — do not fall back across tenants
     if (!restaurantId) {
       return null
     }

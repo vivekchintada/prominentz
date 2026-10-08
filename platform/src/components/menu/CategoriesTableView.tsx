@@ -10,7 +10,7 @@ export interface CategoryItem {
   isActive: boolean
   createdAt: string
   _count?: { items: number }
-  items?: any[]
+  items?: unknown[]
 }
 
 interface CategoriesTableViewProps {
@@ -161,13 +161,13 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
       {/* ── HEADER ROW ────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#0f172a' }}>Categories</h1>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)' }}>Categories</h1>
           <button
             onClick={fetchCategories}
             title="Refresh"
             style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card-hover)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               width: 32,
               height: 32,
@@ -192,13 +192,13 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               padding: '9px 16px',
               fontSize: 13,
               fontWeight: 600,
-              color: '#334155',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
             }}
           >
@@ -215,7 +215,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#5b45f5',
+              background: 'var(--brand)',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -237,9 +237,9 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
       {/* ── TOOLBAR / SEARCH / FILTERS ────────────────────────── */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           padding: '12px 18px',
           display: 'flex',
           alignItems: 'center',
@@ -269,12 +269,12 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
             style={{
               width: '100%',
               padding: '8px 12px 8px 36px',
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
               outline: 'none',
-              color: '#0f172a',
+              color: 'var(--color-text-primary)',
             }}
           />
         </div>
@@ -282,7 +282,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
         {/* Filter Pills & Sort Dropdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Status Filter Toggle */}
-          <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 8, padding: 3, gap: 2 }}>
+          <div style={{ display: 'flex', background: 'var(--color-bg-input)', borderRadius: 8, padding: 3, gap: 2 }}>
             {(['ALL', 'ACTIVE', 'EXPIRED'] as const).map((s) => (
               <button
                 key={s}
@@ -295,7 +295,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: statusFilter === s ? '#ffffff' : 'transparent',
-                  color: statusFilter === s ? '#5b45f5' : '#64748b',
+                  color: statusFilter === s ? 'var(--brand)' : '#64748b',
                   boxShadow: statusFilter === s ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                 }}
               >
@@ -310,12 +310,12 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
             onChange={(e) => setSortBy(e.target.value as any)}
             style={{
               padding: '8px 12px',
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
-              color: '#475569',
+              color: 'var(--color-text-secondary)',
               outline: 'none',
               cursor: 'pointer',
             }}
@@ -331,21 +331,21 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
       {/* ── CATEGORIES TABLE ──────────────────────────────────── */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           overflow: 'hidden',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Category</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>No of Items</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Created On</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Status</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155', textAlign: 'right' }}>Actions</th>
+            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)' }}>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Category</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>No of Items</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Created On</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Status</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -382,20 +382,20 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                             height: 38,
                             borderRadius: '50%',
                             objectFit: 'cover',
-                            border: '1px solid #e2e8f0',
+                            border: '1px solid var(--color-border)',
                           }}
                         />
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{cat.name}</span>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>{cat.name}</span>
                       </div>
                     </td>
 
                     {/* No of Items */}
-                    <td style={{ padding: '14px 20px', fontSize: 14, color: '#475569', fontWeight: 500 }}>
+                    <td style={{ padding: '14px 20px', fontSize: 14, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
                       {count}
                     </td>
 
                     {/* Created On */}
-                    <td style={{ padding: '14px 20px', fontSize: 13, color: '#475569' }}>
+                    <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
                       {formattedDate}
                     </td>
 
@@ -486,7 +486,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 480,
@@ -496,7 +496,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h3>
               <button
@@ -510,14 +510,14 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Image Preview & URL */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                   Category Image
                 </label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <img
                     src={categoryImage || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop&q=80'}
                     alt="Category image preview"
-                    style={{ width: 50, height: 50, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
+                    style={{ width: 50, height: 50, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--color-border)' }}
                   />
                   <input
                     type="url"
@@ -538,7 +538,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
 
               {/* Name */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                   Category Name *
                 </label>
                 <input
@@ -560,7 +560,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
 
               {/* Status */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                   Status
                 </label>
                 <select
@@ -587,7 +587,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                   onClick={() => setIsModalOpen(false)}
                   style={{
                     padding: '8px 16px',
-                    background: '#f1f5f9',
+                    background: 'var(--color-bg-input)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,
@@ -603,7 +603,7 @@ export default function CategoriesTableView({ onRefresh }: CategoriesTableViewPr
                   disabled={saving}
                   style={{
                     padding: '8px 20px',
-                    background: '#5b45f5',
+                    background: 'var(--brand)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,

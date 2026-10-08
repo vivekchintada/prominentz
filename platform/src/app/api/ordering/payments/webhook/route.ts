@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const sig = req.headers.get('stripe-signature')
     const secret = process.env.STRIPE_WEBHOOK_SECRET
 
-    let event: any
+    let event: unknown
     if (isMockStripe()) {
       try {
         event = JSON.parse(raw)

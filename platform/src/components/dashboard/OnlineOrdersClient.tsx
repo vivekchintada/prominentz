@@ -128,7 +128,7 @@ export default function OnlineOrdersClient() {
           <div className={styles.kpiIcon}>🍳</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>In Preparation</span>
-            <span className={styles.kpiValue} style={{ color: '#5b45f5' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--brand)' }}>
               {inKitchenOrders.length}
             </span>
             <span className={styles.kpiSubtext}>Active on kitchen line</span>
@@ -208,7 +208,7 @@ export default function OnlineOrdersClient() {
                       </div>
 
                       <p className={styles.itemsSummary}>
-                        {o.items?.map((i: any) => `${i.quantity}× ${i.menuItem?.name || 'Item'}`).join(' · ') || 'Order details'}
+                        {o.items?.map((i: unknown) => `${i.quantity}× ${i.menuItem?.name || 'Item'}`).join(' · ') || 'Order details'}
                       </p>
 
                       <div className={styles.cardMeta}>

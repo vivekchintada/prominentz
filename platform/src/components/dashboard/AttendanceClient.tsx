@@ -130,7 +130,7 @@ export default function AttendanceClient() {
         {[
           { label: 'Live on Floor', value: `${activeEntries.length}`, icon: '🟢', color: '#16a34a' },
           { label: 'GPS / Time Flags', value: `${flaggedEntries.length}`, icon: '⚠️', color: flaggedEntries.length > 0 ? '#ef4444' : '#16a34a' },
-          { label: 'Today Total Punches', value: `${entries.length}`, icon: '⏱️', color: '#5b45f5' },
+          { label: 'Today Total Punches', value: `${entries.length}`, icon: '⏱️', color: 'var(--brand)' },
         ].map((kpi) => (
           <div
             key={kpi.label}
@@ -274,7 +274,7 @@ export default function AttendanceClient() {
                       width: 38,
                       height: 38,
                       borderRadius: '50%',
-                      background: isFlagged ? 'rgba(239,68,68,0.15)' : '#5b45f5',
+                      background: isFlagged ? 'rgba(239,68,68,0.15)' : 'var(--brand)',
                       color: isFlagged ? '#ef4444' : '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
@@ -320,7 +320,7 @@ export default function AttendanceClient() {
                     <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
                       Time On Shift
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#5b45f5', fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--brand)', fontFamily: 'monospace' }}>
                       {hours}h {mins}m
                     </div>
                   </div>

@@ -215,7 +215,7 @@ export function SettingsClient() {
   const handleSave = async (section?: string) => {
     setSaving(true)
     try {
-      let payload: any = {}
+      let payload: unknown = {}
 
       if (section === 'store') {
         payload = { section: 'store', sectionData: store }
@@ -446,7 +446,7 @@ export function SettingsClient() {
   if (loading) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
-        <div style={{ width: '28px', height: '28px', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: '#5b45f5', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
+        <div style={{ width: '28px', height: '28px', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: 'var(--brand)', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
         Loading Prominentz settings...
       </div>
     )
@@ -514,7 +514,7 @@ export function SettingsClient() {
                   borderRadius: '10px',
                   border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
                   backgroundColor: isActive ? '#eff6ff' : 'transparent',
-                  color: isActive ? '#5b45f5' : '#475569',
+                  color: isActive ? 'var(--brand)' : '#475569',
                   fontSize: '13.5px',
                   fontWeight: isActive ? 650 : 500,
                   cursor: 'pointer',
@@ -523,7 +523,7 @@ export function SettingsClient() {
                   transition: 'all 150ms ease',
                 }}
               >
-                <span style={{ color: isActive ? '#5b45f5' : '#64748b', display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: isActive ? 'var(--brand)' : '#64748b', display: 'flex', alignItems: 'center' }}>
                   {tab.icon}
                 </span>
                 {tab.label}
@@ -540,7 +540,7 @@ export function SettingsClient() {
               padding: '11px 16px',
               borderRadius: '10px',
               border: '1px solid transparent',
-              color: '#475569',
+              color: 'var(--color-text-secondary)',
               fontSize: '13.5px',
               fontWeight: 500,
               textDecoration: 'none',
@@ -548,13 +548,13 @@ export function SettingsClient() {
               marginTop: '4px',
             }}
           >
-            <span style={{ color: '#5b45f5', display: 'flex', alignItems: 'center', fontSize: '15px' }}>
+            <span style={{ color: 'var(--brand)', display: 'flex', alignItems: 'center', fontSize: '15px' }}>
               🛍️
             </span>
           </a>
 
           {/* Sign Out Action in Settings Sidebar */}
-          <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+          <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
               style={{
@@ -588,13 +588,13 @@ export function SettingsClient() {
         {/* ─── Right Content Area ──────────────────────────────────────────── */}
         <main style={{
           flex: 1,
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--color-bg-card)',
           borderRadius: '16px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
           overflow: 'hidden',
           padding: '28px 32px',
-          color: '#1e293b',
+          color: 'var(--color-text-primary)',
         }}>
 
           {/* ══════════════════════════════════════════════════════════════════
@@ -609,7 +609,7 @@ export function SettingsClient() {
                   height: '90px',
                   borderRadius: '12px',
                   border: '1px dashed #cbd5e1',
-                  backgroundColor: '#f8fafc',
+                  backgroundColor: 'var(--color-bg-card-hover)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -633,9 +633,9 @@ export function SettingsClient() {
                     <label style={{
                       padding: '7px 14px',
                       borderRadius: '8px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: '#ffffff',
-                      color: '#5b45f5',
+                      border: '1px solid var(--color-border)',
+                      backgroundColor: 'var(--color-bg-card)',
+                      color: 'var(--brand)',
                       fontSize: '13px',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -875,7 +875,7 @@ export function SettingsClient() {
               {/* Section Header with reload and Add New button */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Tax Settings</h2>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Tax Settings</h2>
                   <button
                     type="button"
                     onClick={loadSettings}
@@ -884,8 +884,8 @@ export function SettingsClient() {
                       width: '32px',
                       height: '32px',
                       borderRadius: '50%',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: '#ffffff',
+                      border: '1px solid var(--color-border)',
+                      backgroundColor: 'var(--color-bg-card)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -908,7 +908,7 @@ export function SettingsClient() {
                     gap: '8px',
                     padding: '9px 18px',
                     borderRadius: '8px',
-                    backgroundColor: '#5b45f5',
+                    backgroundColor: 'var(--brand)',
                     color: '#ffffff',
                     border: 'none',
                     fontSize: '13px',
@@ -930,7 +930,7 @@ export function SettingsClient() {
               }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#0f172a', fontWeight: 700 }}>
+                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: 'var(--color-text-primary)', fontWeight: 700 }}>
                       <th style={{ padding: '16px 20px', width: '60px' }}>#</th>
                       <th style={{ padding: '16px 20px' }}>Tax Name</th>
                       <th style={{ padding: '16px 20px' }}>Rate</th>
@@ -940,10 +940,10 @@ export function SettingsClient() {
                   </thead>
                   <tbody>
                     {taxes.map((tax, idx) => (
-                      <tr key={tax.id} style={{ borderBottom: '1px solid #f8fafc', color: '#334155' }}>
+                      <tr key={tax.id} style={{ borderBottom: '1px solid #f8fafc', color: 'var(--color-text-secondary)' }}>
                         <td style={{ padding: '16px 20px', color: '#64748b' }}>{idx + 1}</td>
-                        <td style={{ padding: '16px 20px', fontWeight: 600, color: '#1e293b' }}>{tax.name}</td>
-                        <td style={{ padding: '16px 20px', color: '#475569' }}>{tax.rate}%</td>
+                        <td style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{tax.name}</td>
+                        <td style={{ padding: '16px 20px', color: 'var(--color-text-secondary)' }}>{tax.rate}%</td>
                         <td style={{ padding: '16px 20px', color: '#64748b' }}>{tax.type}</td>
                         <td style={{ padding: '16px 20px', textAlign: 'right' }}>
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
@@ -956,8 +956,8 @@ export function SettingsClient() {
                                 width: '30px',
                                 height: '30px',
                                 borderRadius: '6px',
-                                border: '1px solid #e2e8f0',
-                                backgroundColor: '#ffffff',
+                                border: '1px solid var(--color-border)',
+                                backgroundColor: 'var(--color-bg-card)',
                                 color: '#64748b',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -1010,7 +1010,7 @@ export function SettingsClient() {
             <div>
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Print Settings</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Print Settings</h2>
                 <button
                   type="button"
                   onClick={loadSettings}
@@ -1019,8 +1019,8 @@ export function SettingsClient() {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1044,7 +1044,7 @@ export function SettingsClient() {
                 flexDirection: 'column',
                 gap: '20px',
               }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Print Settings</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Print Settings</h3>
 
                 {/* Toggles */}
                 <DreamToggleRow
@@ -1128,7 +1128,7 @@ export function SettingsClient() {
             <div>
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Payment Types</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Payment Types</h2>
                 <button
                   type="button"
                   onClick={loadSettings}
@@ -1137,8 +1137,8 @@ export function SettingsClient() {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1164,7 +1164,7 @@ export function SettingsClient() {
                   checked={paymentTypes.cash}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, cash: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <rect x="2" y="6" width="20" height="12" rx="2" />
                       <circle cx="12" cy="12" r="2" />
                       <path d="M6 12h.01M18 12h.01" />
@@ -1178,7 +1178,7 @@ export function SettingsClient() {
                   checked={paymentTypes.card}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, card: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <rect x="2" y="5" width="20" height="14" rx="2" />
                       <line x1="2" y1="10" x2="22" y2="10" />
                     </svg>
@@ -1191,7 +1191,7 @@ export function SettingsClient() {
                   checked={paymentTypes.wallet}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, wallet: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
                       <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
                     </svg>
@@ -1204,7 +1204,7 @@ export function SettingsClient() {
                   checked={paymentTypes.paypal}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, paypal: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <path d="M7 3h7a5 5 0 0 1 5 5 5 5 0 0 1-5 5H9l-2 8H3l4-18z" />
                     </svg>
                   }
@@ -1216,7 +1216,7 @@ export function SettingsClient() {
                   checked={paymentTypes.qrReader}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, qrReader: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <rect x="3" y="3" width="7" height="7" />
                       <rect x="14" y="3" width="7" height="7" />
                       <rect x="3" y="14" width="7" height="7" />
@@ -1231,7 +1231,7 @@ export function SettingsClient() {
                   checked={paymentTypes.cardReader}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, cardReader: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <rect x="4" y="2" width="16" height="20" rx="2" />
                       <line x1="8" y1="6" x2="16" y2="6" />
                       <line x1="8" y1="10" x2="16" y2="10" />
@@ -1246,7 +1246,7 @@ export function SettingsClient() {
                   checked={paymentTypes.bank}
                   onChange={(checked) => setPaymentTypes((prev) => ({ ...prev, bank: checked }))}
                   icon={
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b45f5" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2">
                       <path d="m3 9 9-7 9 7v1H3V9z" />
                       <line x1="5" y1="10" x2="5" y2="18" />
                       <line x1="9" y1="10" x2="9" y2="18" />
@@ -1274,7 +1274,7 @@ export function SettingsClient() {
             <div>
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Delivery</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Delivery</h2>
                 <button
                   type="button"
                   onClick={loadSettings}
@@ -1283,8 +1283,8 @@ export function SettingsClient() {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1307,7 +1307,7 @@ export function SettingsClient() {
                   padding: '22px',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Free Delivery</h3>
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Free Delivery</h3>
                     <DreamSwitch
                       checked={delivery.freeDelivery.enabled}
                       onChange={(checked) =>
@@ -1343,7 +1343,7 @@ export function SettingsClient() {
                   padding: '22px',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Fixed Delivery Charges</h3>
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Fixed Delivery Charges</h3>
                     <DreamSwitch
                       checked={delivery.fixedDelivery.enabled}
                       onChange={(checked) =>
@@ -1382,7 +1382,7 @@ export function SettingsClient() {
                   gap: '16px',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Kilometer Based Delivery Charges</h3>
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Kilometer Based Delivery Charges</h3>
                     <DreamSwitch
                       checked={delivery.kmDelivery.enabled}
                       onChange={(checked) =>
@@ -1459,7 +1459,7 @@ export function SettingsClient() {
           {activeTab === 'notifications' && (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Notifications</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Notifications</h2>
                 <button
                   type="button"
                   onClick={loadSettings}
@@ -1468,8 +1468,8 @@ export function SettingsClient() {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1545,7 +1545,7 @@ export function SettingsClient() {
           {activeTab === 'integrations' && (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Integrations / API</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'var(--color-text-primary)' }}>Integrations / API</h2>
                 <button
                   type="button"
                   onClick={loadSettings}
@@ -1554,8 +1554,8 @@ export function SettingsClient() {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1608,7 +1608,7 @@ export function SettingsClient() {
                       padding: '16px 20px',
                       borderRadius: '12px',
                       border: '1px solid #f1f5f9',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--color-bg-card)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -1617,7 +1617,7 @@ export function SettingsClient() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                       <span style={{ fontSize: '24px' }}>{item.icon}</span>
                       <div>
-                        <div style={{ fontSize: '14px', fontWeight: 650, color: '#0f172a' }}>{item.name}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 650, color: 'var(--color-text-primary)' }}>{item.name}</div>
                         <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{item.desc}</div>
                       </div>
                     </div>
@@ -1655,22 +1655,22 @@ export function SettingsClient() {
           padding: '20px',
         }}>
           <div style={{
-            backgroundColor: '#ffffff',
+            backgroundColor: 'var(--color-bg-card)',
             borderRadius: '16px',
             width: '100%',
             maxWidth: '460px',
             boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
             overflow: 'hidden',
-            color: '#1e293b',
+            color: 'var(--color-text-primary)',
           }}>
             <div style={{
               padding: '20px 24px',
-              borderBottom: '1px solid #e2e8f0',
+              borderBottom: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                 {editingTax ? 'Edit Tax Rate' : 'Add New Tax Rate'}
               </h3>
               <button
@@ -1732,8 +1732,8 @@ export function SettingsClient() {
                   style={{
                     padding: '8px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
                     color: '#64748b',
                     fontWeight: 600,
                     fontSize: '13px',
@@ -1748,7 +1748,7 @@ export function SettingsClient() {
                     padding: '8px 20px',
                     borderRadius: '8px',
                     border: 'none',
-                    backgroundColor: '#5b45f5',
+                    backgroundColor: 'var(--brand)',
                     color: '#ffffff',
                     fontWeight: 600,
                     fontSize: '13px',
@@ -1773,9 +1773,9 @@ const inputStyle: React.CSSProperties = {
   height: '42px',
   padding: '0 14px',
   borderRadius: '8px',
-  border: '1px solid #e2e8f0',
-  backgroundColor: '#ffffff',
-  color: '#0f172a',
+  border: '1px solid var(--color-border)',
+  backgroundColor: 'var(--color-bg-card)',
+  color: 'var(--color-text-primary)',
   fontSize: '13.5px',
   outline: 'none',
   boxSizing: 'border-box',
@@ -1785,7 +1785,7 @@ const inputStyle: React.CSSProperties = {
 function DreamField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+      <label style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
         {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
       </label>
       {children}
@@ -1804,7 +1804,7 @@ function DreamSwitch({ checked, onChange }: { checked: boolean; onChange: (c: bo
         width: '44px',
         height: '24px',
         borderRadius: '12px',
-        backgroundColor: checked ? '#5b45f5' : '#cbd5e1',
+        backgroundColor: checked ? 'var(--brand)' : '#cbd5e1',
         position: 'relative',
         cursor: 'pointer',
         border: 'none',
@@ -1819,7 +1819,7 @@ function DreamSwitch({ checked, onChange }: { checked: boolean; onChange: (c: bo
           width: '18px',
           height: '18px',
           borderRadius: '50%',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--color-bg-card)',
           position: 'absolute',
           top: '3px',
           left: checked ? '23px' : '3px',
@@ -1834,7 +1834,7 @@ function DreamSwitch({ checked, onChange }: { checked: boolean; onChange: (c: bo
 function DreamToggleRow({ label, checked, onChange }: { label: string; checked: boolean; onChange: (c: boolean) => void }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-      <span style={{ fontSize: '13.5px', fontWeight: 500, color: '#334155' }}>{label}</span>
+      <span style={{ fontSize: '13.5px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>{label}</span>
       <DreamSwitch checked={checked} onChange={onChange} />
     </div>
   )
@@ -1857,7 +1857,7 @@ function PaymentTypeCard({
       border: '1px solid #f1f5f9',
       boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
       padding: '20px',
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--color-bg-card)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -1875,7 +1875,7 @@ function PaymentTypeCard({
         }}>
           {icon}
         </div>
-        <span style={{ fontSize: '14.5px', fontWeight: 600, color: '#0f172a' }}>{label}</span>
+        <span style={{ fontSize: '14.5px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{label}</span>
       </div>
       <DreamSwitch checked={checked} onChange={onChange} />
     </div>
@@ -1907,9 +1907,9 @@ function DreamActionBar({
         style={{
           padding: '9px 22px',
           borderRadius: '8px',
-          border: '1px solid #e2e8f0',
-          backgroundColor: '#ffffff',
-          color: '#475569',
+          border: '1px solid var(--color-border)',
+          backgroundColor: 'var(--color-bg-card)',
+          color: 'var(--color-text-secondary)',
           fontSize: '13px',
           fontWeight: 600,
           cursor: 'pointer',
@@ -1926,7 +1926,7 @@ function DreamActionBar({
           padding: '9px 24px',
           borderRadius: '8px',
           border: 'none',
-          backgroundColor: '#5b45f5',
+          backgroundColor: 'var(--brand)',
           color: '#ffffff',
           fontSize: '13px',
           fontWeight: 600,

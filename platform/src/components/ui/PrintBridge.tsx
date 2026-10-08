@@ -72,7 +72,7 @@ export function PrintBridge({
           setStatus('Print job completed! ✅')
           if (onPrinted) onPrinted()
           return
-        } catch (usbErr: any) {
+        } catch (usbErr: unknown) {
           console.warn('[WebUSB Print] USB claim failed or cancelled:', usbErr.message)
           // Fall through to browser print fallback
         }
@@ -105,7 +105,7 @@ export function PrintBridge({
             <div class="flex"><span>Table: ${receiptData.tableName}</span><span>Server: ${receiptData.serverName}</span></div>
             <div class="flex"><span>Order: #${receiptData.orderId.slice(0, 8)}</span><span>${new Date(receiptData.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>
             <div class="line"></div>
-            ${receiptData.items.map((i: any) => `
+            ${receiptData.items.map((i: unknown) => `
               <div class="flex">
                 <span>${i.quantity}x ${i.name}</span>
                 <span>$${(i.quantity * i.priceAtOrder).toFixed(2)}</span>
@@ -130,7 +130,7 @@ export function PrintBridge({
       } else {
         throw new Error('Pop-up window blocked. Please allow pop-ups for browser printing.')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[PrintBridge]', err)
       setError(err.message || 'Print error')
       setStatus(null)

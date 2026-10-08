@@ -16,7 +16,7 @@ export async function GET() {
     const start = Date.now()
     await prisma.$queryRaw`SELECT 1`
     checks.database = { status: 'ok', latencyMs: Date.now() - start }
-  } catch (err: any) {
+  } catch (err: unknown) {
     checks.database = { status: 'down', latencyMs: 0, detail: err.message?.slice(0, 100) }
   }
 
@@ -32,7 +32,7 @@ export async function GET() {
       const { redis } = await import('@/lib/redis')
       await redis.ping()
       checks.redis = { status: 'ok', latencyMs: Date.now() - start }
-    } catch (err: any) {
+    } catch (err: unknown) {
       checks.redis = { status: 'degraded', latencyMs: 0, detail: err.message?.slice(0, 100) }
     }
   }
@@ -47,7 +47,7 @@ export async function GET() {
       latencyMs: Date.now() - start,
       detail: 'NextAuth configured',
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     checks.auth = { status: 'down', latencyMs: 0, detail: err.message?.slice(0, 100) }
   }
 

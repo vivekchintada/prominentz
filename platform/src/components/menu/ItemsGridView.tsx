@@ -81,13 +81,13 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
       {/* ── HEADER ROW ────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#0f172a' }}>Items</h1>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)' }}>Items</h1>
           <button
             onClick={fetchItems}
             title="Refresh"
             style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card-hover)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               width: 32,
               height: 32,
@@ -128,12 +128,12 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
               style={{
                 width: '100%',
                 padding: '9px 12px 9px 36px',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 8,
                 fontSize: 13,
                 outline: 'none',
-                color: '#0f172a',
+                color: 'var(--color-text-primary)',
               }}
             />
           </div>
@@ -145,7 +145,7 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#5b45f5',
+              background: 'var(--brand)',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -186,9 +186,9 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
               key={item.id}
               onClick={() => handleOpenEdit(item)}
               style={{
-                background: '#ffffff',
+                background: 'var(--color-bg-card)',
                 borderRadius: 14,
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--color-border)',
                 overflow: 'hidden',
                 cursor: 'pointer',
                 transition: 'transform 0.15s ease, box-shadow 0.15s ease',
@@ -205,7 +205,7 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
               }}
             >
               {/* Dish Photo */}
-              <div style={{ width: '100%', height: 160, overflow: 'hidden', background: '#f1f5f9', position: 'relative' }}>
+              <div style={{ width: '100%', height: 160, overflow: 'hidden', background: 'var(--color-bg-input)', position: 'relative' }}>
                 <img
                   src={item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop&q=80'}
                   alt={item.name}
@@ -246,7 +246,7 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
                     margin: 0,
                     fontSize: 15,
                     fontWeight: 700,
-                    color: '#0f172a',
+                    color: 'var(--color-text-primary)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -258,7 +258,7 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
 
                 {/* Price and Dietary Badge Row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
-                  <span style={{ fontSize: 15, fontWeight: 800, color: '#334155' }}>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-secondary)' }}>
                     ${Number(item.price).toFixed(0)}
                   </span>
 

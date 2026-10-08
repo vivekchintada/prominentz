@@ -161,11 +161,11 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
   return (
     <div
       style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--color-bg-card)',
         borderRadius: embeddedInReports ? 16 : 16,
         padding: '24px 28px',
         boxShadow: embeddedInReports ? 'none' : '0 1px 3px rgba(0,0,0,0.05)',
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--color-border)',
         fontFamily: 'inherit',
       }}
     >
@@ -176,7 +176,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundColor: '#1e293b',
+            backgroundcolor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -203,7 +203,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
       >
         {/* Title & Reload Button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
             Invoices
           </h2>
           <button
@@ -220,7 +220,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               borderRadius: 6,
               transition: 'all 0.15s ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#5b45f5')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -237,12 +237,12 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             alignItems: 'center',
             gap: 6,
             padding: '8px 16px',
-            backgroundColor: '#ffffff',
+            backgroundColor: 'var(--color-bg-card)',
             border: '1px solid #cbd5e1',
             borderRadius: 8,
             fontSize: 13,
             fontWeight: 600,
-            color: '#334155',
+            color: 'var(--color-text-secondary)',
             cursor: 'pointer',
             boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
             transition: 'all 0.15s ease',
@@ -287,15 +287,15 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               width: '100%',
               padding: '9px 12px 9px 34px',
               borderRadius: 8,
-              border: '1px solid #e2e8f0',
-              backgroundColor: '#f8fafc',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-bg-card-hover)',
               fontSize: 13,
-              color: '#1e293b',
+              color: 'var(--color-text-primary)',
               outline: 'none',
               transition: 'border-color 0.15s ease',
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = '#5b45f5'
+              e.currentTarget.style.borderColor = 'var(--brand)'
               e.currentTarget.style.backgroundColor = '#ffffff'
             }}
             onBlur={(e) => {
@@ -330,11 +330,11 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               gap: 6,
               padding: '8px 14px',
               backgroundColor: orderTypeFilter !== 'All' ? '#eff6ff' : '#ffffff',
-              border: orderTypeFilter !== 'All' ? '1px solid #5b45f5' : '1px solid #e2e8f0',
+              border: orderTypeFilter !== 'All' ? '1px solid var(--brand)' : '1px solid #e2e8f0',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
-              color: orderTypeFilter !== 'All' ? '#5b45f5' : '#475569',
+              color: orderTypeFilter !== 'All' ? 'var(--brand)' : '#475569',
               cursor: 'pointer',
             }}
           >
@@ -342,7 +342,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Filter
-            {orderTypeFilter !== 'All' && <span style={{ fontSize: 11, background: '#5b45f5', color: '#fff', padding: '1px 5px', borderRadius: 99 }}>1</span>}
+            {orderTypeFilter !== 'All' && <span style={{ fontSize: 11, background: 'var(--brand)', color: '#fff', padding: '1px 5px', borderRadius: 99 }}>1</span>}
           </button>
 
           {/* Filter Dropdown Popover */}
@@ -352,7 +352,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 position: 'absolute',
                 top: 42,
                 left: 0,
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--color-bg-card)',
                 border: '1px solid #cbd5e1',
                 borderRadius: 10,
                 boxShadow: '0 10px 20px rgba(0,0,0,0.12)',
@@ -378,7 +378,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                     cursor: 'pointer',
                     fontWeight: orderTypeFilter === type ? 700 : 500,
                     backgroundColor: orderTypeFilter === type ? '#eff6ff' : 'transparent',
-                    color: orderTypeFilter === type ? '#5b45f5' : '#334155',
+                    color: orderTypeFilter === type ? 'var(--brand)' : '#334155',
                   }}
                 >
                   {type}
@@ -396,8 +396,8 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               color: '#64748b',
               cursor: 'pointer',
@@ -417,11 +417,11 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               style={{
                 padding: '8px 12px',
                 borderRadius: 8,
-                border: '1px solid #e2e8f0',
-                backgroundColor: '#ffffff',
+                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--color-bg-card)',
                 fontSize: 13,
                 fontWeight: 600,
-                color: '#334155',
+                color: 'var(--color-text-secondary)',
                 outline: 'none',
                 cursor: 'pointer',
               }}
@@ -445,7 +445,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
         ) : invoices.length === 0 ? (
           <div style={{ padding: '50px 0', textAlign: 'center', color: '#94a3b8' }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>🧾</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#334155' }}>No invoices found</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text-secondary)' }}>No invoices found</div>
             <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
               Completed POS bills and table orders will dynamically appear here.
             </div>
@@ -453,7 +453,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: 12, fontWeight: 600 }}>
+              <tr style={{ borderBottom: '1px solid var(--color-border)', color: '#64748b', fontSize: 12, fontWeight: 600 }}>
                 <th style={{ padding: '12px 16px' }}>Invoice ID</th>
                 <th style={{ padding: '12px 16px' }}>Customer</th>
                 <th style={{ padding: '12px 16px' }}>Date</th>
@@ -463,7 +463,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 <th style={{ padding: '12px 16px', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
-            <tbody style={{ fontSize: 13, color: '#0f172a' }}>
+            <tbody style={{ fontSize: 13, color: 'var(--color-text-primary)' }}>
               {invoices.map((inv) => (
                 <tr
                   key={inv.id}
@@ -475,7 +475,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
                   {/* Invoice ID */}
-                  <td style={{ padding: '14px 16px', fontWeight: 600, color: '#334155' }}>
+                  <td style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
                     {inv.invoiceId}
                   </td>
 
@@ -499,24 +499,24 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                       >
                         {inv.customer.initials}
                       </div>
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
                         {inv.customer.name}
                       </span>
                     </div>
                   </td>
 
                   {/* Date */}
-                  <td style={{ padding: '14px 16px', color: '#475569' }}>
+                  <td style={{ padding: '14px 16px', color: 'var(--color-text-secondary)' }}>
                     {inv.date}
                   </td>
 
                   {/* Order Type */}
-                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 500 }}>
+                  <td style={{ padding: '14px 16px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
                     {inv.orderType}
                   </td>
 
                   {/* Amount */}
-                  <td style={{ padding: '14px 16px', fontWeight: 700, color: '#0f172a' }}>
+                  <td style={{ padding: '14px 16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     ${inv.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                   </td>
 
@@ -560,8 +560,8 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                           width: 32,
                           height: 32,
                           borderRadius: '50%',
-                          border: '1px solid #e2e8f0',
-                          backgroundColor: '#ffffff',
+                          border: '1px solid var(--color-border)',
+                          backgroundColor: 'var(--color-bg-card)',
                           color: '#64748b',
                           display: 'flex',
                           alignItems: 'center',
@@ -571,7 +571,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#eff6ff'
-                          e.currentTarget.style.color = '#5b45f5'
+                          e.currentTarget.style.color = 'var(--brand)'
                           e.currentTarget.style.borderColor = '#bfdbfe'
                         }}
                         onMouseLeave={(e) => {
@@ -598,8 +598,8 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                           width: 32,
                           height: 32,
                           borderRadius: '50%',
-                          border: '1px solid #e2e8f0',
-                          backgroundColor: '#ffffff',
+                          border: '1px solid var(--color-border)',
+                          backgroundColor: 'var(--color-bg-card)',
                           color: '#64748b',
                           display: 'flex',
                           alignItems: 'center',
@@ -609,7 +609,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#eff6ff'
-                          e.currentTarget.style.color = '#5b45f5'
+                          e.currentTarget.style.color = 'var(--brand)'
                           e.currentTarget.style.borderColor = '#bfdbfe'
                         }}
                         onMouseLeave={(e) => {
@@ -632,8 +632,8 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                           width: 32,
                           height: 32,
                           borderRadius: '50%',
-                          border: '1px solid #e2e8f0',
-                          backgroundColor: '#ffffff',
+                          border: '1px solid var(--color-border)',
+                          backgroundColor: 'var(--color-bg-card)',
                           color: '#94a3b8',
                           display: 'flex',
                           alignItems: 'center',
@@ -684,7 +684,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 480,
@@ -696,9 +696,9 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: 14, marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)', paddingBottom: 14, marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   {isPrintMode ? 'Print Tax Invoice' : 'Invoice Details'}
                 </h3>
                 <span style={{ fontSize: 12, color: '#64748b' }}>
@@ -716,10 +716,10 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             {/* Bill Summary Card */}
             <div
               style={{
-                backgroundColor: '#f8fafc',
+                backgroundColor: 'var(--color-bg-card-hover)',
                 padding: '14px 16px',
                 borderRadius: 10,
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--color-border)',
                 marginBottom: 16,
                 fontSize: 12,
                 display: 'grid',
@@ -739,12 +739,12 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             </div>
 
             {/* Line Items */}
-            <h4 style={{ margin: '0 0 8px 0', fontSize: 13, fontWeight: 700, color: '#475569' }}>
+            <h4 style={{ margin: '0 0 8px 0', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
               Order Items
             </h4>
             <div style={{ border: '1px solid #f1f5f9', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, textAlign: 'left' }}>
-                <thead style={{ backgroundColor: '#f8fafc', color: '#64748b' }}>
+                <thead style={{ backgroundColor: 'var(--color-bg-card-hover)', color: '#64748b' }}>
                   <tr>
                     <th style={{ padding: '8px 12px' }}>Item</th>
                     <th style={{ padding: '8px 12px', textAlign: 'center' }}>Qty</th>
@@ -776,7 +776,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             </div>
 
             {/* Subtotals & Final Total */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, borderTop: '1px solid #e2e8f0', paddingTop: 12, marginBottom: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, borderTop: '1px solid var(--color-border)', paddingTop: 12, marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
                 <span>Subtotal:</span>
                 <span>${viewInvoice.subtotal.toFixed(2)}</span>
@@ -797,8 +797,8 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                   justifyContent: 'space-between',
                   fontWeight: 800,
                   fontSize: 16,
-                  color: '#0f172a',
-                  borderTop: '1px solid #e2e8f0',
+                  color: 'var(--color-text-primary)',
+                  borderTop: '1px solid var(--color-border)',
                   paddingTop: 8,
                   marginTop: 4,
                 }}
@@ -814,12 +814,12 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 onClick={() => setViewInvoice(null)}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: '#f1f5f9',
+                  backgroundColor: 'var(--color-bg-input)',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 13,
                   fontWeight: 600,
-                  color: '#475569',
+                  color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >
@@ -831,7 +831,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 }}
                 style={{
                   padding: '8px 18px',
-                  backgroundColor: '#5b45f5',
+                  backgroundColor: 'var(--brand)',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 13,

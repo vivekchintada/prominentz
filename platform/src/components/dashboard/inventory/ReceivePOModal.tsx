@@ -91,7 +91,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
       showToast(`Purchase order ${po.poNumber} stock received and updated`, 'success')
       onSuccess()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error receiving PO', 'error')
     } finally {
       setSubmitting(false)
@@ -115,7 +115,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
       showToast(`All items in ${po.poNumber} received in full`, 'success')
       onSuccess()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error receiving PO', 'error')
     } finally {
       setSubmitting(false)
@@ -138,7 +138,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
     >
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 16,
           width: '100%',
           maxWidth: 760,
@@ -156,13 +156,13 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '20px 24px',
-            borderBottom: '1px solid #e2e8f0',
-            background: '#f8fafc',
+            borderBottom: '1px solid var(--color-border)',
+            background: 'var(--color-bg-card-hover)',
           }}
         >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 Receive Purchase Order
               </h2>
               <span
@@ -172,7 +172,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                   fontSize: 12,
                   fontWeight: 700,
                   background: '#eff6ff',
-                  color: '#5b45f5',
+                  color: 'var(--brand)',
                   border: '1px solid #bfdbfe',
                 }}
               >
@@ -180,7 +180,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
               </span>
             </div>
             <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
-              Supplier: <strong style={{ color: '#334155' }}>{po.supplier?.name}</strong> • Ordered on{' '}
+              Supplier: <strong style={{ color: 'var(--color-text-secondary)' }}>{po.supplier?.name}</strong> • Ordered on{' '}
               {new Date(po.createdAt).toLocaleDateString()}
             </div>
           </div>
@@ -217,10 +217,10 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
               and update ingredient unit cost. Unreceived quantities remain open for future partial delivery.
             </div>
 
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: 10, overflow: 'hidden' }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 10, overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+                  <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
                     <th style={{ padding: '10px 14px', fontWeight: 700 }}>Ingredient</th>
                     <th style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>Ordered</th>
                     <th style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>Prior Received</th>
@@ -231,11 +231,11 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                 <tbody>
                   {lineItems.map((item) => (
                     <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px 14px', fontWeight: 700, color: '#0f172a' }}>
+                      <td style={{ padding: '12px 14px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                         {item.name}
                         <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>Unit: {item.unit}</div>
                       </td>
-                      <td style={{ padding: '12px 14px', textAlign: 'center', color: '#334155', fontWeight: 600 }}>
+                      <td style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                         {item.orderedQty}
                       </td>
                       <td style={{ padding: '12px 14px', textAlign: 'center', color: item.alreadyReceived > 0 ? '#16a34a' : '#64748b', fontWeight: 600 }}>
@@ -256,7 +256,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                               border: '1px solid #cbd5e1',
                               fontSize: 13,
                               fontWeight: 700,
-                              color: '#0f172a',
+                              color: 'var(--color-text-primary)',
                             }}
                           />
                         </div>
@@ -275,7 +275,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                             border: '1px solid #cbd5e1',
                             fontSize: 13,
                             fontWeight: 700,
-                            color: '#0f172a',
+                            color: 'var(--color-text-primary)',
                           }}
                         />
                       </td>
@@ -293,8 +293,8 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '16px 24px',
-              borderTop: '1px solid #e2e8f0',
-              background: '#f8fafc',
+              borderTop: '1px solid var(--color-border)',
+              background: 'var(--color-bg-card-hover)',
             }}
           >
             <button
@@ -324,10 +324,10 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                   padding: '9px 18px',
                   borderRadius: 8,
                   border: '1px solid #cbd5e1',
-                  background: '#ffffff',
+                  background: 'var(--color-bg-card)',
                   fontSize: 13,
                   fontWeight: 600,
-                  color: '#475569',
+                  color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >
@@ -340,12 +340,12 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                   padding: '9px 20px',
                   borderRadius: 8,
                   border: 'none',
-                  background: '#5b45f5',
+                  background: 'var(--brand)',
                   fontSize: 13,
                   fontWeight: 700,
                   color: '#ffffff',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(91,69,245,0.3)',
+                  boxShadow: '0 2px 4px var(--brand-tint)',
                 }}
               >
                 {submitting ? 'Updating Inventory...' : 'Confirm Items Received'}

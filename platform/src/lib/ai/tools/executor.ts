@@ -14,7 +14,7 @@ import {
 export interface ToolExecutionResult {
   toolName: string
   success: boolean
-  data?: any
+  data?: unknown
   error?: string
   summary: string
 }
@@ -421,7 +421,7 @@ export async function executeRestoIqTool(
           summary: `Tool "${toolName}" is not registered in the 360° Resto IQ tool execution layer.`,
         }
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`[Resto IQ Tool Execution Error - ${toolName}]:`, err)
     return {
       toolName,

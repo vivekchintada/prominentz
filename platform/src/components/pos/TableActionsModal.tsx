@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { Button } from '../ui/Button'
 import { TableData } from './TableGrid'
 
 interface TableActionsModalProps {
@@ -41,7 +42,7 @@ export default function TableActionsModal({
       showToast(`Table ${table.name} set to ${status}`, 'success')
       onStatusUpdated()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating table', 'error')
     } finally {
       setLoading(false)
@@ -50,9 +51,9 @@ export default function TableActionsModal({
 
   const statusLabels = {
     EMPTY: { label: 'Empty', color: 'var(--color-text-secondary)', bg: 'var(--color-border)' },
-    RESERVED: { label: 'Reserved', color: 'var(--color-table-reserved)', bg: 'rgba(59,130,246,0.12)' },
+    RESERVED: { label: 'Reserved', color: 'var(--color-table-reserved)', bg: 'rgba(255, 255, 255, 0.08)' },
     ACTIVE: { label: 'Active', color: 'var(--color-table-active)', bg: 'rgba(249,115,22,0.12)' },
-    PAYING: { label: 'Paying', color: 'var(--color-table-paying)', bg: 'rgba(139,92,246,0.12)' },
+    PAYING: { label: 'Paying', color: 'var(--color-table-paying)', bg: 'var(--brand-tint)' },
   }
 
   const currentStatus = statusLabels[table.status] || { label: table.status, color: 'var(--color-text-primary)', bg: 'var(--color-bg)' }
@@ -109,18 +110,18 @@ export default function TableActionsModal({
               Status: {currentStatus.label}
             </span>
           </div>
-          <button
+          <Button
             onClick={onClose}
             className="btn btn--ghost btn--sm"
             style={{ minWidth: 'auto', padding: 'var(--space-1) var(--space-2)' }}
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Action Buttons list */}
         <div className="flex flex-col gap-3">
-          <button
+          <Button
             onClick={onStartOrder}
             disabled={loading}
             className="btn btn--primary"
@@ -131,10 +132,10 @@ export default function TableActionsModal({
             }}
           >
             ✨ Start New Order & Guest Count
-          </button>
+          </Button>
 
           {table.status === 'EMPTY' && (
-            <button
+            <Button
               onClick={() => handleUpdateStatus('RESERVED')}
               disabled={loading}
               className="btn btn--secondary"
@@ -143,16 +144,16 @@ export default function TableActionsModal({
                 padding: 'var(--space-4)',
                 borderColor: 'var(--color-table-reserved)',
                 color: 'var(--color-table-reserved)',
-                background: 'rgba(59,130,246,0.04)',
+                background: 'rgba(255, 255, 255, 0.08)',
                 fontSize: 'var(--text-base)',
               }}
             >
               📅 Reserve Table
-            </button>
+            </Button>
           )}
 
           {table.status === 'RESERVED' && (
-            <button
+            <Button
               onClick={() => handleUpdateStatus('EMPTY')}
               disabled={loading}
               className="btn btn--secondary"
@@ -165,7 +166,7 @@ export default function TableActionsModal({
               }}
             >
               🔓 Release / Mark Empty
-            </button>
+            </Button>
           )}
         </div>
 
@@ -174,9 +175,9 @@ export default function TableActionsModal({
           className="flex justify-end"
           style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-3)' }}
         >
-          <button onClick={onClose} disabled={loading} className="btn btn--secondary">
+          <Button onClick={onClose} disabled={loading} className="btn btn--secondary">
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>

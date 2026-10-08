@@ -40,7 +40,7 @@ export default function RootLayout({
         {/* Inline theme init — runs before first paint to avoid flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('prominentz-theme')||localStorage.getItem('resto-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('resto-theme')||localStorage.getItem('prominentz-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
           }}
         />
       </head>

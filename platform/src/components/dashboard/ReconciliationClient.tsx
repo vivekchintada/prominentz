@@ -182,7 +182,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       if (!r.ok) throw new Error(j.error)
       showToast(`Matched ${j.matched} orders, ${j.unmatched} unmatched, ${j.exceptions} exceptions`, 'success')
       await loadPeriods()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setActionLoading(null)
@@ -203,7 +203,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       if (!r.ok) throw new Error(j.error)
       showToast('Period locked successfully', 'success')
       await loadPeriods()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setActionLoading(null)
@@ -228,7 +228,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       URL.revokeObjectURL(url)
       showToast('CSV exported successfully', 'success')
       await loadPeriods()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setActionLoading(null)
@@ -252,7 +252,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       setResolutionNote('')
       await loadExceptions(selectedPeriodId)
       await loadPeriods()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setActionLoading(null)
@@ -281,7 +281,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       setImportResult(j)
       showToast(j.isDuplicate ? 'Duplicate statement — already imported' : `Imported ${j.lineCount} rows`, j.isDuplicate ? 'info' : 'success')
       await loadPeriods()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setImportLoading(false)
@@ -314,7 +314,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       setShowCreatePeriod(false)
       setNewPeriodName(''); setNewPeriodStart(''); setNewPeriodEnd(''); setNewPeriodNotes(''); setSelectedStatementIds([])
       await loadPeriods()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setActionLoading(null)
@@ -340,7 +340,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
       showToast('Provider added', 'success')
       setShowAddProvider(false)
       setNewProviderName(''); setNewProviderSlug('')
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message, 'error')
     } finally {
       setActionLoading(null)

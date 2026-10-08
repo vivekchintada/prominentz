@@ -57,7 +57,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Coupon not found' }, { status: 404 })
     }
 
-    const updateData: any = { ...parsed.data }
+    const updateData: unknown = { ...parsed.data }
     if (updateData.startDate) updateData.startDate = new Date(updateData.startDate)
     if (updateData.endDate) updateData.endDate = new Date(updateData.endDate)
 

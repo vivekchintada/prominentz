@@ -100,13 +100,12 @@ export default function DreamPosShell({
     const html = document.documentElement
     const nextDark = !isDark
     setIsDark(nextDark)
-    if (nextDark) {
-      html.setAttribute('data-theme', 'dark')
-      try { localStorage.setItem('resto-theme', 'dark') } catch {}
-    } else {
-      html.removeAttribute('data-theme')
-      try { localStorage.setItem('resto-theme', 'light') } catch {}
-    }
+    const nextTheme = nextDark ? 'dark' : 'light'
+    html.setAttribute('data-theme', nextTheme)
+    try {
+      localStorage.setItem('resto-theme', nextTheme)
+      localStorage.setItem('prominentz-theme', nextTheme)
+    } catch {}
   }
 
   const currentGroup = navGroups.find((g) => g.id === activeGroupId) || navGroups[0]
@@ -175,19 +174,20 @@ export default function DreamPosShell({
                 width: '32px',
                 height: '32px',
                 borderRadius: '8px',
-                background: 'linear-gradient(135deg, #6547F5 0%, #4E2FEB 100%)',
+                background: '#18181B',
+                border: '1px solid #18181B',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                boxShadow: '0 2px 8px rgba(101, 71, 245, 0.25)',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
               }}
             >
               <ProminentzLogo variant="icon" size="sm" inverse={true} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontWeight: 800, fontSize: '15px', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                Prominentz
+                Resto
               </span>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
                 {workstationTitle || (role === 'SERVER' ? 'Server Floor' : 'Kitchen KDS')}

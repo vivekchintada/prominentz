@@ -370,7 +370,7 @@ export default function ReportsClient() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 14px', backgroundColor: 'rgba(37,99,235,0.1)', borderRadius: '8px', border: '1px solid rgba(37,99,235,0.25)' }}>
                       <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>Total Settled Tenders</span>
-                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#5b45f5', fontFamily: 'monospace' }}>${zData.tenders.totalTenders.toFixed(2)}</span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: 'var(--brand)', fontFamily: 'monospace' }}>${zData.tenders.totalTenders.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -748,7 +748,7 @@ export default function ReportsClient() {
                 style={{
                   padding: '20px 24px',
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(217, 119, 6, 0.05) 100%)',
+                  background: 'var(--color-bg-card)',
                   border: '1px solid var(--color-border)',
                   display: 'flex',
                   alignItems: 'center',
@@ -758,7 +758,7 @@ export default function ReportsClient() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--brand-emerald, #059669)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--surface-raised)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
                     ⚖️
                   </div>
                   <div>

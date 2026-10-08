@@ -64,7 +64,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       if (!res.ok) throw new Error('Failed to load count sessions')
       const data = await res.json()
       setSessions(Array.isArray(data) ? data : [])
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading stock count sessions', 'error')
     } finally {
       setLoading(false)
@@ -93,7 +93,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       showToast(`Stock count session ${newSession.sessionNumber} started`, 'success')
       fetchSessions()
       handleOpenSheet(newSession.id)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error starting count', 'error')
     } finally {
       setStartingCount(false)
@@ -107,7 +107,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       if (!res.ok) throw new Error('Failed to load session details')
       const data = await res.json()
       setActiveSession(data)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error opening count sheet', 'error')
     } finally {
       setLoadingDetail(false)
@@ -152,7 +152,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       if (!res.ok) throw new Error('Failed to save draft counts')
       showToast('Draft counts saved', 'success')
       fetchSessions()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error saving draft', 'error')
     } finally {
       setSubmittingCount(false)
@@ -189,7 +189,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       setActiveSession(null)
       fetchSessions()
       onStockUpdated()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error finalizing count', 'error')
     } finally {
       setSubmittingCount(false)
@@ -215,15 +215,15 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
           padding: '18px 24px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
         <div>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#0f172a' }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--color-text-primary)' }}>
             Physical Stock Count Sessions
           </h3>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748b' }}>
@@ -240,7 +240,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
             padding: '10px 20px',
             borderRadius: 8,
             border: 'none',
-            background: '#5b45f5',
+            background: 'var(--brand)',
             color: '#ffffff',
             fontSize: 13,
             fontWeight: 700,
@@ -259,16 +259,16 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       {/* Sessions Table */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           overflow: 'hidden',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Session #</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Status</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Items Counted</th>
@@ -294,7 +294,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
             ) : (
               sessions.map((s) => (
                 <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '14px 18px', fontWeight: 800, color: '#0f172a' }}>{s.sessionNumber}</td>
+                  <td style={{ padding: '14px 18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{s.sessionNumber}</td>
                   <td style={{ padding: '14px 18px' }}>
                     <span
                       style={{
@@ -309,7 +309,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                       {s.status}
                     </span>
                   </td>
-                  <td style={{ padding: '14px 18px', color: '#334155' }}>{s.totalItemsCounted} items</td>
+                  <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>{s.totalItemsCounted} items</td>
                   <td style={{ padding: '14px 18px' }}>
                     {s.discrepancyCount > 0 ? (
                       <span style={{ color: '#ea580c', fontWeight: 700 }}>
@@ -333,7 +333,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                         borderRadius: 6,
                         border: '1px solid #cbd5e1',
                         background: s.status === 'DRAFT' ? '#eff6ff' : '#ffffff',
-                        color: s.status === 'DRAFT' ? '#5b45f5' : '#475569',
+                        color: s.status === 'DRAFT' ? 'var(--brand)' : '#475569',
                         fontSize: 12,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -366,7 +366,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 960,
@@ -384,13 +384,13 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '20px 24px',
-                borderBottom: '1px solid #e2e8f0',
-                background: '#f8fafc',
+                borderBottom: '1px solid var(--color-border)',
+                background: 'var(--color-bg-card-hover)',
               }}
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                     Physical Count Sheet — {activeSession.sessionNumber}
                   </h2>
                   <span
@@ -427,7 +427,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 justifyContent: 'space-between',
                 padding: '12px 24px',
                 borderBottom: '1px solid #f1f5f9',
-                background: '#ffffff',
+                background: 'var(--color-bg-card)',
                 gap: 12,
               }}
             >
@@ -438,7 +438,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                     padding: '6px 12px',
                     borderRadius: 6,
                     border: 'none',
-                    background: sheetFilter === 'ALL' ? '#5b45f5' : '#f1f5f9',
+                    background: sheetFilter === 'ALL' ? 'var(--brand)' : '#f1f5f9',
                     color: sheetFilter === 'ALL' ? '#ffffff' : '#475569',
                     fontSize: 12,
                     fontWeight: 700,
@@ -482,7 +482,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
             {/* Table */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
-                <thead style={{ position: 'sticky', top: 0, background: '#ffffff', zIndex: 10 }}>
+                <thead style={{ position: 'sticky', top: 0, background: 'var(--color-bg-card)', zIndex: 10 }}>
                   <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
                     <th style={{ padding: '12px 10px', fontWeight: 700 }}>Ingredient</th>
                     <th style={{ padding: '12px 10px', fontWeight: 700, textAlign: 'center' }}>Expected (System)</th>
@@ -494,13 +494,13 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 <tbody>
                   {filteredItems.map((item) => (
                     <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px 10px', fontWeight: 700, color: '#0f172a' }}>
+                      <td style={{ padding: '12px 10px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                         {item.inventoryItem.name}
                         <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
                           Unit: {item.inventoryItem.unit} • {item.inventoryItem.category || 'General'}
                         </div>
                       </td>
-                      <td style={{ padding: '12px 10px', textAlign: 'center', color: '#475569', fontWeight: 600 }}>
+                      <td style={{ padding: '12px 10px', textAlign: 'center', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                         {item.expectedQuantity} {item.inventoryItem.unit}
                       </td>
                       <td style={{ padding: '10px 10px' }}>
@@ -518,11 +518,11 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                               border: '1px solid #cbd5e1',
                               fontSize: 13,
                               fontWeight: 700,
-                              color: '#0f172a',
+                              color: 'var(--color-text-primary)',
                             }}
                           />
                         ) : (
-                          <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                          <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>
                             {item.countedQuantity} {item.inventoryItem.unit}
                           </span>
                         )}
@@ -567,13 +567,13 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '16px 24px',
-                borderTop: '1px solid #e2e8f0',
-                background: '#f8fafc',
+                borderTop: '1px solid var(--color-border)',
+                background: 'var(--color-bg-card-hover)',
               }}
             >
               <div style={{ fontSize: 13, color: '#64748b' }}>
                 Total Discrepancies:{' '}
-                <strong style={{ color: '#0f172a' }}>
+                <strong style={{ color: 'var(--color-text-primary)' }}>
                   {activeSession.items.filter((i) => Math.abs(i.variance) > 0.001).length}
                 </strong>
               </div>
@@ -586,10 +586,10 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                     padding: '9px 18px',
                     borderRadius: 8,
                     border: '1px solid #cbd5e1',
-                    background: '#ffffff',
+                    background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#475569',
+                    color: 'var(--color-text-secondary)',
                     cursor: 'pointer',
                   }}
                 >
@@ -607,7 +607,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                         borderRadius: 8,
                         border: '1px solid #bfdbfe',
                         background: '#eff6ff',
-                        color: '#5b45f5',
+                        color: 'var(--brand)',
                         fontSize: 13,
                         fontWeight: 700,
                         cursor: 'pointer',

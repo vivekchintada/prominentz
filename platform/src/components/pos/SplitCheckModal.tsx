@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import { Button } from '../ui/Button'
 
 interface OrderItemData {
   id:           string
   quantity:     number
   priceAtOrder: number
   seatNumber:   number
-  modifiers:    any
+  modifiers: unknown
   specialNote:  string | null
   status:       string
   menuItem: {
@@ -90,7 +91,7 @@ export default function SplitCheckModal({
       }
 
       onSeatChanged()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error reassigning item seat', 'error')
     } finally {
       setSaving(false)
@@ -108,7 +109,7 @@ export default function SplitCheckModal({
       })
       if (!res.ok) throw new Error('Print slip failed')
       showToast(`Printed Check for Seat ${seat}`, 'success')
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message || 'Printer error', 'error')
     } finally {
       setPrintingSeat(null)
@@ -170,7 +171,7 @@ export default function SplitCheckModal({
             >
               + Seat
             </button>
-            <button onClick={onClose} className="btn btn--ghost btn--sm ml-2">✕</button>
+            <Button onClick={onClose} className="btn btn--ghost btn--sm ml-2">✕</Button>
           </div>
         </div>
 
@@ -297,7 +298,7 @@ export default function SplitCheckModal({
             Grand Table Total: <span className="text-brand font-mono">${grandTotal.toFixed(2)}</span>
           </div>
           <div className="flex gap-2">
-            <button onClick={onClose} className="btn btn--primary">Done</button>
+            <Button onClick={onClose} className="btn btn--primary">Done</Button>
           </div>
         </div>
       </div>

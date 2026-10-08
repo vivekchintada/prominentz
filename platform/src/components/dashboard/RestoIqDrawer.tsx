@@ -125,7 +125,7 @@ I am continuously monitoring and managing **every operational domain** across li
           },
         ])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setMessages((prev) => [
         ...prev,
         {
@@ -153,14 +153,14 @@ I am continuously monitoring and managing **every operational domain** across li
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          padding: '12px 20px',
-          background: 'linear-gradient(135deg, #5b45f5, #4a36d9)',
+          padding: '10px 18px',
+          background: '#18181B',
           color: '#ffffff',
           border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: 9999,
-          fontWeight: 800,
-          fontSize: 14,
-          boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4), 0 8px 10px -6px rgba(37, 99, 235, 0.2)',
+          borderRadius: 8,
+          fontWeight: 600,
+          fontSize: 13,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           transform: isOpen ? 'scale(0.96)' : 'scale(1)',
@@ -220,8 +220,8 @@ I am continuously monitoring and managing **every operational domain** across li
                   width: 32,
                   height: 32,
                   borderRadius: 10,
-                  background: 'rgba(91,69,245,0.12)',
-                  color: '#5b45f5',
+                  background: 'var(--brand-tint)',
+                  color: 'var(--brand)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -289,8 +289,8 @@ I am continuously monitoring and managing **every operational domain** across li
                   flexShrink: 0,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#5b45f5'
-                  e.currentTarget.style.color = '#5b45f5'
+                  e.currentTarget.style.borderColor = 'var(--brand)'
+                  e.currentTarget.style.color = 'var(--brand)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'var(--color-border)'
@@ -330,7 +330,7 @@ I am continuously monitoring and managing **every operational domain** across li
                       maxWidth: '92%',
                       padding: '12px 16px',
                       borderRadius: 14,
-                      background: isAgent ? 'var(--color-bg-primary)' : '#5b45f5',
+                      background: isAgent ? 'var(--color-bg-primary)' : 'var(--brand)',
                       color: isAgent ? 'var(--color-text-primary)' : '#ffffff',
                       border: isAgent ? '1px solid var(--color-border)' : 'none',
                       fontSize: 13,
@@ -350,8 +350,8 @@ I am continuously monitoring and managing **every operational domain** across li
                               gap: 4,
                               fontSize: 10,
                               fontWeight: 800,
-                              background: 'rgba(91,69,245,0.12)',
-                              color: '#5b45f5',
+                              background: 'var(--brand-tint)',
+                              color: 'var(--brand)',
                               padding: '2px 6px',
                               borderRadius: 4,
                             }}
@@ -393,8 +393,8 @@ I am continuously monitoring and managing **every operational domain** across li
                                 fontWeight: 700,
                                 padding: '6px 12px',
                                 borderRadius: 8,
-                                backgroundColor: act.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : act.severity === 'WARNING' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(91,69,245,0.15)',
-                                color: act.severity === 'CRITICAL' ? '#ef4444' : act.severity === 'WARNING' ? '#f59e0b' : '#7b68f7',
+                                backgroundColor: act.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : act.severity === 'WARNING' ? 'rgba(245, 158, 11, 0.15)' : 'var(--brand-tint)',
+                                color: act.severity === 'CRITICAL' ? '#ef4444' : act.severity === 'WARNING' ? '#f59e0b' : 'var(--color-text-primary)',
                                 border: act.severity === 'CRITICAL' ? '1px solid rgba(239, 68, 68, 0.35)' : act.severity === 'WARNING' ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(37, 99, 235, 0.35)',
                                 cursor: isThinking ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.15s ease',
@@ -427,7 +427,7 @@ I am continuously monitoring and managing **every operational domain** across li
 
             {isThinking && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--color-bg-primary)', borderRadius: 10, width: 'fit-content' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#5b45f5', animation: 'ping 1s infinite' }} />
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', animation: 'ping 1s infinite' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                   Resto IQ is querying live telemetry & reasoning...
                 </span>
@@ -473,7 +473,7 @@ I am continuously monitoring and managing **every operational domain** across li
                 padding: '10px 16px',
                 borderRadius: 12,
                 border: 'none',
-                background: isThinking || !inputPrompt.trim() ? 'var(--color-border)' : '#5b45f5',
+                background: isThinking || !inputPrompt.trim() ? 'var(--color-border)' : 'var(--brand)',
                 color: '#ffffff',
                 fontWeight: 700,
                 fontSize: 13,

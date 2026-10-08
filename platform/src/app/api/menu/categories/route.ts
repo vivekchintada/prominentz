@@ -24,14 +24,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // If still no restaurantId, fallback to primary demo restaurant for public demo viewing
     if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst({ select: { id: true } })
-      restaurantId = fb?.id
-    }
-
-    if (!restaurantId) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Restaurant context or locationId required' }, { status: 400 })
     }
 
     let categories = await prisma.menuCategory.findMany({

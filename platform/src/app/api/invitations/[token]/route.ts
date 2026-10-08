@@ -50,7 +50,7 @@ export async function GET(
       locationName: invitation.location?.name || 'All Locations',
       expiresAt: invitation.expiresAt,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/invitations/:token]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
@@ -115,7 +115,7 @@ export async function POST(
       }
 
       // Check if user with this invited email already exists in User table
-      let existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.user.findUnique({
         where: { email: inviteEmail },
       })
 
@@ -223,7 +223,7 @@ export async function POST(
       message: `Welcome to ${invitation.restaurant?.name || 'the team'}! Your account has been activated.`,
       role: invitation.role,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/invitations/:token]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

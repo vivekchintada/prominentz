@@ -24,7 +24,7 @@ export default function KpiCard({
   value,
   numericValue,
   icon,
-  accent = '#5b45f5',
+  accent = '#18181b',
   change,
   changeType = 'neutral',
   live = false,
@@ -51,37 +51,26 @@ export default function KpiCard({
           background: 'var(--color-bg-card)',
           borderRadius: 'var(--radius-xl)',
           padding: 'var(--space-5)',
-          boxShadow: 'inset 0 0 0 0.5px var(--color-border)',
-          borderTop: `3px solid ${accent}`,
+          border: '1px solid var(--color-border)',
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-3)',
-          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          transition: 'transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease',
           cursor: 'default',
           position: 'relative',
           overflow: 'hidden',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'
-          ;(e.currentTarget as HTMLDivElement).style.boxShadow = `var(--shadow-md), inset 0 0 0 0.5px var(--color-border-strong), 0 0 0 1px ${accent}22`
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-md)'
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border-strong)'
         }}
         onMouseLeave={(e) => {
           (e.currentTarget as HTMLDivElement).style.transform = ''
-          ;(e.currentTarget as HTMLDivElement).style.boxShadow = 'inset 0 0 0 0.5px var(--color-border)'
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = ''
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border)'
         }}
       >
-        {/* Subtle accent glow in top-right corner */}
-        <div style={{
-          position: 'absolute',
-          top: -40,
-          right: -40,
-          width: 100,
-          height: 100,
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${accent}18 0%, transparent 70%)`,
-          pointerEvents: 'none',
-        }} />
-
         {/* Header row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -112,12 +101,12 @@ export default function KpiCard({
             width: 32,
             height: 32,
             borderRadius: 'var(--radius-md)',
-            background: `${accent}18`,
-            border: `1px solid ${accent}30`,
+            background: 'var(--surface-raised)',
+            border: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: accent,
+            color: 'var(--color-text-primary)',
             fontSize: 15,
           }}>
             {icon}

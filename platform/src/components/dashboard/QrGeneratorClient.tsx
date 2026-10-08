@@ -31,8 +31,8 @@ interface QrMenuConfig {
 // ── Accent color presets ─────────────────────────────────────────────────────
 
 const ACCENT_COLORS = [
-  { label: 'Electric Blue', value: '#5b45f5' },
-  { label: 'Royal Purple', value: '#7c3aed' },
+  { label: 'Obsidian White', value: 'var(--brand)' },
+  { label: 'Minimalist Slate', value: 'var(--color-text-primary)' },
   { label: 'Emerald', value: '#059669' },
   { label: 'Crimson', value: '#dc2626' },
   { label: 'Amber', value: '#d97706' },
@@ -65,7 +65,7 @@ function MasterMenuQrCard({
     <div
       className="card card--elevated animate-fade-in"
       style={{
-        background: 'linear-gradient(135deg, rgba(91,69,245,0.12) 0%, rgba(139,92,246,0.12) 100%)',
+        background: 'linear-gradient(135deg, var(--brand-tint) 0%, var(--brand-tint) 100%)',
         padding: '24px',
         borderRadius: '20px',
         border: isSelected ? '2px solid var(--brand)' : '1px solid rgba(37,99,235,0.35)',
@@ -105,7 +105,7 @@ function MasterMenuQrCard({
         </div>
       </div>
 
-      <div style={{ padding: '12px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: 'var(--shadow-md)', textAlign: 'center' }}>
+      <div style={{ padding: '12px', backgroundColor: 'var(--color-bg-card)', borderRadius: '16px', boxShadow: 'var(--shadow-md)', textAlign: 'center' }}>
         {dataUrl ? (
           <img src={dataUrl} alt="Master QR" style={{ width: '160px', height: '160px', display: 'block', borderRadius: '8px' }} />
         ) : (
@@ -156,7 +156,7 @@ function TableQrCard({
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '8px' }}>
         <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{table.name}</div>
-        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: table.status === 'ACTIVE' ? 'rgba(91,69,245,0.15)' : 'rgba(16,185,129,0.2)', color: table.status === 'ACTIVE' ? '#5b45f5' : '#10b981' }}>
+        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: table.status === 'ACTIVE' ? 'var(--brand-tint)' : 'rgba(16,185,129,0.2)', color: table.status === 'ACTIVE' ? 'var(--brand)' : '#10b981' }}>
           {table.status}
         </span>
       </div>
@@ -165,7 +165,7 @@ function TableQrCard({
         Capacity: {table.capacity} Guests • All Active Categories
       </div>
 
-      <div style={{ padding: '10px', backgroundColor: '#ffffff', borderRadius: '12px', marginBottom: '12px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)', minWidth: '160px', minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ padding: '10px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', marginBottom: '12px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)', minWidth: '160px', minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {dataUrl ? (
           <img src={dataUrl} alt={`QR for ${table.name}`} style={{ width: '160px', height: '160px', display: 'block', borderRadius: '4px' }} />
         ) : (
@@ -208,7 +208,7 @@ function MasterQrMenuChanger({
   const [config, setConfig] = useState<QrMenuConfig>({
     welcomeMessage: '',
     promoText: '',
-    accentColor: '#5b45f5',
+    accentColor: 'var(--brand)',
     mode: 'both',
     hiddenCategoryIds: [],
   })
@@ -227,7 +227,7 @@ function MasterQrMenuChanger({
           setConfig({
             welcomeMessage: data.welcomeMessage || '',
             promoText: data.promoText || '',
-            accentColor: data.accentColor || '#5b45f5',
+            accentColor: data.accentColor || 'var(--brand)',
             mode: data.mode || 'both',
             hiddenCategoryIds: data.hiddenCategoryIds || [],
           })
@@ -266,7 +266,7 @@ function MasterQrMenuChanger({
         const d = await res.json()
         alert(d.error || 'Failed to save')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.message || 'Error saving')
     } finally {
       setSaving(false)
@@ -281,8 +281,8 @@ function MasterQrMenuChanger({
       className="card"
       style={{
         borderRadius: '20px',
-        border: '1px solid rgba(139,92,246,0.35)',
-        background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(37,99,235,0.08) 100%)',
+        border: '1px solid var(--color-border)',
+        background: 'var(--color-bg-card)',
         marginBottom: '24px',
         overflow: 'hidden',
       }}
@@ -311,7 +311,7 @@ function MasterQrMenuChanger({
             <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
               Customize what customers see when they scan your QR code
               {!isExpanded && (
-                <span style={{ marginLeft: '8px', color: '#7c3aed', fontWeight: 700 }}>
+                <span style={{ marginLeft: '8px', color: 'var(--color-text-primary)', fontWeight: 700 }}>
                   • {visibleCount}/{categories.length} categories visible
                   {config.promoText ? ' • Promo active' : ''}
                 </span>
@@ -388,8 +388,8 @@ function MasterQrMenuChanger({
                           padding: '8px 6px',
                           borderRadius: '8px',
                           border: config.mode === m ? '2px solid var(--brand)' : '1px solid var(--color-border)',
-                          backgroundColor: config.mode === m ? 'rgba(91,69,245,0.15)' : 'var(--color-bg-card)',
-                          color: config.mode === m ? '#5b45f5' : 'var(--color-text-secondary)',
+                          backgroundColor: config.mode === m ? 'var(--brand-tint)' : 'var(--color-bg-card)',
+                          color: config.mode === m ? 'var(--brand)' : 'var(--color-text-secondary)',
                           fontSize: '11px',
                           fontWeight: 700,
                           cursor: 'pointer',
@@ -429,7 +429,7 @@ function MasterQrMenuChanger({
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <input
                         type="color"
-                        value={config.accentColor || '#5b45f5'}
+                        value={config.accentColor || 'var(--brand)'}
                         onChange={(e) => setConfig((p) => ({ ...p, accentColor: e.target.value }))}
                         style={{ width: '32px', height: '32px', borderRadius: '50%', border: 'none', cursor: 'pointer', padding: 0, background: 'none' }}
                         title="Custom color"
@@ -647,7 +647,7 @@ export function QrGeneratorClient() {
         const json = await res.json()
         alert(json.error || 'Failed to create table')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Error creating table')
     } finally {
       setSubmitting(false)
@@ -686,7 +686,7 @@ export function QrGeneratorClient() {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
             {categories.map((c) => (
-              <span key={c.id} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'rgba(91,69,245,0.12)', color: '#5b45f5', border: '1px solid rgba(37,99,235,0.25)' }}>
+              <span key={c.id} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--brand-tint)', color: 'var(--brand)', border: '1px solid rgba(37,99,235,0.25)' }}>
                 {c.name} ({c.items?.length || 0} dishes)
               </span>
             ))}
@@ -771,7 +771,7 @@ export function QrGeneratorClient() {
                 </span>
               </div>
               {previewUrl && (
-                <button onClick={() => window.open(previewUrl, '_blank')} style={{ fontSize: '11px', color: '#5b45f5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                <button onClick={() => window.open(previewUrl, '_blank')} style={{ fontSize: '11px', color: 'var(--brand)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
                   Full Tab ↗
                 </button>
               )}

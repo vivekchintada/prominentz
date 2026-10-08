@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       newBalance: result.customer.pointsBalance,
       ledgerEntry: result.ledger,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[POST /api/loyalty/adjust]', err)
     return NextResponse.json({ error: err?.message || 'Failed to adjust points' }, { status: 500 })
   }

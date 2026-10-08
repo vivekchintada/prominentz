@@ -14,7 +14,7 @@ export interface OfflineOrder {
     name: string
     price: number
     quantity: number
-    modifiers?: any[]
+    modifiers?: unknown[]
     specialNote?: string
   }>
   guestCount: number
@@ -31,7 +31,7 @@ export function openOfflineDB(): Promise<IDBDatabase> {
 
     const request = indexedDB.open(DB_NAME, DB_VERSION)
 
-    request.onupgradeneeded = (event: any) => {
+    request.onupgradeneeded = (event: unknown) => {
       const db = event.target.result
 
       // Store for offline pending orders
@@ -106,7 +106,7 @@ export async function updateOfflineOrder(
   })
 }
 
-export async function cacheMenu(categories: any[], items: any[]): Promise<void> {
+export async function cacheMenu(categories: unknown[], items: unknown[]): Promise<void> {
   try {
     const db = await openOfflineDB()
     const tx = db.transaction('menu_cache', 'readwrite')
@@ -117,7 +117,7 @@ export async function cacheMenu(categories: any[], items: any[]): Promise<void> 
   }
 }
 
-export async function getCachedMenu(): Promise<{ categories: any[]; items: any[] } | null> {
+export async function getCachedMenu(): Promise<{ categories: unknown[]; items: unknown[] } | null> {
   try {
     const db = await openOfflineDB()
     return new Promise((resolve) => {

@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json(periods)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GET /api/reconciliation/periods error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(period, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /api/reconciliation/periods error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

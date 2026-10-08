@@ -38,7 +38,7 @@ export default function TermsOfServicePage() {
       <main id="main-content" style={{ maxWidth: '860px', margin: '0 auto', padding: '56px 24px 100px' }}>
         {/* Header Breadcrumb & Title */}
         <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: '#7b68f7', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             <span>Legal Documentation</span>
             <span>•</span>
             <span>Master Service Agreement</span>
@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
         </div>
 
         {/* Quick Highlights Summary Box */}
-        <div style={{ backgroundColor: 'rgba(91,69,245,0.08)', border: '1px solid rgba(91,69,245,0.25)', borderRadius: '16px', padding: '24px', marginBottom: '48px' }}>
+        <div style={{ backgroundColor: 'var(--brand-tint)', border: '1px solid var(--brand-tint)', borderRadius: '16px', padding: '24px', marginBottom: '48px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#a594fd', margin: '0 0 12px' }}>
             Key Terms &amp; Commercial Highlights
           </h2>
@@ -200,8 +200,8 @@ export default function TermsOfServicePage() {
               Prominentz Inc. — Legal Inquiries &amp; Contract Administration
             </div>
             <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-              Legal Department: <a href="mailto:legal@prominentz.com" style={{ color: '#7b68f7', textDecoration: 'underline' }}>legal@prominentz.com</a><br />
-              General Inquiries: <a href="mailto:support@prominentz.com" style={{ color: '#7b68f7', textDecoration: 'underline' }}>support@prominentz.com</a><br />
+              Legal Department: <a href="mailto:legal@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>legal@prominentz.com</a><br />
+              General Inquiries: <a href="mailto:support@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>support@prominentz.com</a><br />
               Address: Prominentz Inc., 100 Innovation Way, Suite 400, Wilmington, DE 19801
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function TermsOfServicePage() {
           <Link href="/" className="btn btn--secondary" style={{ padding: '10px 20px', borderRadius: '8px', fontSize: '13px', textDecoration: 'none' }}>
             ← Return to Prominentz Home
           </Link>
-          <Link href="/privacy" style={{ color: '#7b68f7', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
+          <Link href="/privacy" style={{ color: 'var(--color-text-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
             Read Privacy Policy →
           </Link>
         </div>

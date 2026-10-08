@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
     const lower = prompt.toLowerCase().trim()
     let reply = ''
     let actionType: string | undefined
-    let actionData: any | undefined
+    let actionData: unknown | undefined
     let actionDirectives: Array<{
       id: string
       label: string
@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
       const res = await executeRestoIqTool('getKitchenHealth', {}, agentCtx)
       executedTools.push(res)
       const d = res.data
-      reply = `### 🍳 Kitchen KDS Operational Telemetry\n\n* **Active Cooking Queue**: **${d.activeQueueCount} tickets**\n* **Delayed Orders (>15m)**: **${d.delayedTicketsCount} tickets**\n* **Slowest Station**: ${d.slowestStation ? `**${d.slowestStation.station}** (${d.slowestStation.averageCookMins}m average cook duration)` : 'Normal velocity across all lines'}\n\n${d.delayedTickets.length > 0 ? `#### ⚠️ Delayed Orders in Pipeline:\n${d.delayedTickets.map((t: any) => `- **Table ${t.table}** at station \`${t.station}\` waiting **${t.elapsedMins} mins** (${t.items.join(', ')})`).join('\n')}` : '✅ All stations currently operating well within the 15-minute target cook window.'}`
+      reply = `### 🍳 Kitchen KDS Operational Telemetry\n\n* **Active Cooking Queue**: **${d.activeQueueCount} tickets**\n* **Delayed Orders (>15m)**: **${d.delayedTicketsCount} tickets**\n* **Slowest Station**: ${d.slowestStation ? `**${d.slowestStation.station}** (${d.slowestStation.averageCookMins}m average cook duration)` : 'Normal velocity across all lines'}\n\n${d.delayedTickets.length > 0 ? `#### ⚠️ Delayed Orders in Pipeline:\n${d.delayedTickets.map((t: unknown) => `- **Table ${t.table}** at station \`${t.station}\` waiting **${t.elapsedMins} mins** (${t.items.join(', ')})`).join('\n')}` : '✅ All stations currently operating well within the 15-minute target cook window.'}`
       
       actionDirectives = [
         { id: 'act-rush', label: '⚡ Expedite Delayed Tickets', prompt: 'Expedite all delayed kitchen tickets', severity: 'CRITICAL' },
@@ -212,7 +212,7 @@ export async function POST(req: NextRequest) {
       const res = await executeRestoIqTool('getTableFloorStatus', {}, agentCtx)
       executedTools.push(res)
       const d = res.data
-      reply = `### 🪑 Floor Plan & Table Telemetry\n\n* **Occupancy Rate**: **${d.occupancyRate}**\n* **Occupied Tables**: **${d.occupiedTables}** active\n* **Paying Tables**: **${d.payingTables}** processing checks\n* **Available Tables**: **${d.emptyTables}** tables ready for seating\n* **Large Groups / Banquets (8+ seats)**: **${d.banquetTables} tables**\n\n${d.idleLongWaitTables.length > 0 ? `#### ⏱️ Long Seated Tables (>45 mins):\n${d.idleLongWaitTables.map((t: any) => `- **${t.table}**: Seated for **${t.waitMins} mins** (Open Check: $${t.total.toFixed(2)})`).join('\n')}` : '✅ No tables currently experiencing extended idle delays.'}`
+      reply = `### 🪑 Floor Plan & Table Telemetry\n\n* **Occupancy Rate**: **${d.occupancyRate}**\n* **Occupied Tables**: **${d.occupiedTables}** active\n* **Paying Tables**: **${d.payingTables}** processing checks\n* **Available Tables**: **${d.emptyTables}** tables ready for seating\n* **Large Groups / Banquets (8+ seats)**: **${d.banquetTables} tables**\n\n${d.idleLongWaitTables.length > 0 ? `#### ⏱️ Long Seated Tables (>45 mins):\n${d.idleLongWaitTables.map((t: unknown) => `- **${t.table}**: Seated for **${t.waitMins} mins** (Open Check: $${t.total.toFixed(2)})`).join('\n')}` : '✅ No tables currently experiencing extended idle delays.'}`
       
       actionDirectives = [
         { id: 'act-resv', label: '📅 Check Upcoming Reservations', prompt: 'Check upcoming reservations and waitlist queue', severity: 'INFO' },
@@ -224,7 +224,7 @@ export async function POST(req: NextRequest) {
       const res = await executeRestoIqTool('getReservationsAndWaitlist', {}, agentCtx)
       executedTools.push(res)
       const d = res.data
-      reply = `### 📅 Reservations & Waitlist Intelligence\n\n* **Total Bookings Today**: **${d.todayReservationsCount} reservations**\n* **Active Waitlist Queue**: **${d.activeWaitlistQueue} parties** waiting\n* **Tonight's VIP Diners**: **${d.vipDiners.length} registered VIPs**\n\n#### Upcoming Arrivals:\n${d.reservations.slice(0, 5).map((r: any) => `- **${r.guestName}** (${r.partySize} guests) at **${r.time}** • Status: \`${r.status}\`${r.isVip ? ' ⭐ **VIP**' : ''}`).join('\n')}`
+      reply = `### 📅 Reservations & Waitlist Intelligence\n\n* **Total Bookings Today**: **${d.todayReservationsCount} reservations**\n* **Active Waitlist Queue**: **${d.activeWaitlistQueue} parties** waiting\n* **Tonight's VIP Diners**: **${d.vipDiners.length} registered VIPs**\n\n#### Upcoming Arrivals:\n${d.reservations.slice(0, 5).map((r: unknown) => `- **${r.guestName}** (${r.partySize} guests) at **${r.time}** • Status: \`${r.status}\`${r.isVip ? ' ⭐ **VIP**' : ''}`).join('\n')}`
       
       actionDirectives = [
         { id: 'act-vip-pref', label: '⭐ VIP Guest Preferences', prompt: 'Show VIP guest profiles and lifetime spend', severity: 'INFO' },
@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
       const res = await executeRestoIqTool('getInventoryAndDepletion', {}, agentCtx)
       executedTools.push(res)
       const d = res.data
-      reply = `### 📦 Inventory & Stock Telemetry\n\n* **Critical Items (Below Safety Stock)**: **${d.criticalStockCount} items**\n* **Currently 86'd Dishes**: **${d.currently86dMenuCount} items**\n* **Pending Supplier POs**: **${d.pendingPurchaseOrdersCount} purchase orders**\n\n${d.criticalItems.length > 0 ? `#### ⚠️ Critical Stock Breaches:\n${d.criticalItems.map((i: any) => `- **${i.name}**: ${i.currentStock} ${i.unit} remaining (Minimum threshold: ${i.minStock} ${i.unit})`).join('\n')}` : '✅ All tracked ingredients are currently above safety thresholds.'}`
+      reply = `### 📦 Inventory & Stock Telemetry\n\n* **Critical Items (Below Safety Stock)**: **${d.criticalStockCount} items**\n* **Currently 86'd Dishes**: **${d.currently86dMenuCount} items**\n* **Pending Supplier POs**: **${d.pendingPurchaseOrdersCount} purchase orders**\n\n${d.criticalItems.length > 0 ? `#### ⚠️ Critical Stock Breaches:\n${d.criticalItems.map((i: unknown) => `- **${i.name}**: ${i.currentStock} ${i.unit} remaining (Minimum threshold: ${i.minStock} ${i.unit})`).join('\n')}` : '✅ All tracked ingredients are currently above safety thresholds.'}`
       
       actionDirectives = [
         { id: 'act-po', label: '📦 Auto-Draft Restock PO', prompt: 'Create purchase order for low stock items', severity: 'WARNING' },
@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
       const res = await executeRestoIqTool('getLossPreventionAudit', {}, agentCtx)
       executedTools.push(res)
       const d = res.data
-      reply = `### 🛡️ Loss Prevention & Fraud Audit\n\n* **Void Events Today**: **${d.voidEventsCount}** ($${d.totalVoidAmount.toFixed(2)} total value)\n* **Courtesy Comps / Discounts**: **${d.compEventsCount} events**\n* **Calculated Risk Level**: **\`${d.riskLevel}\`**\n\n${d.recentEvents.length > 0 ? `#### Recent Audit Log Records:\n${d.recentEvents.map((e: any) => `- \`${e.type}\` at **Table ${e.table}** (${e.time})`).join('\n')}` : '✅ No suspicious cashier drawer openings or abnormal void spikes detected today.'}`
+      reply = `### 🛡️ Loss Prevention & Fraud Audit\n\n* **Void Events Today**: **${d.voidEventsCount}** ($${d.totalVoidAmount.toFixed(2)} total value)\n* **Courtesy Comps / Discounts**: **${d.compEventsCount} events**\n* **Calculated Risk Level**: **\`${d.riskLevel}\`**\n\n${d.recentEvents.length > 0 ? `#### Recent Audit Log Records:\n${d.recentEvents.map((e: unknown) => `- \`${e.type}\` at **Table ${e.table}** (${e.time})`).join('\n')}` : '✅ No suspicious cashier drawer openings or abnormal void spikes detected today.'}`
       
       actionDirectives = [
         { id: 'act-loss-deep', label: '🛡️ Audit Manager Comps', prompt: 'Audit today voids and comps', severity: 'INFO' },
@@ -261,7 +261,7 @@ export async function POST(req: NextRequest) {
       const res = await executeRestoIqTool('getLaborEfficiency', {}, agentCtx)
       executedTools.push(res)
       const d = res.data
-      reply = `### 👥 Labor Efficiency & Staffing Status\n\n* **Clocked In Staff**: **${d.currentlyClockedInCount} employees**\n* **Estimated Labor Cost Today**: **$${d.todayEstimatedLaborCost.toFixed(2)}**\n* **Labor Cost as % of Sales**: **${d.laborPercentage}%**\n* **Status**: **${d.laborHealthStatus}** (Target $\\le 30\\%$)\n\n#### Active Crew on Shift:\n${d.clockedInStaff.map((s: any) => `- **${s.name}** (\`${s.role}\`) • Clocked in at ${s.clockInTime} (${s.workedHours}h on shift)`).join('\n')}`
+      reply = `### 👥 Labor Efficiency & Staffing Status\n\n* **Clocked In Staff**: **${d.currentlyClockedInCount} employees**\n* **Estimated Labor Cost Today**: **$${d.todayEstimatedLaborCost.toFixed(2)}**\n* **Labor Cost as % of Sales**: **${d.laborPercentage}%**\n* **Status**: **${d.laborHealthStatus}** (Target $\\le 30\\%$)\n\n#### Active Crew on Shift:\n${d.clockedInStaff.map((s: unknown) => `- **${s.name}** (\`${s.role}\`) • Clocked in at ${s.clockInTime} (${s.workedHours}h on shift)`).join('\n')}`
       
       actionDirectives = [
         { id: 'act-cut', label: '👥 Suggest Labor Cuts', prompt: 'Suggest staff shift cuts to reduce labor cost', severity: 'OPPORTUNITY' },
@@ -391,7 +391,7 @@ export async function POST(req: NextRequest) {
       actionDirectives,
       mode,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Resto IQ Orchestrator Route Error]:', err)
     return NextResponse.json(
       { error: err.message || 'Internal error in Resto IQ agent orchestrator' },

@@ -12,7 +12,7 @@ interface OrderItem {
   id: string
   quantity: number
   priceAtOrder: number
-  modifiers: any
+  modifiers: unknown
   specialNote: string | null
   menuItem: {
     name: string
@@ -50,7 +50,7 @@ interface CheckoutModalProps {
   onClose: () => void
   onComplete: () => void
   order: OrderData
-  showToast: (message: string, variant?: any) => void
+  showToast: (message: string, variant?: unknown) => void
   initialCoupon?: CouponInfo | null
   onCouponChange?: (coupon: CouponInfo | null) => void
 }
@@ -132,7 +132,7 @@ export default function CheckoutModal({
         .then((r) => r.json())
         .then((data) => {
           if (Array.isArray(data)) {
-            setAvailableCoupons(data.filter((c: any) => c.status === 'ACTIVE'))
+            setAvailableCoupons(data.filter((c: unknown) => c.status === 'ACTIVE'))
           }
         })
         .catch(() => {})
@@ -236,7 +236,7 @@ export default function CheckoutModal({
       setSuggestedCoupons([])
       setShowCouponPicker(false)
       showToast(data.message || `Coupon ${data.coupon.code} applied! -$${disc.toFixed(2)}`, 'success')
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Failed to apply coupon', 'error')
     } finally {
       setCouponLoading(false)
@@ -386,7 +386,7 @@ export default function CheckoutModal({
               tableId: order.tableId,
               guestCount: order.guestCount || 2,
               notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})` : order.notes,
-              items: order.items?.map((i: any) => ({
+              items: order.items?.map((i: unknown) => ({
                 menuItemId: i.menuItemId || i.id,
                 quantity: i.quantity || 1,
                 specialNote: i.specialNote || null,
@@ -400,7 +400,7 @@ export default function CheckoutModal({
             const errData = await createOrderRes.json().catch(() => ({}))
             throw new Error(errData.error || 'Failed to initialize database order for checkout')
           }
-        } catch (createErr: any) {
+        } catch (createErr: unknown) {
           showToast(createErr.message || 'Failed to create order', 'error')
           setIsFinishing(false)
           return
@@ -475,7 +475,7 @@ export default function CheckoutModal({
         const receiptRecord = await receiptRes.json()
         setReceiptUrl(receiptRecord.url)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Checkout failed', 'error')
       setIsProcessingCard(false)
       setIsWaitingQrPayment(false)
@@ -530,7 +530,7 @@ export default function CheckoutModal({
       } else {
         setActiveSplitIndex(null)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Failed split payment authorization', 'error')
     }
   }
@@ -573,7 +573,7 @@ export default function CheckoutModal({
               tableId: order.tableId || 'table-1',
               guestCount: order.guestCount || 2,
               notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})` : order.notes,
-              items: order.items?.map((i: any) => ({
+              items: order.items?.map((i: unknown) => ({
                 menuItemId: i.menuItemId || i.id,
                 quantity: i.quantity || 1,
                 specialNote: i.specialNote || null,
@@ -642,7 +642,7 @@ export default function CheckoutModal({
         const receiptRecord = await receiptRes.json()
         setReceiptUrl(receiptRecord.url)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Failed to finalize splits', 'error')
     } finally {
       setIsFinishing(false)
@@ -664,7 +664,7 @@ export default function CheckoutModal({
       if (!res.ok) throw new Error('Failed to send receipt')
       showToast(`Receipt successfully sent to ${receiptEmail}!`, 'success')
       setReceiptEmail('')
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Failed to send receipt', 'error')
     } finally {
       setIsSendingReceipt(false)
@@ -968,7 +968,7 @@ export default function CheckoutModal({
                             🏷️ Active coupons available to use instead:
                           </div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                            {suggestedCoupons.map((c: any) => (
+                            {suggestedCoupons.map((c: unknown) => (
                               <button
                                 key={c.id || c.code}
                                 type="button"
@@ -1009,7 +1009,7 @@ export default function CheckoutModal({
                         style={{
                           background: 'none',
                           border: 'none',
-                          color: '#5b45f5',
+                          color: 'var(--color-text-primary, #18181B)',
                           fontSize: '11px',
                           fontWeight: 600,
                           cursor: 'pointer',
@@ -1043,11 +1043,11 @@ export default function CheckoutModal({
                           style={{
                             cursor: 'pointer',
                             padding: '4px 8px',
-                            background: 'rgba(91, 69, 245, 0.1)',
-                            border: '1px solid #5b45f5',
-                            color: '#5b45f5',
+                            background: 'rgba(24, 24, 27, 0.06)',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text-primary, #18181B)',
                             fontSize: '11px',
-                            fontWeight: 700,
+                            fontWeight: 600,
                           }}
                         >
                           {c.code} ({c.discountType === 'PERCENTAGE' ? `${c.discountAmount}% off` : `$${c.discountAmount} off`})

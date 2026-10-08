@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, floor: cleanFloor }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/floors]', error)
     return NextResponse.json({ error: error.message || 'Failed to add floor' }, { status: 500 })
   }

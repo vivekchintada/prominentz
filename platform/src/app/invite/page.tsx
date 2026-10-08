@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
 
 function InviteContent() {
   const searchParams = useSearchParams()
@@ -89,7 +90,7 @@ function InviteContent() {
       } else {
         setError(data.error || 'Failed to accept invitation.')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err?.message || 'Network error accepting invitation.')
     } finally {
       setSubmitting(false)
@@ -162,8 +163,8 @@ function InviteContent() {
           <>
             <div
               style={{
-                background: 'rgba(91,69,245,0.08)',
-                border: '1px solid rgba(91,69,245,0.25)',
+                background: 'var(--brand-tint)',
+                border: '1px solid var(--brand-tint)',
                 borderRadius: 14,
                 padding: '16px',
                 marginBottom: 24,
@@ -185,7 +186,7 @@ function InviteContent() {
                     fontSize: 11,
                     padding: '2px 8px',
                     borderRadius: 999,
-                    backgroundColor: 'rgba(91,69,245,0.2)',
+                    backgroundColor: 'var(--brand-tint)',
                     color: '#818cf8',
                     textTransform: 'uppercase',
                   }}
@@ -231,14 +232,14 @@ function InviteContent() {
                 />
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={submitting}
-                className="btn btn--primary"
+                loading={submitting} variant="primary"
                 style={{ width: '100%', padding: '14px', borderRadius: 10, fontWeight: 800, fontSize: 14, marginTop: 8 }}
               >
                 {submitting ? 'Activating Account...' : 'Accept Invitation & Join Team'}
-              </button>
+                              </Button>
             </form>
           </>
         ) : (

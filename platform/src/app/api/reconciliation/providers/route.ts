@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json(providers)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GET /api/reconciliation/providers error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(provider, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /api/reconciliation/providers error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

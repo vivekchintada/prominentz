@@ -46,23 +46,23 @@ interface TableIllustrationProps {
 }
 
 function TableIllustration({ capacity, shape, status }: TableIllustrationProps) {
-  // Palette according to status matching DreamPOS screenshot
-  let chairColor = '#93c5fd' // soft blue for available
-  let tableFill = '#eff6ff'
-  let tableBorder = '#bfdbfe'
+  // Sleek minimalist status palette
+  let chairColor = 'var(--color-border-strong)'
+  let tableFill = 'var(--surface-raised)'
+  let tableBorder = 'var(--color-border)'
 
   if (status === 'RESERVED') {
-    chairColor = '#c4b5fd' // soft purple for booked
-    tableFill = '#f5f3ff'
-    tableBorder = '#ddd6fe'
+    chairColor = 'var(--color-text-tertiary)'
+    tableFill = 'var(--surface-card)'
+    tableBorder = 'var(--color-border-strong)'
   } else if (status === 'ACTIVE') {
-    chairColor = '#f472b6' // soft pink/purple for occupied
-    tableFill = '#fdf2f8'
-    tableBorder = '#fbcfe8'
+    chairColor = 'var(--brand)'
+    tableFill = 'var(--surface-card-hover)'
+    tableBorder = 'var(--brand)'
   } else if (status === 'PAYING') {
-    chairColor = '#fcd34d'
-    tableFill = '#fffbeb'
-    tableBorder = '#fef08a'
+    chairColor = 'var(--color-text-secondary)'
+    tableFill = 'var(--surface-raised)'
+    tableBorder = 'var(--color-border-strong)'
   }
 
   // 10+ seats: Long rectangular / capsule table
@@ -304,7 +304,7 @@ export default function TablesClient() {
       setBookGuestEmail('')
       setBookNotes('')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error booking table')
     } finally {
       setSubmittingBook(false)
@@ -328,7 +328,7 @@ export default function TablesClient() {
       showToast(`Status updated to ${status === 'EMPTY' ? 'Available' : status === 'ACTIVE' ? 'Occupied' : 'Booked'}`)
       setSelectedTable(null)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating status')
     }
   }
@@ -363,7 +363,7 @@ export default function TablesClient() {
       showToast(`✅ Table "${newTableName}" created on ${newTableFloor}!`)
       setNewTableName('')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error creating table')
     } finally {
       setSubmittingNewTable(false)
@@ -395,7 +395,7 @@ export default function TablesClient() {
       setSelectedFloor(newFloorName.trim())
       setNewFloorName('')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error adding floor')
     } finally {
       setSubmittingNewFloor(false)
@@ -418,13 +418,13 @@ export default function TablesClient() {
       showToast(`Table "${tableName}" deleted`)
       setSelectedTable(null)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error deleting table')
     }
   }
 
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '24px 32px', fontFamily: 'inherit' }}>
+    <div style={{ backgroundColor: 'var(--color-bg-card-hover)', minHeight: '100vh', padding: '24px 32px', fontFamily: 'inherit' }}>
       {/* Toast Notification */}
       {toastMessage && (
         <div
@@ -432,7 +432,7 @@ export default function TablesClient() {
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundColor: '#1e293b',
+            backgroundcolor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -451,7 +451,7 @@ export default function TablesClient() {
 
       {/* ── Top Header Row ─────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
           Tables
         </h1>
 
@@ -464,7 +464,7 @@ export default function TablesClient() {
               setIsBookModalOpen(true)
             }}
             style={{
-              backgroundColor: '#5b45f5',
+              backgroundColor: 'var(--brand)',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -478,8 +478,8 @@ export default function TablesClient() {
               boxShadow: '0 2px 4px rgba(37,99,235,0.2)',
               transition: 'background-color 0.15s ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4a36d9')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5b45f5')}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--brand-hover)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--brand)')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -499,22 +499,22 @@ export default function TablesClient() {
               gap: 8,
               padding: '0 14px',
               height: 40,
-              backgroundColor: '#eff6ff',
-              border: '1px solid #bfdbfe',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
-              fontWeight: 700,
-              color: '#5b45f5',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
               textDecoration: 'none',
               transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#dbeafe'
-              e.currentTarget.style.borderColor = '#93c5fd'
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-card-hover)'
+              e.currentTarget.style.borderColor = 'var(--color-border-strong)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#eff6ff'
-              e.currentTarget.style.borderColor = '#bfdbfe'
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-card)'
+              e.currentTarget.style.borderColor = 'var(--color-border)'
             }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -535,12 +535,12 @@ export default function TablesClient() {
               gap: 8,
               padding: '0 14px',
               height: 40,
-              backgroundColor: '#f8fafc',
+              backgroundColor: 'var(--color-bg-card-hover)',
               border: '1px solid #cbd5e1',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 700,
-              color: '#334155',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
@@ -564,8 +564,8 @@ export default function TablesClient() {
             onClick={() => setIsSettingsModalOpen(true)}
             title="Manage Table & Floor Plan Settings"
             style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               width: 40,
               height: 40,
@@ -573,7 +573,7 @@ export default function TablesClient() {
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#475569',
+              color: 'var(--color-text-secondary)',
               transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
@@ -609,8 +609,8 @@ export default function TablesClient() {
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  border: isActive ? '1px solid #5b45f5' : '1px solid #f59e0b',
-                  backgroundColor: isActive ? '#5b45f5' : '#ffffff',
+                  border: isActive ? '1px solid var(--brand)' : '1px solid #f59e0b',
+                  backgroundColor: isActive ? 'var(--brand)' : '#ffffff',
                   color: isActive ? '#ffffff' : '#d97706',
                   transition: 'all 0.15s ease',
                   boxShadow: isActive ? '0 2px 4px rgba(37,99,235,0.2)' : 'none',
@@ -646,9 +646,9 @@ export default function TablesClient() {
           Loading floor tables...
         </div>
       ) : displayedTables.length === 0 ? (
-        <div style={{ backgroundColor: '#ffffff', padding: '60px 24px', borderRadius: 16, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <div style={{ backgroundColor: 'var(--color-bg-card)', padding: '60px 24px', borderRadius: 16, border: '1px solid var(--color-border)', textAlign: 'center' }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🪑</div>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e293b' }}>No tables found on {selectedFloor}</h3>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>No tables found on {selectedFloor}</h3>
           <p style={{ margin: '6px 0 16px 0', fontSize: 13, color: '#64748b' }}>
             Click the settings gear icon to add tables to this floor or manage your floor plan.
           </p>
@@ -659,7 +659,7 @@ export default function TablesClient() {
             }}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#5b45f5',
+              backgroundColor: 'var(--brand)',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -689,7 +689,7 @@ export default function TablesClient() {
                 key={table.id}
                 onClick={() => setSelectedTable(table)}
                 style={{
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--color-bg-card)',
                   borderRadius: 14,
                   border: '1px solid #f1f5f9',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -720,12 +720,12 @@ export default function TablesClient() {
                 </div>
 
                 {/* Table Name */}
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 3 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 3 }}>
                   {table.name}
                 </div>
 
                 {/* Seats Count */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#5b45f5', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--brand)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 11 }}>👥</span> {table.capacity} seats
                 </div>
 
@@ -775,7 +775,7 @@ export default function TablesClient() {
                       marginTop: 4,
                     }}
                   >
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {table.activeBooking.guestName}
                     </div>
                     <div style={{ fontSize: 10, color: '#f59e0b', fontWeight: 600, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -807,7 +807,7 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 440,
@@ -819,7 +819,7 @@ export default function TablesClient() {
             {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   {selectedTable.name}
                 </h3>
                 <span style={{ fontSize: 12, color: '#64748b' }}>
@@ -837,7 +837,7 @@ export default function TablesClient() {
             {/* Illustration & Status Card */}
             <div
               style={{
-                backgroundColor: '#f8fafc',
+                backgroundColor: 'var(--color-bg-card-hover)',
                 borderRadius: 12,
                 padding: '16px 12px',
                 textAlign: 'center',
@@ -849,7 +849,7 @@ export default function TablesClient() {
                 shape={selectedTable.shape}
                 status={selectedTable.status}
               />
-              <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: '#334155' }}>
+              <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                 Current Status:{' '}
                 <span
                   style={{
@@ -870,7 +870,7 @@ export default function TablesClient() {
               </div>
 
               {selectedTable.activeBooking && (
-                <div style={{ marginTop: 8, fontSize: 12, color: '#475569', backgroundColor: '#ffffff', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-bg-card)', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)' }}>
                   <strong>Guest:</strong> {selectedTable.activeBooking.guestName} ({selectedTable.activeBooking.partySize} guests)<br />
                   <span style={{ color: '#d97706', fontSize: 11 }}>{selectedTable.activeBooking.bookingTime}</span>
                 </div>
@@ -881,10 +881,10 @@ export default function TablesClient() {
                 <div
                   style={{
                     marginTop: 10,
-                    backgroundColor: '#ffffff',
+                    backgroundColor: 'var(--color-bg-card)',
                     padding: '10px 12px',
                     borderRadius: 8,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--color-border)',
                     textAlign: 'left',
                   }}
                 >
@@ -898,18 +898,18 @@ export default function TablesClient() {
                   </div>
 
                   {selectedTable.activeOrder.items && selectedTable.activeOrder.items.length > 0 ? (
-                    <div style={{ maxHeight: 110, overflowY: 'auto', border: '1px solid #f1f5f9', borderRadius: 6, padding: '4px 8px', backgroundColor: '#f8fafc', marginBottom: 6 }}>
+                    <div style={{ maxHeight: 110, overflowY: 'auto', border: '1px solid #f1f5f9', borderRadius: 6, padding: '4px 8px', backgroundColor: 'var(--color-bg-card-hover)', marginBottom: 6 }}>
                       {selectedTable.activeOrder.items.map((it, idx) => (
                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '2px 0' }}>
-                          <span style={{ color: '#334155' }}>{it.quantity}× {it.name}</span>
-                          <span style={{ fontWeight: 600, color: '#0f172a' }}>${(it.price * it.quantity).toFixed(2)}</span>
+                          <span style={{ color: 'var(--color-text-secondary)' }}>{it.quantity}× {it.name}</span>
+                          <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>${(it.price * it.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
                   ) : null}
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 6 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>Total Bill:</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)' }}>Total Bill:</span>
                     <span style={{ fontSize: 15, fontWeight: 800, color: '#16a34a' }}>
                       ${selectedTable.activeOrder.total.toFixed(2)}
                     </span>
@@ -930,7 +930,7 @@ export default function TablesClient() {
                       justifyContent: 'center',
                       gap: 6,
                       padding: '10px',
-                      backgroundColor: '#5b45f5',
+                      backgroundColor: 'var(--brand)',
                       color: '#ffffff',
                       borderRadius: 8,
                       fontSize: 13,
@@ -948,8 +948,8 @@ export default function TablesClient() {
                     }}
                     style={{
                       padding: '10px',
-                      backgroundColor: '#ffffff',
-                      color: '#334155',
+                      backgroundColor: 'var(--color-bg-card)',
+                      color: 'var(--color-text-secondary)',
                       border: '1px solid #cbd5e1',
                       borderRadius: 8,
                       fontSize: 13,
@@ -963,7 +963,7 @@ export default function TablesClient() {
                     onClick={() => handleTableStatusChange(selectedTable.id, 'ACTIVE')}
                     style={{
                       padding: '9px',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--color-bg-card)',
                       color: '#e11d48',
                       border: '1px solid #fecdd3',
                       borderRadius: 8,
@@ -998,7 +998,7 @@ export default function TablesClient() {
                     onClick={() => handleTableStatusChange(selectedTable.id, 'EMPTY')}
                     style={{
                       padding: '10px',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--color-bg-card)',
                       color: '#64748b',
                       border: '1px solid #cbd5e1',
                       borderRadius: 8,
@@ -1022,7 +1022,7 @@ export default function TablesClient() {
                       justifyContent: 'center',
                       gap: 6,
                       padding: '10px',
-                      backgroundColor: '#5b45f5',
+                      backgroundColor: 'var(--brand)',
                       color: '#ffffff',
                       borderRadius: 8,
                       fontSize: 13,
@@ -1053,20 +1053,12 @@ export default function TablesClient() {
               {/* Table QR Code Button */}
               <button
                 onClick={() => setQrModalTable(selectedTable)}
+                className="btn btn--secondary"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '10px',
-                  backgroundColor: '#eff6ff',
-                  color: '#2563eb',
-                  border: '1px solid #bfdbfe',
-                  borderRadius: 8,
+                  width: '100%',
+                  height: 40,
                   fontSize: 13,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  fontWeight: 600,
                 }}
               >
                 📱 View &amp; Print Table QR Code
@@ -1076,20 +1068,12 @@ export default function TablesClient() {
               {selectedTable.activeOrder && (
                 <button
                   onClick={() => setThermalModalTable(selectedTable)}
+                  className="btn btn--primary"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    padding: '10px',
-                    backgroundColor: '#1e293b',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 8,
+                    width: '100%',
+                    height: 40,
                     fontSize: 13,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
+                    fontWeight: 600,
                   }}
                 >
                   🖨️ Print Thermal Receipt (80mm)
@@ -1134,7 +1118,7 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 480,
@@ -1144,7 +1128,7 @@ export default function TablesClient() {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 📅 Book a Dining Table
               </h3>
               <button
@@ -1158,7 +1142,7 @@ export default function TablesClient() {
             <form onSubmit={handleBookSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {/* Select Table */}
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                   Select Table *
                 </label>
                 <select
@@ -1186,7 +1170,7 @@ export default function TablesClient() {
               {/* Guest Name & Phone */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Guest Name *
                   </label>
                   <input
@@ -1206,7 +1190,7 @@ export default function TablesClient() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Contact Phone *
                   </label>
                   <input
@@ -1230,7 +1214,7 @@ export default function TablesClient() {
               {/* Party Size & Email */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Guests (Pax) *
                   </label>
                   <input
@@ -1250,7 +1234,7 @@ export default function TablesClient() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Email (Optional)
                   </label>
                   <input
@@ -1273,7 +1257,7 @@ export default function TablesClient() {
               {/* Date & Time */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Date *
                   </label>
                   <input
@@ -1292,7 +1276,7 @@ export default function TablesClient() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Time *
                   </label>
                   <input
@@ -1314,7 +1298,7 @@ export default function TablesClient() {
 
               {/* Notes */}
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                   Special Requests / Seating Notes
                 </label>
                 <input
@@ -1339,12 +1323,12 @@ export default function TablesClient() {
                   onClick={() => setIsBookModalOpen(false)}
                   style={{
                     padding: '8px 16px',
-                    backgroundColor: '#f1f5f9',
+                    backgroundColor: 'var(--color-bg-input)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#475569',
+                    color: 'var(--color-text-secondary)',
                     cursor: 'pointer',
                   }}
                 >
@@ -1355,7 +1339,7 @@ export default function TablesClient() {
                   disabled={submittingBook}
                   style={{
                     padding: '8px 20px',
-                    backgroundColor: '#5b45f5',
+                    backgroundColor: 'var(--brand)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,
@@ -1390,7 +1374,7 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 580,
@@ -1403,7 +1387,7 @@ export default function TablesClient() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   ⚙️ Table Plan &amp; Floor Settings
                 </h3>
                 <span style={{ fontSize: 12, color: '#64748b' }}>
@@ -1419,17 +1403,17 @@ export default function TablesClient() {
             </div>
 
             {/* Tab switch */}
-            <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid #e2e8f0', marginBottom: 18 }}>
+            <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--color-border)', marginBottom: 18 }}>
               <button
                 onClick={() => setSettingsTab('tables')}
                 style={{
                   padding: '8px 16px',
                   background: 'none',
                   border: 'none',
-                  borderBottom: settingsTab === 'tables' ? '2px solid #5b45f5' : '2px solid transparent',
+                  borderBottom: settingsTab === 'tables' ? '2px solid var(--brand)' : '2px solid transparent',
                   fontWeight: 700,
                   fontSize: 13,
-                  color: settingsTab === 'tables' ? '#5b45f5' : '#64748b',
+                  color: settingsTab === 'tables' ? 'var(--brand)' : '#64748b',
                   cursor: 'pointer',
                 }}
               >
@@ -1441,10 +1425,10 @@ export default function TablesClient() {
                   padding: '8px 16px',
                   background: 'none',
                   border: 'none',
-                  borderBottom: settingsTab === 'floors' ? '2px solid #5b45f5' : '2px solid transparent',
+                  borderBottom: settingsTab === 'floors' ? '2px solid var(--brand)' : '2px solid transparent',
                   fontWeight: 700,
                   fontSize: 13,
-                  color: settingsTab === 'floors' ? '#5b45f5' : '#64748b',
+                  color: settingsTab === 'floors' ? 'var(--brand)' : '#64748b',
                   cursor: 'pointer',
                 }}
               >
@@ -1458,14 +1442,14 @@ export default function TablesClient() {
                 <form
                   onSubmit={handleAddTableSubmit}
                   style={{
-                    backgroundColor: '#f8fafc',
+                    backgroundColor: 'var(--color-bg-card-hover)',
                     padding: 16,
                     borderRadius: 12,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--color-border)',
                     marginBottom: 20,
                   }}
                 >
-                  <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, color: '#1e293b' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     + Add New Table
                   </h4>
 
@@ -1559,7 +1543,7 @@ export default function TablesClient() {
                     disabled={submittingNewTable}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#5b45f5',
+                      backgroundColor: 'var(--brand)',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: 6,
@@ -1573,7 +1557,7 @@ export default function TablesClient() {
                 </form>
 
                 {/* Existing Tables List */}
-                <h4 style={{ margin: '0 0 10px 0', fontSize: 13, fontWeight: 700, color: '#475569' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                   Existing Tables ({tables.length})
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto' }}>
@@ -1585,9 +1569,9 @@ export default function TablesClient() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '8px 12px',
-                        backgroundColor: '#ffffff',
+                        backgroundColor: 'var(--color-bg-card)',
                         borderRadius: 8,
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--color-border)',
                         fontSize: 12,
                       }}
                     >
@@ -1618,14 +1602,14 @@ export default function TablesClient() {
                 <form
                   onSubmit={handleAddFloorSubmit}
                   style={{
-                    backgroundColor: '#f8fafc',
+                    backgroundColor: 'var(--color-bg-card-hover)',
                     padding: 16,
                     borderRadius: 12,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--color-border)',
                     marginBottom: 20,
                   }}
                 >
-                  <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, color: '#1e293b' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     + Add New Dining Floor or Zone
                   </h4>
                   <div style={{ display: 'flex', gap: 10 }}>
@@ -1648,7 +1632,7 @@ export default function TablesClient() {
                       disabled={submittingNewFloor}
                       style={{
                         padding: '8px 16px',
-                        backgroundColor: '#5b45f5',
+                        backgroundColor: 'var(--brand)',
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: 6,
@@ -1663,7 +1647,7 @@ export default function TablesClient() {
                 </form>
 
                 {/* Active Floors */}
-                <h4 style={{ margin: '0 0 10px 0', fontSize: 13, fontWeight: 700, color: '#475569' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                   Configured Floors
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1677,13 +1661,13 @@ export default function TablesClient() {
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           padding: '10px 14px',
-                          backgroundColor: '#ffffff',
+                          backgroundColor: 'var(--color-bg-card)',
                           borderRadius: 8,
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--color-border)',
                           fontSize: 13,
                         }}
                       >
-                        <div style={{ fontWeight: 600, color: '#1e293b' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
                           🏢 {floor}
                         </div>
                         <span style={{ fontSize: 12, color: '#64748b' }}>
@@ -1717,7 +1701,7 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 20,
               width: '100%',
               maxWidth: 440,
@@ -1732,7 +1716,7 @@ export default function TablesClient() {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Table QR &amp; Ordering Studio
                 </h3>
                 <span style={{ fontSize: 12, color: '#64748b' }}>
@@ -1751,7 +1735,7 @@ export default function TablesClient() {
             <div
               id="resto-table-qr-tent"
               style={{
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--color-bg-card)',
                 border: '2px solid #e2e8f0',
                 borderRadius: 16,
                 padding: '24px 20px',
@@ -1762,10 +1746,10 @@ export default function TablesClient() {
                 marginBottom: 20,
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5b45f5', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand)', marginBottom: 4 }}>
                 Dine-In Contactless Ordering
               </div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--color-text-primary)', marginBottom: 4 }}>
                 {qrModalTable.name}
               </div>
               <div style={{ fontSize: 11, color: '#64748b', marginBottom: 16 }}>
@@ -1780,13 +1764,13 @@ export default function TablesClient() {
                     style={{ width: 190, height: 190, borderRadius: 8, display: 'block' }}
                   />
                 ) : (
-                  <div style={{ width: 190, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 8 }}>
+                  <div style={{ width: 190, height: 190, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-card-hover)', borderRadius: 8 }}>
                     Generating QR…
                   </div>
                 )}
               </div>
 
-              <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#64748b', wordBreak: 'break-all', backgroundColor: '#f1f5f9', padding: '6px 8px', borderRadius: 6 }}>
+              <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#64748b', wordBreak: 'break-all', backgroundColor: 'var(--color-bg-input)', padding: '6px 8px', borderRadius: 6 }}>
                 {typeof window !== 'undefined' ? `${window.location.origin}/table/${qrModalTable.locationId || 'default'}/${qrModalTable.id}` : ''}
               </div>
             </div>
@@ -1802,7 +1786,7 @@ export default function TablesClient() {
                   justifyContent: 'center',
                   gap: 6,
                   padding: '12px 14px',
-                  backgroundColor: '#5b45f5',
+                  backgroundColor: 'var(--brand)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: 10,
@@ -1824,8 +1808,8 @@ export default function TablesClient() {
                     justifyContent: 'center',
                     gap: 6,
                     padding: '12px 14px',
-                    backgroundColor: '#f1f5f9',
-                    color: '#334155',
+                    backgroundColor: 'var(--color-bg-input)',
+                    color: 'var(--color-text-secondary)',
                     border: '1px solid #cbd5e1',
                     borderRadius: 10,
                     fontSize: 13,
@@ -1847,9 +1831,9 @@ export default function TablesClient() {
                 }}
                 style={{
                   padding: '12px 14px',
-                  backgroundColor: '#f8fafc',
-                  color: '#475569',
-                  border: '1px solid #e2e8f0',
+                  backgroundColor: 'var(--color-bg-card-hover)',
+                  color: 'var(--color-text-secondary)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: 10,
                   fontSize: 13,
                   fontWeight: 700,
@@ -1881,7 +1865,7 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundColor: '#1e293b',
+              backgroundcolor: 'var(--color-text-primary)',
               borderRadius: 20,
               width: '100%',
               maxWidth: 420,
@@ -1918,7 +1902,7 @@ export default function TablesClient() {
                   border: 'none',
                   fontSize: 12,
                   fontWeight: 700,
-                  backgroundColor: thermalPageSize === '80mm' ? '#5b45f5' : '#334155',
+                  backgroundColor: thermalPageSize === '80mm' ? 'var(--brand)' : '#334155',
                   color: '#ffffff',
                   cursor: 'pointer',
                 }}
@@ -1934,7 +1918,7 @@ export default function TablesClient() {
                   border: 'none',
                   fontSize: 12,
                   fontWeight: 700,
-                  backgroundColor: thermalPageSize === '58mm' ? '#5b45f5' : '#334155',
+                  backgroundColor: thermalPageSize === '58mm' ? 'var(--brand)' : '#334155',
                   color: '#ffffff',
                   cursor: 'pointer',
                 }}
@@ -1944,12 +1928,12 @@ export default function TablesClient() {
             </div>
 
             {/* Thermal Ticket Paper Simulation */}
-            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', justifyContent: 'center', backgroundColor: '#0f172a', padding: '14px', borderRadius: 10 }}>
+            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', justifyContent: 'center', backgroundcolor: 'var(--color-text-primary)', padding: '14px', borderRadius: 10 }}>
               <div
                 id="resto-table-thermal-ticket"
                 style={{
                   width: thermalPageSize === '80mm' ? '300px' : '230px',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--color-bg-card)',
                   color: '#000000',
                   fontFamily: '"Courier New", Courier, monospace',
                   fontSize: '12px',
@@ -2048,7 +2032,7 @@ export default function TablesClient() {
                 onClick={() => setThermalModalTable(null)}
                 style={{
                   padding: '12px 18px',
-                  backgroundColor: '#334155',
+                  backgroundcolor: 'var(--color-text-secondary)',
                   color: '#cbd5e1',
                   border: 'none',
                   borderRadius: 10,
@@ -2082,7 +2066,7 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 20,
               width: '100%',
               maxWidth: 880,
@@ -2097,7 +2081,7 @@ export default function TablesClient() {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   🖨️ Batch Table QR Tent Generator
                 </h3>
                 <span style={{ fontSize: 13, color: '#64748b' }}>
@@ -2109,7 +2093,7 @@ export default function TablesClient() {
                   onClick={() => window.print()}
                   style={{
                     padding: '9px 18px',
-                    backgroundColor: '#5b45f5',
+                    backgroundColor: 'var(--brand)',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: 8,
@@ -2148,7 +2132,7 @@ export default function TablesClient() {
                 <div
                   key={t.id}
                   style={{
-                    backgroundColor: '#ffffff',
+                    backgroundColor: 'var(--color-bg-card)',
                     border: '2px solid #e2e8f0',
                     borderRadius: 14,
                     padding: 16,
@@ -2160,10 +2144,10 @@ export default function TablesClient() {
                     pageBreakInside: 'avoid',
                   }}
                 >
-                  <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', color: '#5b45f5', letterSpacing: '0.04em' }}>
+                  <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', color: 'var(--brand)', letterSpacing: '0.04em' }}>
                     PROMINENTZ DINING
                   </div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', margin: '4px 0 2px 0' }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--color-text-primary)', margin: '4px 0 2px 0' }}>
                     {t.name}
                   </div>
                   <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10 }}>
@@ -2178,7 +2162,7 @@ export default function TablesClient() {
                     )}
                   </div>
 
-                  <div style={{ fontSize: 10, fontWeight: 600, color: '#334155' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text-secondary)' }}>
                     Scan with phone camera to order
                   </div>
                 </div>

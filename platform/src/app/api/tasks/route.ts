@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json({ tasks })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/tasks]', error)
     return NextResponse.json({ error: error?.message || 'Failed to fetch tasks' }, { status: 500 })
   }
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     return NextResponse.json({ task }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/tasks]', error)
     return NextResponse.json({ error: error?.message || 'Failed to create task' }, { status: 500 })
   }

@@ -188,16 +188,15 @@ export default function TopBar({
 
   const toggleTheme = () => {
     const html = document.documentElement
-    const goLight = isDark
+    const nextTheme = isDark ? 'light' : 'dark'
     // Add transition class for smooth swap
     html.classList.add('theme-transitioning')
-    if (goLight) {
-      html.setAttribute('data-theme', 'light')
-    } else {
-      html.removeAttribute('data-theme')
-    }
-    setIsDark(!goLight)
-    try { localStorage.setItem('resto-theme', goLight ? 'light' : 'dark') } catch {}
+    html.setAttribute('data-theme', nextTheme)
+    setIsDark(nextTheme === 'dark')
+    try {
+      localStorage.setItem('resto-theme', nextTheme)
+      localStorage.setItem('prominentz-theme', nextTheme)
+    } catch {}
     setTimeout(() => html.classList.remove('theme-transitioning'), 300)
   }
 
@@ -413,9 +412,9 @@ export default function TopBar({
                     textTransform: 'uppercase',
                     padding: '2px 6px',
                     borderRadius: '4px',
-                    background: 'rgba(91,69,245,0.15)',
-                    color: '#7b68f7',
-                    border: '1px solid rgba(91,69,245,0.3)',
+                    background: 'var(--brand-tint)',
+                    color: 'var(--color-text-primary)',
+                    border: '1px solid var(--brand-tint)',
                   }}>
                     {userRole}
                   </span>

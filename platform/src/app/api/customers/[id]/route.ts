@@ -127,3 +127,51 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+// ─── DELETE /api/customers/:id ────────────────────────────────────────────────
+// Statutory Right to Erasure (DPDP Act 2023 & GDPR Art. 17)
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { id } = await params
+    const existing = await prisma.customer.findFirst({
+      where: { id, restaurantId: session.user.restaurantId },
+    })
+    if (!existing) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
+    }
+
+    // Scrub personal identifiable data in compliance with DPDP 2023 & GDPR
+    await prisma.customer.update({
+      where: { id },
+      data: {
+        name: `Redacted Guest #${id.slice(-6)}`,
+        phone: null,
+        email: null,
+        birthDate: null,
+        allergyTags: [],
+        tags: ['DATA_ERASED'],
+        notes: '[Data erased upon request per DPDP 2023 / GDPR statutory request]',
+        marketingConsentEmail: false,
+        marketingConsentSms: false,
+        marketingConsentWhatsApp: false,
+        pointsBalance: 0,
+      },
+    })
+
+    return NextResponse.json({ success: true, message: 'Personal data erased successfully' })
+  } catch (error) {
+    console.error('[DELETE /api/customers/:id]', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

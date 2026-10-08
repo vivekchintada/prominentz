@@ -33,7 +33,7 @@ export default function OrderingSettingsClient() {
   }
 
   const c = data.config
-  const set = (k: string, v: any) =>
+  const set = (k: string, v: unknown) =>
     setData({ ...data, config: { ...c, [k]: v } })
 
   const save = async () => {

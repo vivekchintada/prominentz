@@ -46,7 +46,7 @@ export async function POST(
   if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 })
 
   const now = new Date()
-  const data: any = { onlineStatus: parsed.data.status }
+  const data: unknown = { onlineStatus: parsed.data.status }
   let refundIssued = false
   let refundDetails = null
 

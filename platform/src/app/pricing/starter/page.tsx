@@ -50,12 +50,9 @@ export default function StarterPlanPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {starterFeatures.map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 700 }}>✓</span>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{f.label}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>{f.desc}</div>
-                </div>
+                <span style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{f.label}</span>
               </div>
             ))}
           </div>

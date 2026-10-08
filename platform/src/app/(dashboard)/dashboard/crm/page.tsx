@@ -14,11 +14,8 @@ export default async function CrmPage() {
   const session = await auth()
   if (!session?.user) redirect('/login')
 
-  let restaurantId = session.user.restaurantId
-  if (!restaurantId) {
-    const fb = await prisma.restaurant.findFirst()
-    restaurantId = fb?.id || ''
-  }
+  const restaurantId = session.user.restaurantId
+  if (!restaurantId) redirect('/onboarding')
 
   const { allowed } = await verifyRestaurantPlan(restaurantId, 'PRO')
 

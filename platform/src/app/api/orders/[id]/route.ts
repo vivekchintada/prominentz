@@ -7,20 +7,15 @@ import { logAuditEvent } from '@/lib/audit'
 
 // ─── Shared: resolve and auth-check an order ──────────────────────────────────
 async function resolveOrder(id: string, restaurantId?: string | null) {
-  if (restaurantId) {
-    const found = await prisma.order.findFirst({
-      where: {
-        id,
-        OR: [
-          { table: { location: { restaurantId } } },
-          { server: { restaurantId } },
-        ],
-      },
-    })
-    if (found) return found
-  }
-  return prisma.order.findUnique({
-    where: { id },
+  if (!restaurantId) return null
+  return prisma.order.findFirst({
+    where: {
+      id,
+      OR: [
+        { table: { location: { restaurantId } } },
+        { server: { restaurantId } },
+      ],
+    },
   })
 }
 
@@ -39,16 +34,17 @@ export async function GET(
     const { resolveUserLocation } = await import('@/lib/location-resolver')
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId
+    if (!restaurantId) {
+      return NextResponse.json({ error: 'Restaurant context required' }, { status: 403 })
+    }
 
-    let order = await prisma.order.findFirst({
+    const order = await prisma.order.findFirst({
       where: {
         id,
-        ...(restaurantId ? {
-          OR: [
-            { table: { location: { restaurantId } } },
-            { server: { restaurantId } },
-          ],
-        } : {}),
+        OR: [
+          { table: { location: { restaurantId } } },
+          { server: { restaurantId } },
+        ],
       },
       include: {
         table:  {
@@ -102,69 +98,14 @@ export async function GET(
     })
 
     if (!order) {
-      order = await prisma.order.findUnique({
-        where: { id },
-        include: {
-          table:  {
-            select: {
-              id: true,
-              name: true,
-              capacity: true,
-              location: {
-                select: {
-                  name: true,
-                  address: true,
-                  phone: true,
-                  restaurant: { select: { name: true } },
-                },
-              },
-            },
-          },
-          server: { select: { id: true, name: true, email: true } },
-          customer: {
-            select: {
-              id: true,
-              name: true,
-              phone: true,
-              pointsBalance: true,
-              lifetimeSpend: true,
-              allergyTags: true,
-            },
-          },
-          items: {
-            include: {
-              menuItem: {
-                select: {
-                  id: true, name: true, price: true,
-                  kdsStation: true, taxRate: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
-          tickets:  {
-            include: {
-              items: {
-                include: { menuItem: true },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
-          payments: { orderBy: { createdAt: 'desc' } },
-          events:   { orderBy: { createdAt: 'asc' } },
-        },
-      })
-    }
-
-    if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Defensive fallback: If order.items is empty but tickets exist, synthesize items from ticket items
     const rawOrder = order as any
     if ((!rawOrder.items || rawOrder.items.length === 0) && rawOrder.tickets && rawOrder.tickets.length > 0) {
-      rawOrder.items = rawOrder.tickets.flatMap((t: any) =>
-        (t.items || []).map((ti: any) => ({
+      rawOrder.items = rawOrder.tickets.flatMap((t: unknown) =>
+        (t.items || []).map((ti: unknown) => ({
           id: ti.id,
           orderId: order.id,
           menuItemId: ti.menuItemId,

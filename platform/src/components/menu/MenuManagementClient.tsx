@@ -25,7 +25,7 @@ export default function MenuManagementClient() {
       const res = await fetch('/api/menu/categories?all=true')
       if (res.ok) {
         const data = await res.json()
-        setCategories(data.map((c: any) => ({ id: c.id, name: c.name })))
+        setCategories(data.map((c: unknown) => ({ id: c.id, name: c.name })))
       }
     } catch (err) {
       console.error(err)
@@ -59,7 +59,7 @@ export default function MenuManagementClient() {
               margin: 0,
               fontSize: 12,
               fontWeight: 800,
-              color: '#64748b',
+              color: 'var(--color-text-tertiary)',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
             }}
@@ -78,9 +78,10 @@ export default function MenuManagementClient() {
               gap: 12,
               padding: '10px 14px',
               borderRadius: 10,
-              border: activeTab === 'categories' ? '1px solid #bfdbfe' : '1px solid transparent',
-              background: activeTab === 'categories' ? '#eff6ff' : 'transparent',
-              color: activeTab === 'categories' ? '#5b45f5' : '#475569',
+              border: activeTab === 'categories' ? '1px solid var(--color-border)' : '1px solid transparent',
+              background: activeTab === 'categories' ? 'var(--color-bg-card)' : 'transparent',
+              color: activeTab === 'categories' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: activeTab === 'categories' ? 'var(--shadow-sm)' : 'none',
               fontSize: 14,
               fontWeight: activeTab === 'categories' ? 700 : 600,
               cursor: 'pointer',
@@ -106,9 +107,10 @@ export default function MenuManagementClient() {
               gap: 12,
               padding: '10px 14px',
               borderRadius: 10,
-              border: activeTab === 'items' ? '1px solid #bfdbfe' : '1px solid transparent',
-              background: activeTab === 'items' ? '#eff6ff' : 'transparent',
-              color: activeTab === 'items' ? '#5b45f5' : '#475569',
+              border: activeTab === 'items' ? '1px solid var(--color-border)' : '1px solid transparent',
+              background: activeTab === 'items' ? 'var(--color-bg-card)' : 'transparent',
+              color: activeTab === 'items' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: activeTab === 'items' ? 'var(--shadow-sm)' : 'none',
               fontSize: 14,
               fontWeight: activeTab === 'items' ? 700 : 600,
               cursor: 'pointer',
@@ -135,9 +137,10 @@ export default function MenuManagementClient() {
               gap: 12,
               padding: '10px 14px',
               borderRadius: 10,
-              border: activeTab === 'addons' ? '1px solid #bfdbfe' : '1px solid transparent',
-              background: activeTab === 'addons' ? '#eff6ff' : 'transparent',
-              color: activeTab === 'addons' ? '#5b45f5' : '#475569',
+              border: activeTab === 'addons' ? '1px solid var(--color-border)' : '1px solid transparent',
+              background: activeTab === 'addons' ? 'var(--color-bg-card)' : 'transparent',
+              color: activeTab === 'addons' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: activeTab === 'addons' ? 'var(--shadow-sm)' : 'none',
               fontSize: 14,
               fontWeight: activeTab === 'addons' ? 700 : 600,
               cursor: 'pointer',
@@ -166,9 +169,10 @@ export default function MenuManagementClient() {
               gap: 12,
               padding: '10px 14px',
               borderRadius: 10,
-              border: activeTab === 'coupons' ? '1px solid #bfdbfe' : '1px solid transparent',
-              background: activeTab === 'coupons' ? '#eff6ff' : 'transparent',
-              color: activeTab === 'coupons' ? '#5b45f5' : '#475569',
+              border: activeTab === 'coupons' ? '1px solid var(--color-border)' : '1px solid transparent',
+              background: activeTab === 'coupons' ? 'var(--color-bg-card)' : 'transparent',
+              color: activeTab === 'coupons' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: activeTab === 'coupons' ? 'var(--shadow-sm)' : 'none',
               fontSize: 14,
               fontWeight: activeTab === 'coupons' ? 700 : 600,
               cursor: 'pointer',

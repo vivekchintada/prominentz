@@ -94,7 +94,7 @@ export async function sendWhatsAppText(params: SendWhatsAppTextParams): Promise<
     const messageId = data?.messages?.[0]?.id
     console.info(`[WhatsApp Cloud API] Sent message ${messageId} to ${recipient}`)
     return { success: true, messageId }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[WhatsApp Cloud API] Network error:', err?.message || err)
     return { success: false, error: err?.message || 'Network failure' }
   }

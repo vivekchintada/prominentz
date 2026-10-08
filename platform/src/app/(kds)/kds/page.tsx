@@ -25,11 +25,7 @@ export default async function KdsPage() {
   let locationId: string = employee?.locationId || ''
 
   if (!locationId) {
-    let restaurantId: string | undefined = user.restaurantId
-    if (!restaurantId) {
-      const fb = await prisma.restaurant.findFirst({ select: { id: true } })
-      restaurantId = fb?.id || undefined
-    }
+    const restaurantId: string | undefined = user.restaurantId
     if (restaurantId) {
       const fallbackLocation = await prisma.location.findFirst({
         where: { restaurantId },

@@ -80,7 +80,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
       const json = await res.json()
       if (!res.ok) { setError(json.error || 'Something went wrong'); return }
       setStep((s) => s + 1)
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.message || 'Network error')
     } finally {
       setSaving(false)
@@ -111,7 +111,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
       })
       if (res.ok) setSeeded(true)
       else { const j = await res.json(); setError(j.error) }
-    } catch (e: any) { setError(e.message) }
+    } catch (e: unknown) { setError(e.message) }
     setSeeding(false)
   }
 
@@ -426,7 +426,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '-0.5px',
   },
   logoBadge: {
-    background: 'linear-gradient(135deg, #5b45f5, #7b68f7)',
+    background: '#18181B',
     color: '#fff',
     fontSize: 10,
     fontWeight: 700,
@@ -443,7 +443,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   progressFill: {
     height: '100%',
-    background: 'linear-gradient(135deg, #5b45f5, #7b68f7)',
+    background: '#18181B',
     borderRadius: 2,
     transition: 'width 0.4s ease',
   },
@@ -535,10 +535,10 @@ const styles: Record<string, React.CSSProperties> = {
     boxSizing: 'border-box',
   },
   primaryBtn: {
-    background: 'linear-gradient(135deg, #5b45f5, #7b68f7)',
+    background: '#18181B',
     color: '#fff',
-    border: 'none',
-    borderRadius: 10,
+    border: '1px solid #18181B',
+    borderRadius: 8,
     padding: '12px 24px',
     fontSize: 14,
     fontWeight: 600,
@@ -549,10 +549,10 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 6,
   },
   secondaryBtn: {
-    background: 'rgba(37,99,235,0.1)',
-    color: '#5b45f5',
-    border: '1px solid rgba(91,69,245,0.3)',
-    borderRadius: 10,
+    background: '#FFFFFF',
+    color: '#171717',
+    border: '1px solid #E5E5E5',
+    borderRadius: 8,
     padding: '12px 20px',
     fontSize: 14,
     fontWeight: 600,

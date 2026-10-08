@@ -176,15 +176,15 @@ export function CookieConsent() {
               type="button"
               onClick={() => handleSave('all')}
               style={{
-                background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
-                border: 'none',
+                background: '#18181B',
+                border: '1px solid #18181B',
                 color: '#ffffff',
                 fontSize: '13px',
-                fontWeight: 700,
+                fontWeight: 600,
                 padding: '8px 20px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(91, 69, 245, 0.4)',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
                 transition: 'all 150ms ease',
               }}
             >
@@ -326,14 +326,15 @@ export function CookieConsent() {
                 type="button"
                 onClick={handleCustomSave}
                 style={{
-                  background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
-                  border: 'none',
+                  background: '#18181B',
+                  border: '1px solid #18181B',
                   color: '#ffffff',
                   fontSize: '13px',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   padding: '8px 20px',
                   borderRadius: '8px',
                   cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
                 }}
               >
                 Save Preferences

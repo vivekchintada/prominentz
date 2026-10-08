@@ -187,7 +187,7 @@ export function BillingManagerClient() {
       } else {
         alert(data.error || 'Failed to initiate payment gateway checkout')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Error connecting to payment gateway')
     } finally {
       setLoadingTier(null)
@@ -206,7 +206,7 @@ export function BillingManagerClient() {
       } else {
         alert(data.error || 'Failed to open customer portal')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Error opening portal')
     } finally {
       setPortalLoading(false)

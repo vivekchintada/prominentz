@@ -94,36 +94,15 @@ export default function GlobalError({
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             onClick={reset}
-            style={{
-              height: 40,
-              padding: '0 24px',
-              borderRadius: 10,
-              border: 'none',
-              background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: 'pointer',
-              boxShadow: '0 2px 12px rgba(91,69,245,0.3)',
-            }}
+            className="btn btn--primary"
+            style={{ height: 40, padding: '0 24px', fontSize: 14 }}
           >
             Try Again
           </button>
           <a
             href="/dashboard"
-            style={{
-              height: 40,
-              padding: '0 24px',
-              borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.15)',
-              background: 'rgba(255,255,255,0.06)',
-              color: 'var(--color-text-primary, #F5F5F7)',
-              fontWeight: 600,
-              fontSize: 14,
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-            }}
+            className="btn btn--secondary"
+            style={{ height: 40, padding: '0 24px', fontSize: 14 }}
           >
             Go to Dashboard
           </a>

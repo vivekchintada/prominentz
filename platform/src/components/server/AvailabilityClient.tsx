@@ -52,7 +52,7 @@ export default function AvailabilityClient({ currentUser, onSignOut }: Props) {
   useEffect(() => {
     fetch('/api/availability')
       .then((r) => (r.ok ? r.json() : []))
-      .then((slots: any[]) => {
+      .then((slots: unknown[]) => {
         if (!slots || !slots.length) return
         setDays(
           DEFAULT_DAYS.map((d) => {

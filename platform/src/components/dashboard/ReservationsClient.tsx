@@ -271,7 +271,7 @@ export default function ReservationsClient() {
   })
 
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '24px 32px' }}>
+    <div style={{ backgroundColor: 'var(--color-bg-card-hover)', minHeight: '100vh', padding: '24px 32px' }}>
       {/* ── Toast Notification ─────────────────────────────── */}
       {toastMessage && (
         <div
@@ -279,7 +279,7 @@ export default function ReservationsClient() {
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundColor: '#1e293b',
+            backgroundcolor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -297,7 +297,7 @@ export default function ReservationsClient() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         {/* Title with refresh button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', margin: 0 }}>Reservations</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Reservations</h1>
           <button
             onClick={fetchReservations}
             title="Refresh reservations"
@@ -329,12 +329,12 @@ export default function ReservationsClient() {
               style={{
                 padding: '8px 34px 8px 14px',
                 borderRadius: 8,
-                border: '1px solid #e2e8f0',
-                backgroundColor: '#ffffff',
+                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--color-bg-card)',
                 fontSize: 13,
                 outline: 'none',
                 width: 220,
-                color: '#1e293b',
+                color: 'var(--color-text-primary)',
               }}
             />
             <svg
@@ -360,7 +360,7 @@ export default function ReservationsClient() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              backgroundColor: '#5b45f5',
+              backgroundColor: 'var(--brand)',
               color: '#ffffff',
               border: 'none',
               borderRadius: 8,
@@ -378,7 +378,7 @@ export default function ReservationsClient() {
 
       {/* ── RESERVATION CARDS GRID (3 COLUMNS) ─────────────── */}
       {filteredReservations.length === 0 ? (
-        <div style={{ backgroundColor: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 48, textAlign: 'center', color: '#64748b' }}>
+        <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 14, border: '1px solid var(--color-border)', padding: 48, textAlign: 'center', color: '#64748b' }}>
           <p style={{ margin: 0, fontSize: 14, fontStyle: 'italic' }}>No reservations found. Click &quot;+ Add New&quot; to book a table.</p>
         </div>
       ) : (
@@ -414,16 +414,16 @@ export default function ReservationsClient() {
             } else if (res.status === 'PENDING') {
               statusLabel = 'Pending'
               statusBg = '#eff6ff'
-              statusColor = '#5b45f5'
+              statusColor = 'var(--brand)'
             }
 
             return (
               <div
                 key={res.id}
                 style={{
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--color-bg-card)',
                   borderRadius: 14,
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--color-border)',
                   padding: 16,
                   boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                   display: 'flex',
@@ -439,7 +439,7 @@ export default function ReservationsClient() {
                       width: 58,
                       height: 58,
                       borderRadius: 10,
-                      backgroundColor: '#1e293b',
+                      backgroundcolor: 'var(--color-text-primary)',
                       color: '#ffffff',
                       display: 'flex',
                       flexDirection: 'column',
@@ -461,7 +461,7 @@ export default function ReservationsClient() {
                       style={{
                         fontSize: 15,
                         fontWeight: 800,
-                        color: '#0f172a',
+                        color: 'var(--color-text-primary)',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -519,7 +519,7 @@ export default function ReservationsClient() {
                   }}
                 >
                   <span>Created on</span>
-                  <span style={{ fontWeight: 600, color: '#334155' }}>{createdDate}</span>
+                  <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>{createdDate}</span>
                 </div>
 
                 <div
@@ -564,9 +564,9 @@ export default function ReservationsClient() {
                       setIsNoteOpen(true)
                     }}
                     style={{
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: '#ffffff',
-                      color: '#475569',
+                      border: '1px solid var(--color-border)',
+                      backgroundColor: 'var(--color-bg-card)',
+                      color: 'var(--color-text-secondary)',
                       borderRadius: 8,
                       padding: '6px 14px',
                       fontSize: 12,
@@ -588,8 +588,8 @@ export default function ReservationsClient() {
                         width: 32,
                         height: 32,
                         borderRadius: 8,
-                        border: '1px solid #e2e8f0',
-                        backgroundColor: '#ffffff',
+                        border: '1px solid var(--color-border)',
+                        backgroundColor: 'var(--color-bg-card)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -649,7 +649,7 @@ export default function ReservationsClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: 440,
               maxWidth: '90%',
@@ -658,7 +658,7 @@ export default function ReservationsClient() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: '#0f172a' }}>
+              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>
                 Note for {selectedRes.guestName}
               </h3>
               <button
@@ -669,8 +669,8 @@ export default function ReservationsClient() {
               </button>
             </div>
 
-            <div style={{ backgroundColor: '#f8fafc', padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', marginBottom: 20 }}>
-              <p style={{ margin: 0, fontSize: 13, color: '#334155', lineHeight: 1.6 }}>
+            <div style={{ backgroundColor: 'var(--color-bg-card-hover)', padding: 16, borderRadius: 10, border: '1px solid var(--color-border)', marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
                 {selectedRes.notes || 'No special notes entered for this reservation.'}
               </p>
             </div>
@@ -688,7 +688,7 @@ export default function ReservationsClient() {
                 padding: '10px',
                 borderRadius: 8,
                 border: 'none',
-                backgroundColor: '#5b45f5',
+                backgroundColor: 'var(--brand)',
                 color: '#ffffff',
                 fontWeight: 700,
                 fontSize: 13,
@@ -716,7 +716,7 @@ export default function ReservationsClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: 480,
               maxWidth: '90%',
@@ -725,7 +725,7 @@ export default function ReservationsClient() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: '#0f172a' }}>Book a Reservation</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>Book a Reservation</h3>
               <button
                 onClick={() => setIsAddOpen(false)}
                 style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94a3b8' }}
@@ -737,7 +737,7 @@ export default function ReservationsClient() {
             <form onSubmit={handleCreateReservation} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Guest Name *
                   </label>
                   <input
@@ -746,11 +746,11 @@ export default function ReservationsClient() {
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="e.g. John Doe"
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Guest Phone *
                   </label>
                   <input
@@ -759,14 +759,14 @@ export default function ReservationsClient() {
                     value={guestPhone}
                     onChange={(e) => setGuestPhone(e.target.value)}
                     placeholder="+1 555-0199"
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Date *
                   </label>
                   <input
@@ -774,11 +774,11 @@ export default function ReservationsClient() {
                     required
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Time *
                   </label>
                   <input
@@ -786,14 +786,14 @@ export default function ReservationsClient() {
                     required
                     value={scheduledTime}
                     onChange={(e) => setScheduledTime(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Party Size *
                   </label>
                   <input
@@ -803,17 +803,17 @@ export default function ReservationsClient() {
                     required
                     value={partySize}
                     onChange={(e) => setPartySize(Number(e.target.value))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Table Assignment
                   </label>
                   <select
                     value={selectedTableId}
                     onChange={(e) => setSelectedTableId(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', backgroundColor: '#ffffff' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none', backgroundColor: 'var(--color-bg-card)' }}
                   >
                     <option value="">Auto-assign</option>
                     {tables.map((t) => (
@@ -826,7 +826,7 @@ export default function ReservationsClient() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                   Special Notes & Requests
                 </label>
                 <textarea
@@ -834,7 +834,7 @@ export default function ReservationsClient() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Anniversary celebration, prefers quiet booth"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none', resize: 'vertical' }}
                 />
               </div>
 
@@ -842,14 +842,14 @@ export default function ReservationsClient() {
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid #e2e8f0', backgroundColor: '#ffffff', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#64748b' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#64748b' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: '#5b45f5', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: 'var(--brand)', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
                 >
                   {isSubmitting ? 'Booking...' : 'Book Table'}
                 </button>
@@ -874,7 +874,7 @@ export default function ReservationsClient() {
         >
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--color-bg-card)',
               borderRadius: 16,
               width: 480,
               maxWidth: '90%',
@@ -883,7 +883,7 @@ export default function ReservationsClient() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: '#0f172a' }}>Edit Reservation</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>Edit Reservation</h3>
               <button
                 onClick={() => setIsEditOpen(false)}
                 style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94a3b8' }}
@@ -895,7 +895,7 @@ export default function ReservationsClient() {
             <form onSubmit={handleUpdateReservation} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Guest Name
                   </label>
                   <input
@@ -903,17 +903,17 @@ export default function ReservationsClient() {
                     required
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Status
                   </label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value as any)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', backgroundColor: '#ffffff' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none', backgroundColor: 'var(--color-bg-card)' }}
                   >
                     <option value="CONFIRMED">Booked</option>
                     <option value="SEATED">Seated</option>
@@ -926,7 +926,7 @@ export default function ReservationsClient() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Party Size
                   </label>
                   <input
@@ -936,17 +936,17 @@ export default function ReservationsClient() {
                     required
                     value={partySize}
                     onChange={(e) => setPartySize(Number(e.target.value))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     Table
                   </label>
                   <select
                     value={selectedTableId}
                     onChange={(e) => setSelectedTableId(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', backgroundColor: '#ffffff' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none', backgroundColor: 'var(--color-bg-card)' }}
                   >
                     <option value="">Unassigned</option>
                     {tables.map((t) => (
@@ -959,14 +959,14 @@ export default function ReservationsClient() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                   Special Notes
                 </label>
                 <textarea
                   rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)', fontSize: 13, outline: 'none', resize: 'vertical' }}
                 />
               </div>
 
@@ -974,14 +974,14 @@ export default function ReservationsClient() {
                 <button
                   type="button"
                   onClick={() => setIsEditOpen(false)}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid #e2e8f0', backgroundColor: '#ffffff', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#64748b' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#64748b' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: '#5b45f5', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: 'var(--brand)', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
                 >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>

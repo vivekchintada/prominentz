@@ -131,7 +131,7 @@ export default function ApprovalsClient() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
         {[
           { label: 'Pending Swap Approvals', value: `${pendingSwaps.length}`, icon: '🔄', color: pendingSwaps.length > 0 ? '#f59e0b' : '#16a34a' },
-          { label: 'Pending Time-Off Requests', value: `${pendingLeaves.length}`, icon: '🏖️', color: pendingLeaves.length > 0 ? '#5b45f5' : '#16a34a' },
+          { label: 'Pending Time-Off Requests', value: `${pendingLeaves.length}`, icon: '🏖️', color: pendingLeaves.length > 0 ? 'var(--brand)' : '#16a34a' },
           { label: 'All Historic Requests', value: `${trades.length + leaves.length}`, icon: '📜', color: 'var(--color-text-secondary)' },
         ].map((kpi) => (
           <div
@@ -413,13 +413,13 @@ export default function ApprovalsClient() {
                               ? 'rgba(34,197,94,0.12)'
                               : leave.status === 'DENIED'
                               ? 'rgba(239,68,68,0.12)'
-                              : 'rgba(91,69,245,0.12)',
+                              : 'var(--brand-tint)',
                           color:
                             leave.status === 'APPROVED'
                               ? '#16a34a'
                               : leave.status === 'DENIED'
                               ? '#ef4444'
-                              : '#5b45f5',
+                              : 'var(--brand)',
                         }}
                       >
                         {leave.status}

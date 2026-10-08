@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     const status = result.isDuplicate ? 200 : 201
     return NextResponse.json(result, { status })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /api/reconciliation/import error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

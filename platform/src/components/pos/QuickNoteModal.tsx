@@ -58,7 +58,7 @@ export default function QuickNoteModal({
       showToast?.('Table note updated successfully', 'success')
       onSaved?.()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast?.(err.message || 'Error updating note', 'error')
     } finally {
       setSaving(false)

@@ -50,19 +50,20 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: '#1C1C1E',
-          borderRadius: '20px',
+          backgroundColor: 'var(--color-bg-card)',
+          borderRadius: '16px',
           maxWidth: '460px',
           width: '100%',
-          boxShadow: '0 32px 64px rgba(0,0,0,0.8), inset 0 0 0 0.5px rgba(255,255,255,0.10)',
+          boxShadow: 'var(--shadow-xl)',
+          border: '1px solid var(--color-border)',
           overflow: 'hidden',
           animation: 'slideInBottom 220ms cubic-bezier(0.34,1.56,0.64,1) both',
         }}
       >
-        {/* Gradient Header */}
+        {/* Header */}
         <div style={{
-          background: `linear-gradient(135deg, ${required.color}28 0%, ${required.color}10 100%)`,
-          borderBottom: `0.5px solid ${required.color}30`,
+          background: 'var(--surface-raised)',
+          borderBottom: '1px solid var(--color-border)',
           padding: '24px 24px 20px',
         }}>
           {/* Tier badge */}
@@ -74,10 +75,10 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
               padding: '3px 10px',
               borderRadius: '999px',
               fontSize: '10px',
-              fontWeight: 800,
-              backgroundColor: 'rgba(239,68,68,0.15)',
+              fontWeight: 700,
+              backgroundColor: 'rgba(239,68,68,0.12)',
               color: '#ef4444',
-              border: '0.5px solid rgba(239,68,68,0.3)',
+              border: '0.5px solid rgba(239,68,68,0.25)',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
             }}>
@@ -85,18 +86,18 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
             </span>
           </div>
 
-          <h2 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 800, color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.03em' }}>
+          <h2 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}>
             {featureName}
           </h2>
 
-          <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+          <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
             Intelligence, Guest CRM, and Loyalty Rewards are not included in the $40/mo Basic Plan. These features will launch in upcoming advanced tiers.
           </p>
         </div>
 
         {/* Features list */}
         <div style={{ padding: '20px 24px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>
             Features Not Included in Basic Plan:
           </div>
 
@@ -111,7 +112,8 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
                   width: '26px',
                   height: '26px',
                   borderRadius: '7px',
-                  backgroundColor: 'rgba(239,68,68,0.1)',
+                  backgroundColor: 'var(--surface-raised)',
+                  border: '1px solid var(--color-border)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -120,8 +122,8 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
                 }}>
                   {feature.icon}
                 </span>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.78)', fontWeight: 500 }}>{feature.label}</span>
-                <span style={{ marginLeft: 'auto', fontSize: '10px', fontWeight: 700, color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--color-text-primary)', fontWeight: 500 }}>{feature.label}</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px', fontWeight: 700, color: 'var(--color-text-tertiary)', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--color-border)', padding: '2px 6px', borderRadius: '4px' }}>
                   COMING SOON
                 </span>
               </div>
@@ -130,9 +132,9 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
 
           {/* Basic plan reminder */}
           <div style={{
-            padding: '10px 14px',
-            backgroundColor: 'rgba(37,99,235,0.08)',
-            border: '0.5px solid rgba(37,99,235,0.2)',
+            padding: '12px 14px',
+            backgroundColor: 'var(--surface-raised)',
+            border: '1px solid var(--color-border)',
             borderRadius: '10px',
             marginBottom: '16px',
             display: 'flex',
@@ -140,8 +142,8 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
             gap: '8px',
           }}>
             <span style={{ fontSize: '14px' }}>ℹ️</span>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.70)', lineHeight: 1.4 }}>
-              Your <strong style={{ color: '#60a5fa' }}>Basic Plan ($40/mo)</strong> covers complete POS, KDS, Floor Tables, QR Studio, and Sales Reports.
+            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
+              Your <strong style={{ color: 'var(--color-text-primary)' }}>Basic Plan ($40/mo)</strong> covers complete POS, KDS, Floor Tables, QR Studio, and Sales Reports.
             </span>
           </div>
 
@@ -149,35 +151,15 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
               onClick={handleUpgradeClick}
-              style={{
-                width: '100%',
-                height: '42px',
-                background: 'linear-gradient(135deg, #5b45f5 0%, #4a36d9 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '12px',
-                fontWeight: 800,
-                fontSize: '14px',
-                cursor: 'pointer',
-                letterSpacing: '-0.01em',
-                boxShadow: '0 4px 16px rgba(91,69,245,0.3)',
-                transition: 'all 150ms ease',
-              }}
+              className="btn btn--primary btn--full"
+              style={{ height: '40px', fontSize: '13px' }}
             >
               View Basic Plan Details ($40/mo)
             </button>
             <button
               onClick={onClose}
-              style={{
-                width: '100%',
-                height: '36px',
-                backgroundColor: 'transparent',
-                color: 'rgba(255,255,255,0.5)',
-                border: 'none',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
+              className="btn btn--ghost btn--full"
+              style={{ height: '36px', fontSize: '13px' }}
             >
               Close
             </button>

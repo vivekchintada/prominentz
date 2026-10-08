@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { PRICING, PLAN_FEATURES } from '@/lib/pricing'
 import { CookieSettingsButton } from '@/components/ui/CookieSettingsButton'
 import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
+import PublicHeader from '@/components/public/PublicHeader'
+import styles from '@/components/landing/MiddayMarketing.module.css'
 
 export const metadata = {
   title: 'Pricing | Resto — Transparent Restaurant Intelligence',
@@ -44,21 +46,9 @@ export default function PricingPage() {
   ]
 
   return (
-    <main id="main-content" style={{ minHeight: '100vh', backgroundColor: '#000000', fontFamily: 'var(--font-sans)', color: '#ffffff', letterSpacing: '-0.01em' }}>
-      {/* Top Navigation */}
-      <nav style={{ padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.85)' }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <ProminentzLogo size="sm" />
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/portals" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>
-            Portals
-          </Link>
-          <Link href="/login" style={{ height: '32px', padding: '0 16px', fontSize: '13px', textDecoration: 'none', borderRadius: '6px', background: '#ffffff', color: '#000000', fontWeight: 600, display: 'inline-flex', alignItems: 'center', border: '1px solid rgba(255,255,255,0.2)' }}>
-            Sign In →
-          </Link>
-        </div>
-      </nav>
+    <div className={styles.page} id="main-content">
+      <PublicHeader />
+      <main style={{ minHeight: '100vh', backgroundColor: '#000000', fontFamily: 'var(--font-sans)', color: '#ffffff', letterSpacing: '-0.01em' }}>
 
       {/* Hero */}
       <div style={{ textAlign: 'center', padding: '80px 24px 48px', maxWidth: '780px', margin: '0 auto' }}>
@@ -203,6 +193,7 @@ export default function PricingPage() {
           </div>
         </div>
       </footer>
-    </main>
+        </main>
+    </div>
   )
 }

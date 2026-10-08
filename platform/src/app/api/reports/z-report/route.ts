@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
         avgSpendPerGuest: Number(avgSpendPerGuest.toFixed(2)),
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/reports/z-report]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

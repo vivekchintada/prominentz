@@ -171,7 +171,7 @@ export default async function PosPage({
         isRequired: mod.isRequired,
         minSelect: mod.minSelect,
         maxSelect: mod.maxSelect,
-        options: (mod.options || []).map((opt: any) => ({
+        options: (mod.options || []).map((opt: unknown) => ({
           id: opt.id,
           name: opt.name,
           priceAdjustment: Number(opt.priceAdjustment || 0),
@@ -289,7 +289,7 @@ export default async function PosPage({
 
     const itemCount = o.items.length > 0
       ? o.items.length
-      : (o.tickets || []).flatMap((t: any) => (t as any).items || []).length
+      : (o.tickets || []).flatMap((t: unknown) => (t as any).items || []).length
 
     return {
       id: o.id,

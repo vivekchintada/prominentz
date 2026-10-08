@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ customer: refreshed }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/customers]', error)
     return NextResponse.json({ error: error?.message || 'Failed to save customer profile' }, { status: 500 })
   }

@@ -40,15 +40,14 @@ export function isWithinGeofence(
   locLng?: number | null,
   radiusMeters: number = 150
 ): { inBounds: boolean; distanceMeters: number | null } {
-  if (
-    userLat == null ||
-    userLng == null ||
-    locLat == null ||
-    locLng == null
-  ) {
-    // If location coordinates aren't configured or user didn't send GPS,
-    // don't hard block (return inBounds true with null distance).
+  // If location coordinates aren't configured by restaurant, pass through
+  if (locLat == null || locLng == null) {
     return { inBounds: true, distanceMeters: null }
+  }
+
+  // If location has coordinates but user did not provide GPS, fail bounds check
+  if (userLat == null || userLng == null) {
+    return { inBounds: false, distanceMeters: null }
   }
 
   const distanceMeters = calculateHaversineDistanceMeters(userLat, userLng, locLat, locLng)

@@ -61,7 +61,7 @@ export default function ClockInKioskClient({ locationName }: { locationName: str
       if (!res.ok) throw new Error('Failed to load employee list')
       const data = await res.json()
       setEmployees(data)
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error fetching staff roster', 'error')
     } finally {
       setLoading(false)
@@ -80,7 +80,7 @@ export default function ClockInKioskClient({ locationName }: { locationName: str
       if (!res.ok) throw new Error(data.error || 'Failed to clock in')
       showToast(`✅ ${emp.user?.name || 'Employee'} successfully clocked in!`, 'success')
       await fetchEmployees()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message, 'error')
     } finally {
       setActionId(null)
@@ -97,7 +97,7 @@ export default function ClockInKioskClient({ locationName }: { locationName: str
       const hrs = (mins / 60).toFixed(1)
       showToast(`👋 ${emp.user?.name || 'Employee'} clocked out (${hrs} hrs logged).`, 'info')
       await fetchEmployees()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message, 'error')
     } finally {
       setActionId(null)

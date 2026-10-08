@@ -26,7 +26,7 @@ interface OrderItem {
   quantity:     number
   priceAtOrder: number
   seatNumber:   number
-  modifiers:    any
+  modifiers: unknown
   specialNote:  string | null
   status:       'PENDING' | 'IN_PROGRESS' | 'READY' | 'SERVED'
   menuItem: {
@@ -85,7 +85,7 @@ interface MenuItem {
   price:       number
   taxRate:     number
   isAvailable: boolean
-  modifiers:   any[]
+  modifiers: unknown[]
 }
 
 interface OrderEntryProps {
@@ -172,7 +172,7 @@ export default function OrderEntry({
       showToast('Guest profile attached to check', 'success')
       setShowCustomerModal(false)
       fetchOrderDetails()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message || 'Error attaching guest', 'error')
     }
   }
@@ -187,7 +187,7 @@ export default function OrderEntry({
       if (!res.ok) throw new Error('Failed to unlink guest')
       showToast('Guest unlinked from check', 'success')
       fetchOrderDetails()
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast(e.message || 'Error unlinking guest', 'error')
     }
   }
@@ -258,7 +258,7 @@ export default function OrderEntry({
       setOrder(data)
       setEditGuestCount(data.guestCount)
       setEditNotes(data.notes || '')
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If network fetch failed, attempt offline IndexedDB fallback
       try {
         const { getOfflineOrder } = await import('@/lib/offline-db')
@@ -316,7 +316,7 @@ export default function OrderEntry({
 
       showToast('Guest count updated', 'success')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating guest count', 'error')
     }
   }
@@ -339,7 +339,7 @@ export default function OrderEntry({
 
       showToast('Table notes updated', 'success')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating notes', 'error')
     }
   }
@@ -545,7 +545,7 @@ export default function OrderEntry({
       // Cache menu to client-side IndexedDB for offline access
       const { cacheMenu } = await import('@/lib/offline-db')
       await cacheMenu(cats, items)
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Fall back to offline cached catalog
       try {
         const { getCachedMenu } = await import('@/lib/offline-db')
@@ -593,7 +593,7 @@ export default function OrderEntry({
       }
       showToast('Order placed on hold', 'success')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error holding order', 'error')
     } finally {
       setHoldLoading(false)
@@ -611,7 +611,7 @@ export default function OrderEntry({
       }
       showToast('Order resumed', 'success')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error resuming order', 'error')
     } finally {
       setHoldLoading(false)
@@ -683,7 +683,7 @@ export default function OrderEntry({
 
       showToast(`Added ${item.name} to Seat ${activeSeat}`, 'success')
       fetchOrderDetails() // reload order
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error adding item', 'error')
     }
   }
@@ -719,7 +719,7 @@ export default function OrderEntry({
 
       if (!res.ok) throw new Error('Failed to update quantity')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating item quantity', 'error')
     }
   }
@@ -768,7 +768,7 @@ export default function OrderEntry({
       }
       showToast(`Voided ${name}`, 'success')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error voiding item', 'error')
     } finally {
       setVoidingItemId(null)
@@ -806,7 +806,7 @@ export default function OrderEntry({
 
           if (syncRes.ok) {
             const syncData = await syncRes.json()
-            const match = syncData.syncedOrders?.find((s: any) => s.offlineId === orderId)
+            const match = syncData.syncedOrders?.find((s: unknown) => s.offlineId === orderId)
             if (match?.serverId) {
               targetOrderId = match.serverId
               await markOrdersSynced([orderId])
@@ -837,7 +837,7 @@ export default function OrderEntry({
 
       showToast('Order tickets fired to KDS kitchen!', 'success')
       fetchOrderDetails()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error firing kitchen', 'error')
     } finally {
       setIsFiring(false)
@@ -855,7 +855,7 @@ export default function OrderEntry({
     PENDING:     { label: 'Unsent', bg: 'var(--color-bg-input)', color: 'var(--color-text-secondary)' },
     IN_PROGRESS: { label: 'Cooking', bg: 'rgba(249,115,22,0.12)', color: 'var(--color-brand-500)' },
     READY:       { label: 'Ready', bg: 'rgba(34,197,94,0.12)', color: 'var(--color-success)' },
-    SERVED:      { label: 'Served', bg: 'rgba(59,130,246,0.12)', color: 'var(--color-table-reserved)' },
+    SERVED:      { label: 'Served', bg: 'rgba(255, 255, 255, 0.08)', color: 'var(--color-table-reserved)' },
   }
 
   if (loadingOrder && !order) {
@@ -1083,13 +1083,13 @@ export default function OrderEntry({
                           position: 'absolute',
                           top: '16px',
                           left: '16px',
-                          background: 'linear-gradient(135deg, #7b68f7, #5b45f5)',
+                          background: '#18181B',
                           color: '#fff',
                           fontSize: '10px',
-                          fontWeight: 800,
+                          fontWeight: 700,
                           padding: '2px 8px',
                           borderRadius: '6px',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                           zIndex: 2,
                         }}
                       >
@@ -1312,8 +1312,8 @@ export default function OrderEntry({
             style={{
               padding: '8px 12px',
               borderRadius: '10px',
-              backgroundColor: order.customer ? 'rgba(139, 92, 246, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-              border: order.customer ? '1px solid rgba(139, 92, 246, 0.35)' : '1px dashed rgba(255, 255, 255, 0.12)',
+              backgroundColor: order.customer ? 'var(--brand-tint)' : 'rgba(255, 255, 255, 0.03)',
+              border: order.customer ? '1px solid var(--brand-tint)' : '1px dashed rgba(255, 255, 255, 0.12)',
               flexShrink: 0,
             }}
           >
@@ -1406,7 +1406,7 @@ export default function OrderEntry({
                       backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
                       cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(139,92,246,0.18)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--brand-tint)')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)')}
                   >
                     <div>
@@ -1414,7 +1414,7 @@ export default function OrderEntry({
                       <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)' }}>{c.phone}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 700, color: '#8b5cf6' }}>⭐ {c.pointsBalance || 0} pts</div>
+                      <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>⭐ {c.pointsBalance || 0} pts</div>
                       {Number(c.lifetimeSpend || 0) > 300 && <span style={{ fontSize: '9px', fontWeight: 800, color: '#f59e0b' }}>👑 VIP</span>}
                     </div>
                   </div>
@@ -1621,12 +1621,12 @@ export default function OrderEntry({
                 disabled={isFiring}
                 className="btn btn--primary btn--full"
                 style={{
-                  background: 'linear-gradient(135deg, #30D158 0%, #28A745 100%)',
-                  borderColor: '#28A745',
+                  background: '#166534',
+                  borderColor: '#166534',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '14px',
-                  boxShadow: '0 2px 10px rgba(48,209,88,0.3)',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
                 }}
               >
                 {isFiring ? 'Sending to Kitchen...' : '🔥 Send to Kitchen'}
@@ -1645,7 +1645,7 @@ export default function OrderEntry({
                     })
                     if (!res.ok) throw new Error('KOT print request failed')
                     showToast('🖨️ KOT Thermal Ticket Generated', 'success')
-                  } catch (e: any) {
+                  } catch (e: unknown) {
                     showToast(e.message || 'KOT Print Error', 'error')
                   }
                 }}
@@ -1702,10 +1702,11 @@ export default function OrderEntry({
               className="btn btn--primary btn--full"
               style={{
                 height: '42px',
-                fontSize: '14px',
-                fontWeight: 800,
-                background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
-                boxShadow: '0 2px 12px rgba(91,69,245,0.3)',
+                fontSize: '13px',
+                fontWeight: 700,
+                background: '#18181B',
+                borderColor: '#18181B',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
               }}
             >
               💵 Settle Check (${Number(order.total).toFixed(2)})

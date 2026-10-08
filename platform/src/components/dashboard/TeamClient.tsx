@@ -45,9 +45,9 @@ interface ShiftTrade {
 
 type Tab = 'roster' | 'schedule' | 'leave' | 'availability' | 'swaps'
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: '#6366f1', ACTIVE: '#22c55e', COMPLETED: '#94a3b8',
+  SCHEDULED: 'var(--color-text-primary)', ACTIVE: '#22c55e', COMPLETED: '#94a3b8',
   CANCELLED: '#ef4444', PENDING: '#f59e0b', APPROVED: '#22c55e',
-  DENIED: '#ef4444', PENDING_PEER: '#f59e0b', PENDING_MANAGER: '#6366f1',
+  DENIED: '#ef4444', PENDING_PEER: '#f59e0b', PENDING_MANAGER: 'var(--color-text-primary)',
 }
 const LEAVE_TYPE_LABELS: Record<string, string> = {
   SICK: '🤒 Sick', VACATION: '🏖️ Vacation', PERSONAL: '🏠 Personal', UNPAID: '💸 Unpaid',
@@ -150,7 +150,7 @@ export default function TeamClient() {
       setShifts(await shiftRes.json())
       setLeaves(await leaveRes.json())
       setShiftTrades(await tradeRes.json())
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading staff records', 'error')
     } finally {
       setLoading(false)
@@ -189,7 +189,7 @@ export default function TeamClient() {
       showToast('Profile updated', 'success')
       setEditEmployee(null)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message, 'error')
     } finally {
       setSavingProfile(false)
@@ -206,7 +206,7 @@ export default function TeamClient() {
       if (!res.ok) throw new Error('Failed to toggle status')
       showToast(`Employee ${!emp.isActive ? 'activated' : 'suspended'}`, 'success')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
   }
 
   const handleManualClockOut = async (emp: Employee) => {
@@ -220,7 +220,7 @@ export default function TeamClient() {
       if (!res.ok) throw new Error('Failed to clock out')
       showToast('Clocked out', 'success')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
   }
 
   // ─── Register actions ─────────────────────────────────────────────────────
@@ -261,7 +261,7 @@ export default function TeamClient() {
       setIsRegisterOpen(false)
       setRegName(''); setRegEmail(''); setRegPassword(''); setRegJobTitle('')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
     finally { setSubmittingRegister(false) }
   }
 
@@ -287,7 +287,7 @@ export default function TeamClient() {
       showToast('Employee registered', 'success')
       setIsRegisterOpen(false); setSelectedUserId(''); setRegJobTitle('')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
     finally { setSubmittingRegister(false) }
   }
 
@@ -313,7 +313,7 @@ export default function TeamClient() {
       setIsScheduleOpen(false); setEditShift(null)
       setSchedEmpId(''); setSchedStart(''); setSchedEnd('')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
     finally { setSavingShift(false) }
   }
 
@@ -333,7 +333,7 @@ export default function TeamClient() {
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Failed') }
       showToast('Shift deleted', 'success')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
   }
 
   const handleCancelShift = async (s: Shift) => {
@@ -347,7 +347,7 @@ export default function TeamClient() {
       if (!res.ok) throw new Error('Failed')
       showToast('Shift cancelled', 'success')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
   }
 
   // ─── Leave actions ────────────────────────────────────────────────────────
@@ -370,7 +370,7 @@ export default function TeamClient() {
       showToast('Leave request submitted', 'success')
       setIsLeaveOpen(false); setLeaveStart(''); setLeaveEnd(''); setLeaveReason('')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
     finally { setSubmittingLeave(false) }
   }
 
@@ -384,7 +384,7 @@ export default function TeamClient() {
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Failed') }
       showToast(`Request ${status.toLowerCase()}`, 'success')
       fetchData()
-    } catch (err: any) { showToast(err.message, 'error') }
+    } catch (err: unknown) { showToast(err.message, 'error') }
   }
 
   // ─── Shift Trade actions ───────────────────────────────────────────────
@@ -410,7 +410,7 @@ export default function TeamClient() {
       setIsSwapModalOpen(false)
       setSwapShiftId(''); setSwapTargetEmpId(''); setSwapReason('')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message, 'error')
     } finally {
       setSubmittingSwap(false)
@@ -430,7 +430,7 @@ export default function TeamClient() {
       }
       showToast(`Trade request updated: ${action}`, 'success')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message, 'error')
     }
   }
@@ -467,7 +467,7 @@ export default function TeamClient() {
         {[
           { label: 'On Duty Now',        value: activeEmployees.length, color: activeEmployees.length > 0 ? '#22c55e' : undefined },
           { label: 'Total Roster',       value: employees.length,       color: undefined },
-          { label: 'Scheduled Today',    value: todayShifts.length,     color: '#6366f1' },
+          { label: 'Scheduled Today',    value: todayShifts.length,     color: 'var(--color-text-primary)' },
           { label: 'Pending Leave',      value: pendingLeave,           color: pendingLeave > 0 ? '#f59e0b' : undefined },
         ].map((m) => (
           <div key={m.label} className="card" style={{ padding: 'var(--space-3) var(--space-4)' }}>
@@ -714,8 +714,8 @@ export default function TeamClient() {
                                         style={{
                                           padding: '4px 6px',
                                           borderRadius: '4px',
-                                          background: `${STATUS_COLORS[s.status] || '#6366f1'}18`,
-                                          borderLeft: `3px solid ${STATUS_COLORS[s.status] || '#6366f1'}`,
+                                          background: `${STATUS_COLORS[s.status] || 'var(--color-text-primary)'}18`,
+                                          borderLeft: `3px solid ${STATUS_COLORS[s.status] || 'var(--color-text-primary)'}`,
                                           fontSize: '11px',
                                           cursor: 'pointer',
                                         }}

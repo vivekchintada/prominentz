@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     })
 
     return NextResponse.json(updated)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /api/reconciliation/exceptions/[id]/resolve error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

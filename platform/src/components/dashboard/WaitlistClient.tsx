@@ -65,7 +65,7 @@ export default function WaitlistClient() {
         const tableData = await tableRes.json()
         setTables(Array.isArray(tableData) ? tableData : tableData?.tables || [])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading waitlist', 'error')
     } finally {
       setLoading(false)
@@ -114,7 +114,7 @@ export default function WaitlistClient() {
       setIsAddOpen(false)
       setGuestName(''); setGuestPhone(''); setPartySize(''); setQuotedWait(20)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error queuing guest', 'error')
     } finally {
       setSubmittingAdd(false)
@@ -133,7 +133,7 @@ export default function WaitlistClient() {
 
       showToast(status === 'SEATED' ? '🪑 Guest seated successfully' : 'Guest removed from waitlist', 'info')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating guest status', 'error')
     }
   }
@@ -149,7 +149,7 @@ export default function WaitlistClient() {
       if (!res.ok) throw new Error('Failed to send notification')
 
       showToast(`📲 Table-ready alert sent to ${entry.guestName} (${entry.guestPhone}) via WhatsApp/SMS!`, 'success')
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error sending notification', 'error')
     }
   }
@@ -175,7 +175,7 @@ export default function WaitlistClient() {
       setSelectedTableId('')
       setConvertNotes('')
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error converting entry', 'error')
     } finally {
       setSubmittingConvert(false)
@@ -225,7 +225,7 @@ export default function WaitlistClient() {
                 padding: '4px 12px',
                 borderRadius: 6,
                 border: 'none',
-                backgroundColor: activeView === 'queue' ? '#5b45f5' : 'transparent',
+                backgroundColor: activeView === 'queue' ? 'var(--brand)' : 'transparent',
                 color: activeView === 'queue' ? '#ffffff' : 'var(--color-text-secondary)',
                 fontSize: 12,
                 fontWeight: 700,
@@ -240,7 +240,7 @@ export default function WaitlistClient() {
                 padding: '4px 12px',
                 borderRadius: 6,
                 border: 'none',
-                backgroundColor: activeView === 'floor' ? '#5b45f5' : 'transparent',
+                backgroundColor: activeView === 'floor' ? 'var(--brand)' : 'transparent',
                 color: activeView === 'floor' ? '#ffffff' : 'var(--color-text-secondary)',
                 fontSize: 12,
                 fontWeight: 700,
@@ -272,8 +272,8 @@ export default function WaitlistClient() {
                     borderRadius: 8,
                     fontSize: 12,
                     fontWeight: 600,
-                    border: selectedFloor === f ? '1px solid #5b45f5' : '1px solid #f59e0b',
-                    backgroundColor: selectedFloor === f ? '#5b45f5' : '#ffffff',
+                    border: selectedFloor === f ? '1px solid var(--brand)' : '1px solid #f59e0b',
+                    backgroundColor: selectedFloor === f ? 'var(--brand)' : '#ffffff',
                     color: selectedFloor === f ? '#ffffff' : '#d97706',
                     cursor: 'pointer',
                   }}
@@ -352,7 +352,7 @@ export default function WaitlistClient() {
                           marginTop: 8,
                           fontSize: 10,
                           padding: '3px 8px',
-                          backgroundColor: '#5b45f5',
+                          backgroundColor: 'var(--brand)',
                           color: '#ffffff',
                           border: 'none',
                           borderRadius: 4,
@@ -498,8 +498,8 @@ export default function WaitlistClient() {
               </div>
             </div>
             
-            <div className="p-2 rounded bg-indigo-950/30 border border-indigo-900/40 text-xs text-indigo-300">
-              💡 <strong>Smart Estimator:</strong> Recommended wait calculated based on {totalWaitingParties} active parties ahead.
+            <div style={{ padding: '8px 12px', borderRadius: 'var(--radius-md)', background: 'var(--surface-raised)', border: '1px solid var(--color-border)', fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+              💡 <strong style={{ color: 'var(--color-text-primary)' }}>Smart Estimator:</strong> Recommended wait calculated based on {totalWaitingParties} active parties ahead.
             </div>
 
             <div className="flex gap-2 justify-end mt-2" style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-3)' }}>

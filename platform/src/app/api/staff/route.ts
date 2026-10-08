@@ -135,7 +135,7 @@ export async function GET(req: NextRequest) {
       },
       availableLocations,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/staff]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

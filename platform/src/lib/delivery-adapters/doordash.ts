@@ -8,16 +8,16 @@ import type { NormalizedDeliveryOrder } from './index'
  */
 export function parseDoorDashOrder(payload: Record<string, unknown>): NormalizedDeliveryOrder {
   // DoorDash sends different shapes for Drive vs Marketplace — normalize both
-  const order: any = payload.order ?? payload
+  const order: unknown = payload.order ?? payload
 
   const items = Array.isArray(order.items ?? order.line_items)
-    ? (order.items ?? order.line_items).map((item: any) => ({
+    ? (order.items ?? order.line_items).map((item: unknown) => ({
         externalItemId: String(item.id ?? item.item_id ?? ''),
         name: String(item.name ?? item.item_name ?? 'Unknown Item'),
         quantity: Number(item.quantity ?? 1),
         unitPrice: Number(item.unit_price ?? item.price ?? 0) / 100, // DoorDash uses cents
         modifiers: Array.isArray(item.options ?? item.modifiers)
-          ? (item.options ?? item.modifiers).map((m: any) => ({
+          ? (item.options ?? item.modifiers).map((m: unknown) => ({
               name: String(m.name ?? m.option_name ?? ''),
               priceDelta: Number(m.price ?? m.price_delta ?? 0) / 100,
             }))

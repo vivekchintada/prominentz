@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/payments/create-intent]', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

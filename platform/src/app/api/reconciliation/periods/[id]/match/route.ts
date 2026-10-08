@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       unmatched: result.unmatched,
       exceptions: result.exceptions,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /api/reconciliation/periods/[id]/match error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

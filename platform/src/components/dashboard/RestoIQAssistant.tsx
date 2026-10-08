@@ -15,7 +15,7 @@ interface MessageItem {
   text: string
   intent?: string
   actionType?: string
-  actionData?: any
+  actionData?: unknown
   actionDirectives?: ActionDirective[]
   stats?: { label: string; value: string }[]
   actionableDishCards?: Array<{
@@ -110,7 +110,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
     setIsListening(true)
     recognition.start()
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: unknown) => {
       const transcript = event.results[0][0].transcript
       setPrompt(transcript)
       setIsListening(false)
@@ -193,7 +193,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
       }
 
       setMessages((prev) => [...prev, assistantMsg])
-    } catch (err: any) {
+    } catch (err: unknown) {
       setMessages((prev) => [
         ...prev,
         {
@@ -209,7 +209,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
     }
   }
 
-  const handleUndoAction = (actionType?: string, actionData?: any) => {
+  const handleUndoAction = (actionType?: string, actionData?: unknown) => {
     if (actionType === '86_ITEM' && actionData?.itemName) {
       sendMessage(`Restore item ${actionData.itemName}`)
     } else if (actionType === 'PRIORITIZE_TICKET' && actionData?.table) {
@@ -231,9 +231,9 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
           gap: '10px',
           padding: '4px',
           borderRadius: '9999px',
-          background: 'conic-gradient(from 180deg at 50% 50%, #5b45f5 0deg, #8b5cf6 90deg, #ec4899 180deg, #06b6d4 270deg, #5b45f5 360deg)',
+          background: 'conic-gradient(from 180deg at 50% 50%, var(--brand) 0deg, var(--color-text-secondary) 90deg, var(--color-text-secondary) 180deg, #06b6d4 270deg, var(--brand) 360deg)',
           border: 'none',
-          boxShadow: '0 12px 36px -4px rgba(37, 99, 235, 0.4), 0 0 20px rgba(139, 92, 246, 0.25)',
+          boxShadow: '0 12px 36px -4px rgba(37, 99, 235, 0.4), 0 0 20px var(--brand-tint)',
           cursor: 'pointer',
           transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
           transform: isOpen ? 'scale(0.92)' : 'scale(1)',
@@ -259,7 +259,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
             width: '18px',
             height: '18px',
             borderRadius: '50%',
-            background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #06b6d4, #5b45f5)',
+            background: 'conic-gradient(from 0deg, var(--brand), var(--color-text-secondary), #06b6d4, var(--brand))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -312,7 +312,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                   width: '34px',
                   height: '34px',
                   borderRadius: '50%',
-                  background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #ec4899, #06b6d4, #5b45f5)',
+                  background: 'conic-gradient(from 0deg, var(--brand), var(--color-text-secondary), var(--color-text-secondary), #06b6d4, var(--brand))',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -328,7 +328,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
                     RestoIQ Meta AI
                   </h3>
-                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(91,69,245,0.15)', color: '#7b68f7', border: '0.5px solid rgba(91,69,245,0.3)' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'var(--brand-tint)', color: 'var(--color-text-primary)', border: '0.5px solid var(--brand-tint)' }}>
                     RAG LIVE
                   </span>
                 </div>
@@ -400,14 +400,14 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                       marginTop: '12px',
                       padding: '12px 14px',
                       borderRadius: '10px',
-                      backgroundColor: 'rgba(91,69,245,0.12)',
-                      border: '1px solid rgba(91,69,245,0.3)',
+                      backgroundColor: 'var(--brand-tint)',
+                      border: '1px solid var(--brand-tint)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#7b68f7' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
                           ⚡ DIRECTIVE EXECUTED: {m.actionType.replace(/_/g, ' ')}
                         </span>
                         <button
@@ -468,9 +468,9 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                                 fontWeight: 700,
                                 padding: '4px 8px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(91,69,245,0.15)',
-                                color: '#7b68f7',
-                                border: '1px solid rgba(91,69,245,0.3)',
+                                backgroundColor: 'var(--brand-tint)',
+                                color: 'var(--color-text-primary)',
+                                border: '1px solid var(--brand-tint)',
                                 cursor: 'pointer',
                               }}
                             >
@@ -488,7 +488,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                       {m.stats.map((s, idx) => (
                         <div key={idx} style={{ padding: '8px 10px', borderRadius: '8px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                           <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.45)', textTransform: 'uppercase', fontWeight: 600 }}>{s.label}</div>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#7b68f7', marginTop: '2px' }}>{s.value}</div>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)', marginTop: '2px' }}>{s.value}</div>
                         </div>
                       ))}
                     </div>
@@ -506,12 +506,12 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                         d.severity === 'CRITICAL' ? '#ef4444'
                         : d.severity === 'WARNING' ? '#f59e0b'
                         : d.severity === 'OPPORTUNITY' ? '#22c55e'
-                        : '#7b68f7'
+                        : 'var(--color-text-primary)'
                       const severityBg =
                         d.severity === 'CRITICAL' ? 'rgba(239,68,68,0.12)'
                         : d.severity === 'WARNING' ? 'rgba(245,158,11,0.12)'
                         : d.severity === 'OPPORTUNITY' ? 'rgba(34,197,94,0.12)'
-                        : 'rgba(59,130,246,0.12)'
+                        : 'rgba(255, 255, 255, 0.08)'
                       return (
                         <button
                           key={d.id}
@@ -558,9 +558,9 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                           transition: 'all 0.15s ease',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(91,69,245,0.15)'
+                          e.currentTarget.style.backgroundColor = 'var(--brand-tint)'
                           e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.4)'
-                          e.currentTarget.style.color = '#7b68f7'
+                          e.currentTarget.style.color = 'var(--color-text-primary)'
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)'
@@ -579,8 +579,8 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
             {/* Thinking Pulse */}
             {loading && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', backgroundColor: '#15161d', border: '1px solid rgba(255, 255, 255, 0.08)', width: 'fit-content' }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #06b6d4, #5b45f5)', animation: 'spin 1s linear infinite' }} />
-                <span style={{ fontSize: '12px', color: '#7b68f7', fontWeight: 600 }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'conic-gradient(from 0deg, var(--brand), var(--color-text-secondary), #06b6d4, var(--brand))', animation: 'spin 1s linear infinite' }} />
+                <span style={{ fontSize: '12px', color: 'var(--color-text-primary)', fontWeight: 600 }}>
                   RestoIQ is retrieving RAG knowledge &amp; telemetry...
                 </span>
               </div>
@@ -651,13 +651,13 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
                 type="submit"
                 disabled={loading || !prompt.trim()}
                 style={{
-                  padding: '11px 18px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: loading || !prompt.trim() ? '#27272a' : 'linear-gradient(135deg, #5b45f5, #7b68f7)',
+                  padding: '10px 18px',
+                  borderRadius: '8px',
+                  border: '1px solid #18181B',
+                  background: loading || !prompt.trim() ? '#27272a' : '#18181B',
                   color: '#ffffff',
                   cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   fontSize: '13px',
                   transition: 'all 0.2s ease',
                   flexShrink: 0,

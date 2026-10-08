@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, Suspense } from 'react'
+import { Button } from '@/components/ui/Button'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import styles from '../login/page.module.css'
@@ -95,7 +96,7 @@ function SignupForm() {
 
       // Staff registration -> redirect to login with query param
       router.push(`/login?registered=true&portal=${staffRole.toLowerCase()}&email=${encodeURIComponent(email)}`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'An unexpected registration error occurred.')
     } finally {
       setLoading(false)
@@ -239,45 +240,25 @@ function SignupForm() {
                   margin: '16px 0 16px',
                 }}
               >
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => { setAccountType('OWNER'); setError(null) }}
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    backgroundColor: accountType === 'OWNER' ? '#27272a' : 'transparent',
-                    color: accountType === 'OWNER' ? '#ffffff' : '#71717a',
-                    transition: 'all 120ms ease',
-                  }}
                 >
                   Restaurant Owner
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
-                    setAccountType('OWNER')
+                    setAccountType('STAFF')
                     setError('Staff accounts must be created by a restaurant owner or manager.')
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    backgroundColor: accountType === 'STAFF' ? '#27272a' : 'transparent',
-                    color: accountType === 'STAFF' ? '#ffffff' : '#71717a',
-                    transition: 'all 120ms ease',
                   }}
                 >
                   Staff (Invite-Only)
-                </button>
+                </Button>
               </div>
 
               <h2 className={styles.cardTitle}>
@@ -331,7 +312,7 @@ function SignupForm() {
                   </div>
 
                   {/* Starter Staff Accounts */}
-                  {createdData.starterAccounts?.map((acc: any) => (
+                  {createdData.starterAccounts?.map((acc: unknown) => (
                     <div
                       key={acc.role}
                       style={{
@@ -597,13 +578,17 @@ function SignupForm() {
                 </div>
               )}
 
-              <button type="submit" className={styles.submitBtn} disabled={loading}>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+              >
                 {loading
                   ? 'Creating Account...'
                   : accountType === 'OWNER'
                   ? 'Start 14-Day Free Trial'
                   : `Complete ${staffRole} Registration`}
-              </button>
+              </Button>
             </form>
             )}
 

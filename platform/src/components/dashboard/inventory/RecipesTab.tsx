@@ -66,7 +66,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         const invData = await invRes.json()
         setInventoryOptions(Array.isArray(invData) ? invData : (invData.items || []))
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error loading recipes', 'error')
     } finally {
       setLoading(false)
@@ -113,7 +113,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         if (updated.items?.[0]) setSelectedMenuItem(updated.items[0])
       }
       onRecipeChanged()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error saving recipe', 'error')
     } finally {
       setSubmittingRecipe(false)
@@ -137,7 +137,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         }
       }
       onRecipeChanged()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error removing ingredient', 'error')
     }
   }
@@ -161,9 +161,9 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
         <div
           style={{
-            background: '#ffffff',
+            background: 'var(--color-bg-card)',
             borderRadius: 12,
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--color-border)',
             padding: '16px 20px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
@@ -171,7 +171,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
           <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
             Menu Items With Recipes
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>
             {itemsWithRecipesCount} / {recipes.length}
           </div>
           <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>
@@ -181,9 +181,9 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
 
         <div
           style={{
-            background: '#ffffff',
+            background: 'var(--color-bg-card)',
             borderRadius: 12,
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--color-border)',
             padding: '16px 20px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
@@ -208,9 +208,9 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
 
         <div
           style={{
-            background: '#ffffff',
+            background: 'var(--color-bg-card)',
             borderRadius: 12,
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--color-border)',
             padding: '16px 20px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
@@ -218,7 +218,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
           <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
             Live Cost Recalculation
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#5b45f5', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--brand)', marginTop: 4 }}>
             Real-Time
           </div>
           <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, marginTop: 4 }}>
@@ -230,9 +230,9 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
       {/* Recipes Table */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           overflow: 'hidden',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
@@ -240,14 +240,14 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         <div
           style={{
             padding: '16px 20px',
-            borderBottom: '1px solid #e2e8f0',
+            borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: '#f8fafc',
+            background: 'var(--color-bg-card-hover)',
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-primary)' }}>
             Menu Recipes & Food Cost Matrix
           </div>
           <input
@@ -267,7 +267,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
 
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+            <tr style={{ background: 'var(--color-bg-card)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Menu Dish</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Category</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Retail Price</th>
@@ -313,7 +313,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
 
                 return (
                   <tr key={item.menuItemId} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '14px 18px', fontWeight: 800, color: '#0f172a' }}>
+                    <td style={{ padding: '14px 18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
                       {item.menuItemName}
                       {item.is86d && (
                         <span
@@ -331,19 +331,19 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '14px 18px', color: '#475569' }}>{item.categoryName}</td>
-                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#0f172a' }}>
+                    <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>{item.categoryName}</td>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                       ${item.retailPrice.toFixed(2)}
                     </td>
-                    <td style={{ padding: '14px 18px', color: '#475569' }}>
+                    <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>
                       {item.recipes.length > 0 ? (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                           {item.recipes.map((r) => (
                             <span
                               key={r.id}
                               style={{
-                                background: '#f1f5f9',
-                                color: '#334155',
+                                background: 'var(--color-bg-input)',
+                                color: 'var(--color-text-secondary)',
                                 borderRadius: 4,
                                 padding: '2px 6px',
                                 fontSize: 11,
@@ -360,7 +360,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#0f172a' }}>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                       ${item.totalFoodCost.toFixed(2)}
                     </td>
                     <td style={{ padding: '14px 18px' }}>
@@ -387,8 +387,8 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                           padding: '6px 14px',
                           borderRadius: 6,
                           border: '1px solid #cbd5e1',
-                          background: '#ffffff',
-                          color: '#5b45f5',
+                          background: 'var(--color-bg-card)',
+                          color: 'var(--brand)',
                           fontSize: 12,
                           fontWeight: 700,
                           cursor: 'pointer',
@@ -422,7 +422,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 680,
@@ -440,12 +440,12 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '20px 24px',
-                borderBottom: '1px solid #e2e8f0',
-                background: '#f8fafc',
+                borderBottom: '1px solid var(--color-border)',
+                background: 'var(--color-bg-card-hover)',
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Recipe Configuration: {selectedMenuItem.menuItemName}
                 </h3>
                 <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
@@ -464,18 +464,18 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
             <div style={{ padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
               {/* Existing Ingredients */}
               <div>
-                <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#334155' }}>
+                <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                   Current Recipe Ingredients
                 </h4>
                 {selectedMenuItem.recipes.length === 0 ? (
-                  <div style={{ padding: '16px', background: '#f8fafc', borderRadius: 8, color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>
+                  <div style={{ padding: '16px', background: 'var(--color-bg-card-hover)', borderRadius: 8, color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>
                     No ingredients mapped. Adding ingredients enables automatic stock depletion upon order firing.
                   </div>
                 ) : (
-                  <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                       <thead>
-                        <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+                        <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
                           <th style={{ padding: '8px 12px', fontWeight: 700 }}>Ingredient</th>
                           <th style={{ padding: '8px 12px', fontWeight: 700, textAlign: 'center' }}>Portion Qty</th>
                           <th style={{ padding: '8px 12px', fontWeight: 700, textAlign: 'right' }}>Unit Cost</th>
@@ -486,16 +486,16 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                       <tbody>
                         {selectedMenuItem.recipes.map((r) => (
                           <tr key={r.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '10px 12px', fontWeight: 700, color: '#0f172a' }}>
+                            <td style={{ padding: '10px 12px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                               {r.ingredientName}
                             </td>
-                            <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>
+                            <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                               {r.quantityRequired} {r.unit}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b' }}>
                               ${r.unitCost.toFixed(2)}/{r.unit}
                             </td>
-                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                               ${r.lineCost.toFixed(2)}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'center' }}>
@@ -526,8 +526,8 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
               <form
                 onSubmit={handleAddIngredient}
                 style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--color-bg-card-hover)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: 10,
                   padding: 16,
                   display: 'flex',
@@ -535,13 +535,13 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                   gap: 12,
                 }}
               >
-                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#0f172a' }}>
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                   + Add Ingredient Requirement
                 </h4>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                       Ingredient:
                     </label>
                     <select
@@ -553,7 +553,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         borderRadius: 6,
                         border: '1px solid #cbd5e1',
                         fontSize: 13,
-                        background: '#ffffff',
+                        background: 'var(--color-bg-card)',
                       }}
                     >
                       {inventoryOptions.map((opt) => (
@@ -565,7 +565,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                       Portion Required:
                     </label>
                     <input
@@ -595,7 +595,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                       padding: '8px 18px',
                       borderRadius: 6,
                       border: 'none',
-                      background: '#5b45f5',
+                      background: 'var(--brand)',
                       color: '#ffffff',
                       fontSize: 13,
                       fontWeight: 700,
@@ -614,8 +614,8 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                 display: 'flex',
                 justifyContent: 'flex-end',
                 padding: '16px 24px',
-                borderTop: '1px solid #e2e8f0',
-                background: '#f8fafc',
+                borderTop: '1px solid var(--color-border)',
+                background: 'var(--color-bg-card-hover)',
               }}
             >
               <button
@@ -625,10 +625,10 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                   padding: '9px 18px',
                   borderRadius: 8,
                   border: '1px solid #cbd5e1',
-                  background: '#ffffff',
+                  background: 'var(--color-bg-card)',
                   fontSize: 13,
                   fontWeight: 600,
-                  color: '#475569',
+                  color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >

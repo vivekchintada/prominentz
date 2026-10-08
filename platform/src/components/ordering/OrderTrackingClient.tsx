@@ -136,7 +136,7 @@ export default function OrderTrackingClient({ token }: { token: string }) {
 
         {/* Order Receipt */}
         <div className={styles.itemsList}>
-          {order.items?.map((item: any) => (
+          {order.items?.map((item: unknown) => (
             <div className={styles.itemRow} key={item.id}>
               <span className={styles.itemQuantity}>
                 {item.quantity} × {item.name}

@@ -48,7 +48,7 @@ export function verifyDeliverySignature(
     const expected = Buffer.from(computed, 'utf-8');
     const isMatch = supplied.length === expected.length && crypto.timingSafeEqual(expected, supplied);
     return { isValid: isMatch, reason: isMatch ? undefined : 'Signature mismatch' };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Delivery Webhook] Verification error:', err);
     return { isValid: false, reason: 'Verification failure' };
   }

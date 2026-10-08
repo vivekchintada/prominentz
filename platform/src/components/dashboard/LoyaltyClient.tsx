@@ -65,7 +65,7 @@ export function LoyaltyClient() {
   const [tName, setTName] = useState('')
   const [tMinSpend, setTMinSpend] = useState('100')
   const [tMultiplier, setTMultiplier] = useState('1.2')
-  const [tColor, setTColor] = useState('#6366f1')
+  const [tColor, setTColor] = useState('var(--color-text-primary)')
   const [tPerks, setTPerks] = useState('1.2x Points, Free Birthday Dessert')
   const [tSubmitting, setTSubmitting] = useState(false)
 
@@ -132,7 +132,7 @@ export function LoyaltyClient() {
         const json = await res.json()
         alert(json.error || 'Failed to create reward')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Error creating reward')
     } finally {
       setRSubmitting(false)
@@ -167,7 +167,7 @@ export function LoyaltyClient() {
         const json = await res.json()
         alert(json.error || 'Failed to create tier')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Error creating tier')
     } finally {
       setTSubmitting(false)
@@ -191,7 +191,7 @@ export function LoyaltyClient() {
         const json = await res.json()
         alert(json.error || 'Failed to update settings')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Save error')
     } finally {
       setSavingConfig(false)
@@ -210,7 +210,7 @@ export function LoyaltyClient() {
       } else {
         alert(data.error || 'Failed to run expiry')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Expiry error')
     } finally {
       setExpiringPoints(false)

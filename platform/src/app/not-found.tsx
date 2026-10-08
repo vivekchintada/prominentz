@@ -27,11 +27,9 @@ export default function NotFound() {
         <div
           style={{
             fontSize: 64,
-            fontWeight: 900,
-            letterSpacing: '-0.06em',
-            background: 'linear-gradient(135deg, #7b68f7 0%, #5b45f5 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            fontWeight: 800,
+            letterSpacing: '-0.04em',
+            color: 'var(--color-text-primary, #171717)',
             lineHeight: 1,
           }}
         >
@@ -41,9 +39,10 @@ export default function NotFound() {
         <h1
           style={{
             fontSize: '1.375rem',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
             margin: 0,
+            color: 'var(--color-text-primary, #171717)',
           }}
         >
           Page not found
@@ -52,7 +51,7 @@ export default function NotFound() {
         <p
           style={{
             fontSize: '0.9375rem',
-            color: 'var(--color-text-secondary, #8E8E93)',
+            color: 'var(--color-text-secondary, #595959)',
             lineHeight: 1.6,
             margin: 0,
           }}
@@ -66,16 +65,16 @@ export default function NotFound() {
             style={{
               height: 40,
               padding: '0 24px',
-              borderRadius: 10,
-              border: 'none',
-              background: 'linear-gradient(135deg, #5b45f5 0%, #7b68f7 100%)',
+              borderRadius: 8,
+              border: '1px solid #18181B',
+              background: '#18181B',
               color: '#fff',
-              fontWeight: 700,
+              fontWeight: 600,
               fontSize: 14,
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
-              boxShadow: '0 2px 12px rgba(91,69,245,0.3)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
             }}
           >
             Go to Dashboard

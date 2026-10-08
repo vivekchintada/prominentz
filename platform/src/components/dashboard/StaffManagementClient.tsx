@@ -46,7 +46,7 @@ export interface ActorContext {
 
 const ROLE_COLORS: Record<OrganizationRole, { bg: string; text: string; border: string }> = {
   OWNER: { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', border: 'rgba(239, 68, 68, 0.3)' },
-  MANAGER: { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
+  MANAGER: { bg: 'rgba(255, 255, 255, 0.08)', text: '#60a5fa', border: 'rgba(255, 255, 255, 0.08)' },
   SERVER: { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)' },
   KITCHEN: { bg: 'rgba(245, 158, 11, 0.15)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)' },
 }
@@ -122,7 +122,7 @@ export function StaffManagementClient() {
         const invData = await invRes.json()
         setInvitations(Array.isArray(invData) ? invData : [])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[fetchData]', err)
       setError(err.message || 'An unexpected error occurred.')
     } finally {
@@ -226,7 +226,7 @@ export function StaffManagementClient() {
 
       setEditMember(null)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setEditError(err.message)
     } finally {
       setIsSavingEdit(false)
@@ -258,7 +258,7 @@ export function StaffManagementClient() {
 
       setGeneratedInviteUrl(data.invitation.inviteUrl)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setInviteError(err.message)
     } finally {
       setIsSubmittingInvite(false)
@@ -295,7 +295,7 @@ export function StaffManagementClient() {
 
       setConfirmAction(null)
       fetchData()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setActionError(err.message)
     } finally {
       setIsActionProcessing(false)
@@ -312,8 +312,8 @@ export function StaffManagementClient() {
       {/* ── Top Role & Policy Banner ── */}
       <div
         style={{
-          background: 'linear-gradient(135deg, rgba(91, 69, 245, 0.1) 0%, rgba(30, 27, 75, 0.25) 100%)',
-          border: '1px solid rgba(91, 69, 245, 0.25)',
+          background: 'var(--color-bg-card)',
+          border: '1px solid var(--color-border)',
           borderRadius: '12px',
           padding: '1rem 1.25rem',
           marginBottom: '1.5rem',
@@ -335,7 +335,7 @@ export function StaffManagementClient() {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '1.25rem',
-              boxShadow: '0 4px 12px rgba(91, 69, 245, 0.3)',
+              boxShadow: '0 4px 12px var(--brand-tint)',
             }}
           >
             🛡️
@@ -401,7 +401,7 @@ export function StaffManagementClient() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                boxShadow: '0 4px 14px rgba(91, 69, 245, 0.4)',
+                boxShadow: '0 4px 14px var(--brand-tint)',
               }}
             >
               <span>+</span>
@@ -823,7 +823,7 @@ export function StaffManagementClient() {
                                     justifyContent: 'center',
                                     fontWeight: 700,
                                     fontSize: '0.8rem',
-                                    border: '1px solid rgba(91, 69, 245, 0.3)',
+                                    border: '1px solid var(--brand-tint)',
                                   }}
                                 >
                                   {(member.user?.name || member.user?.email || 'U').charAt(0).toUpperCase()}

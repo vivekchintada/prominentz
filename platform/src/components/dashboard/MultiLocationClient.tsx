@@ -57,7 +57,7 @@ export function MultiLocationClient() {
       } else {
         setData(json)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err?.message || 'Network error')
     } finally {
       setLoading(false)
@@ -96,7 +96,7 @@ export function MultiLocationClient() {
         setIsHq(false)
         fetchAnalytics()
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Failed to create location')
     } finally {
       setSubmitting(false)
@@ -122,7 +122,7 @@ export function MultiLocationClient() {
       } else {
         setPushResult(json.message)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setPushResult(`Error: ${err?.message || 'Failed to push menu'}`)
     } finally {
       setPushingMenu(false)
@@ -195,21 +195,21 @@ export function MultiLocationClient() {
       {/* Summary KPI Cards */}
       {data?.summary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-          <div style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Active Store Outlets</span>
             <div style={{ fontSize: '24px', fontWeight: 700, color: '#111827', marginTop: '4px' }}>{data.summary.totalLocations} Outlets</div>
           </div>
-          <div style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Grand Total Revenue</span>
             <div style={{ fontSize: '24px', fontWeight: 700, color: '#4f46e5', marginTop: '4px' }}>
               ${data.summary.grandTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </div>
           </div>
-          <div style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Enterprise Orders</span>
             <div style={{ fontSize: '24px', fontWeight: 700, color: '#111827', marginTop: '4px' }}>{data.summary.grandTotalOrders} Orders</div>
           </div>
-          <div style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Overall Labor Cost %</span>
             <div style={{ fontSize: '24px', fontWeight: 700, color: data.summary.overallLaborPct > 30 ? '#dc2626' : '#059669', marginTop: '4px' }}>
               {data.summary.overallLaborPct}%
@@ -219,15 +219,15 @@ export function MultiLocationClient() {
       )}
 
       {/* Side-by-Side Store Benchmarking Leaderboard Table */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
-          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#111827' }}>🏆 Store-by-Store Performance Leaderboard</h3>
+      <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card-hover)' }}>
+          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--color-text-primary)' }}>🏆 Store-by-Store Performance Leaderboard</h3>
         </div>
 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}>
+              <tr style={{ backgroundColor: 'var(--color-bg-card-hover)', color: 'var(--color-text-secondary)' }}>
                 <th style={{ padding: '12px 16px' }}>Store Name & Region</th>
                 <th style={{ padding: '12px 16px' }}>HQ Tag</th>
                 <th style={{ padding: '12px 16px' }}>Total Revenue</th>
@@ -240,25 +240,25 @@ export function MultiLocationClient() {
             </thead>
             <tbody>
               {data?.benchmarks.map((store, idx) => (
-                <tr key={store.locationId} style={{ borderBottom: '1px solid #e5e7eb', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb' }}>
-                  <td style={{ padding: '12px 16px', fontWeight: 600, color: '#111827' }}>
+                <tr key={store.locationId} style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: idx % 2 === 0 ? 'var(--color-bg-card)' : 'var(--color-bg-card-hover)' }}>
+                  <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
                     {store.locationName}
-                    <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 400 }}>Region: {store.region}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 400 }}>Region: {store.region}</div>
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     {store.isHeadquarters ? (
-                      <span style={{ padding: '2px 8px', backgroundColor: '#e0e7ff', color: '#4338ca', borderRadius: '12px', fontSize: '11px', fontWeight: 600 }}>
+                      <span style={{ padding: '2px 8px', backgroundColor: 'var(--brand-tint)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)', borderRadius: '12px', fontSize: '11px', fontWeight: 600 }}>
                         🏢 HQ Master
                       </span>
                     ) : (
-                      <span style={{ color: '#9ca3af', fontSize: '11px' }}>Branch</span>
+                      <span style={{ color: 'var(--color-text-tertiary)', fontSize: '11px' }}>Branch</span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 16px', fontWeight: 700, color: '#111827' }}>
+                  <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     ${store.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
-                  <td style={{ padding: '12px 16px' }}>{store.orderCount}</td>
-                  <td style={{ padding: '12px 16px' }}>${store.averageCheck.toFixed(2)}</td>
+                  <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>{store.orderCount}</td>
+                  <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>${store.averageCheck.toFixed(2)}</td>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: store.laborPercentage > 30 ? '#dc2626' : '#059669' }}>
                     {store.laborPercentage}%
                   </td>
@@ -280,7 +280,7 @@ export function MultiLocationClient() {
       {/* Add Store Location Modal */}
       {showAddModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '24px', width: '420px', maxWidth: '90vw', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+          <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', width: '420px', maxWidth: '90vw', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 700 }}>➕ Add New Franchise Store Location</h3>
             <form onSubmit={handleCreateLocation} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
@@ -338,7 +338,7 @@ export function MultiLocationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  style={{ padding: '8px 16px', backgroundColor: '#f3f4f6', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', backgroundColor: 'var(--color-bg-card-hover)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)', borderRadius: '6px', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
@@ -357,17 +357,17 @@ export function MultiLocationClient() {
 
       {/* Master Menu Push Engine Modal */}
       {showPushModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '24px', width: '480px', maxWidth: '90vw', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700 }}>🚀 Global Master Menu Synchronization</h3>
-            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '24px', width: '480px', maxWidth: '90vw', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)' }}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>🚀 Global Master Menu Synchronization</h3>
+            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
               Push HQ master menu categories, prices, and items to selected store locations in one click.
             </p>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151', display: 'block', marginBottom: '8px' }}>Select Target Outlets:</label>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', display: 'block', marginBottom: '8px' }}>Select Target Outlets:</label>
               {data?.benchmarks.map((store) => (
-                <label key={store.locationId} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', fontSize: '13px', cursor: 'pointer' }}>
+                <label key={store.locationId} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', fontSize: '13px', cursor: 'pointer', color: 'var(--color-text-primary)' }}>
                   <input
                     type="checkbox"
                     checked={selectedLocationIds.includes(store.locationId)}
@@ -385,7 +385,7 @@ export function MultiLocationClient() {
             </div>
 
             {pushResult && (
-              <div style={{ padding: '10px', backgroundColor: pushResult.startsWith('Error') ? '#fef2f2' : '#f0fdf4', color: pushResult.startsWith('Error') ? '#dc2626' : '#166534', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+              <div style={{ padding: '10px', backgroundColor: pushResult.startsWith('Error') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)', color: pushResult.startsWith('Error') ? '#ef4444' : '#22c55e', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
                 {pushResult}
               </div>
             )}
@@ -394,7 +394,7 @@ export function MultiLocationClient() {
               <button
                 type="button"
                 onClick={() => setShowPushModal(false)}
-                style={{ padding: '8px 16px', backgroundColor: '#f3f4f6', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', backgroundColor: 'var(--color-bg-card-hover)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)', borderRadius: '6px', cursor: 'pointer' }}
               >
                 Close
               </button>

@@ -36,7 +36,7 @@ export default async function OrdersPage() {
   })
 
   // Serialize Decimal → number and Date → ISO string
-  const serialized = orders.map((o: any) => ({
+  const serialized = orders.map((o: unknown) => ({
     id: o.id,
     status: o.status,
     notes: o.notes,
@@ -46,7 +46,7 @@ export default async function OrdersPage() {
     table: o.table || { id: 't-none', name: 'Takeout / Direct' },
     server: o.server,
     _count: o._count,
-    items: o.items.map((i: any) => ({
+    items: o.items.map((i: unknown) => ({
       id: i.id,
       menuItemId: i.menuItemId,
       quantity: i.quantity,
@@ -61,7 +61,7 @@ export default async function OrdersPage() {
         isVeg: i.menuItem?.name?.toLowerCase().includes('bruschetta') || i.menuItem?.name?.toLowerCase().includes('fondant') || false,
       },
     })),
-    payments: o.payments.map((p: any) => ({
+    payments: o.payments.map((p: unknown) => ({
       id: p.id,
       status: p.status,
       amount: Number(p.total),

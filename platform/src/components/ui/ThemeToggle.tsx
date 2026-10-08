@@ -6,19 +6,18 @@ type Theme = 'dark' | 'light'
 
 function getStoredTheme(): Theme {
   if (typeof window === 'undefined') return 'dark'
-  return (localStorage.getItem('resto-theme') as Theme) || 'dark'
+  return (localStorage.getItem('resto-theme') as Theme) || (localStorage.getItem('prominentz-theme') as Theme) || 'dark'
 }
 
 function applyTheme(theme: Theme) {
   const html = document.documentElement
   // Add transition class
   html.classList.add('theme-transitioning')
-  if (theme === 'light') {
-    html.setAttribute('data-theme', 'light')
-  } else {
-    html.removeAttribute('data-theme')
-  }
-  localStorage.setItem('resto-theme', theme)
+  html.setAttribute('data-theme', theme)
+  try {
+    localStorage.setItem('resto-theme', theme)
+    localStorage.setItem('prominentz-theme', theme)
+  } catch {}
   // Remove transition class after animation completes
   setTimeout(() => html.classList.remove('theme-transitioning'), 260)
 }

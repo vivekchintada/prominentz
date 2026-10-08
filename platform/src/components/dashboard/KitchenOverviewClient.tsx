@@ -106,7 +106,7 @@ export function KitchenOverviewClient() {
             }
             if (menuRes.ok) {
                 const mData = await menuRes.json();
-                const outOfStock = mData.filter((i: any) => i.is86d === true || i.isAvailable === false);
+                const outOfStock = mData.filter((i: unknown) => i.is86d === true || i.isAvailable === false);
                 setItems86(outOfStock);
             }
         } catch (err) {
@@ -183,8 +183,8 @@ export function KitchenOverviewClient() {
                 {[
                     { label: 'Active Tickets', value: `${kpi.activeTickets}`, icon: '🔥', color: '#f97316' },
                     { label: 'In Alert (>12m)', value: `${kpi.overdueTickets}`, icon: '⚠️', color: kpi.overdueTickets > 0 ? '#ef4444' : '#22c55e' },
-                    { label: 'Avg Ticket Time', value: `${kpi.avgTicketTimeMins}m`, icon: '⏱️', color: '#6366f1' },
-                    { label: 'Past Hour Volume', value: `${kpi.ordersLastHour ?? 0}`, icon: '📦', color: '#5b45f5' },
+                    { label: 'Avg Ticket Time', value: `${kpi.avgTicketTimeMins}m`, icon: '⏱️', color: 'var(--color-text-primary)' },
+                    { label: 'Past Hour Volume', value: `${kpi.ordersLastHour ?? 0}`, icon: '📦', color: 'var(--brand)' },
                     { label: 'Clocked-In Cooks', value: `${kpi.activeKitchenStaff}`, icon: '👨‍🍳', color: '#10b981' },
                 ].map((item) => (
                     <div

@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
       <main id="main-content" style={{ maxWidth: '860px', margin: '0 auto', padding: '56px 24px 100px' }}>
         {/* Header Breadcrumb & Title */}
         <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: '#7b68f7', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             <span>Legal Documentation</span>
             <span>•</span>
             <span>Privacy &amp; Data Protection</span>
@@ -52,7 +52,7 @@ export default function PrivacyPolicyPage() {
         </div>
 
         {/* Quick Highlights Summary Box */}
-        <div style={{ backgroundColor: 'rgba(91,69,245,0.08)', border: '1px solid rgba(91,69,245,0.25)', borderRadius: '16px', padding: '24px', marginBottom: '48px' }}>
+        <div style={{ backgroundColor: 'var(--brand-tint)', border: '1px solid var(--brand-tint)', borderRadius: '16px', padding: '24px', marginBottom: '48px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#a594fd', margin: '0 0 12px' }}>
             Privacy Summary at a Glance
           </h2>
@@ -178,18 +178,32 @@ export default function PrivacyPolicyPage() {
         {/* Section 6 */}
         <section style={{ marginBottom: '40px' }}>
           <h2 id="rights" style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff', letterSpacing: '-0.02em' }}>
-            6. Your Privacy Rights (GDPR &amp; CCPA/CPRA)
+            6. Your Privacy Rights (GDPR, CCPA/CPRA &amp; India DPDP Act 2023)
           </h2>
           <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'rgba(255,255,255,0.78)', margin: '0 0 12px' }}>
             Depending on your jurisdiction, you enjoy enforceable statutory rights regarding your personal information:
           </p>
-          <ul style={{ paddingLeft: '20px', fontSize: '14px', lineHeight: 1.8, color: 'rgba(255,255,255,0.75)' }}>
+          <ul style={{ paddingLeft: '20px', fontSize: '14px', lineHeight: 1.8, color: 'rgba(255,255,255,0.75)', marginBottom: '20px' }}>
             <li><strong>Right of Access:</strong> Request a copy of the personal information we hold about you.</li>
-            <li><strong>Right of Rectification:</strong> Request correction of inaccurate or incomplete records.</li>
+            <li><strong>Right of Rectification / Correction:</strong> Request correction of inaccurate or incomplete records.</li>
             <li><strong>Right to Erasure (&quot;Right to be Forgotten&quot;):</strong> Request deletion of your personal data where statutory retention obligations do not apply.</li>
             <li><strong>Right to Data Portability:</strong> Export your menu, sales, or customer data in standard CSV/JSON formats.</li>
+            <li><strong>Right of Grievance Redressal:</strong> Avail expeditious redressal of complaints through our designated Grievance Officer.</li>
+            <li><strong>Right to Nominate:</strong> Nominate another individual to exercise privacy rights in the event of death or incapacity (under DPDP Act 2023).</li>
             <li><strong>Non-Discrimination:</strong> We will never deny services, charge different prices, or degrade quality if you exercise statutory privacy rights.</li>
           </ul>
+
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '18px 20px', marginTop: '16px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff', margin: '0 0 8px' }}>
+              India Digital Personal Data Protection (DPDP) Act, 2023 Specific Notice
+            </h3>
+            <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'rgba(255,255,255,0.7)', margin: '0 0 8px' }}>
+              For users and diners in India, Prominentz operates as a <strong>Data Fiduciary</strong> for platform account holders and a <strong>Data Processor</strong> when handling restaurant guest and ordering data on behalf of restaurant operators. 
+            </p>
+            <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+              Grievance Redressal Officer (India): <strong>grievance-officer@prominentz.com</strong> · Formal statutory complaints under the DPDP Act 2023 are resolved within 30 days.
+            </p>
+          </div>
         </section>
 
         {/* Section 7 */}
@@ -219,8 +233,8 @@ export default function PrivacyPolicyPage() {
               Prominentz Inc. — Privacy &amp; Data Governance Office
             </div>
             <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-              Email: <a href="mailto:privacy@prominentz.com" style={{ color: '#7b68f7', textDecoration: 'underline' }}>privacy@prominentz.com</a><br />
-              Support: <a href="mailto:support@prominentz.com" style={{ color: '#7b68f7', textDecoration: 'underline' }}>support@prominentz.com</a><br />
+              Email: <a href="mailto:privacy@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>privacy@prominentz.com</a><br />
+              Support: <a href="mailto:support@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>support@prominentz.com</a><br />
               Hours: Monday – Friday, 9:00 AM – 6:00 PM EST<br />
               Response SLA: Formal privacy inquiries are acknowledged within 48 business hours.
             </div>
@@ -232,7 +246,7 @@ export default function PrivacyPolicyPage() {
           <Link href="/" className="btn btn--secondary" style={{ padding: '10px 20px', borderRadius: '8px', fontSize: '13px', textDecoration: 'none' }}>
             ← Return to Prominentz Home
           </Link>
-          <Link href="/terms" style={{ color: '#7b68f7', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
+          <Link href="/terms" style={{ color: 'var(--color-text-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
             Read Terms of Service →
           </Link>
         </div>

@@ -5,7 +5,7 @@ import React, { useRef } from 'react'
 interface OrderStatementModalProps {
   isOpen: boolean
   onClose: () => void
-  order: any
+  order: unknown
 }
 
 export default function OrderStatementModal({
@@ -70,8 +70,8 @@ export default function OrderStatementModal({
     >
       <div
         style={{
-          backgroundColor: '#ffffff',
-          color: '#0f172a',
+          backgroundColor: 'var(--color-bg-card)',
+          color: 'var(--color-text-primary)',
           borderRadius: '16px',
           width: '100%',
           maxWidth: '460px',
@@ -88,16 +88,16 @@ export default function OrderStatementModal({
         <div
           style={{
             padding: '16px 20px',
-            borderBottom: '1px solid #e2e8f0',
+            borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: '#f8fafc',
+            backgroundColor: 'var(--color-bg-card-hover)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '18px' }}>📄</span>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
               Order Statement
             </h3>
             <span
@@ -159,10 +159,10 @@ export default function OrderStatementModal({
                 display: 'inline-block',
                 padding: '4px 12px',
                 borderRadius: '6px',
-                backgroundColor: '#f1f5f9',
+                backgroundColor: 'var(--color-bg-input)',
                 fontSize: '12px',
                 fontWeight: 700,
-                color: '#334155',
+                color: 'var(--color-text-secondary)',
               }}
             >
               Order {orderNum} · {diningType}
@@ -176,7 +176,7 @@ export default function OrderStatementModal({
               gridTemplateColumns: '1fr 1fr',
               gap: '10px',
               fontSize: '12px',
-              backgroundColor: '#f8fafc',
+              backgroundColor: 'var(--color-bg-card-hover)',
               padding: '12px',
               borderRadius: '8px',
               border: '1px solid #f1f5f9',
@@ -184,19 +184,19 @@ export default function OrderStatementModal({
           >
             <div>
               <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Date & Time</span>
-              <strong style={{ color: '#1e293b' }}>{formattedDate}, {formattedTime}</strong>
+              <strong style={{ color: 'var(--color-text-primary)' }}>{formattedDate}, {formattedTime}</strong>
             </div>
             <div>
               <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Table / Location</span>
-              <strong style={{ color: '#1e293b' }}>{order.table?.name || 'Quick Counter'}</strong>
+              <strong style={{ color: 'var(--color-text-primary)' }}>{order.table?.name || 'Quick Counter'}</strong>
             </div>
             <div>
               <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Server / Staff</span>
-              <strong style={{ color: '#1e293b' }}>{order.server?.name || 'Staff'}</strong>
+              <strong style={{ color: 'var(--color-text-primary)' }}>{order.server?.name || 'Staff'}</strong>
             </div>
             <div>
               <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Guest / Customer</span>
-              <strong style={{ color: '#1e293b' }}>{order.customer?.name || 'Walk-in Guest'}</strong>
+              <strong style={{ color: 'var(--color-text-primary)' }}>{order.customer?.name || 'Walk-in Guest'}</strong>
             </div>
           </div>
 
@@ -211,7 +211,7 @@ export default function OrderStatementModal({
                 color: '#64748b',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
-                borderBottom: '1px solid #e2e8f0',
+                borderBottom: '1px solid var(--color-border)',
                 paddingBottom: '6px',
                 marginBottom: '8px',
               }}
@@ -221,7 +221,7 @@ export default function OrderStatementModal({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(order.items || []).map((item: any) => {
+              {(order.items || []).map((item: unknown) => {
                 const itemName = item.menuItem?.name || item.name || 'Dish'
                 const itemPrice = Number(item.unitPrice || item.priceAtOrder || item.menuItem?.price || 0)
                 const lineTotal = itemPrice * Number(item.quantity || 1)
@@ -229,12 +229,12 @@ export default function OrderStatementModal({
                 return (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                     <div style={{ flex: 1, paddingRight: '12px' }}>
-                      <div style={{ fontWeight: 700, color: '#1e293b' }}>
+                      <div style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>
                         {item.quantity}x {itemName}
                       </div>
                       {item.modifiers && item.modifiers.length > 0 && (
                         <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                          + {item.modifiers.map((m: any) => m.optionName || m.name).join(', ')}
+                          + {item.modifiers.map((m: unknown) => m.optionName || m.name).join(', ')}
                         </div>
                       )}
                       {item.specialNote && (
@@ -243,7 +243,7 @@ export default function OrderStatementModal({
                         </div>
                       )}
                     </div>
-                    <div style={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>
+                    <div style={{ fontWeight: 700, color: 'var(--color-text-primary)', textAlign: 'right' }}>
                       ${lineTotal.toFixed(2)}
                     </div>
                   </div>
@@ -263,11 +263,11 @@ export default function OrderStatementModal({
               fontSize: '13px',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
               <span>Subtotal</span>
               <span style={{ fontWeight: 600 }}>${subtotal.toFixed(2)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
               <span>Tax (10%)</span>
               <span style={{ fontWeight: 600 }}>${tax.toFixed(2)}</span>
             </div>
@@ -283,7 +283,7 @@ export default function OrderStatementModal({
                 justifyContent: 'space-between',
                 fontSize: '16px',
                 fontWeight: 900,
-                color: '#0f172a',
+                color: 'var(--color-text-primary)',
                 borderTop: '1.5px solid #0f172a',
                 paddingTop: '8px',
                 marginTop: '4px',
@@ -339,8 +339,8 @@ export default function OrderStatementModal({
         <div
           style={{
             padding: '14px 20px',
-            borderTop: '1px solid #e2e8f0',
-            backgroundColor: '#f8fafc',
+            borderTop: '1px solid var(--color-border)',
+            backgroundColor: 'var(--color-bg-card-hover)',
             display: 'flex',
             gap: '10px',
           }}
@@ -350,11 +350,11 @@ export default function OrderStatementModal({
             style={{
               flex: 1,
               padding: '10px',
-              backgroundColor: '#5b45f5',
+              backgroundColor: '#18181B',
               color: '#ffffff',
-              border: 'none',
+              border: '1px solid #18181B',
               borderRadius: '8px',
-              fontWeight: 700,
+              fontWeight: 600,
               fontSize: '13px',
               cursor: 'pointer',
               display: 'flex',
@@ -370,7 +370,7 @@ export default function OrderStatementModal({
             style={{
               padding: '10px 18px',
               backgroundColor: '#e2e8f0',
-              color: '#334155',
+              color: 'var(--color-text-secondary)',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 700,

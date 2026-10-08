@@ -268,7 +268,7 @@ export async function matchPeriodOrders(periodId: string): Promise<MatchResult> 
   if (period.status === 'LOCKED') throw new Error('Cannot re-match a locked period')
 
   // Gather all lines across all statements in this period
-  const allLines = period.statements.flatMap((ps: any) => ps.statement.lines)
+  const allLines = period.statements.flatMap((ps: unknown) => ps.statement.lines)
 
   // Fetch all online orders for this location in the period window
   const onlineOrders = await prisma.order.findMany({
@@ -312,7 +312,7 @@ export async function matchPeriodOrders(periodId: string): Promise<MatchResult> 
     if (!restoOrder) {
       const lineDay = line.orderDate.getTime()
       restoOrder =
-        onlineOrders.find((o: any) => {
+        onlineOrders.find((o: unknown) => {
           const dayDiff = Math.abs(o.createdAt.getTime() - lineDay) / (1000 * 60 * 60 * 24)
           const totalNum = Number(o.total)
           const amtDiff = Math.abs(totalNum - line.grossAmount)
@@ -385,7 +385,7 @@ async function recalculatePeriodTotals(
   })
 
   const totals = statements.reduce(
-    (acc: any, ps: any) => ({
+    (acc: unknown, ps: unknown) => ({
       totalGross: acc.totalGross + ps.statement.totalGross,
       totalCommission: acc.totalCommission + ps.statement.totalCommission,
       totalTax: acc.totalTax + ps.statement.totalTax,

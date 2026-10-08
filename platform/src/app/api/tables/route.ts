@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Tables are strictly managed by customer/location setup — no auto-seeding of ghost tables
-    const whereClause: any = { locationId: targetLocation.id }
+    const whereClause: unknown = { locationId: targetLocation.id }
     if (floorParam && floorParam !== 'all' && floorParam !== 'All Floors') {
       whereClause.floor = floorParam
     }
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(table, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/tables]', error)
     return NextResponse.json({ error: error.message || 'Failed to create table' }, { status: 500 })
   }

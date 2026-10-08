@@ -72,10 +72,10 @@ interface DayForecast {
 
 const ROLE_COLORS: Record<string, { bg: string; border: string; text: string; badgeBg: string }> = {
     SERVER: {
-        bg: 'rgba(59, 130, 246, 0.12)',
-        border: '#7b68f7',
+        bg: 'rgba(255, 255, 255, 0.08)',
+        border: 'var(--color-text-primary)',
         text: '#60a5fa',
-        badgeBg: 'rgba(59, 130, 246, 0.2)',
+        badgeBg: 'rgba(255, 255, 255, 0.08)',
     },
     KITCHEN: {
         bg: 'rgba(249, 115, 22, 0.12)',
@@ -91,7 +91,7 @@ const ROLE_COLORS: Record<string, { bg: string; border: string; text: string; ba
     },
     OWNER: {
         bg: 'rgba(99, 102, 241, 0.12)',
-        border: '#6366f1',
+        border: 'var(--color-text-primary)',
         text: '#818cf8',
         badgeBg: 'rgba(99, 102, 241, 0.2)',
     },
@@ -231,7 +231,7 @@ export function ScheduleClient() {
                 if (swapRes.ok) {
                     const swapData = await swapRes.json();
                     if (Array.isArray(swapData)) {
-                        setPendingSwapsCount(swapData.filter((t: any) => t.status?.includes('PENDING')).length);
+                        setPendingSwapsCount(swapData.filter((t: unknown) => t.status?.includes('PENDING')).length);
                     }
                 }
             } catch {}
@@ -453,7 +453,7 @@ export function ScheduleClient() {
                 throw new Error(err.error || 'Failed to reassign shift');
             }
             showToast('Shift reassigned successfully', 'success');
-        } catch (err: any) {
+        } catch (err: unknown) {
             setShifts(previousShifts);
             showToast(err.message || 'Error moving shift', 'error');
         } finally {
@@ -554,7 +554,7 @@ export function ScheduleClient() {
 
             setIsModalOpen(false);
             fetchScheduleData();
-        } catch (err: any) {
+        } catch (err: unknown) {
             setModalError(err.message || 'Error saving shift');
         } finally {
             setSaving(false);
@@ -571,7 +571,7 @@ export function ScheduleClient() {
             showToast('Shift deleted', 'success');
             setIsModalOpen(false);
             fetchScheduleData();
-        } catch (err: any) {
+        } catch (err: unknown) {
             setModalError(err.message || 'Error deleting shift');
         } finally {
             setSaving(false);
@@ -610,7 +610,7 @@ export function ScheduleClient() {
             {/* ── KPI Metric Cards ─────────────────────────────────── */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
                 {[
-                    { label: 'Total Scheduled Hours', value: `${totalWeeklyHours.toFixed(1)} hrs`, icon: '⏱️', color: '#6366f1' },
+                    { label: 'Total Scheduled Hours', value: `${totalWeeklyHours.toFixed(1)} hrs`, icon: '⏱️', color: 'var(--color-text-primary)' },
                     { label: 'Active Roster', value: `${employees.length} Staff`, icon: '👥', color: '#16a34a' },
                     { label: 'Open Shifts', value: `${openShifts.length} Claimable`, icon: '🔓', color: openShifts.length > 0 ? '#f59e0b' : '#10b981' },
                     { label: 'Est. Labor Cost', value: `$${estLaborCost.toFixed(0)}`, icon: '💰', color: '#a855f7' },
@@ -859,7 +859,7 @@ export function ScheduleClient() {
                     <span style={{ fontWeight: 700, color: 'var(--color-text-tertiary)' }}>ROLES:</span>
                     <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontWeight: 700 }}>
-                            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#7b68f7', display: 'inline-block' }}></span> Server
+                            <span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--color-text-primary)', display: 'inline-block' }}></span> Server
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fb923c', fontWeight: 700 }}>
                             <span style={{ width: 10, height: 10, borderRadius: 2, background: '#f97316', display: 'inline-block' }}></span> Kitchen
@@ -868,7 +868,7 @@ export function ScheduleClient() {
                             <span style={{ width: 10, height: 10, borderRadius: 2, background: '#a855f7', display: 'inline-block' }}></span> Manager
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#818cf8', fontWeight: 700 }}>
-                            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#6366f1', display: 'inline-block' }}></span> Owner
+                            <span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--color-text-primary)', display: 'inline-block' }}></span> Owner
                         </span>
                     </div>
                 </div>
@@ -903,7 +903,7 @@ export function ScheduleClient() {
                                                 width: '12%',
                                             }}
                                         >
-                                            <div style={{ fontWeight: 800, color: isToday ? '#6366f1' : 'var(--color-text-primary)' }}>
+                                            <div style={{ fontWeight: 800, color: isToday ? 'var(--color-text-primary)' : 'var(--color-text-primary)' }}>
                                                 {d.toLocaleDateString('en-US', { weekday: 'short' })}
                                             </div>
                                             <div style={{ fontSize: '11px', color: isToday ? '#818cf8' : 'var(--color-text-secondary)', marginTop: '2px' }}>
@@ -1171,7 +1171,7 @@ export function ScheduleClient() {
                                                         borderRight: dIdx < 6 ? '1px solid var(--color-border-subtle)' : 'none',
                                                         background: isOver ? 'rgba(99,102,241,0.15)' : isToday ? 'rgba(99,102,241,0.03)' : 'transparent',
                                                         minHeight: '75px',
-                                                        outline: isOver ? '2px dashed #6366f1' : 'none',
+                                                        outline: isOver ? '2px dashed var(--color-text-primary)' : 'none',
                                                     }}
                                                 >
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -1547,7 +1547,7 @@ export function ScheduleClient() {
                                     />
                                     <button
                                         type="submit"
-                                        style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', background: '#6366f1', color: '#fff', fontWeight: 800, fontSize: '11px', cursor: 'pointer' }}
+                                        style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', background: 'var(--color-text-primary)', color: '#fff', fontWeight: 800, fontSize: '11px', cursor: 'pointer' }}
                                     >
                                         Save Template
                                     </button>

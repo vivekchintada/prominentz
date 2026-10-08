@@ -28,42 +28,27 @@ export function PlanGateCard({
         maxWidth: '720px',
         margin: '40px auto',
         padding: '40px 32px',
-        borderRadius: '24px',
-        background: 'linear-gradient(180deg, rgba(37,99,235,0.06) 0%, rgba(15,23,42,0.4) 100%)',
-        border: '1px solid rgba(37,99,235,0.25)',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+        borderRadius: '16px',
+        background: 'var(--color-bg-card)',
+        border: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-sm)',
         textAlign: 'center',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Decorative ambient aura */}
       <div
         style={{
-          position: 'absolute',
-          top: '-80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '280px',
-          height: '160px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.35) 0%, rgba(0,0,0,0) 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <div
-        style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '16px',
-          background: 'linear-gradient(135deg, #5b45f5, #4a36d9)',
+          width: '56px',
+          height: '56px',
+          borderRadius: '12px',
+          background: 'var(--color-bg-raised, #F0F0EE)',
+          border: '1px solid var(--color-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '28px',
+          fontSize: '24px',
           margin: '0 auto 20px',
-          boxShadow: '0 8px 24px rgba(37,99,235,0.4)',
         }}
       >
         🔒

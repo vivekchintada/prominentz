@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json(exceptions)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GET /api/reconciliation/exceptions error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

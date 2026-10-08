@@ -35,7 +35,7 @@ export async function POST(
       totalTargeted: result.totalTargeted,
       campaign: result.campaign,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[POST /api/campaigns/:id/send]', err)
     return NextResponse.json({ error: err?.message || 'Failed to dispatch campaign' }, { status: 500 })
   }

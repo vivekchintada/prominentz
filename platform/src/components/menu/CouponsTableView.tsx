@@ -134,7 +134,7 @@ export default function CouponsTableView() {
 
       setIsModalOpen(false)
       fetchCoupons()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
       alert(err.message || 'Error saving coupon')
     } finally {
@@ -207,13 +207,13 @@ export default function CouponsTableView() {
       {/* ── HEADER ROW ────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#0f172a' }}>Coupons</h1>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)' }}>Coupons</h1>
           <button
             onClick={fetchCoupons}
             title="Refresh"
             style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card-hover)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               width: 32,
               height: 32,
@@ -238,13 +238,13 @@ export default function CouponsTableView() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               padding: '9px 16px',
               fontSize: 13,
               fontWeight: 600,
-              color: '#334155',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
             }}
           >
@@ -261,7 +261,7 @@ export default function CouponsTableView() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: '#5b45f5',
+              background: 'var(--brand)',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -283,9 +283,9 @@ export default function CouponsTableView() {
       {/* ── TOOLBAR / SEARCH / FILTERS ────────────────────────── */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           padding: '12px 18px',
           display: 'flex',
           alignItems: 'center',
@@ -315,12 +315,12 @@ export default function CouponsTableView() {
             style={{
               width: '100%',
               padding: '8px 12px 8px 36px',
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
               outline: 'none',
-              color: '#0f172a',
+              color: 'var(--color-text-primary)',
             }}
           />
         </div>
@@ -328,7 +328,7 @@ export default function CouponsTableView() {
         {/* Filter Pills & Sort Dropdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Status Filter Toggle */}
-          <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 8, padding: 3, gap: 2 }}>
+          <div style={{ display: 'flex', background: 'var(--color-bg-input)', borderRadius: 8, padding: 3, gap: 2 }}>
             {(['ALL', 'ACTIVE', 'EXPIRED'] as const).map((s) => (
               <button
                 key={s}
@@ -341,7 +341,7 @@ export default function CouponsTableView() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: statusFilter === s ? '#ffffff' : 'transparent',
-                  color: statusFilter === s ? '#5b45f5' : '#64748b',
+                  color: statusFilter === s ? 'var(--brand)' : '#64748b',
                   boxShadow: statusFilter === s ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                 }}
               >
@@ -356,12 +356,12 @@ export default function CouponsTableView() {
             onChange={(e) => setSortBy(e.target.value as any)}
             style={{
               padding: '8px 12px',
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
-              color: '#475569',
+              color: 'var(--color-text-secondary)',
               outline: 'none',
               cursor: 'pointer',
             }}
@@ -377,23 +377,23 @@ export default function CouponsTableView() {
       {/* ── COUPONS TABLE ─────────────────────────────────────── */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--color-bg-card)',
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--color-border)',
           overflow: 'hidden',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Coupon Code</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Valid Category</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Discount Type</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Discount Amount</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Duration</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155' }}>Status</th>
-              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: '#334155', textAlign: 'right' }}>Actions</th>
+            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)' }}>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Coupon Code</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Valid Category</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Discount Type</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Discount Amount</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Duration</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Status</th>
+              <th style={{ padding: '14px 20px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -415,7 +415,7 @@ export default function CouponsTableView() {
                   {/* Code */}
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', letterSpacing: '0.02em' }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '0.02em' }}>
                         {coupon.code}
                       </span>
                       {coupon.pointsCost && coupon.pointsCost > 0 ? (
@@ -438,17 +438,17 @@ export default function CouponsTableView() {
                   </td>
 
                   {/* Valid Category */}
-                  <td style={{ padding: '14px 20px', fontSize: 13, color: '#475569', fontWeight: 500 }}>
+                  <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
                     {coupon.validCategory || 'All Categories'}
                   </td>
 
                   {/* Discount Type */}
-                  <td style={{ padding: '14px 20px', fontSize: 13, color: '#475569' }}>
+                  <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
                     {coupon.discountType === 'PERCENTAGE' ? 'Percentage' : 'Fixed Amount'}
                   </td>
 
                   {/* Discount Amount */}
-                  <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
+                  <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     {coupon.discountType === 'PERCENTAGE'
                       ? `${Number(coupon.discountAmount).toFixed(0)}%`
                       : `$${Number(coupon.discountAmount).toFixed(0)}`}
@@ -565,7 +565,7 @@ export default function CouponsTableView() {
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 500,
@@ -575,7 +575,7 @@ export default function CouponsTableView() {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 Coupon: {viewingCoupon.code}
               </h3>
               <button
@@ -589,21 +589,21 @@ export default function CouponsTableView() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 10, borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b', fontSize: 13 }}>Discount</span>
-                <span style={{ fontWeight: 700, color: '#0f172a', fontSize: 14 }}>
+                <span style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: 14 }}>
                   {viewingCoupon.discountType === 'PERCENTAGE' ? `${viewingCoupon.discountAmount}%` : `$${viewingCoupon.discountAmount}`}
                 </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 10, borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b', fontSize: 13 }}>Valid Category</span>
-                <span style={{ fontWeight: 600, color: '#0f172a', fontSize: 13 }}>
+                <span style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: 13 }}>
                   {viewingCoupon.validCategory || 'All Categories'}
                 </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 10, borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b', fontSize: 13 }}>Duration</span>
-                <span style={{ fontWeight: 500, color: '#0f172a', fontSize: 13 }}>
+                <span style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: 13 }}>
                   {formatDateRange(viewingCoupon.startDate, viewingCoupon.endDate)}
                 </span>
               </div>
@@ -635,7 +635,7 @@ export default function CouponsTableView() {
                 onClick={() => setIsViewModalOpen(false)}
                 style={{
                   padding: '8px 18px',
-                  background: '#5b45f5',
+                  background: 'var(--brand)',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 13,
@@ -668,7 +668,7 @@ export default function CouponsTableView() {
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--color-bg-card)',
               borderRadius: 16,
               width: '100%',
               maxWidth: 520,
@@ -680,7 +680,7 @@ export default function CouponsTableView() {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 {editingCoupon ? 'Edit Coupon' : 'Add New Coupon'}
               </h3>
               <button
@@ -694,7 +694,7 @@ export default function CouponsTableView() {
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Code */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                   Coupon Code *
                 </label>
                 <input
@@ -718,7 +718,7 @@ export default function CouponsTableView() {
 
               {/* Valid Category */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                   Valid Category
                 </label>
                 <input
@@ -740,7 +740,7 @@ export default function CouponsTableView() {
               {/* Discount Type & Amount (2 columns) */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                     Discount Type
                   </label>
                   <select
@@ -761,7 +761,7 @@ export default function CouponsTableView() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                     Discount Amount *
                   </label>
                   <input
@@ -786,7 +786,7 @@ export default function CouponsTableView() {
               {/* Dates (2 columns) */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                     Start Date
                   </label>
                   <input
@@ -805,7 +805,7 @@ export default function CouponsTableView() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                     End Date
                   </label>
                   <input
@@ -886,7 +886,7 @@ export default function CouponsTableView() {
 
               {/* Status */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
                   Status
                 </label>
                 <select
@@ -914,7 +914,7 @@ export default function CouponsTableView() {
                   onClick={() => setIsModalOpen(false)}
                   style={{
                     padding: '8px 16px',
-                    background: '#f1f5f9',
+                    background: 'var(--color-bg-input)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,
@@ -930,7 +930,7 @@ export default function CouponsTableView() {
                   disabled={saving}
                   style={{
                     padding: '8px 20px',
-                    background: '#5b45f5',
+                    background: 'var(--brand)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,

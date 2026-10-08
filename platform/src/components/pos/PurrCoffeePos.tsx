@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
 
 interface Product {
   id: string
@@ -148,7 +149,7 @@ export default function PurrCoffeePos() {
       <aside
         style={{
           width: '230px',
-          background: '#FFFFFF',
+          background: 'var(--color-bg-card)',
           borderRadius: '24px',
           padding: '28px 20px',
           display: 'flex',
@@ -191,7 +192,7 @@ export default function PurrCoffeePos() {
               { icon: '👥', label: 'Partners', active: false },
               { icon: '⚙️', label: 'Settings', active: false },
             ].map((link, i) => (
-              <button
+              <Button
                 key={i}
                 style={{
                   display: 'flex',
@@ -226,14 +227,14 @@ export default function PurrCoffeePos() {
                     {link.badge}
                   </span>
                 )}
-              </button>
+              </Button>
             ))}
           </nav>
         </div>
 
         {/* Pinned Bottom Links */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <button
+          <Button
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -249,7 +250,7 @@ export default function PurrCoffeePos() {
             }}
           >
             <span>♡</span> Donate to shelter
-          </button>
+          </Button>
           <Link
             href="/dashboard"
             style={{
@@ -278,7 +279,7 @@ export default function PurrCoffeePos() {
           <div
             style={{
               flex: 1,
-              background: '#FFFFFF',
+              background: 'var(--color-bg-card)',
               borderRadius: '24px',
               padding: '0 20px',
               display: 'flex',
@@ -305,7 +306,7 @@ export default function PurrCoffeePos() {
             />
           </div>
 
-          <button
+          <Button
             style={{
               height: '52px',
               padding: '0 24px',
@@ -323,7 +324,7 @@ export default function PurrCoffeePos() {
             }}
           >
             <span>≡</span> Filter
-          </button>
+          </Button>
         </div>
 
         {/* Section Heading */}
@@ -336,7 +337,7 @@ export default function PurrCoffeePos() {
           {['Coffee', 'Non Coffee', 'Food', 'Snack', 'Dessert'].map((cat) => {
             const isSelected = activeCategory === cat
             return (
-              <button
+              <Button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 style={{
@@ -353,7 +354,7 @@ export default function PurrCoffeePos() {
                 }}
               >
                 {cat}
-              </button>
+              </Button>
             )
           })}
         </div>
@@ -376,7 +377,7 @@ export default function PurrCoffeePos() {
               <div
                 key={product.id}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--color-bg-card)',
                   borderRadius: '24px',
                   padding: '16px',
                   display: 'flex',
@@ -436,7 +437,7 @@ export default function PurrCoffeePos() {
                     {(['Small', 'Large'] as const).map((sz) => {
                       const active = currentSize === sz
                       return (
-                        <button
+                        <Button
                           key={sz}
                           onClick={() => handleSizeChange(product.id, sz)}
                           style={{
@@ -452,7 +453,7 @@ export default function PurrCoffeePos() {
                           }}
                         >
                           {sz}
-                        </button>
+                        </Button>
                       )
                     })}
                   </div>
@@ -471,25 +472,25 @@ export default function PurrCoffeePos() {
                       gap: '8px',
                     }}
                   >
-                    <button
+                    <Button
                       onClick={() => handleQtyChange(product.id, -1)}
                       style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#7A6E65' }}
                     >
                       –
-                    </button>
+                    </Button>
                     <span style={{ fontSize: '13px', fontWeight: 700, minWidth: '16px', textAlign: 'center' }}>
                       {currentQty}
                     </span>
-                    <button
+                    <Button
                       onClick={() => handleQtyChange(product.id, 1)}
                       style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#7A6E65' }}
                     >
                       +
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Add to Cart Button */}
-                  <button
+                  <Button
                     onClick={() => handleAddToCart(product)}
                     style={{
                       flex: 1,
@@ -505,7 +506,7 @@ export default function PurrCoffeePos() {
                     }}
                   >
                     Add to Cart
-                  </button>
+                  </Button>
                 </div>
               </div>
             )
@@ -517,7 +518,7 @@ export default function PurrCoffeePos() {
       <aside
         style={{
           width: '320px',
-          background: '#FFFFFF',
+          background: 'var(--color-bg-card)',
           borderRadius: '24px',
           padding: '24px',
           display: 'flex',
@@ -550,7 +551,7 @@ export default function PurrCoffeePos() {
             ].map((tab) => {
               const active = orderType === tab.id
               return (
-                <button
+                <Button
                   key={tab.id}
                   onClick={() => setOrderType(tab.id as any)}
                   style={{
@@ -572,7 +573,7 @@ export default function PurrCoffeePos() {
                 >
                   <span style={{ fontSize: '16px' }}>{tab.icon}</span>
                   <span>{tab.label}</span>
-                </button>
+                </Button>
               )
             })}
           </div>
@@ -614,19 +615,19 @@ export default function PurrCoffeePos() {
                       gap: '6px',
                     }}
                   >
-                    <button
+                    <Button
                       onClick={() => handleCartQtyChange(idx, -1)}
                       style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}
                     >
                       –
-                    </button>
+                    </Button>
                     <span style={{ fontSize: '12px', fontWeight: 700 }}>{item.quantity}</span>
-                    <button
+                    <Button
                       onClick={() => handleCartQtyChange(idx, 1)}
                       style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}
                     >
                       +
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))
@@ -654,7 +655,7 @@ export default function PurrCoffeePos() {
           </div>
 
           {/* Big Caramel Brown Pill Button */}
-          <button
+          <Button
             onClick={() => {
               if (cart.length > 0) {
                 setOrderSuccess(true)
@@ -677,7 +678,7 @@ export default function PurrCoffeePos() {
             }}
           >
             {orderSuccess ? '✓ Order Sent to Kitchen!' : 'Place an order'}
-          </button>
+          </Button>
         </div>
       </aside>
     </div>

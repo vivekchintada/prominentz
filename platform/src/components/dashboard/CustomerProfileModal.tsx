@@ -43,7 +43,7 @@ function fmtMoney(v: number | string) {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  PAID: '#22c55e', OPEN: '#6366f1', VOIDED: '#ef4444',
+  PAID: '#22c55e', OPEN: 'var(--color-text-primary)', VOIDED: '#ef4444',
   SENT_TO_KITCHEN: '#f59e0b', PARTIALLY_READY: '#f97316',
 }
 
@@ -152,7 +152,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
         const err = await res.json()
         alert(err.error || 'Adjustment failed')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message || 'Adjustment error')
     } finally {
       setAdjSubmitting(false)
@@ -172,7 +172,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
         title: `Dined at ${o.table?.name || 'Table'}`,
         subtitle: o.items.map(i => `${i.quantity}x ${i.menuItem.name}`).join(', ').slice(0, 60),
         badge: o.status,
-        color: STATUS_COLOR[o.status] || '#6366f1',
+        color: STATUS_COLOR[o.status] || 'var(--color-text-primary)',
         amount: fmtMoney(o.total),
       })
     }
@@ -200,7 +200,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
           title: `Redeemed Reward`,
           subtitle: r.reward.name,
           badge: `-${r.pointsRedeemed} pts`,
-          color: '#8b5cf6',
+          color: 'var(--color-text-secondary)',
         })
       }
     }

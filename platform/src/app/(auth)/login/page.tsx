@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, Suspense, useEffect } from 'react'
+import { Button } from '@/components/ui/Button'
+
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -243,31 +245,20 @@ function LoginForm() {
               <p className={styles.cardSubtitle}>{portalMeta[activePortal].subtitle}</p>
 
               <div style={{ marginTop: '12px' }}>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
-                    const acc = demoAccounts[activePortal]
-                    setEmail(acc.email)
-                    setPassword(acc.pass)
-                    setError(null)
-                  }}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '6px',
-                    color: '#a1a1aa',
-                    fontSize: '11px',
-                    padding: '5px 10px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 150ms ease',
+                    const acc = demoAccounts[activePortal];
+                    setEmail(acc.email);
+                    setPassword(acc.pass);
+                    setError(null);
                   }}
                 >
                   <span>⚡</span>
                   <span>Fill {demoAccounts[activePortal].label} credentials ({demoAccounts[activePortal].email})</span>
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -369,7 +360,7 @@ function LoginForm() {
               {/* Touch PIN Keypad for Server and Kitchen */}
               {(activePortal === 'SERVER' || activePortal === 'KITCHEN') && (
                 <div style={{ marginTop: '-2px', marginBottom: '4px' }}>
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setShowKeypad(!showKeypad)}
                     style={{
@@ -383,9 +374,11 @@ function LoginForm() {
                       alignItems: 'center',
                       gap: '5px',
                     }}
+                    variant="ghost"
+                    size="sm"
                   >
                     <span>{showKeypad ? '▼ Hide Touch Keypad' : '▶ Show Touch PIN Keypad (Tablet/POS)'}</span>
-                  </button>
+                  </Button>
 
                   {showKeypad && (
                     <div className={styles.keypadGrid}>
@@ -408,11 +401,15 @@ function LoginForm() {
                 </div>
               )}
 
-              <button type="submit" className={styles.submitBtn} disabled={loading}>
-                {loading
-                  ? 'Authenticating...'
-                  : `Sign in to ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()} Portal`}
-              </button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={loading}
+                >
+                  {loading
+                    ? 'Authenticating...'
+                    : `Sign in to ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()} Portal`}
+                </Button>
             </form>
 
             <div className={styles.footerRow}>

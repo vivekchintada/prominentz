@@ -68,7 +68,7 @@ export async function findOrCreateCustomer(params: {
 
   // 3. If found, update missing attributes
   if (customer) {
-    const updates: any = {}
+    const updates: unknown = {}
     if (!customer.email && normEmail) updates.email = normEmail
     if ((!customer.name || customer.name === 'Guest') && customerName !== 'Guest') {
       updates.name = customerName

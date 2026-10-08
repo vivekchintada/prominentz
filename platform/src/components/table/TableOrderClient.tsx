@@ -68,14 +68,12 @@ function getDietaryBadges(item: MenuItem): string[] {
 // ── Food gradient placeholders ────────────────────────────────────────────────
 
 const FOOD_GRADIENTS = [
-  'linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)',
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
+  '#18181b',
+  '#27272a',
+  '#1f1f23',
+  '#26262b',
+  '#1c1c20',
+  '#222226',
 ]
 
 const FOOD_EMOJIS = ['🍕', '🍔', '🥩', '🍜', '🥗', '🍱', '🌮', '🍣', '🥘', '🍝', '🍛', '🥙']
@@ -728,14 +726,14 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
       const data = await res.json()
       if (!res.ok) alert(data.error || 'Failed to place order')
       else { setOrderSuccess(data); setCart([]); setShowCartDrawer(false) }
-    } catch (err: any) {
-      alert(err?.message || 'Error submitting order')
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error submitting order')
     } finally {
       setSubmittingOrder(false)
     }
   }
 
-  const accentColor = qrConfig.accentColor || '#5b45f5'
+  const accentColor = qrConfig.accentColor || '#18181B'
 
   // Build global item index for gradient assignment
   const allItems = categories.flatMap((c) => c.items)
@@ -769,7 +767,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#0a0a0c', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{ width: '44px', height: '44px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#5b45f5', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '44px', height: '44px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Loading your menu...</div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -976,7 +974,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             style={{ width: '100%', padding: '8px 14px', borderRadius: '10px', background: `linear-gradient(135deg, ${accentColor}18 0%, rgba(139,92,246,0.15) 100%)`, border: `1px solid ${accentColor}33`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: '8px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #06b6d4, #5b45f5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: '10px' }}>✨</span>
               </div>
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#93c5fd' }}>Ask RestoIQ AI Concierge</span>
@@ -1200,7 +1198,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '12px auto 0' }} />
             <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'conic-gradient(from 0deg, #5b45f5, #8b5cf6, #ec4899, #06b6d4, #5b45f5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: '12px' }}>✨</span>
                 </div>
                 <div>
@@ -1344,8 +1342,8 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                   style={{
                     padding: '14px 12px',
                     borderRadius: '14px',
-                    backgroundColor: assistanceType === opt.type ? 'rgba(37,99,235,0.18)' : '#181822',
-                    border: assistanceType === opt.type ? '1.5px solid #5b45f5' : '1px solid rgba(255,255,255,0.08)',
+                    backgroundColor: assistanceType === opt.type ? '#27272a' : '#181822',
+                    border: assistanceType === opt.type ? '1.5px solid #ffffff' : '1px solid rgba(255,255,255,0.08)',
                     color: '#fff',
                     textAlign: 'left',
                     cursor: sendingAssistance ? 'wait' : 'pointer',

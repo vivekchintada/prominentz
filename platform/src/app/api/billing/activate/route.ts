@@ -20,11 +20,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan tier' }, { status: 400 })
     }
 
-    if (process.env.NODE_ENV === 'production' && !['ADMIN', 'OWNER'].includes(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Plan activation must be completed through Stripe checkout' },
-        { status: 403 }
-      )
+    if (process.env.NODE_ENV === 'production') {
+      const adminSecret = req.headers.get('x-admin-secret')
+      if (!adminSecret || adminSecret !== process.env.INTERNAL_ADMIN_SECRET) {
+        return NextResponse.json(
+          { error: 'Plan activation must be completed through Stripe checkout' },
+          { status: 403 }
+        )
+      }
     }
 
     const { resolveUserLocation } = await import('@/lib/location-resolver')
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
       planTier: updated.planTier,
       message: `Plan successfully updated to ${updated.planTier}`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/billing/activate]', error)
     return NextResponse.json(
       { error: error?.message || 'Failed to activate plan tier' },

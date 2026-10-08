@@ -409,7 +409,7 @@ export async function executePrioritizeTicket(ctx: AgentContext, tableIdentifier
     },
   })
 
-  const itemNames = activeOrder.tickets.flatMap((t: any) => t.items.map((i: any) => i.menuItem?.name || 'Item'))
+  const itemNames = activeOrder.tickets.flatMap((t: unknown) => t.items.map((i: unknown) => i.menuItem?.name || 'Item'))
 
   return {
     success: true,

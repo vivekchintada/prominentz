@@ -228,7 +228,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
       if (res.ok) {
         const data = await res.json()
         const map: Record<string, any> = {}
-        data.requests?.forEach((r: any) => {
+        data.requests?.forEach((r: unknown) => {
           map[r.tableId] = r
         })
         setAssistanceMap(map)
@@ -258,7 +258,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
         const data = await res.json()
         if (Array.isArray(data)) {
           setAllMenuItems(data)
-          setEightySixedItems(data.filter((item: any) => !item.isAvailable))
+          setEightySixedItems(data.filter((item: unknown) => !item.isAvailable))
         }
       }
     } catch (err) {
@@ -381,14 +381,14 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
       es.addEventListener('menu.item.updated', () => fetchEightySixed())
       es.addEventListener('reservation.created', () => fetchReservations())
       es.addEventListener('reservation.updated', () => fetchReservations())
-      es.addEventListener('table.assistance.requested', (e: any) => {
+      es.addEventListener('table.assistance.requested', (e: unknown) => {
         try {
           const payload = JSON.parse(e.data)
           setAssistanceMap((prev) => ({ ...prev, [payload.tableId]: payload }))
           playChime()
         } catch {}
       })
-      es.addEventListener('table.assistance.acknowledged', (e: any) => {
+      es.addEventListener('table.assistance.acknowledged', (e: unknown) => {
         try {
           const payload = JSON.parse(e.data)
           setAssistanceMap((prev) => {
@@ -924,7 +924,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
                     style={{
                       padding: '2px 8px',
                       borderRadius: '6px',
-                      backgroundColor: '#FFFFFF',
+                      backgroundColor: 'var(--color-bg-card)',
                       border: '1px solid #FDA29B',
                       fontSize: '12px',
                       fontWeight: 700,
@@ -1603,7 +1603,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {reservations.filter((r) => r.status !== 'CANCELLED').slice(0, 3).map((r: any) => (
+                      {reservations.filter((r) => r.status !== 'CANCELLED').slice(0, 3).map((r: unknown) => (
                         <div
                           key={r.id}
                           style={{
@@ -2421,7 +2421,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {reservations.map((res: any) => {
+                {reservations.map((res: unknown) => {
                   const timeStr = new Date(res.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   const dateStr = new Date(res.scheduledAt).toLocaleDateString([], { month: 'short', day: 'numeric' })
                   const isSeated = res.status === 'SEATED'
@@ -2809,7 +2809,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
                           </div>
 
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            {t.items?.map((item: any) => (
+                            {t.items?.map((item: unknown) => (
                               <div
                                 key={item.id}
                                 style={{
@@ -2932,7 +2932,7 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {reservations.map((res: any) => {
+                    {reservations.map((res: unknown) => {
                       const timeStr = new Date(res.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                       const dateStr = new Date(res.scheduledAt).toLocaleDateString([], { month: 'short', day: 'numeric' })
                       const isSeated = res.status === 'SEATED'

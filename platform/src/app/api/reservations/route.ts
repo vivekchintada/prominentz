@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json(reservations)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/reservations]', error)
     return NextResponse.json(
       { error: error?.message || 'Internal server error' },
@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(reservation, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/reservations]', error)
     return NextResponse.json(
       { error: error?.message || 'Internal server error occurred while creating reservation.' },

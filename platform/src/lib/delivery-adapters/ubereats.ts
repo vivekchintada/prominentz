@@ -7,17 +7,17 @@ import type { NormalizedDeliveryOrder } from './index'
  * Reference: https://developer.uber.com/docs/eats/references/api/v2/post-eats-report-order
  */
 export function parseUberEatsOrder(payload: Record<string, unknown>): NormalizedDeliveryOrder {
-  const order: any = payload
+  const order: unknown = payload
 
   const items = Array.isArray(order.cart?.items)
-    ? order.cart.items.map((item: any) => ({
+    ? order.cart.items.map((item: unknown) => ({
         externalItemId: String(item.id ?? ''),
         name:           String(item.title ?? item.name ?? 'Unknown Item'),
         quantity:       Number(item.quantity ?? 1),
         unitPrice:      Number(item.price?.amount ?? 0) / 100,
         modifiers:      Array.isArray(item.selected_modifier_groups)
-          ? item.selected_modifier_groups.flatMap((g: any) =>
-              (g.selected_items ?? []).map((m: any) => ({
+          ? item.selected_modifier_groups.flatMap((g: unknown) =>
+              (g.selected_items ?? []).map((m: unknown) => ({
                 name:       String(m.title ?? m.name ?? ''),
                 priceDelta: Number(m.price?.amount ?? 0) / 100,
               }))

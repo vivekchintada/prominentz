@@ -12,7 +12,7 @@ import ServerKPIBar from './ServerKPIBar'
 import QuickNoteModal from './QuickNoteModal'
 import PurrCoffeePos from './PurrCoffeePos'
 import { useToast, ToastContainer } from '../ui/Toast'
-
+import { Button } from '@/components/ui/Button'
 interface PosTerminalProps {
   initialTables: TableData[]
   currentUser:   { id: string; name: string; role: string; email: string }
@@ -106,7 +106,7 @@ export default function PosTerminal({
       const res = await fetch('/api/employees')
       if (res.ok) {
         const list = await res.json()
-        const match = list.find((emp: any) => emp.userId === currentUser.id)
+        const match = list.find((emp: unknown) => emp.userId === currentUser.id)
         if (match) {
           setEmployeeRecord(match)
           setIsClockedIn(!!match.activeShift)
@@ -150,7 +150,7 @@ export default function PosTerminal({
         showToast('Successfully clocked in. Have a great shift!', 'success')
       }
       fetchClockStatus()
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(err.message || 'Error updating shift', 'error')
     }
   }
@@ -166,14 +166,14 @@ export default function PosTerminal({
     const eventSource = new EventSource('/api/events')
 
     // Helper: returns true if the event belongs to this location or has no location tag
-    const isMyLocation = (data: any) =>
+    const isMyLocation = (data: unknown) =>
       !data._locationId || data._locationId === locationId
 
     eventSource.addEventListener('connected', () => {
       console.log('[SSE] Live connection established')
     })
 
-    eventSource.addEventListener('table.status.changed', (e: any) => {
+    eventSource.addEventListener('table.status.changed', (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -190,7 +190,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('table.note.changed', (e: any) => {
+    eventSource.addEventListener('table.note.changed', (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -203,7 +203,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('menu.item.86d', (e: any) => {
+    eventSource.addEventListener('menu.item.86d', (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -214,7 +214,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('ticket.status.updated', (e: any) => {
+    eventSource.addEventListener('ticket.status.updated', (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -227,7 +227,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('order.modified', (e: any) => {
+    eventSource.addEventListener('order.modified', (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -237,7 +237,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('payment.processed', (e: any) => {
+    eventSource.addEventListener('payment.processed', (e: unknown) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -328,7 +328,7 @@ export default function PosTerminal({
       // Redirect viewport to cart entry
       setActiveOrderId(newOrder.id)
       setView('cart')
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If network fails unexpectedly mid-flight, seamlessly queue offline
       try {
         const localOrderId = `offline_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
@@ -378,9 +378,9 @@ export default function PosTerminal({
         if (res.ok) {
           const cats = await res.json()
           const unavail: string[] = []
-          cats.forEach((c: any) => {
+          cats.forEach((c: unknown) => {
             if (c.items) {
-              c.items.forEach((item: any) => {
+              c.items.forEach((item: unknown) => {
                 if (!item.isAvailable) unavail.push(item.name)
               })
             }
@@ -416,15 +416,15 @@ export default function PosTerminal({
           </div>
 
           <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <button
+            <Button
               onClick={() => { if (view !== 'cart') setView('cart') }}
+              variant="primary"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 padding: '6px 14px',
                 borderRadius: 'var(--radius-md)',
-                border: 'none',
                 background: view === 'cart' ? 'var(--brand)' : 'transparent',
                 color: view === 'cart' ? '#fff' : 'var(--color-text-secondary)',
                 fontSize: '13px',
@@ -434,17 +434,17 @@ export default function PosTerminal({
               }}
             >
               <span>🧾</span> POS
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleBackToMap}
+              variant="secondary"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 padding: '6px 14px',
                 borderRadius: 'var(--radius-md)',
-                border: 'none',
                 background: view === 'map' ? 'var(--brand)' : 'transparent',
                 color: view === 'map' ? '#fff' : 'var(--color-text-secondary)',
                 fontSize: '13px',
@@ -454,7 +454,7 @@ export default function PosTerminal({
               }}
             >
               <span>🗺️</span> Tables
-            </button>
+            </Button>
 
             <Link
               href="/kds"
@@ -524,19 +524,13 @@ export default function PosTerminal({
             {isOnline ? '🟢 Online' : syncingOffline ? '⚡ Syncing...' : '🔴 Offline Mode'}
           </span>
 
-          <button
+          <Button
             onClick={() => setIsClockModalOpen(true)}
-            className="btn btn--sm"
-            style={{
-              background: isClockedIn ? 'rgba(34,197,94,0.1)' : 'var(--color-brand-500)',
-              color: isClockedIn ? '#22c55e' : '#fff',
-              borderColor: isClockedIn ? '#22c55e' : 'var(--color-brand-500)',
-              fontSize: '12px',
-              fontWeight: 700,
-            }}
+            variant="primary"
+            loading={loadingClock}
           >
-            {loadingClock ? '⏰ ...' : isClockedIn ? '⏰ Clock Out' : '⏰ Clock In'}
-          </button>
+            {isClockedIn ? '⏰ Clock Out' : '⏰ Clock In'}
+          </Button>
 
           <ThemeToggle />
 
@@ -702,12 +696,12 @@ export default function PosTerminal({
             )}
 
             <div className="flex gap-2 justify-end mt-2" style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-3)' }}>
-              <button type="button" onClick={() => setIsClockModalOpen(false)} className="btn btn--secondary">
+                             <Button type="button" onClick={() => setIsClockModalOpen(false)} variant="secondary">
                 Cancel
-              </button>
-              <button type="button" onClick={handleClockAction} className="btn btn--primary">
+              </Button>
+              <Button type="button" onClick={handleClockAction} variant="primary">
                 {isClockedIn ? 'Confirm Clock Out' : 'Clock In Now'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

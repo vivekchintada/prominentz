@@ -49,7 +49,7 @@ export function ManagerOperationsBar({
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.suggestions)) {
-            const mapped = data.suggestions.slice(0, 4).map((s: any) => ({
+            const mapped = data.suggestions.slice(0, 4).map((s: unknown) => ({
               id: s.item?.id || s.id,
               name: s.item?.name || s.name || 'Ingredient',
               currentStock: s.item?.currentStock ?? s.currentStock ?? 0,
@@ -78,7 +78,7 @@ export function ManagerOperationsBar({
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.orders)) {
-            const mapped: ActiveOrderSummary[] = data.orders.slice(0, 5).map((o: any) => {
+            const mapped: ActiveOrderSummary[] = data.orders.slice(0, 5).map((o: unknown) => {
               const created = new Date(o.createdAt).getTime()
               const elapsed = Math.max(1, Math.round((Date.now() - created) / 60000))
               return {

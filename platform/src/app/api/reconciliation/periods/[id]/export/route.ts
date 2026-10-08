@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         'Content-Disposition': `attachment; filename="reconciliation-${id}-${new Date().toISOString().split('T')[0]}.csv"`,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GET /api/reconciliation/periods/[id]/export error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

@@ -74,7 +74,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true, message: 'Invitation revoked successfully' })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[DELETE /api/staff/invitations/:id]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

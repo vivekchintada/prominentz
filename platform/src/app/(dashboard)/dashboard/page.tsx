@@ -69,14 +69,13 @@ export default async function DashboardPage() {
     onboardingStep = restaurant?.onboardingStep ?? 6
   } catch {}
 
+  if (!user.restaurantId) {
+    redirect('/onboarding')
+  }
+
   // Resolve employee's locationId, fallback to restaurant's first location
   let locationId: string | undefined
-  let restaurantId: string | undefined = user.restaurantId
-
-  if (!restaurantId) {
-    const fallbackRestaurant = await prisma.restaurant.findFirst()
-    restaurantId = fallbackRestaurant?.id
-  }
+  const restaurantId: string = user.restaurantId
 
   try {
     const employee = await prisma.employee.findFirst({
@@ -841,8 +840,8 @@ export default async function DashboardPage() {
           const isToday = now.toDateString() === date.toDateString()
 
           let icon = '🧺'
-          let iconColor = '#7b68f7'
-          let iconBg = 'rgba(59, 130, 246, 0.15)'
+          let iconColor = 'var(--color-text-primary)'
+          let iconBg = 'rgba(255, 255, 255, 0.08)'
 
           if (event.eventType.includes('payment')) {
             icon = '💲'

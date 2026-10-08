@@ -10,7 +10,7 @@ export interface KdsTicketItem {
   ticketId: string
   menuItemId: string
   quantity: number
-  modifiers: any
+  modifiers: unknown
   specialNote: string | null
   status: 'PENDING' | 'IN_PROGRESS' | 'READY'
   menuItem?: {
@@ -1674,7 +1674,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                                   ↳ {item.specialNote}
                                 </div>
                               )}
-                              {item.modifiers && Array.isArray(item.modifiers) && item.modifiers.map((m: any, idx: number) => (
+                              {item.modifiers && Array.isArray(item.modifiers) && item.modifiers.map((m: unknown, idx: number) => (
                                 <div key={idx} style={{ fontSize: '15px', color: 'var(--text-muted)', marginLeft: '18px' }}>
                                   ↳ {typeof m === 'string' ? m : m.name || m.label}
                                 </div>

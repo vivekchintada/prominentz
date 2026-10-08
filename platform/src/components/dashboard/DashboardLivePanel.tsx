@@ -193,8 +193,8 @@ export default function DashboardLivePanel() {
           style={{
             padding: 'var(--space-4)',
             borderRadius: 'var(--radius-xl)',
-            background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(59,130,246,0.03) 100%)',
-            border: '1px solid rgba(37,99,235,0.2)',
+            background: 'var(--surface-raised)',
+            border: '1px solid var(--color-border)',
             display: 'flex',
             flexDirection: 'column',
             gap: 'var(--space-2)',
