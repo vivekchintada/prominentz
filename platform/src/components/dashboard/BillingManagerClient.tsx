@@ -272,7 +272,7 @@ export function BillingManagerClient() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '24px', fontWeight: 900, color: 'var(--color-text-primary)' }}>
-              {currentPlan === 'STARTER' ? 'Starter Plan' : 'Professional Plan (All Features)'}
+              Basic Plan
             </span>
             <span
               style={{
@@ -297,7 +297,7 @@ export function BillingManagerClient() {
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Monthly Rate</div>
             <div style={{ fontSize: '24px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>
-              ${currentPlan === 'STARTER' ? '49' : '129'}
+              $40
               <span style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>/mo</span>
             </div>
           </div>
@@ -313,67 +313,26 @@ export function BillingManagerClient() {
         </div>
       </div>
 
-      {/* 3-Tier Pricing Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+      {/* Single Basic Plan Display */}
+      <div style={{ maxWidth: '480px', margin: '0 auto 40px' }}>
         <PlanCard
           tier="STARTER"
-          title="Starter Plan"
-          price={49}
-          description="Everything single-location restaurants and cafes need for day-to-day operations."
+          title="Basic Plan"
+          price={40}
+          description="Everything your restaurant, bistro, or cafe needs for daily floor operations."
           isCurrent={currentPlan === 'STARTER'}
           onSelect={handleSubscribe}
           loadingTier={loadingTier}
           features={[
-            '1 Single Location',
             'Full POS Terminal & Order Entry',
-            'Thermal Receipt & Kitchen Printer Integration',
             'Real-Time Kitchen Display System (KDS)',
             'Table & Menu QR Code Studio (Direct-to-KDS)',
-            'Up to 5 Staff User Accounts',
-            'End-of-Day Z-Reports & Daily Sales Analytics',
+            'Table-Side Cash & Card Settlement',
+            'Split Bill Calculator (By Seat & Even Split)',
+            'Inventory Stock Count & Recipe Tracking',
+            'Staff Management & Clock-In/Clock-Out',
+            'End-of-Day Z-Reports & Daily Analytics',
             'Reservations & Walk-In Waitlist',
-          ]}
-        />
-
-        <PlanCard
-          tier="PRO"
-          title="Professional Plan"
-          price={129}
-          description="The complete high-performance restaurant suite with QR ordering, CRM, and AI."
-          isCurrent={currentPlan === 'PRO'}
-          isPopular={true}
-          onSelect={handleSubscribe}
-          loadingTier={loadingTier}
-          features={[
-            'Multi-Location Switching & Outlets',
-            'Automated Self-Service Kiosk & Print Hub',
-            'Table & Food Menu QR Code Studio',
-            'Guest CRM & Automatic Loyalty Accrual',
-            'Recipe Costing & Real-time Inventory Depletion',
-            'UrbanPiper Aggregators (Zomato / Swiggy / DoorDash)',
-            'Staff Shift Scheduling & Timeclock Overtime',
-            'RestoIQ AI Conversational Operations Agent',
-            'Seat-by-Seat Split Checks & ESC/POS Printing',
-          ]}
-        />
-
-        <PlanCard
-          tier="ENTERPRISE"
-          title="Enterprise Suite"
-          price={299}
-          description="Multi-unit groups, franchisors, and high-volume venues needing bespoke scale."
-          isCurrent={currentPlan === 'ENTERPRISE'}
-          onSelect={handleSubscribe}
-          loadingTier={loadingTier}
-          features={[
-            'Unlimited Restaurant Outlets & Hubs',
-            'Dedicated Account Manager & 24/7 SLA',
-            'Custom POS / ERP Integrations & API Access',
-            'Unlimited Autonomous AI RestoIQ Audits',
-            'Central Master Menu & Master Recipe Matrix',
-            'Custom Hardware Fleet Management',
-            'Multi-Entity Consolidated Tax & Ledger',
-            'Custom Role Permissions & Security Matrix',
           ]}
         />
       </div>

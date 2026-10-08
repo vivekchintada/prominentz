@@ -39,10 +39,6 @@ export default function PricingPage() {
     { label: 'Staff Management & Clock-In/Clock-Out', included: true },
     { label: 'Reservations & Walk-In Waitlist', included: true },
     { label: 'End-of-Day Z-Reports & Daily Sales Analytics', included: true },
-    { label: 'RestoIQ AI Autonomous Operations Agent & Intelligence', included: false, note: 'Coming soon in Pro Tier' },
-    { label: 'Guest CRM & VIP Spend Intelligence', included: false, note: 'Coming soon in Pro Tier' },
-    { label: 'Automatic Loyalty Points & Customer Rewards Engine', included: false, note: 'Coming soon in Pro Tier' },
-    { label: 'Multi-Location Outlets & Aggregator Integrations', included: false, note: 'Coming soon in Enterprise Tier' },
   ]
 
   return (
@@ -129,18 +125,6 @@ export default function PricingPage() {
                 <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)' }}>{f.label}</span>
               </div>
             ))}
-          </div>
-
-          {/* Excluded notice */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
-              Enterprise Add-ons (In Development):
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>• RestoIQ AI Operations Agent &amp; Conversational Intelligence</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>• Guest CRM &amp; VIP Dining Spend Intelligence</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>• Automatic Customer Loyalty Points &amp; Rewards Engine</div>
-            </div>
           </div>
         </div>
       </div>
