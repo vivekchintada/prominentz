@@ -154,6 +154,25 @@ export async function PATCH(
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
+    if (parsed.data.status === 'VOIDED' && !['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Only managers and owners can void orders' },
+        { status: 403 },
+      )
+    }
+
+    if (parsed.data.tableId && parsed.data.tableId !== existing.tableId) {
+      const targetTable = await prisma.table.findFirst({
+        where: {
+          id: parsed.data.tableId,
+          location: { restaurantId },
+        },
+      })
+      if (!targetTable) {
+        return NextResponse.json({ error: 'Target table not found in this restaurant' }, { status: 400 })
+      }
+    }
+
     if (['PAID', 'VOIDED'].includes(existing.status) && !parsed.data.status) {
       return NextResponse.json(
         { error: 'Cannot modify a closed order' },

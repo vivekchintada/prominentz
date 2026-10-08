@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('[POST /api/billing/activate]', error)
     return NextResponse.json(
-      { error: error?.message || 'Failed to activate plan tier' },
+      { error: 'Failed to activate plan tier' },
       { status: 500 }
     )
   }

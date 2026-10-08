@@ -11,14 +11,14 @@ const PRICE_PLAN_MAP: Record<string, 'STARTER' | 'PRO' | 'ENTERPRISE'> = {
   [process.env.STRIPE_PRICE_ENTERPRISE ?? 'price_enterprise_tier']: 'ENTERPRISE',
 }
 
-function resolvePlanFromSubscription(sub: Stripe.Subscription): 'STARTER' | 'PRO' | 'ENTERPRISE' {
+function resolvePlanFromSubscription(sub: Stripe.Subscription): 'STARTER' | 'PRO' | 'ENTERPRISE' | null {
   const metaPlan = (sub.metadata?.planTier || sub.metadata?.plan as string | undefined)?.toUpperCase()
   if (metaPlan === 'PRO') return 'PRO'
   if (metaPlan === 'ENTERPRISE') return 'ENTERPRISE'
   if (metaPlan === 'STARTER') return 'STARTER'
   const priceId = sub.items?.data?.[0]?.price?.id
   if (priceId && PRICE_PLAN_MAP[priceId]) return PRICE_PLAN_MAP[priceId]
-  return 'PRO'
+  return null
 }
 
 export async function POST(req: NextRequest) {
@@ -64,7 +64,12 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const sessionObj = event.data.object as Stripe.Checkout.Session
         const restaurantId = sessionObj.metadata?.restaurantId
-        const planTier = (sessionObj.metadata?.planTier as any) || 'PRO'
+        const rawPlan = (sessionObj.metadata?.planTier || (sessionObj.metadata?.plan as string | undefined))?.toUpperCase()
+        const planTier = ['STARTER', 'PRO', 'ENTERPRISE'].includes(rawPlan || '') ? rawPlan : null
+        if (!planTier) {
+          console.error('[Stripe Webhook] checkout.session.completed: missing or invalid planTier in metadata')
+          return NextResponse.json({ error: 'Missing or invalid planTier in checkout metadata' }, { status: 400 })
+        }
         const customerId = sessionObj.customer as string | undefined
         const subId = sessionObj.subscription as string | undefined
 
@@ -72,7 +77,7 @@ export async function POST(req: NextRequest) {
           await prisma.restaurant.update({
             where: { id: restaurantId },
             data: {
-              planTier,
+              planTier: planTier as any,
               stripeCustomerId: customerId || undefined,
               stripeSubscriptionId: subId || undefined,
             },
@@ -103,6 +108,10 @@ export async function POST(req: NextRequest) {
           break
         }
         const newPlan = resolvePlanFromSubscription(sub)
+        if (!newPlan) {
+          console.error(`[Stripe Webhook] Unrecognized plan or price ID in subscription ${sub.id}`)
+          return NextResponse.json({ error: 'Unrecognized subscription plan or price ID' }, { status: 400 })
+        }
         await prisma.restaurant.update({
           where: { id: restaurantId },
           data: {

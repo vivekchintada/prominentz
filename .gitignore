@@ -31,6 +31,7 @@ platform/scratch/
 platform/public/receipts/*.html
 *.tsbuildinfo
 *.pem
+brag-output/
 .DS_Store
 
 # Logs
