@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import DreamPosShell, { NavGroup } from '@/components/layout/DreamPosShell'
 
 /* ── Types ────────────────────────────────────────────────── */
 export interface KdsTicketItem {
@@ -499,27 +498,52 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
   ]
 
   return (
-    <DreamPosShell
-      role="KITCHEN"
-      workstationTitle="Kitchen Display System"
-      user={currentUser}
-      navGroups={navGroups}
-      activeNavId={activeNav}
-      onSelectNav={(id) => setActiveNav(id)}
-      defaultSidebarCollapsed={true}
-      onSignOut={onSignOut}
-      topBarRight={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{ padding: '8px 24px 32px', width: '100%', maxWidth: '1600px', margin: '0 auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* ── Top Operational Header Bar (Matching Owner Dashboard) ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '20px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid var(--color-border)',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '18px' }}>🍳</span>
+            <h1
+              style={{
+                fontSize: '22px',
+                fontWeight: 800,
+                color: 'var(--color-text-primary)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+                margin: 0,
+              }}
+            >
+              Kitchen Display System (KDS)
+            </h1>
+          </div>
+          <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Station: {stationFilter === 'ALL' ? 'All Kitchen Stations' : STATION_CONFIG[stationFilter as keyof typeof STATION_CONFIG]?.name} · {activeTicketsList.length} Active Tickets in Queue · Synced {lastSyncTime}s ago
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           {/* Station Selector Dropdown */}
           <div style={{ position: 'relative' }}>
             <select
               value={stationFilter}
               onChange={(e) => setStationFilter(e.target.value as any)}
               style={{
-                backgroundColor: 'var(--canvas)',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                borderRadius: '8px',
+                backgroundColor: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)',
+                borderRadius: 'var(--radius-lg)',
                 padding: '6px 28px 6px 12px',
                 fontSize: '13px',
                 fontWeight: 700,
@@ -543,7 +567,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 transform: 'translateY(-50%)',
                 pointerEvents: 'none',
                 fontSize: '10px',
-                color: 'var(--text-muted)',
+                color: 'var(--color-text-tertiary)',
               }}
             >
               ▼
@@ -556,10 +580,11 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '5px 10px',
-              borderRadius: '8px',
-              backgroundColor: clockStatus.isClockedIn ? 'var(--success-soft)' : 'var(--danger-soft)',
-              color: clockStatus.isClockedIn ? 'var(--success)' : 'var(--danger)',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: clockStatus.isClockedIn ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: clockStatus.isClockedIn ? '#22c55e' : '#ef4444',
+              border: clockStatus.isClockedIn ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
               fontSize: '12px',
               fontWeight: 700,
             }}
@@ -569,7 +594,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 width: '7px',
                 height: '7px',
                 borderRadius: '50%',
-                backgroundColor: clockStatus.isClockedIn ? 'var(--success)' : 'var(--danger)',
+                backgroundColor: clockStatus.isClockedIn ? '#22c55e' : '#ef4444',
               }}
             />
             {clockStatus.isClockedIn ? 'Clocked In' : 'Clocked Out'}
@@ -582,11 +607,11 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '5px 12px',
-              borderRadius: '8px',
-              border: '1px solid var(--border)',
-              backgroundColor: alertsEnabled ? 'var(--primary-soft)' : 'var(--surface)',
-              color: alertsEnabled ? 'var(--primary)' : 'var(--text-muted)',
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--color-border)',
+              backgroundColor: alertsEnabled ? 'var(--color-bg-card)' : 'transparent',
+              color: alertsEnabled ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
               fontSize: '12px',
               fontWeight: 700,
               cursor: 'pointer',
@@ -600,28 +625,106 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
           <button
             onClick={handleToggleFullscreen}
             style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '8px',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--surface)',
-              color: 'var(--text-muted)',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-bg-card)',
+              color: 'var(--color-text-secondary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 600,
             }}
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             aria-label="Toggle Fullscreen"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-            </svg>
+            {isFullscreen ? '⤢ Normal View' : '⤢ Fullscreen'}
+          </button>
+
+          <button
+            onClick={() => {
+              setLoading(true)
+              fetchTickets()
+              fetchKpi()
+            }}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-bg-card)',
+              color: 'var(--color-text-primary)',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '12px',
+            }}
+          >
+            🔄 {loading ? 'Syncing...' : 'Sync'}
           </button>
         </div>
-      }
-    >
-      <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      </div>
+
+      {/* ── Sub Navigation Tabs (Exact Owner Dashboard Style) ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '12px',
+          marginBottom: '20px',
+        }}
+      >
+        {[
+          { id: 'board', label: 'Live Bump Board', icon: '🍳', badge: activeTicketsList.length },
+          { id: 'dashboard', label: 'Executive Telemetry', icon: '📊' },
+          { id: 'stations', label: 'All Station Overview', icon: '🔥' },
+          { id: '86', label: "86'd Menu Manager", icon: '🚫', badge: eightySixedItems.length },
+        ].map((tab) => {
+          const isActive = activeNav === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveNav(tab.id as any)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid',
+                borderColor: isActive ? 'var(--brand, #5b45f5)' : 'var(--color-border)',
+                backgroundColor: isActive ? 'var(--color-bg-card)' : 'transparent',
+                color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+              }}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+              {Boolean(tab.badge && tab.badge > 0) && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    padding: '2px 7px',
+                    borderRadius: '10px',
+                    backgroundColor: isActive ? 'var(--brand, #5b45f5)' : 'var(--surface-raised)',
+                    color: '#ffffff',
+                  }}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
         {/* ── 1. Kitchen Executive Dashboard (Manager Dashboard Style) ── */}
         {activeNav === 'dashboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -634,10 +737,10 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 flexWrap: 'wrap',
                 gap: '12px',
                 padding: '16px 20px',
-                backgroundColor: 'var(--surface)',
-                borderRadius: '16px',
-                border: '1px solid var(--border)',
-                boxShadow: '0 1px 3px rgba(7, 21, 46, 0.04)',
+                backgroundColor: 'var(--color-bg-card)',
+                borderRadius: 'var(--radius-xl)',
+                border: '1px solid var(--color-border)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
@@ -669,14 +772,14 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   LIVE KITCHEN TELEMETRY
                 </span>
 
-                <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span>👨‍🍳 Station: {stationFilter === 'ALL' ? 'All Kitchen Stations' : STATION_CONFIG[stationFilter as keyof typeof STATION_CONFIG]?.name}</span>
                   <span>·</span>
                   <span>Synced {lastSyncTime}s ago</span>
                   {clockStatus.shift && (
                     <>
                       <span>·</span>
-                      <span style={{ fontWeight: 600, color: 'var(--text)' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
                         Shift: {Math.floor(clockStatus.shift.elapsedMinutes / 60)}h {clockStatus.shift.elapsedMinutes % 60}m
                       </span>
                     </>
@@ -693,10 +796,10 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   }}
                   style={{
                     padding: '8px 14px',
-                    backgroundColor: 'var(--canvas)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '10px',
-                    color: 'var(--text)',
+                    backgroundColor: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--color-text-primary)',
                     cursor: 'pointer',
                     fontWeight: 700,
                     fontSize: '12px',
@@ -712,9 +815,9 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   onClick={() => setActiveNav('board')}
                   style={{
                     padding: '8px 16px',
-                    backgroundColor: 'var(--primary)',
+                    backgroundColor: 'var(--brand, #5b45f5)',
                     border: 'none',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--radius-lg)',
                     color: '#ffffff',
                     fontWeight: 800,
                     fontSize: '12px',
@@ -722,7 +825,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    boxShadow: '0 2px 8px rgba(101, 71, 245, 0.25)',
+                    boxShadow: '0 2px 8px rgba(91, 69, 245, 0.25)',
                   }}
                 >
                   <span>🍳 Open Bump Board →</span>
@@ -744,17 +847,17 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   value: `${activeTicketsList.length}`,
                   subtitle: `${newCount} new · ${prepCount} prep`,
                   icon: '🔥',
-                  color: 'var(--primary)',
-                  bg: 'var(--primary-soft)',
+                  color: 'var(--brand, #5b45f5)',
+                  bg: 'rgba(91, 69, 245, 0.1)',
                 },
                 {
                   label: 'In Alert (>15m)',
                   value: `${delayedCount}`,
                   subtitle: delayedCount > 0 ? 'Urgent expediting needed' : 'All tickets on pace',
                   icon: '⚠️',
-                  color: delayedCount > 0 ? 'var(--danger)' : 'var(--success)',
-                  bg: delayedCount > 0 ? 'var(--danger-soft)' : 'var(--success-soft)',
-                  border: delayedCount > 0 ? '1.5px solid var(--danger)' : undefined,
+                  color: delayedCount > 0 ? '#ef4444' : '#22c55e',
+                  bg: delayedCount > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                  border: delayedCount > 0 ? '1.5px solid #ef4444' : undefined,
                 },
                 {
                   label: 'Avg Ticket Time',
@@ -763,16 +866,16 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                     : '11:24',
                   subtitle: 'Target: < 15:00 min',
                   icon: '⏱️',
-                  color: 'var(--text)',
-                  bg: 'var(--success-soft)',
+                  color: 'var(--color-text-primary)',
+                  bg: 'rgba(34, 197, 94, 0.1)',
                 },
                 {
                   label: 'Hourly Velocity',
                   value: `${kpiData?.ordersPerHour || 18}`,
                   subtitle: 'Tickets fired / hr',
                   icon: '📦',
-                  color: 'var(--warning)',
-                  bg: 'var(--warning-soft)',
+                  color: '#f59e0b',
+                  bg: 'rgba(245, 158, 11, 0.1)',
                 },
                 {
                   label: 'Line Staff Active',
@@ -786,11 +889,11 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 <div
                   key={item.label}
                   style={{
-                    backgroundColor: 'var(--surface)',
-                    border: item.border || '1px solid var(--border)',
-                    borderRadius: '16px',
+                    backgroundColor: 'var(--color-bg-card)',
+                    border: item.border || '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-xl)',
                     padding: '16px 18px',
-                    boxShadow: '0 1px 3px rgba(7, 21, 46, 0.04)',
+                    boxShadow: 'var(--shadow-sm)',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
@@ -2058,6 +2161,5 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
           </div>
         )}
       </div>
-    </DreamPosShell>
   )
 }

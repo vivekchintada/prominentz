@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'motion/react'
-import DreamPosShell, { NavGroup, QuickLink } from '@/components/layout/DreamPosShell'
 
 /* ── Types ────────────────────────────────────────────────── */
 export interface TableSummary {
@@ -640,117 +639,28 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
   ]
 
   return (
-    <DreamPosShell
-      role="SERVER"
-      workstationTitle="Server Floor"
-      user={currentUser}
-      navGroups={navGroups}
-      activeNavId={activeNav}
-      onSelectNav={(id) => setActiveNav(id)}
-      quickLinks={quickLinks}
-      onSignOut={onSignOut}
-      topBarRight={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Offline Sync Queue Indicator */}
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              backgroundColor: isOnline ? 'rgba(5, 150, 105, 0.12)' : 'rgba(217, 119, 6, 0.15)',
-              color: isOnline ? 'var(--brand-emerald, #059669)' : 'var(--brand-amber, #d97706)',
-              border: isOnline ? '1px solid rgba(5, 150, 105, 0.25)' : '1px solid rgba(217, 119, 6, 0.3)',
-              fontSize: '12px',
-              fontWeight: 700,
-            }}
-            title={isOnline ? 'Online - All tickets and sync events real-time connected' : 'Offline - Actions queued locally and will auto-sync upon reconnection'}
-          >
-            <span
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                backgroundColor: isOnline ? 'var(--brand-emerald, #059669)' : 'var(--brand-amber, #d97706)',
-              }}
-            />
-            {isOnline ? 'Cloud Synced' : 'Offline Queue'}
-          </span>
-
-          {/* Clock In Status Badge */}
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              backgroundColor: clockStatus.isClockedIn ? 'var(--success-soft)' : 'var(--danger-soft)',
-              color: clockStatus.isClockedIn ? 'var(--success)' : 'var(--danger)',
-              fontSize: '12px',
-              fontWeight: 700,
-            }}
-          >
-            <span
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                backgroundColor: clockStatus.isClockedIn ? 'var(--success)' : 'var(--danger)',
-              }}
-            />
-            {clockStatus.isClockedIn ? 'Clocked In' : 'Clocked Out'}
-          </span>
-
-          {/* Break Status Button */}
-          {clockStatus.isClockedIn && (
-            <button
-              onClick={handleToggleBreak}
-              style={{
-                padding: '5px 12px',
-                borderRadius: '8px',
-                border: onBreak ? '1px solid var(--warning)' : '1px solid var(--border)',
-                backgroundColor: onBreak ? 'var(--warning-soft)' : 'var(--surface)',
-                color: onBreak ? 'var(--warning)' : 'var(--text)',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <span>{onBreak ? 'End Break' : 'Start Break'}</span>
-            </button>
-          )}
-        </div>
-      }
-    >
-      <div style={{ padding: '24px 28px', maxWidth: '1600px', width: '100%', margin: '0 auto' }}>
-        {/* ── Server Floor Header ── */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '20px',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <div>
+    <div style={{ padding: '8px 24px 32px', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
+      {/* ── Top Operational Action Bar (Matching Owner Dashboard) ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '20px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid var(--color-border)',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '18px' }}>📱</span>
             <h1
               style={{
-                fontSize: '24px',
+                fontSize: '22px',
                 fontWeight: 800,
-                color: 'var(--text)',
+                color: 'var(--color-text-primary)',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2,
                 margin: 0,
@@ -764,121 +674,212 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
                 ? 'My Orders & Checks'
                 : activeNav === 'alerts'
                 ? 'Service Alerts & Expo Pass'
+                : activeNav === 'reservations'
+                ? 'Shift Table Reservations'
+                : activeNav === 'menu'
+                ? "86'd Items & Kitchen Menu"
                 : 'My Shifts & Attendance'}
             </h1>
-            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>
-              {activeNav === 'dashboard'
-                ? `${kpi.locationName} · Shift Cockpit · ${currentUser.name}`
-                : activeNav === 'floor'
-                ? `${kpi.locationName} · ${tables.length} Total Tables (${activeTablesList.length} Occupied, ${availableTables.length} Free)`
-                : activeNav === 'orders'
-                ? `${openChecksList.length} Open checks across all tables`
-                : activeNav === 'alerts'
-                ? `${readyOrdersList.length + Object.keys(assistanceMap).length} Active alerts waiting`
-                : `Logged in as ${currentUser.name}`}
-            </p>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {activeNav === 'dashboard' ? (
-              <button
-                onClick={() => setActiveNav('floor')}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 14px',
-                  borderRadius: '8px',
-                  backgroundColor: 'var(--primary)',
-                  color: '#ffffff',
-                  border: 'none',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(101, 71, 245, 0.2)',
-                }}
-              >
-                <span>🗺️</span>
-                <span>Open Floor Plan</span>
-              </button>
-            ) : activeNav === 'floor' ? (
-              <button
-                onClick={() => setActiveNav('dashboard')}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 14px',
-                  borderRadius: '8px',
-                  backgroundColor: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                <span>←</span>
-                <span>Back to Cockpit</span>
-              </button>
-            ) : null}
-
-            <button
-              onClick={() => {
-                setIsReservationsModalOpen(true)
-                fetchReservations()
-              }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '7px 14px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-              </svg>
-              <span>Shift Bookings ({reservations.filter((r) => r.status !== 'CANCELLED').length})</span>
-            </button>
-
-            <button
-              onClick={() => {
-                fetchTables()
-                fetchAssistance()
-                fetchEightySixed()
-              }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '7px 14px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10" />
-                <polyline points="1 20 1 14 7 14" />
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-              </svg>
-              <span>Refresh</span>
-            </button>
-          </div>
+          <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            {activeNav === 'dashboard'
+              ? `${kpi.locationName} · Shift Cockpit · ${currentUser.name}`
+              : activeNav === 'floor'
+              ? `${kpi.locationName} · ${tables.length} Total Tables (${activeTablesList.length} Occupied, ${availableTables.length} Free)`
+              : activeNav === 'orders'
+              ? `${openChecksList.length} Open checks across all tables`
+              : activeNav === 'alerts'
+              ? `${readyOrdersList.length + Object.keys(assistanceMap).length} Active alerts waiting`
+              : `Logged in as ${currentUser.name}`}
+          </p>
         </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Offline Sync Queue Indicator */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: isOnline ? 'rgba(5, 150, 105, 0.12)' : 'rgba(217, 119, 6, 0.15)',
+              color: isOnline ? '#10b981' : '#f59e0b',
+              border: isOnline ? '1px solid rgba(5, 150, 105, 0.25)' : '1px solid rgba(217, 119, 6, 0.3)',
+              fontSize: '12px',
+              fontWeight: 700,
+            }}
+            title={isOnline ? 'Online - All tickets connected' : 'Offline - Queued locally'}
+          >
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: isOnline ? '#10b981' : '#f59e0b',
+              }}
+            />
+            {isOnline ? 'Cloud Synced' : 'Offline Queue'}
+          </span>
+
+          {/* Clock In Status Badge */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: clockStatus.isClockedIn ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: clockStatus.isClockedIn ? '#22c55e' : '#ef4444',
+              border: clockStatus.isClockedIn ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+              fontSize: '12px',
+              fontWeight: 700,
+            }}
+          >
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: clockStatus.isClockedIn ? '#22c55e' : '#ef4444',
+              }}
+            />
+            {clockStatus.isClockedIn ? 'Clocked In' : 'Clocked Out'}
+          </span>
+
+          {/* Break Status Button */}
+          {clockStatus.isClockedIn && (
+            <button
+              onClick={handleToggleBreak}
+              style={{
+                padding: '6px 14px',
+                borderRadius: 'var(--radius-lg)',
+                border: onBreak ? '1px solid #f59e0b' : '1px solid var(--color-border)',
+                backgroundColor: onBreak ? 'rgba(245, 158, 11, 0.15)' : 'var(--color-bg-card)',
+                color: onBreak ? '#f59e0b' : 'var(--color-text-primary)',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <span>{onBreak ? 'End Break' : 'Start Break'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              setIsReservationsModalOpen(true)
+              fetchReservations()
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            <span>📅 Shift Bookings ({reservations.filter((r) => r.status !== 'CANCELLED').length})</span>
+          </button>
+
+          <button
+            onClick={() => {
+              fetchTables()
+              fetchAssistance()
+              fetchEightySixed()
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            <span>🔄 Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Sub Navigation Tabs (Exact Owner Dashboard Style) ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '12px',
+          marginBottom: '20px',
+        }}
+      >
+        {[
+          { id: 'dashboard', label: 'Shift Cockpit', icon: '📊' },
+          { id: 'floor', label: 'Dining Floor Plan', icon: '🪑', badge: activeTablesList.length },
+          { id: 'orders', label: 'My Orders & Checks', icon: '📋', badge: openChecksList.length },
+          { id: 'alerts', label: 'Service Alerts', icon: '🔔', badge: readyOrdersList.length + Object.keys(assistanceMap).length },
+          { id: 'reservations', label: 'Reservations', icon: '📅', badge: reservations.filter((r) => r.status !== 'CANCELLED').length },
+          { id: 'menu', label: "86'd Menu", icon: '🚫', badge: eightySixedItems.length },
+          { id: 'shifts', label: 'My Shifts & Attendance', icon: '⏱️' },
+        ].map((tab) => {
+          const isActive = activeNav === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveNav(tab.id as any)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid',
+                borderColor: isActive ? 'var(--brand, #5b45f5)' : 'var(--color-border)',
+                backgroundColor: isActive ? 'var(--color-bg-card)' : 'transparent',
+                color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+              }}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+              {Boolean(tab.badge && tab.badge > 0) && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    padding: '2px 7px',
+                    borderRadius: '10px',
+                    backgroundColor: isActive ? 'var(--brand, #5b45f5)' : 'var(--surface-raised)',
+                    color: '#ffffff',
+                  }}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
 
         {/* ── Live 86'd Items Bulletin Bar ── */}
         {eightySixedItems.length > 0 && !eightySixedDismissed && (
@@ -970,8 +971,8 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
           {/* 1. Active Table */}
           <div
             style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: '16px',
               padding: '18px 20px',
               boxShadow: '0 1px 3px rgba(7, 21, 46, 0.04)',
@@ -1034,8 +1035,8 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
           {/* 2. Open Check */}
           <div
             style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: '16px',
               padding: '18px 20px',
               boxShadow: '0 1px 3px rgba(7, 21, 46, 0.04)',
@@ -1162,8 +1163,8 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
           {/* 4. Available */}
           <div
             style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: '16px',
               padding: '18px 20px',
               boxShadow: '0 1px 3px rgba(7, 21, 46, 0.04)',
@@ -2677,7 +2678,6 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
             </div>
           </div>
         )}
-      </div>
 
       {/* ── Read-Only Kitchen Status Modal for Servers ── */}
       <AnimatePresence>
@@ -3182,6 +3182,6 @@ export default function ServerDashboard({ currentUser, locationId, kpi, onSignOu
           </div>
         )}
       </AnimatePresence>
-    </DreamPosShell>
+    </div>
   )
 }
