@@ -410,92 +410,10 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   }, [activeTicketsList])
 
-  /* ── Navigation Groups ── */
-  const navGroups: NavGroup[] = [
-    {
-      id: 'kitchen',
-      label: 'KITCHEN',
-      railIcon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-          <path d="M7 2v20" />
-          <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" />
-        </svg>
-      ),
-      items: [
-        {
-          id: 'dashboard',
-          label: 'Dashboard',
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-          ),
-        },
-        {
-          id: 'board',
-          label: 'Ticket Board',
-          badge: activeTicketsList.length > 0 ? activeTicketsList.length : undefined,
-          badgeVariant: 'primary',
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <line x1="3" y1="9" x2="21" y2="9" />
-              <line x1="9" y1="21" x2="9" y2="9" />
-            </svg>
-          ),
-        },
-        {
-          id: 'completed',
-          label: 'Completed',
-          badge: completedTickets.length > 0 ? completedTickets.length : undefined,
-          badgeVariant: 'success',
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          ),
-        },
-        {
-          id: '86',
-          label: "86'd Items",
-          badge: menuItems.filter((i) => i.is86d || !i.isAvailable).length > 0
-            ? menuItems.filter((i) => i.is86d || !i.isAvailable).length
-            : undefined,
-          badgeVariant: 'danger',
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-            </svg>
-          ),
-        },
-        {
-          id: 'prep',
-          label: 'Prep List',
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-            </svg>
-          ),
-        },
-        {
-          id: 'performance',
-          label: 'Performance',
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-            </svg>
-          ),
-        },
-      ],
-    },
-  ]
+  const eightySixedItems = useMemo(() => {
+    return menuItems.filter((i) => i.is86d || !i.isAvailable)
+  }, [menuItems])
+
 
   return (
     <div style={{ padding: '8px 24px 32px', width: '100%', maxWidth: '1600px', margin: '0 auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -679,8 +597,10 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
         {[
           { id: 'board', label: 'Live Bump Board', icon: '🍳', badge: activeTicketsList.length },
           { id: 'dashboard', label: 'Executive Telemetry', icon: '📊' },
-          { id: 'stations', label: 'All Station Overview', icon: '🔥' },
+          { id: 'completed', label: 'Completed Orders', icon: '✅', badge: completedTickets.length },
+          { id: 'prep', label: 'Prep List', icon: '📋', badge: prepListItems.length },
           { id: '86', label: "86'd Menu Manager", icon: '🚫', badge: eightySixedItems.length },
+          { id: 'performance', label: 'Performance', icon: '📈' },
         ].map((tab) => {
           const isActive = activeNav === tab.id
           return (
@@ -1777,9 +1697,9 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                                   ↳ {item.specialNote}
                                 </div>
                               )}
-                              {item.modifiers && Array.isArray(item.modifiers) && item.modifiers.map((m: unknown, idx: number) => (
+                              {item.modifiers && Array.isArray(item.modifiers) && item.modifiers.map((m: any, idx: number) => (
                                 <div key={idx} style={{ fontSize: '15px', color: 'var(--text-muted)', marginLeft: '18px' }}>
-                                  ↳ {typeof m === 'string' ? m : m.name || m.label}
+                                  ↳ {typeof m === 'string' ? m : m?.name || m?.label}
                                 </div>
                               ))}
                             </div>
