@@ -32,17 +32,15 @@ export async function POST(req: NextRequest) {
     const initialOrder = await prisma.order.findFirst({
       where: {
         id: orderId,
-        ...(restaurantId ? {
-          OR: [
-            { table: { location: { restaurantId } } },
-            { server: { restaurantId } },
-          ],
-        } : {}),
+        OR: [
+          { table: { location: { restaurantId } } },
+          { server: { restaurantId } },
+        ],
       },
     })
 
-    const fallbackOrder = !initialOrder ? await prisma.order.findUnique({ where: { id: orderId } }) : null
-    const order = initialOrder || fallbackOrder
+    // No fallback – if the order is not found in this restaurant's scope, reject the request
+    const order = initialOrder
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })

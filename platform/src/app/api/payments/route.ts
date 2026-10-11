@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { processPaymentSchema } from '@/lib/validations/payments'
+import { verifyStripeIntent } from '@/lib/payments'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { getAllowedPaymentMethods } from '@/lib/settings-helpers'
 
@@ -105,7 +106,30 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Cash tender verification & server-side change calculation
+    // Server-side total validation and cash change calculation
+    // Compute discount from coupon securely
+    let serverCouponDiscount = 0
+    if (couponCode) {
+      const cleanCode = couponCode.trim().toUpperCase()
+      const coupon = await prisma.coupon.findFirst({
+        where: { restaurantId, code: cleanCode },
+        select: { discountAmount: true },
+      })
+      if (coupon?.discountAmount) serverCouponDiscount = Number(coupon.discountAmount)
+    }
+
+    const expectedSubtotal = Math.max(0, calculatedSubtotal - serverCouponDiscount)
+    const taxRate = orderRawSubtotal > 0 ? Number(order.tax) / orderRawSubtotal : 0.10
+    const expectedTax = Number((expectedSubtotal * taxRate).toFixed(2))
+    const expectedTotal = Number((expectedSubtotal + expectedTax).toFixed(2))
+
+    if (Math.abs(total - expectedTotal) > 0.05) {
+      return NextResponse.json(
+        { error: `Submitted total $${total.toFixed(2)} does not match calculated order total $${expectedTotal.toFixed(2)}` },
+        { status: 400 }
+      )
+    }
+
     let serverCashChange: number | null = null
     if (method === 'CASH') {
       const effectiveCash = (cashReceived !== undefined && cashReceived !== null) ? cashReceived : total
@@ -128,42 +152,18 @@ export async function POST(req: NextRequest) {
       }
 
       if (stripePaymentIntentId) {
-        const { stripe, isMockStripe } = await import('@/lib/stripe')
-        if (!isMockStripe() || process.env.NODE_ENV === 'production') {
-          try {
-            const intent = await stripe.paymentIntents.retrieve(stripePaymentIntentId)
-            if (intent.status !== 'succeeded') {
-              return NextResponse.json(
-                { error: `PaymentIntent has not succeeded with Stripe (status: ${intent.status})` },
-                { status: 400 }
-              )
-            }
-            if (intent.currency?.toLowerCase() !== 'usd') {
-              return NextResponse.json(
-                { error: `PaymentIntent currency mismatch (${intent.currency} vs usd)` },
-                { status: 400 }
-              )
-            }
-            if (intent.metadata?.orderId && intent.metadata.orderId !== orderId) {
-              return NextResponse.json(
-                { error: 'PaymentIntent metadata orderId mismatch' },
-                { status: 403 }
-              )
-            }
-            const intentDollars = intent.amount / 100
-            if (Math.abs(intentDollars - total) > 0.5) {
-              return NextResponse.json(
-                { error: `Authorized Stripe amount ($${intentDollars.toFixed(2)}) does not match check total ($${total.toFixed(2)})` },
-                { status: 400 }
-              )
-            }
-          } catch (stripeErr: any) {
-            console.error('[Payment Gateway Error]', stripeErr)
-            return NextResponse.json(
-              { error: `Gateway verification failed: ${stripeErr.message || 'Invalid PaymentIntent'}` },
-              { status: 400 }
-            )
-          }
+        try {
+          await verifyStripeIntent({
+            intentId: stripePaymentIntentId,
+            orderId,
+            expectedAmount: total,
+          })
+        } catch (stripeErr: any) {
+          console.error('[Payment Gateway Error]', stripeErr)
+          return NextResponse.json(
+            { error: `Gateway verification failed: ${stripeErr.message || 'Invalid PaymentIntent'}` },
+            { status: 400 }
+          )
         }
       }
     }

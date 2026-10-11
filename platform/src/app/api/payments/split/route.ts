@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { splitPaymentSchema } from '@/lib/validations/payments'
+import { verifyStripeIntent } from '@/lib/payments'
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,22 +28,17 @@ export async function POST(req: NextRequest) {
     const initialOrder = await prisma.order.findFirst({
       where: {
         id: orderId,
-        ...(restaurantId ? {
-          OR: [
-            { table: { location: { restaurantId } } },
-            { server: { restaurantId } },
-          ],
-        } : {}),
+        id: orderId,
+        OR: [
+          { table: { location: { restaurantId } } },
+          { server: { restaurantId } },
+        ],
       },
       include: { table: { select: { id: true, name: true, locationId: true } } },
     })
 
-    const fallbackOrder = !initialOrder ? await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { table: { select: { id: true, name: true, locationId: true } } },
-    }) : null
-
-    const order = initialOrder || fallbackOrder
+    // No fallback – order must belong to this restaurant
+    const order = initialOrder
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found in restaurant records' }, { status: 404 })
@@ -84,6 +80,25 @@ export async function POST(req: NextRequest) {
     // otherwise default to CARD as the transaction anchor for the parent record
     const uniqueMethods = [...new Set(splits.map((s) => s.method))]
     const primaryMethod = uniqueMethods.length === 1 ? uniqueMethods[0] : 'CARD'
+
+    // Verify CARD splits' Stripe intents
+    for (const s of splits) {
+      if (s.method === 'CARD' && s.stripePaymentIntentId) {
+        try {
+          await verifyStripeIntent({
+            intentId: s.stripePaymentIntentId,
+            orderId,
+            expectedAmount: s.total,
+          })
+        } catch (stripeErr: any) {
+          console.error('[Split Payment] Stripe verification failed', stripeErr)
+          return NextResponse.json(
+            { error: `Gateway verification failed: ${stripeErr.message || 'Invalid PaymentIntent'}` },
+            { status: 400 }
+          )
+        }
+      }
+    }
 
     const payment = await prisma.$transaction(async (tx) => {
       // 1. Create a parent Payment record representing the full checkout transaction
