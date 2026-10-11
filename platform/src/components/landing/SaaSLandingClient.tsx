@@ -1414,7 +1414,6 @@ export default function SaaSLandingClient() {
               <a href="#how-it-works" className={styles.footerLink}>Workflow</a>
               <a href="#features" className={styles.footerLink}>Features</a>
               <Link href="/pricing" className={styles.footerLink}>Pricing</Link>
-              <Link href="/brand" className={styles.footerLink}>Brand Assets &amp; Logos</Link>
             </div>
 
             <div className={styles.footerLinks}>
