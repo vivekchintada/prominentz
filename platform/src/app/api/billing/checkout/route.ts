@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin || 'http://localhost:3000'
     const returnUrl = `${origin}/dashboard/settings/billing`
 
-    // In simulated/demo mode, update restaurant planTier directly
-    if (isMockStripe()) {
+    // In simulated/demo mode, update restaurant planTier directly (strictly non-production)
+    if (isMockStripe() && process.env.NODE_ENV !== 'production') {
       const prevTier = restaurant.planTier
       await prisma.restaurant.update({
         where: { id: restaurant.id },

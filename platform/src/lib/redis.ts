@@ -20,18 +20,54 @@ export const redis =
 if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis
 
 // ─── Event Publisher ─────────────────────────────────────────────────────────
-// locationId is included in every event so subscribers can filter cross-location noise.
+// Both locationId and restaurantId are scoped to enforce strict tenant isolation across subscribers.
+const locationRestaurantCache = new Map<string, string>()
+
 export async function publishEvent(
   event: string,
   payload: Record<string, unknown>,
   locationId?: string,
+  restaurantId?: string,
 ) {
   if (!isConfigured) return
 
   try {
+    let resolvedRestaurantId =
+      restaurantId ||
+      (typeof payload._restaurantId === 'string' ? payload._restaurantId : undefined) ||
+      (typeof payload.restaurantId === 'string' ? payload.restaurantId : undefined)
+
+    if (!resolvedRestaurantId && locationId) {
+      if (locationRestaurantCache.has(locationId)) {
+        resolvedRestaurantId = locationRestaurantCache.get(locationId)
+      } else {
+        try {
+          const { prisma } = await import('@/lib/prisma')
+          const loc = await prisma.location.findUnique({
+            where: { id: locationId },
+            select: { restaurantId: true },
+          })
+          if (loc?.restaurantId) {
+            resolvedRestaurantId = loc.restaurantId
+            locationRestaurantCache.set(locationId, loc.restaurantId)
+          }
+        } catch {
+          // non-blocking fallback
+        }
+      }
+    }
+
     await redis.publish(
       'resto:events',
-      JSON.stringify({ event, payload: { ...payload, _locationId: locationId }, ts: Date.now() }),
+      JSON.stringify({
+        event,
+        payload: {
+          ...payload,
+          _locationId: locationId,
+          _restaurantId: resolvedRestaurantId,
+        },
+        ts: Date.now(),
+      }),
     )
   } catch (err) {
     // Graceful fallback: log warning without crashing the caller

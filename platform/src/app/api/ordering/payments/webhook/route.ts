@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const secret = process.env.STRIPE_WEBHOOK_SECRET
 
     let event: any
-    if (isMockStripe()) {
+    if (isMockStripe() && process.env.NODE_ENV !== 'production') {
       try {
         event = JSON.parse(raw)
       } catch {
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       }
     } else {
       if (!sig || !secret) {
-        return NextResponse.json({ error: 'Webhook not configured' }, { status: 400 })
+        return NextResponse.json({ error: 'Webhook signature verification required in production.' }, { status: 400 })
       }
       event = stripe.webhooks.constructEvent(raw, sig, secret)
     }

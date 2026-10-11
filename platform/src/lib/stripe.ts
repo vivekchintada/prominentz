@@ -9,6 +9,9 @@ const isTestOrMockKey =
   rawStripeSecret.startsWith('sk_test_REPLACE')
 
 export function isMockStripe(): boolean {
+  if (process.env.NODE_ENV === 'production') {
+    return false
+  }
   return isTestOrMockKey
 }
 
@@ -42,6 +45,9 @@ export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; pric
  */
 export async function createPaymentIntent(amountInCents: number, orderId: string) {
   try {
+    if (process.env.NODE_ENV === 'production' && isTestOrMockKey) {
+      throw new Error('Stripe is not configured for production environment. Missing STRIPE_SECRET_KEY.')
+    }
     if (isMockStripe()) {
       return {
         id: `pi_mock_${Math.random().toString(36).substr(2, 9)}`,
@@ -115,6 +121,10 @@ export async function createSubscriptionCheckoutSession({
   returnUrl: string
 }) {
   const planInfo = PLAN_PRICING[planTier] || PLAN_PRICING.STARTER
+
+  if (process.env.NODE_ENV === 'production' && isTestOrMockKey) {
+    throw new Error('Stripe is not configured for production environment. Missing STRIPE_SECRET_KEY.')
+  }
 
   if (isMockStripe()) {
     // Simulated Checkout Session URL for fast local development & demos

@@ -40,9 +40,18 @@ export async function GET(req: NextRequest) {
           const parsed = JSON.parse(message)
           const payload = parsed.payload || {}
 
-          // Tenant isolation — only forward events for this restaurant
-          // (locationId filter is optional bonus)
-          if (payload._restaurantId && payload._restaurantId !== restaurantId) return
+          // Strict Tenant Isolation:
+          // An event MUST explicitly belong to this subscriber's restaurantId.
+          // Unscoped events or cross-tenant events are immediately dropped to prevent data leakage.
+          const eventRestaurantId = payload._restaurantId || (typeof payload.restaurantId === 'string' ? payload.restaurantId : undefined)
+          if (!eventRestaurantId || eventRestaurantId !== restaurantId) {
+            return
+          }
+
+          // Optional location filter if subscriber is restricted to a location
+          if (locationId && payload._locationId && payload._locationId !== locationId) {
+            return
+          }
 
           // Map internal event names → mobile-friendly type names
           const typeMap: Record<string, string> = {

@@ -28,10 +28,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   compress: true,
-  typescript: {
-    // Allows production build to succeed while strict catch-block types are standardized
-    ignoreBuildErrors: true,
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**.r2.dev' },

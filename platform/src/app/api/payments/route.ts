@@ -42,29 +42,29 @@ export async function POST(req: NextRequest) {
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId
 
-    // Verify order exists and belongs to this restaurant
-    const initialOrder = await prisma.order.findFirst({
+    if (!restaurantId) {
+      return NextResponse.json({ error: 'Tenant context required' }, { status: 403 })
+    }
+
+    // Verify order exists and strictly belongs to this restaurant
+    const order = await prisma.order.findFirst({
       where: {
         id: orderId,
-        ...(restaurantId ? {
-          OR: [
-            { table: { location: { restaurantId } } },
-            { server: { restaurantId } },
-          ],
-        } : {}),
+        OR: [
+          { table: { location: { restaurantId } } },
+          { server: { restaurantId } },
+        ],
       },
-      include: { table: { select: { id: true, name: true, locationId: true } } },
+      include: {
+        table: { select: { id: true, name: true, locationId: true } },
+        items: {
+          select: { id: true, priceAtOrder: true, quantity: true, status: true },
+        },
+      },
     })
 
-    const fallbackOrder = !initialOrder ? await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { table: { select: { id: true, name: true, locationId: true } } },
-    }) : null
-
-    const order = initialOrder || fallbackOrder
-
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Order not found or does not belong to your restaurant' }, { status: 404 })
     }
     if (order.status === 'PAID') {
       return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
@@ -82,10 +82,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Enforce payment amount integrity & security ────────────────────────
+    // ── Enforce payment amount integrity & server-side calculation ────────
     if (total < 0) {
       return NextResponse.json(
         { error: 'Payment total cannot be negative' },
+        { status: 400 }
+      )
+    }
+
+    // Calculate active items subtotal to verify non-zero totals
+    const activeItems = order.items.filter((item: any) => item.status !== 'VOID')
+    const calculatedSubtotal = activeItems.reduce(
+      (sum: number, item: any) => sum + Number(item.priceAtOrder) * item.quantity,
+      0
+    )
+    const effectiveDiscount = Math.max(0, Number(couponDiscount || 0))
+
+    if (activeItems.length > 0 && total <= 0 && effectiveDiscount < calculatedSubtotal) {
+      return NextResponse.json(
+        { error: 'Payment total cannot be zero for non-free orders' },
         { status: 400 }
       )
     }
@@ -103,12 +118,54 @@ export async function POST(req: NextRequest) {
       serverCashChange = Number(Math.max(0, effectiveCash - total).toFixed(2))
     }
 
-    // Card transaction token check
-    if (method === 'CARD' && !stripePaymentIntentId && total > 0) {
-      return NextResponse.json(
-        { error: 'Card transaction missing authorization token / PaymentIntent' },
-        { status: 400 }
-      )
+    // Card transaction gateway verification
+    if (method === 'CARD') {
+      if (!stripePaymentIntentId && total > 0) {
+        return NextResponse.json(
+          { error: 'Card transaction missing authorization token / PaymentIntent' },
+          { status: 400 }
+        )
+      }
+
+      if (stripePaymentIntentId) {
+        const { stripe, isMockStripe } = await import('@/lib/stripe')
+        if (!isMockStripe() || process.env.NODE_ENV === 'production') {
+          try {
+            const intent = await stripe.paymentIntents.retrieve(stripePaymentIntentId)
+            if (intent.status !== 'succeeded') {
+              return NextResponse.json(
+                { error: `PaymentIntent has not succeeded with Stripe (status: ${intent.status})` },
+                { status: 400 }
+              )
+            }
+            if (intent.currency?.toLowerCase() !== 'usd') {
+              return NextResponse.json(
+                { error: `PaymentIntent currency mismatch (${intent.currency} vs usd)` },
+                { status: 400 }
+              )
+            }
+            if (intent.metadata?.orderId && intent.metadata.orderId !== orderId) {
+              return NextResponse.json(
+                { error: 'PaymentIntent metadata orderId mismatch' },
+                { status: 403 }
+              )
+            }
+            const intentDollars = intent.amount / 100
+            if (Math.abs(intentDollars - total) > 0.5) {
+              return NextResponse.json(
+                { error: `Authorized Stripe amount ($${intentDollars.toFixed(2)}) does not match check total ($${total.toFixed(2)})` },
+                { status: 400 }
+              )
+            }
+          } catch (stripeErr: any) {
+            console.error('[Payment Gateway Error]', stripeErr)
+            return NextResponse.json(
+              { error: `Gateway verification failed: ${stripeErr.message || 'Invalid PaymentIntent'}` },
+              { status: 400 }
+            )
+          }
+        }
+      }
     }
 
     // Process checkout transaction
@@ -223,19 +280,19 @@ export async function POST(req: NextRequest) {
         total,
         method,
         processedBy: session.user.name,
-      }, order.table?.locationId),
+      }, order.table?.locationId, restaurantId),
       publishEvent(EVENTS.ORDER_MODIFIED, {
         orderId,
         status: 'PAID',
         tableName: order.table?.name || 'Order',
         locationId: order.table?.locationId,
         actorId: session.user.id,
-      }, order.table?.locationId),
+      }, order.table?.locationId, restaurantId),
       publishEvent(EVENTS.TABLE_STATUS_CHANGED, {
         tableId: order.tableId,
         status: 'EMPTY',
         actorId: session.user.id,
-      }, order.table?.locationId),
+      }, order.table?.locationId, restaurantId),
     ])
 
     return NextResponse.json(payment, { status: 201 })
