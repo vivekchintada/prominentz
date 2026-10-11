@@ -169,29 +169,29 @@ export default function SaaSLandingClient() {
               <span className={styles.heroPill}>💳 Split-Check &amp; Stripe Direct</span>
               <span className={styles.heroPill}>📶 Offline Queue Continuity</span>
             </div>
+          </div>
 
-            {/* Live Operational Metrics HUD */}
-            <div className={styles.kpiGrid}>
-              <div className={styles.kpiCell}>
-                <div className={styles.kpiValue}>&lt; 1.2s</div>
-                <div className={styles.kpiLabel}>Ticket Dispatch Latency</div>
-                <div className={styles.kpiSub}>Instant sync from table to line</div>
-              </div>
-              <div className={styles.kpiCell}>
-                <div className={styles.kpiValue}>99.99%</div>
-                <div className={styles.kpiLabel}>Service Uptime &amp; Offline Queue</div>
-                <div className={styles.kpiSub}>Continuous orders during Wi-Fi drops</div>
-              </div>
-              <div className={styles.kpiCell}>
-                <div className={styles.kpiValue}>0%</div>
-                <div className={styles.kpiLabel}>Platform Take-Rate</div>
-                <div className={styles.kpiSub}>Keep 100% of your food sales</div>
-              </div>
-              <div className={styles.kpiCell}>
-                <div className={styles.kpiValue}>$40/mo</div>
-                <div className={styles.kpiLabel}>All-Inclusive Predictable Rate</div>
-                <div className={styles.kpiSub}>Unlimited terminals, tables &amp; staff</div>
-              </div>
+          {/* Live Operational Metrics HUD — Symmetrical Container Alignment */}
+          <div className={styles.kpiGrid}>
+            <div className={styles.kpiCell}>
+              <div className={styles.kpiValue}>&lt; 1.2s</div>
+              <div className={styles.kpiLabel}>Ticket Dispatch Latency</div>
+              <div className={styles.kpiSub}>Instant sync from table to line</div>
+            </div>
+            <div className={styles.kpiCell}>
+              <div className={styles.kpiValue}>99.99%</div>
+              <div className={styles.kpiLabel}>Service Uptime &amp; Offline Queue</div>
+              <div className={styles.kpiSub}>Continuous orders during Wi-Fi drops</div>
+            </div>
+            <div className={styles.kpiCell}>
+              <div className={styles.kpiValue}>0%</div>
+              <div className={styles.kpiLabel}>Platform Take-Rate</div>
+              <div className={styles.kpiSub}>Keep 100% of your food sales</div>
+            </div>
+            <div className={styles.kpiCell}>
+              <div className={styles.kpiValue}>$40/mo</div>
+              <div className={styles.kpiLabel}>All-Inclusive Predictable Rate</div>
+              <div className={styles.kpiSub}>Unlimited terminals, tables &amp; staff</div>
             </div>
           </div>
         </div>
@@ -398,7 +398,7 @@ export default function SaaSLandingClient() {
       {/* ── 4. HARDWARE FREEDOM & THERMAL PRINTING ───────────────────────── */}
       <section id="hardware" className={styles.hardwareSection} aria-label="Hardware & Printing">
         <div className={styles.container}>
-          <div className={styles.sectionHeader}>
+          <div className={styles.sectionHeaderCenter}>
             <span className={styles.eyebrow}>Hardware Freedom &amp; Thermal Printing</span>
             <h2 className={styles.sectionTitle}>No locked-in $2,000 terminals. Bring any device and printer.</h2>
             <p className={styles.sectionDesc}>
@@ -830,7 +830,7 @@ export default function SaaSLandingClient() {
       {/* ── 5. FEATURE GRID ──────────────────────────────────────────────── */}
       <section id="features" className={styles.sectionFeatures} aria-label="System Capabilities">
         <div className={styles.container}>
-          <div className={styles.sectionHeader}>
+          <div className={styles.sectionHeaderCenter}>
             <span className={styles.eyebrow}>Core Capabilities</span>
             <h2 className={styles.sectionTitle}>Built for the demands of live service.</h2>
             <p className={styles.sectionDesc}>
@@ -937,7 +937,7 @@ export default function SaaSLandingClient() {
       {/* ── 6. WORKFLOW SECTION ──────────────────────────────────────────── */}
       <section id="how-it-works" className={styles.sectionWorkflow} aria-label="Operational Workflow">
         <div className={styles.container}>
-          <div className={styles.sectionHeader}>
+          <div className={styles.sectionHeaderCenter}>
             <span className={styles.eyebrow}>Operational Workflow</span>
             <h2 className={styles.sectionTitle}>From order capture to kitchen bump to shift close.</h2>
             <p className={styles.sectionDesc}>
@@ -1016,7 +1016,7 @@ export default function SaaSLandingClient() {
       {/* ── 7. OPERATIONAL BENEFITS ───────────────────────────────────────── */}
       <section className={styles.sectionBenefits} aria-label="Operational Benefits">
         <div className={styles.container}>
-          <div className={styles.sectionHeader}>
+          <div className={styles.sectionHeaderCenter}>
             <span className={styles.eyebrow}>System Design</span>
             <h2 className={styles.sectionTitle}>Engineered for uninterrupted dining room execution.</h2>
             <p className={styles.sectionDesc}>
@@ -1059,7 +1059,7 @@ export default function SaaSLandingClient() {
       {/* ── 8. PROMINENTZ VS LEGACY POS ─────────────────────────────────── */}
       <section id="comparison" className={styles.comparisonSection} aria-label="POS Comparison">
         <div className={styles.container}>
-          <div className={styles.sectionHeader}>
+          <div className={styles.sectionHeaderCenter}>
             <span className={styles.eyebrow}>Transparent Economics</span>
             <h2 className={styles.sectionTitle}>Built to liberate restaurants from legacy POS lock-in.</h2>
             <p className={styles.sectionDesc}>
@@ -1180,7 +1180,7 @@ export default function SaaSLandingClient() {
       {/* ── 10. TESTIMONIALS ─────────────────────────────────────────────── */}
       <section className={styles.testimonialSection} aria-label="Testimonials">
         <div className={styles.container}>
-          <div className={styles.sectionHeader} style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
+          <div className={styles.sectionHeaderCenter}>
             <span className={styles.eyebrow}>Hospitality Tested</span>
             <h2 className={styles.sectionTitle}>Trusted by fast-paced dining rooms.</h2>
             <p className={styles.sectionDesc}>
@@ -1226,7 +1226,7 @@ export default function SaaSLandingClient() {
       <section id="faq" className={styles.sectionFaq} aria-label="Frequently Asked Questions">
         <div className={styles.container}>
           <div className={styles.faqContainer}>
-            <div className={styles.sectionHeader} style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className={styles.sectionHeaderCenter}>
               <span className={styles.eyebrow}>Questions &amp; Answers</span>
               <h2 className={styles.sectionTitle}>Frequently asked questions.</h2>
               <p className={styles.sectionDesc}>
