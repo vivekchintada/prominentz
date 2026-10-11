@@ -211,7 +211,7 @@ export async function PATCH(
       allServed,
       orderStatus: nextOrderStatus,
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[PATCH /api/orders/:id/items/:itemId/status]', error)
     return NextResponse.json({ error: error?.message || 'Failed to advance item status' }, { status: 500 })
   }

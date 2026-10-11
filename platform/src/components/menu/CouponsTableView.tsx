@@ -134,7 +134,7 @@ export default function CouponsTableView() {
 
       setIsModalOpen(false)
       fetchCoupons()
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err)
       alert(err.message || 'Error saving coupon')
     } finally {

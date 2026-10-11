@@ -27,7 +27,7 @@ export default async function MobileDashboardPage() {
   }
 
   const stats = { openOrders: 0, activeTables: 0, totalTables: 0, todaySales: 0, avgKds: 0 }
-  let recentEvents: unknown[] = []
+  let recentEvents: any[] = []
 
   if (locationId) {
     const today = new Date(); today.setHours(0, 0, 0, 0)

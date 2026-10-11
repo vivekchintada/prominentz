@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
       flaggedCount: clockedInStaff.filter((s) => s.isFlagged).length,
       staff: clockedInStaff,
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[GET /api/employees/clocked-in]', error)
     return NextResponse.json({ error: error?.message || 'Failed to fetch clocked-in staff' }, { status: 500 })
   }

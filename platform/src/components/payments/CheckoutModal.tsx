@@ -132,7 +132,7 @@ export default function CheckoutModal({
         .then((r) => r.json())
         .then((data) => {
           if (Array.isArray(data)) {
-            setAvailableCoupons(data.filter((c: unknown) => c.status === 'ACTIVE'))
+            setAvailableCoupons(data.filter((c: any) => c.status === 'ACTIVE'))
           }
         })
         .catch(() => {})
@@ -236,7 +236,7 @@ export default function CheckoutModal({
       setSuggestedCoupons([])
       setShowCouponPicker(false)
       showToast(data.message || `Coupon ${data.coupon.code} applied! -$${disc.toFixed(2)}`, 'success')
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to apply coupon', 'error')
     } finally {
       setCouponLoading(false)
@@ -386,7 +386,7 @@ export default function CheckoutModal({
               tableId: order.tableId,
               guestCount: order.guestCount || 2,
               notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})` : order.notes,
-              items: order.items?.map((i: unknown) => ({
+              items: order.items?.map((i: any) => ({
                 menuItemId: i.menuItemId || i.id,
                 quantity: i.quantity || 1,
                 specialNote: i.specialNote || null,
@@ -400,7 +400,7 @@ export default function CheckoutModal({
             const errData = await createOrderRes.json().catch(() => ({}))
             throw new Error(errData.error || 'Failed to initialize database order for checkout')
           }
-        } catch (createErr: unknown) {
+        } catch (createErr: any) {
           showToast(createErr.message || 'Failed to create order', 'error')
           setIsFinishing(false)
           return
@@ -475,7 +475,7 @@ export default function CheckoutModal({
         const receiptRecord = await receiptRes.json()
         setReceiptUrl(receiptRecord.url)
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Checkout failed', 'error')
       setIsProcessingCard(false)
       setIsWaitingQrPayment(false)
@@ -530,7 +530,7 @@ export default function CheckoutModal({
       } else {
         setActiveSplitIndex(null)
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Failed split payment authorization', 'error')
     }
   }
@@ -573,7 +573,7 @@ export default function CheckoutModal({
               tableId: order.tableId || 'table-1',
               guestCount: order.guestCount || 2,
               notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})` : order.notes,
-              items: order.items?.map((i: unknown) => ({
+              items: order.items?.map((i: any) => ({
                 menuItemId: i.menuItemId || i.id,
                 quantity: i.quantity || 1,
                 specialNote: i.specialNote || null,
@@ -642,7 +642,7 @@ export default function CheckoutModal({
         const receiptRecord = await receiptRes.json()
         setReceiptUrl(receiptRecord.url)
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to finalize splits', 'error')
     } finally {
       setIsFinishing(false)
@@ -664,7 +664,7 @@ export default function CheckoutModal({
       if (!res.ok) throw new Error('Failed to send receipt')
       showToast(`Receipt successfully sent to ${receiptEmail}!`, 'success')
       setReceiptEmail('')
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to send receipt', 'error')
     } finally {
       setIsSendingReceipt(false)
@@ -968,7 +968,7 @@ export default function CheckoutModal({
                             🏷️ Active coupons available to use instead:
                           </div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                            {suggestedCoupons.map((c: unknown) => (
+                            {suggestedCoupons.map((c: any) => (
                               <button
                                 key={c.id || c.code}
                                 type="button"

@@ -91,7 +91,7 @@ export default function SplitCheckModal({
       }
 
       onSeatChanged()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error reassigning item seat', 'error')
     } finally {
       setSaving(false)
@@ -109,7 +109,7 @@ export default function SplitCheckModal({
       })
       if (!res.ok) throw new Error('Print slip failed')
       showToast(`Printed Check for Seat ${seat}`, 'success')
-    } catch (e: unknown) {
+    } catch (e: any) {
       showToast(e.message || 'Printer error', 'error')
     } finally {
       setPrintingSeat(null)

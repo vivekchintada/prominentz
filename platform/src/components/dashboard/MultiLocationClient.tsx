@@ -57,7 +57,7 @@ export function MultiLocationClient() {
       } else {
         setData(json)
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err?.message || 'Network error')
     } finally {
       setLoading(false)
@@ -96,7 +96,7 @@ export function MultiLocationClient() {
         setIsHq(false)
         fetchAnalytics()
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Failed to create location')
     } finally {
       setSubmitting(false)
@@ -122,7 +122,7 @@ export function MultiLocationClient() {
       } else {
         setPushResult(json.message)
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setPushResult(`Error: ${err?.message || 'Failed to push menu'}`)
     } finally {
       setPushingMenu(false)

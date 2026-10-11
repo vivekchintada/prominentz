@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ role: user.role })
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error('[POST /api/auth/lookup-role]', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }

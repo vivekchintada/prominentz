@@ -741,7 +741,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
       const data = await res.json()
       if (!res.ok) alert(data.error || 'Failed to place order')
       else { setOrderSuccess(data); setCart([]); setShowCartDrawer(false) }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err instanceof Error ? err.message : 'Error submitting order')
     } finally {
       setSubmittingOrder(false)
@@ -785,7 +785,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
     ? rawAccent
     : isDark ? '#6366f1' : '#4f46e5'
   const isLightAccent = accentColor === '#ffffff'
-  const accentBtnTextColor = '#ffffff'
+  const accentBtnTextColor = isLightAccent ? '#000000' : '#ffffff'
 
   // Build global item index for gradient assignment
   const allItems = categories.flatMap((c) => c.items)

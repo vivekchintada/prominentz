@@ -172,7 +172,7 @@ export default function OrderEntry({
       showToast('Guest profile attached to check', 'success')
       setShowCustomerModal(false)
       fetchOrderDetails()
-    } catch (e: unknown) {
+    } catch (e: any) {
       showToast(e.message || 'Error attaching guest', 'error')
     }
   }
@@ -187,7 +187,7 @@ export default function OrderEntry({
       if (!res.ok) throw new Error('Failed to unlink guest')
       showToast('Guest unlinked from check', 'success')
       fetchOrderDetails()
-    } catch (e: unknown) {
+    } catch (e: any) {
       showToast(e.message || 'Error unlinking guest', 'error')
     }
   }
@@ -258,7 +258,7 @@ export default function OrderEntry({
       setOrder(data)
       setEditGuestCount(data.guestCount)
       setEditNotes(data.notes || '')
-    } catch (err: unknown) {
+    } catch (err: any) {
       // If network fetch failed, attempt offline IndexedDB fallback
       try {
         const { getOfflineOrder } = await import('@/lib/offline-db')
@@ -316,7 +316,7 @@ export default function OrderEntry({
 
       showToast('Guest count updated', 'success')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating guest count', 'error')
     }
   }
@@ -339,7 +339,7 @@ export default function OrderEntry({
 
       showToast('Table notes updated', 'success')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating notes', 'error')
     }
   }
@@ -545,16 +545,16 @@ export default function OrderEntry({
       // Cache menu to client-side IndexedDB for offline access
       const { cacheMenu } = await import('@/lib/offline-db')
       await cacheMenu(cats, items)
-    } catch (err: unknown) {
+    } catch (err: any) {
       // Fall back to offline cached catalog
       try {
         const { getCachedMenu } = await import('@/lib/offline-db')
         const cached = await getCachedMenu()
         if (cached && cached.categories && cached.items) {
-          setCategories(cached.categories)
-          setMenuItems(cached.items)
+          setCategories(cached.categories as any)
+          setMenuItems(cached.items as any)
           if (cached.categories.length > 0) {
-            setSelectedCategoryId(cached.categories[0].id)
+            setSelectedCategoryId((cached.categories[0] as any).id)
           }
           showToast('⚡ Loaded offline cached menu catalog', 'success')
           return
@@ -593,7 +593,7 @@ export default function OrderEntry({
       }
       showToast('Order placed on hold', 'success')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error holding order', 'error')
     } finally {
       setHoldLoading(false)
@@ -611,7 +611,7 @@ export default function OrderEntry({
       }
       showToast('Order resumed', 'success')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error resuming order', 'error')
     } finally {
       setHoldLoading(false)
@@ -683,7 +683,7 @@ export default function OrderEntry({
 
       showToast(`Added ${item.name} to Seat ${activeSeat}`, 'success')
       fetchOrderDetails() // reload order
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error adding item', 'error')
     }
   }
@@ -719,7 +719,7 @@ export default function OrderEntry({
 
       if (!res.ok) throw new Error('Failed to update quantity')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating item quantity', 'error')
     }
   }
@@ -768,7 +768,7 @@ export default function OrderEntry({
       }
       showToast(`Voided ${name}`, 'success')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error voiding item', 'error')
     } finally {
       setVoidingItemId(null)
@@ -806,7 +806,7 @@ export default function OrderEntry({
 
           if (syncRes.ok) {
             const syncData = await syncRes.json()
-            const match = syncData.syncedOrders?.find((s: unknown) => s.offlineId === orderId)
+            const match = syncData.syncedOrders?.find((s: any) => s.offlineId === orderId)
             if (match?.serverId) {
               targetOrderId = match.serverId
               await markOrdersSynced([orderId])
@@ -837,7 +837,7 @@ export default function OrderEntry({
 
       showToast('Order tickets fired to KDS kitchen!', 'success')
       fetchOrderDetails()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error firing kitchen', 'error')
     } finally {
       setIsFiring(false)
@@ -1645,7 +1645,7 @@ export default function OrderEntry({
                     })
                     if (!res.ok) throw new Error('KOT print request failed')
                     showToast('🖨️ KOT Thermal Ticket Generated', 'success')
-                  } catch (e: unknown) {
+                  } catch (e: any) {
                     showToast(e.message || 'KOT Print Error', 'error')
                   }
                 }}
@@ -1722,7 +1722,7 @@ export default function OrderEntry({
           setIsModifierOpen(false)
           setSelectedMenuItem(null)
         }}
-        menuItem={selectedMenuItem}
+        menuItem={selectedMenuItem as any}
         onConfirm={(selections) => {
           if (selectedMenuItem) {
             handleAddOrderItem(selectedMenuItem, selections)
@@ -1741,7 +1741,7 @@ export default function OrderEntry({
             onBackToMap()
           }}
           order={order}
-          showToast={showToast}
+          showToast={(msg: string, variant?: any) => showToast(msg, variant)}
         />
       )}
 

@@ -80,7 +80,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
       const json = await res.json()
       if (!res.ok) { setError(json.error || 'Something went wrong'); return }
       setStep((s) => s + 1)
-    } catch (e: unknown) {
+    } catch (e: any) {
       setError(e.message || 'Network error')
     } finally {
       setSaving(false)
@@ -111,7 +111,7 @@ export function OnboardingWizard({ initialStep = 0 }: { initialStep?: number }) 
       })
       if (res.ok) setSeeded(true)
       else { const j = await res.json(); setError(j.error) }
-    } catch (e: unknown) { setError(e.message) }
+    } catch (e: any) { setError(e.message) }
     setSeeding(false)
   }
 

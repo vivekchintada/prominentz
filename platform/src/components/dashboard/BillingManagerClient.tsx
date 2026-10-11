@@ -187,7 +187,7 @@ export function BillingManagerClient() {
       } else {
         alert(data.error || 'Failed to initiate payment gateway checkout')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Error connecting to payment gateway')
     } finally {
       setLoadingTier(null)
@@ -206,7 +206,7 @@ export function BillingManagerClient() {
       } else {
         alert(data.error || 'Failed to open customer portal')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Error opening portal')
     } finally {
       setPortalLoading(false)
@@ -318,7 +318,7 @@ export function BillingManagerClient() {
         <PlanCard
           tier="STARTER"
           title="Basic Plan"
-          price={40}
+          price={50}
           description="Everything your restaurant, bistro, or cafe needs for daily floor operations."
           isCurrent={currentPlan === 'STARTER'}
           onSelect={handleSubscribe}

@@ -31,7 +31,7 @@ export function openOfflineDB(): Promise<IDBDatabase> {
 
     const request = indexedDB.open(DB_NAME, DB_VERSION)
 
-    request.onupgradeneeded = (event: unknown) => {
+    request.onupgradeneeded = (event: any) => {
       const db = event.target.result
 
       // Store for offline pending orders

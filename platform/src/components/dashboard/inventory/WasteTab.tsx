@@ -67,7 +67,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
           setSelectedItemId(opts[0].id)
         }
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error loading waste logs', 'error')
     } finally {
       setLoading(false)
@@ -108,7 +108,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
       setWasteNotes('')
       await fetchWasteData()
       onWasteLogged()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error logging waste', 'error')
     } finally {
       setSubmittingWaste(false)

@@ -106,7 +106,7 @@ export function KitchenOverviewClient() {
             }
             if (menuRes.ok) {
                 const mData = await menuRes.json();
-                const outOfStock = mData.filter((i: unknown) => i.is86d === true || i.isAvailable === false);
+                const outOfStock = mData.filter((i: any) => i.is86d === true || i.isAvailable === false);
                 setItems86(outOfStock);
             }
         } catch (err) {

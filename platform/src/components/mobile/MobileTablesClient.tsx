@@ -82,7 +82,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
       showFeedback(`Table ${table.name} opened with ${guestCount} guests!`)
       setOpenOrderModal(null)
       router.refresh()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showFeedback(err.message || 'Error opening table')
     } finally {
       setSubmitting(false)

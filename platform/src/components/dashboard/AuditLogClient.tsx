@@ -71,7 +71,7 @@ export function AuditLogClient() {
       if (!res.ok) { setError(json.error || 'Failed to load audit log'); return }
       setLogs(json.logs)
       setPagination(json.pagination)
-    } catch (e: unknown) {
+    } catch (e: any) {
       setError(e.message || 'Network error')
     } finally {
       setLoading(false)

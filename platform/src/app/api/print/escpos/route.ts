@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       rawEscposBase64: buffer.toString('base64'),
       message: 'ESC/POS binary stream ready for local printer.',
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/print/escpos]', error)
     return NextResponse.json({ error: error.message || 'Printing error' }, { status: 500 })
   }

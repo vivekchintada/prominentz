@@ -8,6 +8,8 @@
 [data-theme="dark"] {
   /* ─── Midday Core Monochrome & Brand Tokens (Obsidian Dark) ─── */
   --brand: #ffffff;
+  --brand-contrast: #000000;
+  --color-brand-contrast: #000000;
   --brand-hover: #e4e4e7;
   --brand-gradient: #ffffff;
   --brand-glow: rgba(255, 255, 255, 0.15);
@@ -2212,6 +2214,8 @@ select.input {
 [data-theme="light"] {
   /* ─── Midday Core Monochrome & Brand Tokens (Clean Light) ─── */
   --brand: #18181B;
+  --brand-contrast: #ffffff;
+  --color-brand-contrast: #ffffff;
   --brand-hover: #27272A;
   --brand-gradient: #18181B;
   --brand-glow: rgba(24, 24, 27, 0.12);

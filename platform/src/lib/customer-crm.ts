@@ -68,7 +68,7 @@ export async function findOrCreateCustomer(params: {
 
   // 3. If found, update missing attributes
   if (customer) {
-    const updates: unknown = {}
+    const updates: Record<string, any> = {}
     if (!customer.email && normEmail) updates.email = normEmail
     if ((!customer.name || customer.name === 'Guest') && customerName !== 'Guest') {
       updates.name = customerName
@@ -78,11 +78,11 @@ export async function findOrCreateCustomer(params: {
     }
 
     if (Object.keys(updates).length > 0) {
-      customer = await prisma.customer.update({
+      customer = (await prisma.customer.update({
         where: { id: customer.id },
         data: updates,
         include: { tier: true },
-      })
+      })) as any
     }
     return customer
   }

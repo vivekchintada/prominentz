@@ -28,7 +28,7 @@ export default function PricingPage() {
   const plan = PRICING.STARTER
   const features = PLAN_FEATURES.STARTER
 
-  const featureMatrix = [
+  const featureMatrix: { label: string; included: boolean; note?: string }[] = [
     { label: 'Point of Sale (POS) & Order Entry', included: true },
     { label: 'Real-Time Kitchen Display System (KDS)', included: true },
     { label: 'Table & Food Menu QR Code Studio (Direct-to-KDS)', included: true },

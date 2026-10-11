@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Tables are strictly managed by customer/location setup — no auto-seeding of ghost tables
-    const whereClause: unknown = { locationId: targetLocation.id }
+    const whereClause: any = { locationId: targetLocation.id }
     if (floorParam && floorParam !== 'all' && floorParam !== 'All Floors') {
       whereClause.floor = floorParam
     }
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
     })
 
     // Format response so UI can easily consume guest booking and occupancy info
-    const formatted = tables.map((t) => {
+    const formatted = (tables as any[]).map((t) => {
       const activeRes = t.reservations[0]
       const activeOrder = t.orders[0]
 
@@ -148,7 +148,7 @@ export async function GET(req: NextRequest) {
           tax: Number(activeOrder.tax),
           guestCount: activeOrder.guestCount,
           createdAt: activeOrder.createdAt,
-          items: activeOrder.items.map((i) => ({
+          items: activeOrder.items.map((i: any) => ({
             id: i.id,
             name: i.menuItem?.name || 'Item',
             quantity: i.quantity,
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(table, { status: 201 })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/tables]', error)
     return NextResponse.json({ error: error.message || 'Failed to create table' }, { status: 500 })
   }

@@ -25,7 +25,7 @@ export default function MenuManagementClient() {
       const res = await fetch('/api/menu/categories?all=true')
       if (res.ok) {
         const data = await res.json()
-        setCategories(data.map((c: unknown) => ({ id: c.id, name: c.name })))
+        setCategories(data.map((c: any) => ({ id: c.id, name: c.name })))
       }
     } catch (err) {
       console.error(err)

@@ -15,7 +15,7 @@ interface MessageItem {
   text: string
   intent?: string
   actionType?: string
-  actionData?: unknown
+  actionData?: any
   actionDirectives?: ActionDirective[]
   stats?: { label: string; value: string }[]
   actionableDishCards?: Array<{
@@ -110,7 +110,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
     setIsListening(true)
     recognition.start()
 
-    recognition.onresult = (event: unknown) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript
       setPrompt(transcript)
       setIsListening(false)
@@ -193,7 +193,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
       }
 
       setMessages((prev) => [...prev, assistantMsg])
-    } catch (err: unknown) {
+    } catch (err: any) {
       setMessages((prev) => [
         ...prev,
         {
@@ -209,7 +209,7 @@ I am powered by a universal **RAG + Operational Telemetry** brain. You can ask m
     }
   }
 
-  const handleUndoAction = (actionType?: string, actionData?: unknown) => {
+  const handleUndoAction = (actionType?: string, actionData?: any) => {
     if (actionType === '86_ITEM' && actionData?.itemName) {
       sendMessage(`Restore item ${actionData.itemName}`)
     } else if (actionType === 'PRIORITIZE_TICKET' && actionData?.table) {

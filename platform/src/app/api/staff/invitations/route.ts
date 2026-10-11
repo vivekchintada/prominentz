@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
         createdAt: inv.createdAt,
       }))
     )
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[GET /api/staff/invitations]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
@@ -240,7 +240,7 @@ export async function POST(req: NextRequest) {
         inviteUrl,
       },
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/staff/invitations]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

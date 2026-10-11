@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
         name: d.customer.name,
         source: 'ONLINE',
       })
-      linkedCustomerId = cust.id
+      linkedCustomerId = cust?.id || null
     } catch (custErr) {
       console.error('[Online Ordering] Customer unification error:', custErr)
     }

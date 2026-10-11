@@ -176,7 +176,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundcolor: 'var(--color-text-primary)',
+            backgroundColor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -334,7 +334,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
-              color: orderTypeFilter !== 'All' ? 'var(--brand)' : '#475569',
+              color: orderTypeFilter !== 'All' ? 'var(--brand)' : 'var(--color-text-secondary)',
               cursor: 'pointer',
             }}
           >
@@ -342,7 +342,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Filter
-            {orderTypeFilter !== 'All' && <span style={{ fontSize: 11, background: 'var(--brand)', color: '#fff', padding: '1px 5px', borderRadius: 99 }}>1</span>}
+            {orderTypeFilter !== 'All' && <span style={{ fontSize: 11, background: 'var(--brand)', color: 'var(--brand-contrast)', padding: '1px 5px', borderRadius: 99 }}>1</span>}
           </button>
 
           {/* Filter Dropdown Popover */}

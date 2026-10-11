@@ -66,7 +66,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         const invData = await invRes.json()
         setInventoryOptions(Array.isArray(invData) ? invData : (invData.items || []))
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error loading recipes', 'error')
     } finally {
       setLoading(false)
@@ -113,7 +113,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         if (updated.items?.[0]) setSelectedMenuItem(updated.items[0])
       }
       onRecipeChanged()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error saving recipe', 'error')
     } finally {
       setSubmittingRecipe(false)
@@ -137,7 +137,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
         }
       }
       onRecipeChanged()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error removing ingredient', 'error')
     }
   }

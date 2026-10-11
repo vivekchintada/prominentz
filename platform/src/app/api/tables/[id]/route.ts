@@ -129,7 +129,7 @@ export async function DELETE(
     await prisma.table.delete({ where: { id } })
 
     return NextResponse.json({ success: true, message: `Table "${table.name}" deleted` })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[DELETE /api/tables/:id]', error)
     return NextResponse.json({ error: error.message || 'Failed to delete table' }, { status: 500 })
   }

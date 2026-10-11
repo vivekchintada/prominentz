@@ -279,7 +279,7 @@ export default function ReservationsClient() {
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundcolor: 'var(--color-text-primary)',
+            backgroundColor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -361,7 +361,7 @@ export default function ReservationsClient() {
               alignItems: 'center',
               gap: 6,
               backgroundColor: 'var(--brand)',
-              color: '#ffffff',
+              color: 'var(--brand-contrast)',
               border: 'none',
               borderRadius: 8,
               padding: '8px 18px',
@@ -439,7 +439,7 @@ export default function ReservationsClient() {
                       width: 58,
                       height: 58,
                       borderRadius: 10,
-                      backgroundcolor: 'var(--color-text-primary)',
+                      backgroundColor: 'var(--color-text-primary)',
                       color: '#ffffff',
                       display: 'flex',
                       flexDirection: 'column',
@@ -689,7 +689,7 @@ export default function ReservationsClient() {
                 borderRadius: 8,
                 border: 'none',
                 backgroundColor: 'var(--brand)',
-                color: '#ffffff',
+                color: 'var(--brand-contrast)',
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: 'pointer',
@@ -849,7 +849,7 @@ export default function ReservationsClient() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: 'var(--brand)', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: 'var(--brand)', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: 'var(--brand-contrast)' }}
                 >
                   {isSubmitting ? 'Booking...' : 'Book Table'}
                 </button>
@@ -981,7 +981,7 @@ export default function ReservationsClient() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: 'var(--brand)', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ffffff' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', backgroundColor: 'var(--brand)', fontWeight: 700, fontSize: 13, cursor: isSubmitting ? 'not-allowed' : 'pointer', color: 'var(--brand-contrast)' }}
                 >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>

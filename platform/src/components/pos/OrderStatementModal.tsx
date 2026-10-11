@@ -5,7 +5,7 @@ import React, { useRef } from 'react'
 interface OrderStatementModalProps {
   isOpen: boolean
   onClose: () => void
-  order: unknown
+  order: any
 }
 
 export default function OrderStatementModal({
@@ -221,7 +221,7 @@ export default function OrderStatementModal({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(order.items || []).map((item: unknown) => {
+              {(order.items || []).map((item: any) => {
                 const itemName = item.menuItem?.name || item.name || 'Dish'
                 const itemPrice = Number(item.unitPrice || item.priceAtOrder || item.menuItem?.price || 0)
                 const lineTotal = itemPrice * Number(item.quantity || 1)
@@ -234,7 +234,7 @@ export default function OrderStatementModal({
                       </div>
                       {item.modifiers && item.modifiers.length > 0 && (
                         <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                          + {item.modifiers.map((m: unknown) => m.optionName || m.name).join(', ')}
+                          + {item.modifiers.map((m: any) => m.optionName || m.name).join(', ')}
                         </div>
                       )}
                       {item.specialNote && (

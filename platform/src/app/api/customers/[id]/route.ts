@@ -156,7 +156,7 @@ export async function DELETE(
       where: { id },
       data: {
         name: `Redacted Guest #${id.slice(-6)}`,
-        phone: null,
+        phone: `deleted-${id}`,
         email: null,
         birthDate: null,
         allergyTags: [],

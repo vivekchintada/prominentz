@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
       totalCount: invoices.length,
       totalRevenue: invoices.reduce((acc, inv) => acc + inv.amount, 0),
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[GET /api/invoices]', error)
     return NextResponse.json({ error: error?.message || 'Failed to load invoices' }, { status: 500 })
   }

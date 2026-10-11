@@ -517,18 +517,18 @@ export function MainDashboardClient({
             }}
           >
             <span>🚀 Restaurant Launchpad ({completedLaunchpadCount}/{launchpadItems.length})</span>
-            <span style={{ color: '#ffffff' }}>Show</span>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Show</span>
           </button>
         </div>
       ) : (
         <div
           style={{
-            background: '#0c0c0e',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
             borderRadius: 12,
             padding: '16px 20px',
             marginBottom: 20,
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
+            boxShadow: 'var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.2))',
           }}
         >
           {/* Header Row */}
@@ -539,24 +539,24 @@ export function MainDashboardClient({
                   width: 36,
                   height: 36,
                   borderRadius: 8,
-                  background: '#ffffff',
+                  background: 'var(--brand-tint)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 16,
-                  color: '#000000',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                  color: 'var(--color-text-primary)',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
                 }}
               >
                 🚀
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#ffffff' }}>Restaurant Launchpad</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>Restaurant Launchpad</span>
                   <span
                     style={{
-                      background: completedLaunchpadCount === 5 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.08)',
-                      color: completedLaunchpadCount === 5 ? '#22c55e' : 'rgba(255, 255, 255, 0.85)',
+                      background: completedLaunchpadCount === 5 ? 'rgba(34, 197, 94, 0.15)' : 'var(--color-border)',
+                      color: completedLaunchpadCount === 5 ? '#22c55e' : 'var(--color-text-secondary)',
                       padding: '2px 8px',
                       borderRadius: 12,
                       fontSize: 10,
@@ -1855,7 +1855,7 @@ export function MainDashboardClient({
                       gap: 8,
                       padding: '11px',
                       backgroundColor: 'var(--brand)',
-                      color: '#ffffff',
+                      color: 'var(--brand-contrast)',
                       borderRadius: 10,
                       fontWeight: 700,
                       fontSize: 13,
@@ -2232,7 +2232,7 @@ export function MainDashboardClient({
                           padding: '9px 18px',
                           borderRadius: 10,
                           background: 'var(--brand)',
-                          color: '#ffffff',
+                          color: 'var(--brand-contrast)',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',

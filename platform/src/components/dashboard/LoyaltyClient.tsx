@@ -132,7 +132,7 @@ export function LoyaltyClient() {
         const json = await res.json()
         alert(json.error || 'Failed to create reward')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Error creating reward')
     } finally {
       setRSubmitting(false)
@@ -167,7 +167,7 @@ export function LoyaltyClient() {
         const json = await res.json()
         alert(json.error || 'Failed to create tier')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Error creating tier')
     } finally {
       setTSubmitting(false)
@@ -191,7 +191,7 @@ export function LoyaltyClient() {
         const json = await res.json()
         alert(json.error || 'Failed to update settings')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Save error')
     } finally {
       setSavingConfig(false)
@@ -210,7 +210,7 @@ export function LoyaltyClient() {
       } else {
         alert(data.error || 'Failed to run expiry')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Expiry error')
     } finally {
       setExpiringPoints(false)

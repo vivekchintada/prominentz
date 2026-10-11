@@ -95,7 +95,7 @@ export default function AddonsTableView() {
 
       setIsModalOpen(false)
       fetchAddons()
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err)
       alert(err.message || 'Error saving addon')
     } finally {

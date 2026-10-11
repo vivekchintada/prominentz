@@ -228,7 +228,7 @@ export async function PATCH(
         locations: updatedMembership!.locationAssignments.map((a) => a.location),
       },
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[PATCH /api/staff/:membershipId]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

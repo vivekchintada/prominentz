@@ -50,7 +50,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (!period) return NextResponse.json({ error: 'Period not found' }, { status: 404 })
 
     return NextResponse.json(period)
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('GET /api/reconciliation/periods/[id] error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

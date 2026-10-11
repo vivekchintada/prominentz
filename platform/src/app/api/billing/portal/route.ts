@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       url: portal.url,
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/billing/portal]', error)
     return NextResponse.json({ error: error.message || 'Failed to open customer portal' }, { status: 500 })
   }

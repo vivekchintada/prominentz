@@ -42,7 +42,7 @@ export default function TableActionsModal({
       showToast(`Table ${table.name} set to ${status}`, 'success')
       onStatusUpdated()
       onClose()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating table', 'error')
     } finally {
       setLoading(false)

@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       totalPointsExpired,
       expiryDays: config.pointsExpiryDays,
     })
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error('[POST /api/loyalty/expire]', err)
     return NextResponse.json({ error: err?.message || 'Failed to expire points' }, { status: 500 })
   }

@@ -90,7 +90,7 @@ function InviteContent() {
       } else {
         setError(data.error || 'Failed to accept invitation.')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err?.message || 'Network error accepting invitation.')
     } finally {
       setSubmitting(false)

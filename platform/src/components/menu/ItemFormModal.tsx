@@ -102,9 +102,9 @@ export default function ItemFormModal({
       // Map modifiers to variations if any
       const existingVars: { id?: string; name: string; priceAdjustment: number }[] = []
       if (initialItem.modifiers && initialItem.modifiers.length > 0) {
-        initialItem.modifiers.forEach((m: unknown) => {
+        initialItem.modifiers.forEach((m: any) => {
           if (m.options) {
-            m.options.forEach((opt: unknown) => {
+            m.options.forEach((opt: any) => {
               existingVars.push({
                 id: opt.id,
                 name: opt.name,
@@ -208,7 +208,7 @@ export default function ItemFormModal({
       if (showToast) showToast('Item saved successfully!', 'success')
       onSave()
       onClose()
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err)
       alert(err.message || 'Error saving item')
     } finally {

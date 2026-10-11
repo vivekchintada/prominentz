@@ -19,7 +19,7 @@ export const stripe = new Stripe(isTestOrMockKey ? 'sk_test_mock_dummy_key' : ra
 export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; priceId: string; description: string }> = {
   STARTER: {
     name: 'Basic Plan',
-    amount: 40,
+    amount: 50,
     priceId: process.env.STRIPE_PRICE_BASIC || process.env.STRIPE_PRICE_STARTER || 'price_basic_tier',
     description: 'Core POS & KDS, Table Floor Management, Digital Menu & QR Studio, Staff Accounts, End-of-Day Reports',
   },

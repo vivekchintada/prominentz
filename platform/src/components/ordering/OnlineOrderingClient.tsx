@@ -233,7 +233,7 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
     }
 
     try {
-      const body: unknown = {
+      const body: any = {
         locationId,
         fulfilmentType: type,
         customer: {
@@ -389,7 +389,7 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
 
       {/* ── Menu Categories ──────────────────────────────────── */}
       {categories.map((c) => {
-        const shown = items.filter((i: unknown) => i.category === c.name)
+        const shown = items.filter((i: any) => i.category === c.name)
         if (!shown.length) return null
 
         return (
@@ -400,7 +400,7 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
             </h2>
 
             <div className={styles.grid}>
-              {shown.map((i: unknown) => (
+              {shown.map((i: any) => (
                 <article className={styles.itemCard} key={i.id} onClick={() => openItemModal(i)}>
                   <div className={styles.itemThumb}>
                     {i.imageUrl ? (

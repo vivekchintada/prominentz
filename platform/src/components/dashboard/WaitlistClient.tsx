@@ -65,7 +65,7 @@ export default function WaitlistClient() {
         const tableData = await tableRes.json()
         setTables(Array.isArray(tableData) ? tableData : tableData?.tables || [])
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error loading waitlist', 'error')
     } finally {
       setLoading(false)
@@ -114,7 +114,7 @@ export default function WaitlistClient() {
       setIsAddOpen(false)
       setGuestName(''); setGuestPhone(''); setPartySize(''); setQuotedWait(20)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error queuing guest', 'error')
     } finally {
       setSubmittingAdd(false)
@@ -133,7 +133,7 @@ export default function WaitlistClient() {
 
       showToast(status === 'SEATED' ? '🪑 Guest seated successfully' : 'Guest removed from waitlist', 'info')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating guest status', 'error')
     }
   }
@@ -149,7 +149,7 @@ export default function WaitlistClient() {
       if (!res.ok) throw new Error('Failed to send notification')
 
       showToast(`📲 Table-ready alert sent to ${entry.guestName} (${entry.guestPhone}) via WhatsApp/SMS!`, 'success')
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error sending notification', 'error')
     }
   }
@@ -175,7 +175,7 @@ export default function WaitlistClient() {
       setSelectedTableId('')
       setConvertNotes('')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error converting entry', 'error')
     } finally {
       setSubmittingConvert(false)
@@ -226,7 +226,7 @@ export default function WaitlistClient() {
                 borderRadius: 6,
                 border: 'none',
                 backgroundColor: activeView === 'queue' ? 'var(--brand)' : 'transparent',
-                color: activeView === 'queue' ? '#ffffff' : 'var(--color-text-secondary)',
+                color: activeView === 'queue' ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -241,7 +241,7 @@ export default function WaitlistClient() {
                 borderRadius: 6,
                 border: 'none',
                 backgroundColor: activeView === 'floor' ? 'var(--brand)' : 'transparent',
-                color: activeView === 'floor' ? '#ffffff' : 'var(--color-text-secondary)',
+                color: activeView === 'floor' ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -272,9 +272,9 @@ export default function WaitlistClient() {
                     borderRadius: 8,
                     fontSize: 12,
                     fontWeight: 600,
-                    border: selectedFloor === f ? '1px solid var(--brand)' : '1px solid #f59e0b',
-                    backgroundColor: selectedFloor === f ? 'var(--brand)' : '#ffffff',
-                    color: selectedFloor === f ? '#ffffff' : '#d97706',
+                    border: selectedFloor === f ? '1px solid var(--brand)' : '1px solid var(--color-border)',
+                    backgroundColor: selectedFloor === f ? 'var(--brand)' : 'var(--color-bg-card)',
+                    color: selectedFloor === f ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                     cursor: 'pointer',
                   }}
                 >
@@ -353,7 +353,7 @@ export default function WaitlistClient() {
                           fontSize: 10,
                           padding: '3px 8px',
                           backgroundColor: 'var(--brand)',
-                          color: '#ffffff',
+                          color: 'var(--brand-contrast)',
                           border: 'none',
                           borderRadius: 4,
                           cursor: 'pointer',

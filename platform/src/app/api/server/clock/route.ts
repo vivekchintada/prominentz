@@ -97,7 +97,7 @@ export async function GET() {
           }
         : null,
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[GET /api/server/clock]', error)
     return NextResponse.json({ error: error?.message || 'Failed to fetch clock status' }, { status: 500 })
   }
@@ -327,7 +327,7 @@ export async function POST(req: NextRequest) {
         message: `Clocked out successfully. Shift duration: ${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m.`,
       })
     }
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/server/clock]', error)
     return NextResponse.json({ error: error?.message || 'Failed to update clock status' }, { status: 500 })
   }

@@ -208,7 +208,7 @@ export default function OnlineOrdersClient() {
                       </div>
 
                       <p className={styles.itemsSummary}>
-                        {o.items?.map((i: unknown) => `${i.quantity}× ${i.menuItem?.name || 'Item'}`).join(' · ') || 'Order details'}
+                        {o.items?.map((i: any) => `${i.quantity}× ${i.menuItem?.name || 'Item'}`).join(' · ') || 'Order details'}
                       </p>
 
                       <div className={styles.cardMeta}>

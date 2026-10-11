@@ -64,7 +64,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       if (!res.ok) throw new Error('Failed to load count sessions')
       const data = await res.json()
       setSessions(Array.isArray(data) ? data : [])
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error loading stock count sessions', 'error')
     } finally {
       setLoading(false)
@@ -93,7 +93,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       showToast(`Stock count session ${newSession.sessionNumber} started`, 'success')
       fetchSessions()
       handleOpenSheet(newSession.id)
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error starting count', 'error')
     } finally {
       setStartingCount(false)
@@ -107,7 +107,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       if (!res.ok) throw new Error('Failed to load session details')
       const data = await res.json()
       setActiveSession(data)
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error opening count sheet', 'error')
     } finally {
       setLoadingDetail(false)
@@ -152,7 +152,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       if (!res.ok) throw new Error('Failed to save draft counts')
       showToast('Draft counts saved', 'success')
       fetchSessions()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error saving draft', 'error')
     } finally {
       setSubmittingCount(false)
@@ -189,7 +189,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       setActiveSession(null)
       fetchSessions()
       onStockUpdated()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error finalizing count', 'error')
     } finally {
       setSubmittingCount(false)

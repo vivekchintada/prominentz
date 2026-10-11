@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
         if (offlineOrder.items && offlineOrder.items.length > 0) {
           await tx.orderItem.createMany({
-            data: offlineOrder.items.map((item: unknown) => ({
+            data: offlineOrder.items.map((item: any) => ({
               orderId: order.id,
               menuItemId: item.menuItemId,
               quantity: item.quantity,

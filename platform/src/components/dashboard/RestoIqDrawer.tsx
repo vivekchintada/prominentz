@@ -125,7 +125,7 @@ I am continuously monitoring and managing **every operational domain** across li
           },
         ])
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setMessages((prev) => [
         ...prev,
         {
@@ -331,7 +331,7 @@ I am continuously monitoring and managing **every operational domain** across li
                       padding: '12px 16px',
                       borderRadius: 14,
                       background: isAgent ? 'var(--color-bg-primary)' : 'var(--brand)',
-                      color: isAgent ? 'var(--color-text-primary)' : '#ffffff',
+                      color: isAgent ? 'var(--color-text-primary)' : 'var(--brand-contrast)',
                       border: isAgent ? '1px solid var(--color-border)' : 'none',
                       fontSize: 13,
                       lineHeight: 1.5,
@@ -474,7 +474,7 @@ I am continuously monitoring and managing **every operational domain** across li
                 borderRadius: 12,
                 border: 'none',
                 background: isThinking || !inputPrompt.trim() ? 'var(--color-border)' : 'var(--brand)',
-                color: '#ffffff',
+                color: isThinking || !inputPrompt.trim() ? 'var(--color-text-tertiary)' : 'var(--brand-contrast)',
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: isThinking || !inputPrompt.trim() ? 'not-allowed' : 'pointer',

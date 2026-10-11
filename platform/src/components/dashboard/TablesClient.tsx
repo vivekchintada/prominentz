@@ -304,7 +304,7 @@ export default function TablesClient() {
       setBookGuestEmail('')
       setBookNotes('')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error booking table')
     } finally {
       setSubmittingBook(false)
@@ -328,7 +328,7 @@ export default function TablesClient() {
       showToast(`Status updated to ${status === 'EMPTY' ? 'Available' : status === 'ACTIVE' ? 'Occupied' : 'Booked'}`)
       setSelectedTable(null)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating status')
     }
   }
@@ -363,7 +363,7 @@ export default function TablesClient() {
       showToast(`✅ Table "${newTableName}" created on ${newTableFloor}!`)
       setNewTableName('')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error creating table')
     } finally {
       setSubmittingNewTable(false)
@@ -395,7 +395,7 @@ export default function TablesClient() {
       setSelectedFloor(newFloorName.trim())
       setNewFloorName('')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error adding floor')
     } finally {
       setSubmittingNewFloor(false)
@@ -418,7 +418,7 @@ export default function TablesClient() {
       showToast(`Table "${tableName}" deleted`)
       setSelectedTable(null)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error deleting table')
     }
   }
@@ -432,7 +432,7 @@ export default function TablesClient() {
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundcolor: 'var(--color-text-primary)',
+            backgroundColor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -465,7 +465,7 @@ export default function TablesClient() {
             }}
             style={{
               backgroundColor: 'var(--brand)',
-              color: '#ffffff',
+              color: 'var(--brand-contrast)',
               border: 'none',
               borderRadius: 8,
               padding: '9px 18px',
@@ -609,9 +609,9 @@ export default function TablesClient() {
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  border: isActive ? '1px solid var(--brand)' : '1px solid #f59e0b',
-                  backgroundColor: isActive ? 'var(--brand)' : '#ffffff',
-                  color: isActive ? '#ffffff' : '#d97706',
+                  border: isActive ? '1px solid var(--brand)' : '1px solid var(--color-border)',
+                  backgroundColor: isActive ? 'var(--brand)' : 'var(--color-bg-card)',
+                  color: isActive ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                   transition: 'all 0.15s ease',
                   boxShadow: isActive ? '0 2px 4px rgba(37,99,235,0.2)' : 'none',
                 }}
@@ -660,7 +660,7 @@ export default function TablesClient() {
             style={{
               padding: '8px 16px',
               backgroundColor: 'var(--brand)',
-              color: '#ffffff',
+              color: 'var(--brand-contrast)',
               border: 'none',
               borderRadius: 8,
               fontSize: 13,
@@ -931,7 +931,7 @@ export default function TablesClient() {
                       gap: 6,
                       padding: '10px',
                       backgroundColor: 'var(--brand)',
-                      color: '#ffffff',
+                      color: 'var(--brand-contrast)',
                       borderRadius: 8,
                       fontSize: 13,
                       fontWeight: 700,
@@ -1023,7 +1023,7 @@ export default function TablesClient() {
                       gap: 6,
                       padding: '10px',
                       backgroundColor: 'var(--brand)',
-                      color: '#ffffff',
+                      color: 'var(--brand-contrast)',
                       borderRadius: 8,
                       fontSize: 13,
                       fontWeight: 700,
@@ -1544,7 +1544,7 @@ export default function TablesClient() {
                     style={{
                       padding: '8px 16px',
                       backgroundColor: 'var(--brand)',
-                      color: '#ffffff',
+                      color: 'var(--brand-contrast)',
                       border: 'none',
                       borderRadius: 6,
                       fontSize: 12,
@@ -1633,7 +1633,7 @@ export default function TablesClient() {
                       style={{
                         padding: '8px 16px',
                         backgroundColor: 'var(--brand)',
-                        color: '#ffffff',
+                        color: 'var(--brand-contrast)',
                         border: 'none',
                         borderRadius: 6,
                         fontSize: 12,
@@ -1787,7 +1787,7 @@ export default function TablesClient() {
                   gap: 6,
                   padding: '12px 14px',
                   backgroundColor: 'var(--brand)',
-                  color: '#ffffff',
+                  color: 'var(--brand-contrast)',
                   border: 'none',
                   borderRadius: 10,
                   fontSize: 13,
@@ -1865,7 +1865,8 @@ export default function TablesClient() {
         >
           <div
             style={{
-              backgroundcolor: 'var(--color-text-primary)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
               borderRadius: 20,
               width: '100%',
               maxWidth: 420,
@@ -1881,7 +1882,7 @@ export default function TablesClient() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 18 }}>🖨️</span>
-                <strong style={{ fontSize: 15, color: '#ffffff' }}>Thermal Receipt Station</strong>
+                <strong style={{ fontSize: 15, color: 'var(--color-text-primary)' }}>Thermal Receipt Station</strong>
               </div>
               <button
                 onClick={() => setThermalModalTable(null)}
@@ -1899,11 +1900,11 @@ export default function TablesClient() {
                   flex: 1,
                   padding: '6px',
                   borderRadius: 6,
-                  border: 'none',
+                  border: '1px solid var(--color-border)',
                   fontSize: 12,
                   fontWeight: 700,
-                  backgroundColor: thermalPageSize === '80mm' ? 'var(--brand)' : '#334155',
-                  color: '#ffffff',
+                  backgroundColor: thermalPageSize === '80mm' ? 'var(--brand)' : 'var(--color-bg-card-hover)',
+                  color: thermalPageSize === '80mm' ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >
@@ -1915,11 +1916,11 @@ export default function TablesClient() {
                   flex: 1,
                   padding: '6px',
                   borderRadius: 6,
-                  border: 'none',
+                  border: '1px solid var(--color-border)',
                   fontSize: 12,
                   fontWeight: 700,
-                  backgroundColor: thermalPageSize === '58mm' ? 'var(--brand)' : '#334155',
-                  color: '#ffffff',
+                  backgroundColor: thermalPageSize === '58mm' ? 'var(--brand)' : 'var(--color-bg-card-hover)',
+                  color: thermalPageSize === '58mm' ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >
@@ -1928,12 +1929,12 @@ export default function TablesClient() {
             </div>
 
             {/* Thermal Ticket Paper Simulation */}
-            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', justifyContent: 'center', backgroundcolor: 'var(--color-text-primary)', padding: '14px', borderRadius: 10 }}>
+            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', justifyContent: 'center', backgroundColor: 'var(--color-bg-card-hover)', padding: '14px', borderRadius: 10, border: '1px solid var(--color-border)' }}>
               <div
                 id="resto-table-thermal-ticket"
                 style={{
                   width: thermalPageSize === '80mm' ? '300px' : '230px',
-                  backgroundColor: 'var(--color-bg-card)',
+                  backgroundColor: '#ffffff',
                   color: '#000000',
                   fontFamily: '"Courier New", Courier, monospace',
                   fontSize: '12px',
@@ -2032,7 +2033,7 @@ export default function TablesClient() {
                 onClick={() => setThermalModalTable(null)}
                 style={{
                   padding: '12px 18px',
-                  backgroundcolor: 'var(--color-text-secondary)',
+                  backgroundColor: 'var(--color-text-secondary)',
                   color: '#cbd5e1',
                   border: 'none',
                   borderRadius: 10,
@@ -2094,7 +2095,7 @@ export default function TablesClient() {
                   style={{
                     padding: '9px 18px',
                     backgroundColor: 'var(--brand)',
-                    color: '#ffffff',
+                    color: 'var(--brand-contrast)',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 13,

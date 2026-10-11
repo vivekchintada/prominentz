@@ -74,7 +74,7 @@ export default function SaaSLandingClient() {
               <a href="#qr-dining" className={styles.navLink}>QR Dining</a>
               <a href="#features" className={styles.navLink}>Features</a>
               <a href="#comparison" className={styles.navLink}>Comparison</a>
-              <Link href="/pricing" className={styles.navLink}>Pricing ($50/mo)</Link>
+              <Link href="/pricing" className={styles.navLink}>Pricing</Link>
               <a href="#faq" className={styles.navLink}>FAQ</a>
             </nav>
 
@@ -127,7 +127,7 @@ export default function SaaSLandingClient() {
             <a href="#qr-dining" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>QR Dining</a>
             <a href="#features" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Features</a>
             <a href="#comparison" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Comparison</a>
-            <Link href="/pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing ($50/mo)</Link>
+            <Link href="/pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
             <a href="#faq" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>FAQ</a>
           </div>
           <div className={styles.mobileActions}>

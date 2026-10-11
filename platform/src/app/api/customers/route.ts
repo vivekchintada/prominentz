@@ -105,6 +105,10 @@ export async function POST(req: NextRequest) {
       marketingConsentSms,
     })
 
+    if (!customer) {
+      return NextResponse.json({ error: 'Failed to find or create customer' }, { status: 500 })
+    }
+
     // If extra fields like tags, allergies or birthDate were provided, update them
     if (allergyTags || tags || birthDate || marketingConsentWhatsApp !== undefined) {
       await prisma.customer.update({
@@ -124,7 +128,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ customer: refreshed }, { status: 201 })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/customers]', error)
     return NextResponse.json({ error: error?.message || 'Failed to save customer profile' }, { status: 500 })
   }

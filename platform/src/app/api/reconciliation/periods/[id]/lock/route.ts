@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await lockPeriod(id, session.user.id)
 
     return NextResponse.json({ success: true, message: 'Period locked successfully' })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('POST /api/reconciliation/periods/[id]/lock error:', error)
     return NextResponse.json({ error: error.message }, { status: 400 })
   }

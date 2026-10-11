@@ -155,7 +155,7 @@ I am continuously monitoring and managing **every operational domain** across li
       }
 
       const toolsUsed = Array.isArray(data.executedTools)
-        ? data.executedTools.map((t: unknown) => typeof t === 'string' ? t : t.tool)
+        ? data.executedTools.map((t: any) => typeof t === 'string' ? t : t.tool)
         : []
 
       const agentMsg: ChatMessage = {
@@ -175,7 +175,7 @@ I am continuously monitoring and managing **every operational domain** across li
       if (data.actionType) {
         runAuditScan()
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setMessages((prev) => [
         ...prev,
         {
@@ -321,10 +321,10 @@ I am continuously monitoring and managing **every operational domain** across li
                       )}
                     </div>
 
-                    <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '10px 0 4px', color: '#ffffff' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '10px 0 4px', color: 'var(--color-text-primary)' }}>
                       {f.title}
                     </h3>
-                    <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.75)', margin: '0 0 12px', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 12px', lineHeight: 1.4 }}>
                       {f.description}
                     </p>
 

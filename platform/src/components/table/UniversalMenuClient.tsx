@@ -470,7 +470,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
     ? rawAccent
     : isDark ? '#6366f1' : '#4f46e5'
   const isLightAccent = accentColor === '#ffffff'
-  const accentTextColor = '#ffffff'
+  const accentTextColor = isLightAccent ? '#000000' : '#ffffff'
 
   const addToCart = (item: MenuItem) => {
     setCart((prev) => {
@@ -531,7 +531,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
         setCart([])
         setShowCartDrawer(false)
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err instanceof Error ? err.message : 'Error submitting order')
     } finally {
       setSubmittingOrder(false)

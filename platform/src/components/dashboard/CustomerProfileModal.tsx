@@ -152,7 +152,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
         const err = await res.json()
         alert(err.error || 'Adjustment failed')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Adjustment error')
     } finally {
       setAdjSubmitting(false)

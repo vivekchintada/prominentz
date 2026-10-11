@@ -95,7 +95,7 @@ export async function POST(
     } catch {}
 
     return NextResponse.json({ success: true, message: `Staff member ${target.user.name} has been reactivated.` })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/staff/:membershipId/reactivate]', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

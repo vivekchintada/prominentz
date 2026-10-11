@@ -36,6 +36,7 @@ function SignupForm() {
   const [error, setError]                   = useState<string | null>(null)
   const [loading, setLoading]               = useState(false)
   const [createdData, setCreatedData]       = useState<any>(null)
+  const [termsAccepted, setTermsAccepted]   = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -97,7 +98,7 @@ function SignupForm() {
 
       // Staff registration -> redirect to login with query param
       router.push(`/login?registered=true&portal=${staffRole.toLowerCase()}&email=${encodeURIComponent(email)}`)
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || 'An unexpected registration error occurred.')
     } finally {
       setLoading(false)
@@ -313,7 +314,7 @@ function SignupForm() {
                   </div>
 
                   {/* Starter Staff Accounts */}
-                  {createdData.starterAccounts?.map((acc: unknown) => (
+                  {createdData.starterAccounts?.map((acc: any) => (
                     <div
                       key={acc.role}
                       style={{
@@ -581,27 +582,29 @@ function SignupForm() {
 
               <div style={{
                 fontSize: '11px',
-                color: 'rgba(255, 255, 255, 0.55)',
-                lineHeight: 1.5,
-                marginTop: '8px',
-                marginBottom: '12px',
-                textAlign: 'center',
-              }}>
-                By clicking {accountType === 'OWNER' ? 'Start 14-Day Free Trial' : 'Complete Registration'}, you agree to Prominentz&apos;s{' '}
-                <Link href="/terms" target="_blank" style={{ color: 'var(--brand-primary, #6366f1)', textDecoration: 'underline' }}>
-                  Terms of Service
-                </Link>{' '}
-                and acknowledge our{' '}
-                <Link href="/privacy" target="_blank" style={{ color: 'var(--brand-primary, #6366f1)', textDecoration: 'underline' }}>
-                  Privacy Policy
-                </Link>
-                {accountType === 'OWNER' ? '. Subscriptions automatically renew at $50/month after the trial unless canceled.' : '.'}
-              </div>
+                  color: 'rgba(255, 255, 255, 0.55)',
+                  lineHeight: 1.5,
+                  marginTop: '8px',
+                  marginBottom: '12px',
+                  textAlign: 'center',
+                }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} style={{ width: '14px', height: '14px' }} />
+                    I agree to the 
+                    <Link href="/terms" target="_blank" style={{ color: 'var(--brand-primary, #6366f1)', textDecoration: 'underline' }}>
+                      Terms of Service
+                    </Link>{' '}and 
+                    <Link href="/privacy" target="_blank" style={{ color: 'var(--brand-primary, #6366f1)', textDecoration: 'underline' }}>
+                      Privacy Policy
+                    </Link>
+                  </label>
+                  {accountType === 'OWNER' ? '. Subscriptions automatically renew at $50/month after the trial unless canceled.' : '.'}
+                </div>
 
               <Button
                 type="submit"
                 variant="primary"
-                disabled={loading}
+                disabled={loading || !termsAccepted}
               >
                 {loading
                   ? 'Creating Account...'

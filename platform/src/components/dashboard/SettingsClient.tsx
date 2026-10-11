@@ -512,9 +512,9 @@ export function SettingsClient() {
                   gap: '12px',
                   padding: '11px 16px',
                   borderRadius: '10px',
-                  border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
-                  backgroundColor: isActive ? '#eff6ff' : 'transparent',
-                  color: isActive ? 'var(--brand)' : '#475569',
+                  border: isActive ? '1px solid var(--color-border-strong)' : '1px solid transparent',
+                  backgroundColor: isActive ? 'var(--color-bg-card-hover)' : 'transparent',
+                  color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                   fontSize: '13.5px',
                   fontWeight: isActive ? 650 : 500,
                   cursor: 'pointer',
@@ -523,7 +523,7 @@ export function SettingsClient() {
                   transition: 'all 150ms ease',
                 }}
               >
-                <span style={{ color: isActive ? 'var(--brand)' : '#64748b', display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: isActive ? 'var(--brand)' : 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center' }}>
                   {tab.icon}
                 </span>
                 {tab.label}
@@ -909,7 +909,7 @@ export function SettingsClient() {
                     padding: '9px 18px',
                     borderRadius: '8px',
                     backgroundColor: 'var(--brand)',
-                    color: '#ffffff',
+                    color: 'var(--brand-contrast)',
                     border: 'none',
                     fontSize: '13px',
                     fontWeight: 600,
@@ -1749,7 +1749,7 @@ export function SettingsClient() {
                     borderRadius: '8px',
                     border: 'none',
                     backgroundColor: 'var(--brand)',
-                    color: '#ffffff',
+                    color: 'var(--brand-contrast)',
                     fontWeight: 600,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -1804,7 +1804,7 @@ function DreamSwitch({ checked, onChange }: { checked: boolean; onChange: (c: bo
         width: '44px',
         height: '24px',
         borderRadius: '12px',
-        backgroundColor: checked ? 'var(--brand)' : '#cbd5e1',
+        backgroundColor: checked ? 'var(--brand)' : 'var(--color-border-strong)',
         position: 'relative',
         cursor: 'pointer',
         border: 'none',
@@ -1819,7 +1819,7 @@ function DreamSwitch({ checked, onChange }: { checked: boolean; onChange: (c: bo
           width: '18px',
           height: '18px',
           borderRadius: '50%',
-          backgroundColor: 'var(--color-bg-card)',
+          backgroundColor: checked ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
           position: 'absolute',
           top: '3px',
           left: checked ? '23px' : '3px',
@@ -1854,7 +1854,7 @@ function PaymentTypeCard({
   return (
     <div style={{
       borderRadius: '12px',
-      border: '1px solid #f1f5f9',
+      border: '1px solid var(--color-border)',
       boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
       padding: '20px',
       backgroundColor: 'var(--color-bg-card)',
@@ -1867,7 +1867,7 @@ function PaymentTypeCard({
           width: '40px',
           height: '40px',
           borderRadius: '10px',
-          backgroundColor: '#eff6ff',
+          backgroundColor: 'var(--brand-tint)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1899,7 +1899,7 @@ function DreamActionBar({
       gap: '14px',
       marginTop: '32px',
       paddingTop: '20px',
-      borderTop: '1px solid #f1f5f9',
+      borderTop: '1px solid var(--color-border)',
     }}>
       <button
         type="button"
@@ -1927,7 +1927,7 @@ function DreamActionBar({
           borderRadius: '8px',
           border: 'none',
           backgroundColor: 'var(--brand)',
-          color: '#ffffff',
+          color: 'var(--brand-contrast)',
           fontSize: '13px',
           fontWeight: 600,
           cursor: 'pointer',

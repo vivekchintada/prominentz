@@ -122,7 +122,7 @@ export function StaffManagementClient() {
         const invData = await invRes.json()
         setInvitations(Array.isArray(invData) ? invData : [])
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('[fetchData]', err)
       setError(err.message || 'An unexpected error occurred.')
     } finally {
@@ -226,7 +226,7 @@ export function StaffManagementClient() {
 
       setEditMember(null)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       setEditError(err.message)
     } finally {
       setIsSavingEdit(false)
@@ -258,7 +258,7 @@ export function StaffManagementClient() {
 
       setGeneratedInviteUrl(data.invitation.inviteUrl)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       setInviteError(err.message)
     } finally {
       setIsSubmittingInvite(false)
@@ -295,7 +295,7 @@ export function StaffManagementClient() {
 
       setConfirmAction(null)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       setActionError(err.message)
     } finally {
       setIsActionProcessing(false)
@@ -527,18 +527,18 @@ export function StaffManagementClient() {
                   border: 'none',
                   transition: 'all 0.2s',
                   background: activeTab === tab.id ? 'var(--brand)' : 'transparent',
-                  color: activeTab === tab.id ? '#fff' : 'var(--color-text-secondary)',
+                  color: activeTab === tab.id ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                 }}
               >
                 {tab.label}{' '}
                 <span
                   style={{
-                    opacity: 0.75,
+                    opacity: 0.85,
                     fontSize: '0.75rem',
                     marginLeft: '4px',
                     padding: '2px 6px',
                     borderRadius: '10px',
-                    background: activeTab === tab.id ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)',
+                    background: activeTab === tab.id ? 'var(--color-border)' : 'var(--color-bg-card-hover)',
                   }}
                 >
                   {tab.count}

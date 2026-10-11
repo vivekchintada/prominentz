@@ -104,8 +104,8 @@ export async function GET(
     // Defensive fallback: If order.items is empty but tickets exist, synthesize items from ticket items
     const rawOrder = order as any
     if ((!rawOrder.items || rawOrder.items.length === 0) && rawOrder.tickets && rawOrder.tickets.length > 0) {
-      rawOrder.items = rawOrder.tickets.flatMap((t: unknown) =>
-        (t.items || []).map((ti: unknown) => ({
+      rawOrder.items = rawOrder.tickets.flatMap((t: any) =>
+        (t.items || []).map((ti: any) => ({
           id: ti.id,
           orderId: order.id,
           menuItemId: ti.menuItemId,

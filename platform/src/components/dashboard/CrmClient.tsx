@@ -159,7 +159,7 @@ export function CrmClient() {
         const json = await res.json()
         alert(json.error || 'Failed to save customer')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Error saving customer')
     } finally {
       setSubmitting(false)
@@ -191,7 +191,7 @@ export function CrmClient() {
         const err = await res.json()
         alert(err.error || 'Failed to create campaign')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Campaign creation error')
     } finally {
       setCampCreating(false)
@@ -210,7 +210,7 @@ export function CrmClient() {
       } else {
         alert(data.error || 'Failed to send campaign')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Broadcast error')
     } finally {
       setDispatchingId(null)
@@ -580,7 +580,7 @@ export function CrmClient() {
                     <label style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Channel</label>
                     <select
                       value={campChannel}
-                      onChange={(e: unknown) => setCampChannel(e.target.value)}
+                      onChange={(e: any) => setCampChannel(e.target.value)}
                       className="input"
                       style={{ width: '100%' }}
                     >

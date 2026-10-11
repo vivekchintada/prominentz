@@ -106,7 +106,7 @@ export default function PosTerminal({
       const res = await fetch('/api/employees')
       if (res.ok) {
         const list = await res.json()
-        const match = list.find((emp: unknown) => emp.userId === currentUser.id)
+        const match = list.find((emp: any) => emp.userId === currentUser.id)
         if (match) {
           setEmployeeRecord(match)
           setIsClockedIn(!!match.activeShift)
@@ -150,7 +150,7 @@ export default function PosTerminal({
         showToast('Successfully clocked in. Have a great shift!', 'success')
       }
       fetchClockStatus()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error updating shift', 'error')
     }
   }
@@ -166,14 +166,14 @@ export default function PosTerminal({
     const eventSource = new EventSource('/api/events')
 
     // Helper: returns true if the event belongs to this location or has no location tag
-    const isMyLocation = (data: unknown) =>
+    const isMyLocation = (data: any) =>
       !data._locationId || data._locationId === locationId
 
     eventSource.addEventListener('connected', () => {
       console.log('[SSE] Live connection established')
     })
 
-    eventSource.addEventListener('table.status.changed', (e: unknown) => {
+    eventSource.addEventListener('table.status.changed', (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -190,7 +190,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('table.note.changed', (e: unknown) => {
+    eventSource.addEventListener('table.note.changed', (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -203,7 +203,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('menu.item.86d', (e: unknown) => {
+    eventSource.addEventListener('menu.item.86d', (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -214,7 +214,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('ticket.status.updated', (e: unknown) => {
+    eventSource.addEventListener('ticket.status.updated', (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -227,7 +227,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('order.modified', (e: unknown) => {
+    eventSource.addEventListener('order.modified', (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -237,7 +237,7 @@ export default function PosTerminal({
       }
     })
 
-    eventSource.addEventListener('payment.processed', (e: unknown) => {
+    eventSource.addEventListener('payment.processed', (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (!isMyLocation(data)) return
@@ -328,7 +328,7 @@ export default function PosTerminal({
       // Redirect viewport to cart entry
       setActiveOrderId(newOrder.id)
       setView('cart')
-    } catch (err: unknown) {
+    } catch (err: any) {
       // If network fails unexpectedly mid-flight, seamlessly queue offline
       try {
         const localOrderId = `offline_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
@@ -348,7 +348,7 @@ export default function PosTerminal({
         setIsNewOrderOpen(false)
         setActiveOrderId(localOrderId)
         setView('cart')
-      } catch {
+      } catch (err: any) {
         showToast(err.message || 'Error opening table', 'error')
         setIsNewOrderOpen(false)
       }
@@ -378,9 +378,9 @@ export default function PosTerminal({
         if (res.ok) {
           const cats = await res.json()
           const unavail: string[] = []
-          cats.forEach((c: unknown) => {
+          cats.forEach((c: any) => {
             if (c.items) {
-              c.items.forEach((item: unknown) => {
+              c.items.forEach((item: any) => {
                 if (!item.isAvailable) unavail.push(item.name)
               })
             }

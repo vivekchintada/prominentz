@@ -191,7 +191,7 @@ export function DreamsPosTerminal({
       } else {
         showToast(data.error || 'Failed to update timeclock', 'error')
       }
-    } catch (e: unknown) {
+    } catch (e: any) {
       showToast(e?.message || 'Failed to connect to timeclock', 'error')
     } finally {
       setClockLoading(false)
@@ -206,7 +206,7 @@ export function DreamsPosTerminal({
   const [sentItems, setSentItems] = useState<CartItem[]>([])
 
   // Shared helper: map raw API order → RecentOrderCardData
-  const mapOrderToCard = (o: unknown): RecentOrderCardData => {
+  const mapOrderToCard = (o: any): RecentOrderCardData => {
     const date = new Date(o.createdAt)
     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     const n = (o.notes || '').toLowerCase()
@@ -278,7 +278,7 @@ export function DreamsPosTerminal({
       const order = await res.json()
       setStatementOrder(order)
       setIsStatementModalOpen(true)
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error opening statement', 'error')
     }
   }
@@ -334,18 +334,18 @@ export function DreamsPosTerminal({
       const sent: CartItem[] = []
 
       // Defensive items list: use order.items if present, or extract from KDS tickets
-      const itemsList: unknown[] =
+      const itemsList: any[] =
         order.items && order.items.length > 0
           ? order.items
-          : (order.tickets || []).flatMap((t: unknown) =>
-              (t.items || []).map((ti: unknown) => ({
+          : (order.tickets || []).flatMap((t: any) =>
+              (t.items || []).map((ti: any) => ({
                 ...ti,
                 status: ti.status || 'READY',
                 menuItem: ti.menuItem,
               }))
             )
 
-      itemsList.forEach((item: unknown) => {
+      itemsList.forEach((item: any) => {
         const dishName = item.menuItem?.name || item.name || 'Dish'
         const ci: CartItem = {
           id: item.id,
@@ -415,7 +415,7 @@ export function DreamsPosTerminal({
         setAppliedCoupon(null)
       }
       setCouponInput('')
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error loading order', 'error')
     }
   }
@@ -430,7 +430,7 @@ export function DreamsPosTerminal({
       const res = await fetch(`/api/orders?tableId=${t.id}`)
       if (res.ok) {
         const orders = await res.json()
-        const active = orders.find((o: unknown) => o.status !== 'PAID' && o.status !== 'VOIDED')
+        const active = orders.find((o: any) => o.status !== 'PAID' && o.status !== 'VOIDED')
         if (active) {
           await loadOrderIntoCheck(active.id)
           showToast(`Loaded active order for ${t.name}`, 'success')
@@ -473,7 +473,7 @@ export function DreamsPosTerminal({
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setAvailableCoupons(data.filter((c: unknown) => c.status === 'ACTIVE'))
+          setAvailableCoupons(data.filter((c: any) => c.status === 'ACTIVE'))
         }
       })
       .catch(() => {})
@@ -543,7 +543,7 @@ export function DreamsPosTerminal({
 
     const eventSource = new EventSource('/api/events')
 
-    eventSource.addEventListener('ticket.status.updated', async (e: unknown) => {
+    eventSource.addEventListener('ticket.status.updated', async (e: any) => {
       try {
         const data = JSON.parse(e.data)
         if (data.status === 'READY') {
@@ -562,7 +562,7 @@ export function DreamsPosTerminal({
       }
     })
 
-    eventSource.addEventListener('order.modified', async (e: unknown) => {
+    eventSource.addEventListener('order.modified', async (e: any) => {
       try {
         const data = JSON.parse(e.data)
         fetchRecentOrders()
@@ -576,7 +576,7 @@ export function DreamsPosTerminal({
       } catch {}
     })
 
-    eventSource.addEventListener('payment.processed', async (e: unknown) => {
+    eventSource.addEventListener('payment.processed', async (e: any) => {
       try {
         const data = JSON.parse(e.data)
         fetchRecentOrders()
@@ -594,7 +594,7 @@ export function DreamsPosTerminal({
       } catch {}
     })
 
-    eventSource.addEventListener('table.assistance.requested', async (e: unknown) => {
+    eventSource.addEventListener('table.assistance.requested', async (e: any) => {
       try {
         const data = JSON.parse(e.data)
         const desc = data.type === 'REQUEST_BILL' ? '🧾 requested their bill' : `🔔 needs assistance (${data.type})`
@@ -602,7 +602,7 @@ export function DreamsPosTerminal({
       } catch {}
     })
 
-    eventSource.addEventListener('ticket.completed', async (e: unknown) => {
+    eventSource.addEventListener('ticket.completed', async (e: any) => {
       try {
         const data = JSON.parse(e.data)
         fetchRecentOrders()
@@ -694,7 +694,7 @@ export function DreamsPosTerminal({
       setSuggestedCoupons([])
       setShowCouponPicker(false)
       showToast(data.message || `Coupon ${data.coupon.code} applied! -$${disc.toFixed(2)}`, 'success')
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to apply coupon', 'error')
     } finally {
       setCouponLoading(false)
@@ -874,7 +874,7 @@ export function DreamsPosTerminal({
         showToast(`Kitchen send failed: ${errData.error || sendRes.statusText}`, 'error')
         return
       }
-    } catch (e: unknown) {
+    } catch (e: any) {
       showToast(e.message || 'Error sending order to kitchen', 'error')
     }
   }
@@ -935,7 +935,7 @@ export function DreamsPosTerminal({
           showToast(`Direct WebUSB connected: ${device.productName || 'ESC/POS Printer'}`, 'success')
           setPrinterTesting(false)
           return
-        } catch (e: unknown) {
+        } catch (e: any) {
           console.warn('[WebUSB] fallback to print dialog:', e.message)
         }
       }
@@ -982,7 +982,7 @@ export function DreamsPosTerminal({
         printWin.document.close()
         showToast('Test receipt dispatched to thermal spooler!', 'success')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Print error', 'error')
     } finally {
       setPrinterTesting(false)
@@ -2076,7 +2076,7 @@ export function DreamsPosTerminal({
                               🏷️ Available Active Coupons:
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                              {suggestedCoupons.map((c: unknown) => (
+                              {suggestedCoupons.map((c: any) => (
                                 <button
                                   key={c.id || c.code}
                                   type="button"
@@ -2136,7 +2136,7 @@ export function DreamsPosTerminal({
                           gap: 4,
                         }}
                       >
-                        {availableCoupons.map((c: unknown) => (
+                        {availableCoupons.map((c: any) => (
                           <button
                             key={c.id || c.code}
                             type="button"
@@ -2393,8 +2393,8 @@ export function DreamsPosTerminal({
             setIsModifierOpen(false)
             setSelectedMenuItem(null)
           }}
-          onConfirm={(mods: unknown[]) => {
-            const extraDelta = mods.reduce((sum: number, m: unknown) => sum + m.priceDelta, 0)
+          onConfirm={(mods: any[]) => {
+            const extraDelta = mods.reduce((sum: number, m: any) => sum + m.priceDelta, 0)
             setCart((prev) => [
               ...prev,
               {
@@ -2403,7 +2403,7 @@ export function DreamsPosTerminal({
                 name: selectedMenuItem.name,
                 price: selectedMenuItem.price + extraDelta,
                 quantity: 1,
-                portion: mods.length > 0 ? mods.map((m: unknown) => m.optionName).join(', ') : 'Custom',
+                portion: mods.length > 0 ? mods.map((m: any) => m.optionName).join(', ') : 'Custom',
                 modifiers: mods,
                 specialNote: null,
                 imageUrl: selectedMenuItem.imageUrl || getImageForDish(selectedMenuItem.name),
@@ -2732,7 +2732,7 @@ export function DreamsPosTerminal({
             fetchOpenOrders()
             setOrdersTab('completed') // Switch to Completed tab to confirm payment
           }}
-          showToast={(msg: string, variant: 'success' | 'error') => showToast(msg, variant)}
+          showToast={(msg: string, variant?: any) => showToast(msg, variant)}
         />
       )}
 
@@ -2752,7 +2752,7 @@ export function DreamsPosTerminal({
               if (res.ok) {
                 const freshItems = await res.json()
                 setMenuItems(
-                  freshItems.map((m: unknown, idx: number) => ({
+                  freshItems.map((m: any, idx: number) => ({
                     id: m.id,
                     categoryId: m.categoryId,
                     name: m.name,
@@ -2930,7 +2930,7 @@ export function DreamsPosTerminal({
                         </div>
                         {item.modifiers && item.modifiers.length > 0 && (
                           <div style={{ fontSize: '10px', color: '#555', paddingLeft: '14px' }}>
-                            + {item.modifiers.map((m: unknown) => typeof m === 'string' ? m : m.name).join(', ')}
+                            + {item.modifiers.map((m: any) => typeof m === 'string' ? m : m.name).join(', ')}
                           </div>
                         )}
                         {item.specialNote && (
@@ -2988,7 +2988,7 @@ export function DreamsPosTerminal({
                         </div>
                         {item.modifiers && item.modifiers.length > 0 && (
                           <div style={{ fontSize: '11px', fontWeight: 'bold', paddingLeft: '12px', color: '#333' }}>
-                            + {item.modifiers.map((m: unknown) => typeof m === 'string' ? m : m.name).join(', ')}
+                            + {item.modifiers.map((m: any) => typeof m === 'string' ? m : m.name).join(', ')}
                           </div>
                         )}
                         {item.specialNote && (

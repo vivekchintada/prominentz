@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       planTier: updated.planTier,
       message: `Plan successfully updated to ${updated.planTier}`,
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/billing/activate]', error)
     return NextResponse.json(
       { error: 'Failed to activate plan tier' },

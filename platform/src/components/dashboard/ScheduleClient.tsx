@@ -231,7 +231,7 @@ export function ScheduleClient() {
                 if (swapRes.ok) {
                     const swapData = await swapRes.json();
                     if (Array.isArray(swapData)) {
-                        setPendingSwapsCount(swapData.filter((t: unknown) => t.status?.includes('PENDING')).length);
+                        setPendingSwapsCount(swapData.filter((t: any) => t.status?.includes('PENDING')).length);
                     }
                 }
             } catch {}
@@ -453,7 +453,7 @@ export function ScheduleClient() {
                 throw new Error(err.error || 'Failed to reassign shift');
             }
             showToast('Shift reassigned successfully', 'success');
-        } catch (err: unknown) {
+        } catch (err: any) {
             setShifts(previousShifts);
             showToast(err.message || 'Error moving shift', 'error');
         } finally {
@@ -554,7 +554,7 @@ export function ScheduleClient() {
 
             setIsModalOpen(false);
             fetchScheduleData();
-        } catch (err: unknown) {
+        } catch (err: any) {
             setModalError(err.message || 'Error saving shift');
         } finally {
             setSaving(false);
@@ -571,7 +571,7 @@ export function ScheduleClient() {
             showToast('Shift deleted', 'success');
             setIsModalOpen(false);
             fetchScheduleData();
-        } catch (err: unknown) {
+        } catch (err: any) {
             setModalError(err.message || 'Error deleting shift');
         } finally {
             setSaving(false);

@@ -1692,7 +1692,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                               </div>
 
                               {/* Modifiers (15-16px) */}
-                              {item.specialNote && (
+                              {Boolean(item.specialNote) && (
                                 <div style={{ fontSize: '15px', color: 'var(--danger)', fontWeight: 600, marginLeft: '18px' }}>
                                   ↳ {item.specialNote}
                                 </div>

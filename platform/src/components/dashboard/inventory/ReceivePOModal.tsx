@@ -91,7 +91,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
       showToast(`Purchase order ${po.poNumber} stock received and updated`, 'success')
       onSuccess()
       onClose()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error receiving PO', 'error')
     } finally {
       setSubmitting(false)
@@ -115,7 +115,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
       showToast(`All items in ${po.poNumber} received in full`, 'success')
       onSuccess()
       onClose()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error receiving PO', 'error')
     } finally {
       setSubmitting(false)
@@ -343,7 +343,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                   background: 'var(--brand)',
                   fontSize: 13,
                   fontWeight: 700,
-                  color: '#ffffff',
+                  color: 'var(--brand-contrast)',
                   cursor: 'pointer',
                   boxShadow: '0 2px 4px var(--brand-tint)',
                 }}

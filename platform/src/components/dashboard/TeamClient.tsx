@@ -150,7 +150,7 @@ export default function TeamClient() {
       setShifts(await shiftRes.json())
       setLeaves(await leaveRes.json())
       setShiftTrades(await tradeRes.json())
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message || 'Error loading staff records', 'error')
     } finally {
       setLoading(false)
@@ -189,7 +189,7 @@ export default function TeamClient() {
       showToast('Profile updated', 'success')
       setEditEmployee(null)
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setSavingProfile(false)
@@ -206,7 +206,7 @@ export default function TeamClient() {
       if (!res.ok) throw new Error('Failed to toggle status')
       showToast(`Employee ${!emp.isActive ? 'activated' : 'suspended'}`, 'success')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
   }
 
   const handleManualClockOut = async (emp: Employee) => {
@@ -220,7 +220,7 @@ export default function TeamClient() {
       if (!res.ok) throw new Error('Failed to clock out')
       showToast('Clocked out', 'success')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
   }
 
   // ─── Register actions ─────────────────────────────────────────────────────
@@ -261,7 +261,7 @@ export default function TeamClient() {
       setIsRegisterOpen(false)
       setRegName(''); setRegEmail(''); setRegPassword(''); setRegJobTitle('')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
     finally { setSubmittingRegister(false) }
   }
 
@@ -287,7 +287,7 @@ export default function TeamClient() {
       showToast('Employee registered', 'success')
       setIsRegisterOpen(false); setSelectedUserId(''); setRegJobTitle('')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
     finally { setSubmittingRegister(false) }
   }
 
@@ -313,7 +313,7 @@ export default function TeamClient() {
       setIsScheduleOpen(false); setEditShift(null)
       setSchedEmpId(''); setSchedStart(''); setSchedEnd('')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
     finally { setSavingShift(false) }
   }
 
@@ -333,7 +333,7 @@ export default function TeamClient() {
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Failed') }
       showToast('Shift deleted', 'success')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
   }
 
   const handleCancelShift = async (s: Shift) => {
@@ -347,7 +347,7 @@ export default function TeamClient() {
       if (!res.ok) throw new Error('Failed')
       showToast('Shift cancelled', 'success')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
   }
 
   // ─── Leave actions ────────────────────────────────────────────────────────
@@ -370,7 +370,7 @@ export default function TeamClient() {
       showToast('Leave request submitted', 'success')
       setIsLeaveOpen(false); setLeaveStart(''); setLeaveEnd(''); setLeaveReason('')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
     finally { setSubmittingLeave(false) }
   }
 
@@ -384,7 +384,7 @@ export default function TeamClient() {
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Failed') }
       showToast(`Request ${status.toLowerCase()}`, 'success')
       fetchData()
-    } catch (err: unknown) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
   }
 
   // ─── Shift Trade actions ───────────────────────────────────────────────
@@ -410,7 +410,7 @@ export default function TeamClient() {
       setIsSwapModalOpen(false)
       setSwapShiftId(''); setSwapTargetEmpId(''); setSwapReason('')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setSubmittingSwap(false)
@@ -430,7 +430,7 @@ export default function TeamClient() {
       }
       showToast(`Trade request updated: ${action}`, 'success')
       fetchData()
-    } catch (err: unknown) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

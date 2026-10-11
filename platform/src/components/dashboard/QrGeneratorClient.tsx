@@ -79,7 +79,7 @@ function MasterMenuQrCard({
     >
       <div style={{ flex: '1 1 320px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 900, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--brand)', color: '#ffffff', letterSpacing: '0.04em' }}>
+          <span style={{ fontSize: '11px', fontWeight: 900, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--brand)', color: 'var(--brand-contrast)', letterSpacing: '0.04em' }}>
             🌟 MASTER DINE-IN &amp; TAKEOUT QR
           </span>
           <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>● Universal Single Scan</span>
@@ -266,7 +266,7 @@ function MasterQrMenuChanger({
         const d = await res.json()
         alert(d.error || 'Failed to save')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err.message || 'Error saving')
     } finally {
       setSaving(false)
@@ -647,7 +647,7 @@ export function QrGeneratorClient() {
         const json = await res.json()
         alert(json.error || 'Failed to create table')
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err?.message || 'Error creating table')
     } finally {
       setSubmitting(false)

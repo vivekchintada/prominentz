@@ -251,7 +251,7 @@ export default function OrdersView({ initialOrders }: Props) {
       let tableId = ''
       if (tablesRes.ok) {
         const tables = await tablesRes.json()
-        const matched = tables.find((t: unknown) => t.name.includes(newTableNum)) || tables[0]
+        const matched = tables.find((t: any) => t.name.includes(newTableNum)) || tables[0]
         tableId = matched?.id
       }
 
@@ -336,7 +336,7 @@ export default function OrdersView({ initialOrders }: Props) {
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundcolor: 'var(--color-text-primary)',
+            backgroundColor: 'var(--color-text-primary)',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: 8,
@@ -408,7 +408,7 @@ export default function OrdersView({ initialOrders }: Props) {
               alignItems: 'center',
               gap: 6,
               backgroundColor: 'var(--brand)',
-              color: '#ffffff',
+              color: 'var(--brand-contrast)',
               border: 'none',
               borderRadius: 8,
               padding: '8px 16px',
@@ -449,7 +449,7 @@ export default function OrdersView({ initialOrders }: Props) {
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Pending</span>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'var(--brand-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
@@ -538,9 +538,9 @@ export default function OrdersView({ initialOrders }: Props) {
                 key={tab.key}
                 onClick={() => setFilter(tab.key)}
                 style={{
-                  backgroundColor: active ? 'var(--brand)' : '#ffffff',
-                  color: active ? '#ffffff' : '#475569',
-                  border: active ? 'none' : '1px solid #e2e8f0',
+                  backgroundColor: active ? 'var(--brand)' : 'var(--color-bg-card)',
+                  color: active ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
+                  border: active ? '1px solid var(--brand)' : '1px solid var(--color-border)',
                   borderRadius: 8,
                   padding: '7px 14px',
                   fontSize: 13,
@@ -691,7 +691,7 @@ export default function OrdersView({ initialOrders }: Props) {
                         height: 42,
                         borderRadius: '50%',
                         backgroundColor: 'var(--brand)',
-                        color: '#ffffff',
+                        color: 'var(--brand-contrast)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

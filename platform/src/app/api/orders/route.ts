@@ -275,7 +275,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(fullOrder, { status: 201 })
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('[POST /api/orders]', error)
     return NextResponse.json(
       { error: error?.message || 'Internal server error' },

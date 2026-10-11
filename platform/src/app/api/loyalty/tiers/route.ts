@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ tier }, { status: 201 })
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error('[POST /api/loyalty/tiers]', err)
     return NextResponse.json({ error: err?.message || 'Failed to create tier' }, { status: 500 })
   }
