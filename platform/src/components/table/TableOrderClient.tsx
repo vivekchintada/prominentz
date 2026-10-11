@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { getThemeColors } from './UniversalMenuClient'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -105,9 +106,9 @@ export function getSommelierPairing(item: { name: string; description?: string }
 // ── Hero Carousel Card ────────────────────────────────────────────────────────
 
 function HeroItemCard({
-  item, idx, isPopular, onAdd, accentColor,
+  item, idx, isPopular, onAdd, accentColor, accentTextColor, colors,
 }: {
-  item: MenuItem; idx: number; isPopular: boolean; onAdd: (item: MenuItem) => void; accentColor: string
+  item: MenuItem; idx: number; isPopular: boolean; onAdd: (item: MenuItem) => void; accentColor: string; accentTextColor: string; colors: ReturnType<typeof getThemeColors>
 }) {
   const [imgError, setImgError] = useState(false)
   const imageUrl = resolveDishImage(item)
@@ -122,10 +123,10 @@ function HeroItemCard({
         flexShrink: 0,
         borderRadius: '20px',
         overflow: 'hidden',
-        backgroundColor: '#121217',
-        border: '1px solid rgba(255,255,255,0.12)',
+        backgroundColor: colors.bgCard,
+        border: `1px solid ${colors.border}`,
         cursor: 'pointer',
-        boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+        boxShadow: colors.cardShadow,
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         position: 'relative',
         display: 'flex',
@@ -135,14 +136,14 @@ function HeroItemCard({
       onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
     >
       {/* High-res Photo with Luxury Vignette */}
-      <div style={{ height: '150px', position: 'relative', overflow: 'hidden', backgroundColor: '#18181f' }}>
+      <div style={{ height: '150px', position: 'relative', overflow: 'hidden', backgroundColor: colors.bgElevated }}>
         <img
           src={imgError ? '/images/menu/hero_dish.png' : imageUrl}
           alt={item.name}
           onError={() => setImgError(true)}
           style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(18,18,23,0.95) 0%, transparent 60%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
 
         {/* Badge overlay */}
         <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -159,12 +160,12 @@ function HeroItemCard({
         </div>
 
         {/* Add button overlay */}
-        <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, color: '#fff', boxShadow: '0 4px 14px rgba(0,0,0,0.6)' }}>
+        <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: accentColor, color: accentTextColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, boxShadow: '0 4px 14px rgba(0,0,0,0.6)' }}>
           +
         </div>
 
         {/* Price on image */}
-        <div style={{ position: 'absolute', bottom: '10px', left: '12px', fontSize: '16px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>
+        <div style={{ position: 'absolute', bottom: '10px', left: '12px', fontSize: '16px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace', textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>
           ${Number(item.price).toFixed(2)}
         </div>
       </div>
@@ -172,17 +173,17 @@ function HeroItemCard({
       {/* Info */}
       <div style={{ padding: '12px 14px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff', lineHeight: 1.3, marginBottom: '6px' }}>{item.name}</div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: colors.textPrimary, lineHeight: 1.3, marginBottom: '6px' }}>{item.name}</div>
           {badges.length > 0 && (
             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '8px' }}>
               {badges.slice(0, 2).map((b) => (
-                <span key={b} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>{b}</span>
+                <span key={b} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', backgroundColor: colors.badgeBg, color: colors.textSecondary, fontWeight: 700, border: `1px solid ${colors.badgeBorder}` }}>{b}</span>
               ))}
             </div>
           )}
         </div>
         {pairing && (
-          <div style={{ fontSize: '10px', color: '#f59e0b', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+          <div style={{ fontSize: '10px', color: colors.pairingText, fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
             <span>🍷</span>
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pairing}</span>
           </div>
@@ -195,9 +196,9 @@ function HeroItemCard({
 // ── Menu Item Card (Full luxury editorial presentation) ───────────────────────
 
 function MenuItemCard({
-  item, idx, isPopular, cartEntry, onOpen, accentColor,
+  item, idx, isPopular, cartEntry, onOpen, accentColor, accentBtnTextColor, colors,
 }: {
-  item: MenuItem; idx: number; isPopular: boolean; cartEntry?: CartItem; onOpen: (item: MenuItem) => void; accentColor: string
+  item: MenuItem; idx: number; isPopular: boolean; cartEntry?: CartItem; onOpen: (item: MenuItem) => void; accentColor: string; accentBtnTextColor: string; colors: ReturnType<typeof getThemeColors>
 }) {
   const [imgError, setImgError] = useState(false)
   const imageUrl = resolveDishImage(item)
@@ -208,18 +209,18 @@ function MenuItemCard({
   return (
     <div
       style={{
-        backgroundColor: '#121217',
-        border: cartEntry ? `1.5px solid ${accentColor}88` : '1px solid rgba(255,255,255,0.09)',
+        backgroundColor: colors.bgCard,
+        border: cartEntry ? `1.5px solid ${accentColor}88` : `1px solid ${colors.border}`,
         borderRadius: '20px',
         overflow: 'hidden',
         transition: 'all 0.2s ease',
-        boxShadow: cartEntry ? `0 8px 28px ${accentColor}25` : '0 4px 16px rgba(0,0,0,0.35)',
+        boxShadow: cartEntry ? `0 8px 28px ${accentColor}25` : colors.cardShadow,
         opacity: isAvailable ? 1 : 0.6,
         filter: isAvailable ? 'none' : 'grayscale(0.4)',
       }}
     >
       {/* High-res Editorial Image Section */}
-      <div style={{ height: '190px', overflow: 'hidden', position: 'relative', backgroundColor: '#18181f' }}>
+      <div style={{ height: '190px', overflow: 'hidden', position: 'relative', backgroundColor: colors.bgElevated }}>
         <img
           src={imgError ? '/images/menu/hero_dish.png' : imageUrl}
           alt={item.name}
@@ -228,7 +229,7 @@ function MenuItemCard({
           loading="lazy"
         />
         {/* Luxury Vignette */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(18,18,23,0.96) 0%, rgba(18,18,23,0.2) 50%, rgba(0,0,0,0.4) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)' }} />
 
         {/* Top Badges */}
         <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -250,7 +251,7 @@ function MenuItemCard({
         </div>
 
         {/* Floating Price */}
-        <div style={{ position: 'absolute', bottom: '12px', right: '14px', fontSize: '18px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', textShadow: '0 2px 8px rgba(0,0,0,0.9)', backgroundColor: 'rgba(0,0,0,0.6)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ position: 'absolute', bottom: '12px', right: '14px', fontSize: '18px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace', textShadow: '0 2px 8px rgba(0,0,0,0.9)', backgroundColor: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)' }}>
           ${Number(item.price).toFixed(2)}
         </div>
       </div>
@@ -258,18 +259,18 @@ function MenuItemCard({
       {/* Card Body */}
       <div style={{ padding: '14px 16px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: '#ffffff', lineHeight: 1.3 }}>{item.name}</h3>
+          <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: colors.textPrimary, lineHeight: 1.3 }}>{item.name}</h3>
         </div>
 
         {item.description && (
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '13px', color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.5 }}>
             {item.description}
           </p>
         )}
 
         {/* Sommelier Wine & Beverage Pairing */}
         {pairing && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#f59e0b', marginBottom: '10px', backgroundColor: 'rgba(245,158,11,0.08)', padding: '5px 10px', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: colors.pairingText, marginBottom: '10px', backgroundColor: colors.pairingBg, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${colors.pairingBorder}` }}>
             <span>🍷</span>
             <span><strong>Sommelier Recommendation:</strong> {pairing}</span>
           </div>
@@ -279,19 +280,19 @@ function MenuItemCard({
         {badges.length > 0 && (
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
             {badges.map((b) => (
-              <span key={b} style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.75)', fontWeight: 700, border: '1px solid rgba(255,255,255,0.12)' }}>{b}</span>
+              <span key={b} style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', backgroundColor: colors.badgeBg, color: colors.textSecondary, fontWeight: 700, border: `1px solid ${colors.badgeBorder}` }}>{b}</span>
             ))}
           </div>
         )}
 
         {/* Action Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px', borderTop: `1px solid ${colors.borderSubtle}` }}>
           {cartEntry ? (
             <span style={{ fontSize: '13px', fontWeight: 800, color: accentColor, display: 'flex', alignItems: 'center', gap: '6px' }}>
               ✓ {cartEntry.quantity} selected for table
             </span>
           ) : (
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+            <span style={{ fontSize: '12px', color: colors.textTertiary, fontStyle: 'italic' }}>
               {item.modifiers && item.modifiers.length > 0 ? '✦ Customizable Courses' : 'Direct-to-line dispatch'}
             </span>
           )}
@@ -301,10 +302,10 @@ function MenuItemCard({
             disabled={!isAvailable}
             style={{
               padding: '10px 20px',
-              backgroundColor: !isAvailable ? '#27272a' : cartEntry ? 'rgba(16,185,129,0.15)' : accentColor,
+              backgroundColor: !isAvailable ? colors.bgElevated : cartEntry ? 'rgba(16,185,129,0.15)' : accentColor,
               border: !isAvailable ? 'none' : cartEntry ? `1.5px solid #10b981` : 'none',
               borderRadius: '12px',
-              color: !isAvailable ? 'rgba(255,255,255,0.4)' : cartEntry ? '#10b981' : '#ffffff',
+              color: !isAvailable ? colors.textTertiary : cartEntry ? '#10b981' : accentBtnTextColor,
               fontWeight: 800,
               fontSize: '13px',
               cursor: !isAvailable ? 'not-allowed' : 'pointer',
@@ -325,14 +326,14 @@ function MenuItemCard({
 
 // ── Combo Deal Card ───────────────────────────────────────────────────────────
 
-function ComboDealCard({ combo, onAddCombo, accentColor }: { combo: ComboItem; onAddCombo: (combo: ComboItem) => void; accentColor: string }) {
+function ComboDealCard({ combo, onAddCombo, accentColor, colors }: { combo: ComboItem; onAddCombo: (combo: ComboItem) => void; accentColor: string; colors: ReturnType<typeof getThemeColors> }) {
   const savings = (combo.originalPrice - combo.comboPrice).toFixed(2)
   const pctOff = Math.round(((combo.originalPrice - combo.comboPrice) / combo.originalPrice) * 100)
 
   return (
     <div style={{
       background: `linear-gradient(135deg, ${accentColor}18 0%, rgba(245,158,11,0.1) 100%)`,
-      border: `1px solid ${accentColor}44`,
+      border: `1px solid ${colors.border}`,
       borderRadius: '18px',
       padding: '14px 16px',
       display: 'flex',
@@ -341,6 +342,7 @@ function ComboDealCard({ combo, onAddCombo, accentColor }: { combo: ComboItem; o
       flexShrink: 0,
       width: '280px',
       cursor: 'pointer',
+      backgroundColor: colors.bgCard,
     }} onClick={() => onAddCombo(combo)}>
       {/* Emoji badge */}
       <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: `linear-gradient(135deg, ${accentColor} 0%, #f59e0b 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>
@@ -348,17 +350,17 @@ function ComboDealCard({ combo, onAddCombo, accentColor }: { combo: ComboItem; o
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: '#ffffff' }}>{combo.name}</span>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: colors.textPrimary }}>{combo.name}</span>
           <span style={{ fontSize: '9px', fontWeight: 900, padding: '2px 6px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff' }}>
             {pctOff}% OFF
           </span>
         </div>
-        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '6px' }}>
+        <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '6px' }}>
           {combo.itemNames.join(' + ')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '15px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>${combo.comboPrice.toFixed(2)}</span>
-          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through', fontFamily: 'monospace' }}>${combo.originalPrice.toFixed(2)}</span>
+          <span style={{ fontSize: '12px', color: colors.textTertiary, textDecoration: 'line-through', fontFamily: 'monospace' }}>${combo.originalPrice.toFixed(2)}</span>
           <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 700 }}>Save ${savings}</span>
         </div>
       </div>
@@ -369,16 +371,15 @@ function ComboDealCard({ combo, onAddCombo, accentColor }: { combo: ComboItem; o
 // ── Item Detail Bottom Sheet ──────────────────────────────────────────────────
 
 function ItemDetailSheet({
-  item, idx, isPopular, onClose, onAdd, accentColor,
+  item, idx, isPopular, onClose, onAdd, accentColor, accentBtnTextColor, colors,
 }: {
-  item: MenuItem; idx: number; isPopular: boolean; onClose: () => void; onAdd: (item: MenuItem, mods: ModifierOption[], note: string) => void; accentColor: string
+  item: MenuItem; idx: number; isPopular: boolean; onClose: () => void; onAdd: (item: MenuItem, mods: ModifierOption[], note: string) => void; accentColor: string; accentBtnTextColor: string; colors: ReturnType<typeof getThemeColors>
 }) {
   const [selectedMods, setSelectedMods] = useState<ModifierOption[]>([])
   const [note, setNote] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [imgError, setImgError] = useState(false)
-  const gradient = getItemGradient(item, idx)
-  const emoji = getItemEmoji(item, idx)
+  const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
 
   const modTotal = selectedMods.reduce((s, m) => s + Number(m.priceAdjustment || 0), 0)
@@ -404,28 +405,24 @@ function ItemDetailSheet({
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
       onClick={onClose}
     >
       <div
-        style={{ width: '100%', maxWidth: '600px', backgroundColor: '#0f1016', borderRadius: '28px 28px 0 0', maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 -20px 60px rgba(0,0,0,0.8)' }}
+        style={{ width: '100%', maxWidth: '600px', backgroundColor: colors.bgDrawer, borderRadius: '28px 28px 0 0', maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: colors.cardShadow, border: `1px solid ${colors.border}` }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drag handle */}
-        <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: 'rgba(255,255,255,0.2)', margin: '12px auto 0' }} />
+        <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: colors.border, margin: '12px auto 0' }} />
 
         {/* Scrollable content */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {/* Hero photo */}
-          <div style={{ height: '220px', position: 'relative', background: gradient, overflow: 'hidden' }}>
-            {item.imageUrl && !imgError ? (
-              <img src={item.imageUrl} alt={item.name} onError={() => setImgError(true)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '80px' }}>{emoji}</div>
-            )}
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15,16,22,1) 0%, transparent 50%)' }} />
+          <div style={{ height: '220px', position: 'relative', backgroundColor: colors.bgElevated, overflow: 'hidden' }}>
+            <img src={imgError ? '/images/menu/hero_dish.png' : imageUrl} alt={item.name} onError={() => setImgError(true)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 50%)' }} />
             {/* Close button */}
-            <button onClick={onClose} style={{ position: 'absolute', top: '14px', right: '14px', width: '34px', height: '34px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', fontSize: '18px', cursor: 'pointer', backdropFilter: 'blur(4px)' }}>×</button>
+            <button onClick={onClose} style={{ position: 'absolute', top: '14px', right: '14px', width: '34px', height: '34px', borderRadius: '50%', backgroundColor: colors.bgElevated, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
             {isPopular && (
               <div style={{ position: 'absolute', top: '14px', left: '14px' }}>
                 <span style={{ fontSize: '10px', fontWeight: 900, padding: '4px 10px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff' }}>🔥 BEST SELLER</span>
@@ -436,7 +433,7 @@ function ItemDetailSheet({
           <div style={{ padding: '16px 20px 0' }}>
             {/* Name + price */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2, flex: 1, paddingRight: '12px' }}>{item.name}</h2>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: colors.textPrimary, lineHeight: 1.2, flex: 1, paddingRight: '12px' }}>{item.name}</h2>
               <span style={{ fontSize: '22px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', flexShrink: 0 }}>${Number(item.price).toFixed(2)}</span>
             </div>
 
@@ -444,21 +441,21 @@ function ItemDetailSheet({
             {badges.length > 0 && (
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
                 {badges.map((b) => (
-                  <span key={b} style={{ fontSize: '11px', padding: '3px 9px', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)', fontWeight: 700, border: '1px solid rgba(255,255,255,0.12)' }}>{b}</span>
+                  <span key={b} style={{ fontSize: '11px', padding: '3px 9px', borderRadius: '6px', backgroundColor: colors.badgeBg, color: colors.textSecondary, fontWeight: 700, border: `1px solid ${colors.badgeBorder}` }}>{b}</span>
                 ))}
               </div>
             )}
 
             {/* Description */}
             {item.description && (
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 0 16px' }}>{item.description}</p>
+              <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.6, margin: '0 0 16px' }}>{item.description}</p>
             )}
 
             {/* Modifiers */}
             {item.modifiers && item.modifiers.length > 0 && item.modifiers.map((group) => (
               <div key={group.id} style={{ marginBottom: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff' }}>{group.name}</span>
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: colors.textPrimary }}>{group.name}</span>
                   {group.isRequired && <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(239,68,68,0.2)', color: '#ef4444' }}>Required</span>}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -471,14 +468,14 @@ function ItemDetailSheet({
                         style={{
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                           padding: '12px 14px', borderRadius: '12px',
-                          backgroundColor: isSelected ? `${accentColor}20` : 'rgba(255,255,255,0.04)',
-                          border: isSelected ? `1.5px solid ${accentColor}` : '1.5px solid rgba(255,255,255,0.08)',
-                          color: '#ffffff', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
+                          backgroundColor: isSelected ? `${accentColor}20` : colors.bgElevated,
+                          border: isSelected ? `1.5px solid ${accentColor}` : `1px solid ${colors.border}`,
+                          color: colors.textPrimary, cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ width: '18px', height: '18px', borderRadius: group.isRequired ? '50%' : '5px', border: `2px solid ${isSelected ? accentColor : 'rgba(255,255,255,0.3)'}`, backgroundColor: isSelected ? accentColor : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {isSelected && <div style={{ width: '8px', height: '8px', borderRadius: group.isRequired ? '50%' : '2px', backgroundColor: '#fff' }} />}
+                          <div style={{ width: '18px', height: '18px', borderRadius: group.isRequired ? '50%' : '5px', border: `2px solid ${isSelected ? accentColor : colors.borderStrong}`, backgroundColor: isSelected ? accentColor : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {isSelected && <div style={{ width: '8px', height: '8px', borderRadius: group.isRequired ? '50%' : '2px', backgroundColor: accentBtnTextColor }} />}
                           </div>
                           <span style={{ fontSize: '14px', fontWeight: 600 }}>{opt.name}</span>
                         </div>
@@ -496,7 +493,7 @@ function ItemDetailSheet({
 
             {/* Special note */}
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '8px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 700, color: colors.textSecondary, display: 'block', marginBottom: '8px' }}>
                 ✏️ Special Instructions (Optional)
               </label>
               <textarea
@@ -504,24 +501,24 @@ function ItemDetailSheet({
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={2}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.1)', color: '#ffffff', fontSize: '13px', resize: 'none', outline: 'none', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', backgroundColor: colors.bgInput, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', resize: 'none', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
           </div>
         </div>
 
         {/* Sticky add bar */}
-        <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f1016', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ padding: '14px 20px', borderTop: `1px solid ${colors.borderSubtle}`, backgroundColor: colors.bgDrawer, display: 'flex', gap: '12px', alignItems: 'center' }}>
           {/* Quantity */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '12px', padding: '8px 12px' }}>
-            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', fontWeight: 900, fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
-            <span style={{ fontSize: '16px', fontWeight: 800, color: '#fff', minWidth: '20px', textAlign: 'center' }}>{quantity}</span>
-            <button onClick={() => setQuantity((q) => q + 1)} style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: accentColor, border: 'none', color: '#fff', fontWeight: 900, fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: colors.bgElevated, borderRadius: '12px', padding: '8px 12px', border: `1px solid ${colors.border}` }}>
+            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontWeight: 900, fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+            <span style={{ fontSize: '16px', fontWeight: 800, color: colors.textPrimary, minWidth: '20px', textAlign: 'center' }}>{quantity}</span>
+            <button onClick={() => setQuantity((q) => q + 1)} style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: accentColor, border: 'none', color: accentBtnTextColor, fontWeight: 900, fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
           </div>
           {/* Add CTA */}
           <button
             onClick={handleAdd}
-            style={{ flex: 1, padding: '14px', backgroundColor: accentColor, border: 'none', borderRadius: '14px', color: '#fff', fontSize: '16px', fontWeight: 900, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: `0 6px 20px ${accentColor}55` }}
+            style={{ flex: 1, padding: '14px', backgroundColor: accentColor, border: 'none', borderRadius: '14px', color: accentBtnTextColor, fontSize: '16px', fontWeight: 900, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: `0 6px 20px ${accentColor}55` }}
           >
             <span>Add to Order</span>
             <span style={{ fontFamily: 'monospace' }}>${lineTotal.toFixed(2)}</span>
@@ -750,10 +747,42 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
     }
   }
 
+  // Theme state
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+
+  useEffect(() => {
+    const active =
+      (document.documentElement.getAttribute('data-theme') as 'dark' | 'light') ||
+      (localStorage.getItem('prominentz-theme') as 'dark' | 'light') ||
+      (localStorage.getItem('resto-theme') as 'dark' | 'light') ||
+      'dark'
+    setTheme(active)
+
+    const observer = new MutationObserver(() => {
+      const attr = document.documentElement.getAttribute('data-theme') as 'dark' | 'light'
+      if (attr && (attr === 'dark' || attr === 'light')) {
+        setTheme(attr)
+      }
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.documentElement.setAttribute('data-theme', next)
+    localStorage.setItem('prominentz-theme', next)
+    localStorage.setItem('resto-theme', next)
+  }
+
+  const isDark = theme === 'dark'
+  const colors = getThemeColors(isDark)
+
   const rawAccent = qrConfig.accentColor
   const accentColor = (rawAccent && rawAccent !== '#18181B' && rawAccent !== '#000000' && rawAccent !== 'var(--brand)')
     ? rawAccent
-    : '#d4af37'
+    : isDark ? '#d4af37' : '#c29d38'
   const isLightAccent = accentColor === '#d4af37' || accentColor === '#f59e0b' || accentColor === '#eab308' || accentColor === '#ffffff'
   const accentBtnTextColor = isLightAccent ? '#000000' : '#ffffff'
 
@@ -788,9 +817,10 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#0a0a0c', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{ width: '44px', height: '44px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Loading your menu...</div>
+      <div style={{ minHeight: '100vh', backgroundColor: colors.bg, color: colors.textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ width: '44px', height: '44px', border: `3px solid ${accentColor}33`, borderTopColor: accentColor, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ fontSize: '15px', color: colors.textPrimary, fontWeight: 700 }}>Prominentz Haute Cuisine</div>
+        <div style={{ fontSize: '13px', color: colors.textTertiary }}>Loading your table menu...</div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -799,26 +829,26 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
   // ── Order Success ──────────────────────────────────────────────────────────
   if (orderSuccess) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#0a0a0c', color: '#fff', padding: '24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '36px 24px', textAlign: 'center', boxShadow: '0 24px 48px rgba(0,0,0,0.6)' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: colors.bg, color: colors.textPrimary, padding: '24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '24px', padding: '36px 24px', textAlign: 'center', boxShadow: colors.cardShadow }}>
           <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 16px' }}>🎉</div>
-          <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Order Fired to Kitchen!</h2>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', margin: '0 0 24px' }}>Your dishes are being prepared. Sit back and relax!</p>
-          <div style={{ backgroundColor: '#1b1b22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'left' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 8px', color: colors.textPrimary }}>Order Fired to Kitchen!</h2>
+          <p style={{ fontSize: '14px', color: colors.textSecondary, margin: '0 0 24px' }}>Your dishes are being prepared. Sit back and relax!</p>
+          <div style={{ backgroundColor: colors.bgElevated, border: `1px solid ${colors.borderSubtle}`, borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'left' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>Table</span>
+              <span style={{ fontSize: '12px', color: colors.textTertiary }}>Table</span>
               <span style={{ fontSize: '14px', fontWeight: 800, color: accentColor }}>{orderSuccess.tableName || 'Your Table'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>Status</span>
+              <span style={{ fontSize: '12px', color: colors.textTertiary }}>Status</span>
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981' }}>● COOKING IN KITCHEN</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '10px', marginTop: '4px' }}>
-              <span style={{ fontSize: '15px', fontWeight: 700 }}>Total</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: `1px dashed ${colors.borderSubtle}`, paddingTop: '10px', marginTop: '4px' }}>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: colors.textPrimary }}>Total</span>
               <span style={{ fontSize: '17px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>${Number(orderSuccess.total || 0).toFixed(2)}</span>
             </div>
           </div>
-          <button onClick={() => setOrderSuccess(null)} style={{ width: '100%', padding: '14px', backgroundColor: accentColor, color: '#fff', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: 800, cursor: 'pointer' }}>
+          <button onClick={() => setOrderSuccess(null)} style={{ width: '100%', padding: '14px', backgroundColor: accentColor, color: accentBtnTextColor, border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: 800, cursor: 'pointer' }}>
             ➕ Order More
           </button>
         </div>
@@ -828,7 +858,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
 
   // ── Main Render ────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0a0a0c', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', paddingBottom: '100px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: colors.bg, color: colors.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', paddingBottom: '100px', transition: 'background-color 0.2s ease, color 0.2s ease' }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -849,35 +879,62 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
 
       {/* ── Welcome Message ────────────────────────────────────────────────── */}
       {qrConfig.welcomeMessage && (
-        <div style={{ background: `linear-gradient(135deg, ${accentColor}20 0%, transparent 100%)`, borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', fontSize: '13px', color: 'rgba(255,255,255,0.7)', textAlign: 'center', fontStyle: 'italic' }}>
+        <div style={{ background: `linear-gradient(135deg, ${accentColor}20 0%, transparent 100%)`, borderBottom: `1px solid ${colors.borderSubtle}`, padding: '10px 16px', fontSize: '13px', color: colors.textSecondary, textAlign: 'center', fontStyle: 'italic' }}>
           {qrConfig.welcomeMessage}
         </div>
       )}
 
       {/* ── Sticky Header ─────────────────────────────────────────────────── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: 'rgba(10,10,12,0.94)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: colors.bgHeader, backdropFilter: 'blur(16px)', borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', padding: '12px 16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}bb 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                <span style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', background: isDark ? `linear-gradient(135deg, ${accentColor} 0%, #ffffff 100%)` : `linear-gradient(135deg, ${accentColor} 0%, #0f172a 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   Prominentz
                 </span>
                 <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: `${accentColor}22`, color: accentColor, border: `1px solid ${accentColor}44` }}>
                   📱 TABLE ORDER
                 </span>
               </div>
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Scan · Browse · Order · Enjoy</div>
+              <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>Scan · Browse · Order · Enjoy</div>
             </div>
-            <button
-              onClick={() => setShowCartDrawer(true)}
-              style={{ position: 'relative', padding: '9px 16px', backgroundColor: accentColor, border: 'none', borderRadius: '12px', color: accentBtnTextColor, fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: `0 4px 16px ${accentColor}44` }}
-            >
-              🛒 <span>Cart</span>
-              {totalItemCount > 0 && (
-                <span style={{ backgroundColor: accentBtnTextColor === '#000000' ? '#000000' : '#ffffff', color: accentBtnTextColor === '#000000' ? '#ffffff' : accentColor, borderRadius: '999px', padding: '1px 7px', fontSize: '11px', fontWeight: 900 }}>{totalItemCount}</span>
-              )}
-            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                style={{
+                  padding: '8px 10px',
+                  backgroundColor: colors.bgElevated,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '10px',
+                  color: colors.textPrimary,
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                }}
+                title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+              >
+                <span>{isDark ? '☀️' : '🌙'}</span>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{isDark ? 'Light' : 'Dark'}</span>
+              </button>
+
+              {/* Cart Button */}
+              <button
+                onClick={() => setShowCartDrawer(true)}
+                style={{ position: 'relative', padding: '9px 14px', backgroundColor: accentColor, border: 'none', borderRadius: '12px', color: accentBtnTextColor, fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: `0 4px 16px ${accentColor}44` }}
+              >
+                🛒 <span>Cart</span>
+                {totalItemCount > 0 && (
+                  <span style={{ backgroundColor: accentBtnTextColor === '#000000' ? '#000000' : '#ffffff', color: accentBtnTextColor === '#000000' ? '#ffffff' : accentColor, borderRadius: '999px', padding: '1px 7px', fontSize: '11px', fontWeight: 900 }}>{totalItemCount}</span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* ── Table Assistance Actions (Call Waiter / Request Bill) ── */}
@@ -890,9 +947,9 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               style={{
                 padding: '8px 12px',
                 borderRadius: '10px',
-                backgroundColor: activeAssistance ? 'rgba(234,179,8,0.15)' : '#181822',
-                border: activeAssistance ? '1px solid #eab308' : '1px solid rgba(255,255,255,0.1)',
-                color: activeAssistance ? '#fde047' : '#f4f4f5',
+                backgroundColor: activeAssistance ? 'rgba(234,179,8,0.15)' : colors.bgElevated,
+                border: activeAssistance ? '1px solid #eab308' : `1px solid ${colors.border}`,
+                color: activeAssistance ? '#eab308' : colors.textPrimary,
                 fontSize: '12px',
                 fontWeight: 700,
                 display: 'flex',
@@ -916,9 +973,9 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               style={{
                 padding: '8px 12px',
                 borderRadius: '10px',
-                backgroundColor: '#181822',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f4f4f5',
+                backgroundColor: colors.bgElevated,
+                border: `1px solid ${colors.border}`,
+                color: colors.textPrimary,
                 fontSize: '12px',
                 fontWeight: 700,
                 display: 'flex',
@@ -942,7 +999,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 borderRadius: '10px',
                 backgroundColor: 'rgba(234, 179, 8, 0.12)',
                 border: '1px solid rgba(234, 179, 8, 0.35)',
-                color: '#fef08a',
+                color: '#b45309',
                 fontSize: '12px',
                 display: 'flex',
                 alignItems: 'center',
@@ -955,7 +1012,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 <span style={{ fontSize: '14px' }}>🔔</span>
                 <div>
                   <strong>{assistanceFeedback || (activeAssistance?.type === 'REQUEST_BILL' ? 'Bill requested' : 'Staff notified')}</strong>
-                  <div style={{ fontSize: '11px', color: 'rgba(254, 240, 138, 0.75)' }}>
+                  <div style={{ fontSize: '11px', color: '#b45309', opacity: 0.85 }}>
                     {activeAssistance?.type === 'REQUEST_BILL' ? 'Staff is printing your check' : 'A server is on their way to your table'}
                   </div>
                 </div>
@@ -966,7 +1023,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: 'rgba(255,255,255,0.6)',
+                    color: colors.textSecondary,
                     cursor: 'pointer',
                     fontSize: '11px',
                     textDecoration: 'underline',
@@ -986,29 +1043,29 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               placeholder="Search dishes, drinks, desserts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: '12px', backgroundColor: '#16161c', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '13px', outline: 'none' }}
+              style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: '12px', backgroundColor: colors.bgInput, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', outline: 'none' }}
             />
           </div>
 
           {/* AI Concierge strip */}
           <button
             onClick={() => setShowAiModal(true)}
-            style={{ width: '100%', padding: '8px 14px', borderRadius: '10px', background: `linear-gradient(135deg, ${accentColor}18 0%, rgba(139,92,246,0.15) 100%)`, border: `1px solid ${accentColor}33`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: '8px' }}
+            style={{ width: '100%', padding: '8px 14px', borderRadius: '10px', background: `linear-gradient(135deg, ${accentColor}18 0%, rgba(139,92,246,0.15) 100%)`, border: `1px solid ${colors.border}`, color: colors.textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: '8px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: colors.bgCard, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: '10px' }}>✨</span>
               </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#93c5fd' }}>Ask Prominentz AI Concierge</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: isDark ? '#93c5fd' : '#2563eb' }}>Ask Prominentz AI Concierge</span>
             </div>
-            <span style={{ fontSize: '11px', color: '#a1a1aa' }}>Allergens · Pairings →</span>
+            <span style={{ fontSize: '11px', color: colors.textTertiary }}>Allergens · Pairings →</span>
           </button>
 
           {/* Category pills */}
           <div ref={categoryScrollRef} style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
             <button
               onClick={() => setActiveCategoryId('ALL')}
-              style={{ padding: '6px 14px', borderRadius: '999px', border: activeCategoryId === 'ALL' ? `1px solid ${accentColor}` : '1px solid rgba(255,255,255,0.1)', backgroundColor: activeCategoryId === 'ALL' ? `${accentColor}22` : '#16161c', color: activeCategoryId === 'ALL' ? accentColor : 'rgba(255,255,255,0.65)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+              style={{ padding: '6px 14px', borderRadius: '999px', border: activeCategoryId === 'ALL' ? `1px solid ${accentColor}` : `1px solid ${colors.border}`, backgroundColor: activeCategoryId === 'ALL' ? `${accentColor}22` : colors.bgElevated, color: activeCategoryId === 'ALL' ? accentColor : colors.textSecondary, fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
             >
               🍽️ All ({visibleCategories.reduce((s, c) => s + c.items.length, 0)})
             </button>
@@ -1016,7 +1073,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               <button
                 key={cat.id}
                 onClick={() => setActiveCategoryId(cat.id)}
-                style={{ padding: '6px 14px', borderRadius: '999px', border: activeCategoryId === cat.id ? `1px solid ${accentColor}` : '1px solid rgba(255,255,255,0.1)', backgroundColor: activeCategoryId === cat.id ? `${accentColor}22` : '#16161c', color: activeCategoryId === cat.id ? accentColor : 'rgba(255,255,255,0.65)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+                style={{ padding: '6px 14px', borderRadius: '999px', border: activeCategoryId === cat.id ? `1px solid ${accentColor}` : `1px solid ${colors.border}`, backgroundColor: activeCategoryId === cat.id ? `${accentColor}22` : colors.bgElevated, color: activeCategoryId === cat.id ? accentColor : colors.textSecondary, fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
               >
                 {cat.name}
               </button>
@@ -1032,12 +1089,12 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
         {combos.length > 0 && (
           <section style={{ marginBottom: '28px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 900, margin: 0, color: '#fff' }}>🔥 Today's Combos & Deals</h2>
+              <h2 style={{ fontSize: '17px', fontWeight: 900, margin: 0, color: colors.textPrimary }}>🔥 Today's Combos & Deals</h2>
               <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '4px', backgroundColor: 'rgba(239,68,68,0.15)', color: '#ef4444', fontWeight: 800 }}>LIMITED</span>
             </div>
             <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
               {combos.map((combo) => (
-                <ComboDealCard key={combo.id} combo={combo} onAddCombo={addComboToCart} accentColor={accentColor} />
+                <ComboDealCard key={combo.id} combo={combo} onAddCombo={addComboToCart} accentColor={accentColor} colors={colors} />
               ))}
             </div>
           </section>
@@ -1047,10 +1104,10 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
         {heroFallback.length > 0 && !searchQuery && activeCategoryId === 'ALL' && (
           <section style={{ marginBottom: '28px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 900, margin: 0, color: '#fff' }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 900, margin: 0, color: colors.textPrimary }}>
                 {heroItems.length > 0 ? '🔥 Best Sellers & Chef Picks' : '🌟 Featured Dishes'}
               </h2>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>See all →</span>
+              <span style={{ fontSize: '12px', color: colors.textTertiary, cursor: 'pointer' }}>See all →</span>
             </div>
             <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
               {heroFallback.map((item) => {
@@ -1063,6 +1120,8 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                     isPopular={popularItemIds.includes(item.id)}
                     onAdd={(i) => setSelectedItem({ item: i, idx })}
                     accentColor={accentColor}
+                    accentTextColor={accentBtnTextColor}
+                    colors={colors}
                   />
                 )
               })}
@@ -1072,9 +1131,9 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
 
         {/* ── Category Sections with Visual Cards ───────────────────────── */}
         {filteredCategories.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'rgba(255,255,255,0.4)' }}>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: colors.textTertiary }}>
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>🍽️</div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>No Dishes Found</div>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: colors.textPrimary, marginBottom: '6px' }}>No Dishes Found</div>
             <div style={{ fontSize: '13px' }}>Try a different search term</div>
           </div>
         ) : (
@@ -1082,8 +1141,8 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             <section key={category.id} style={{ marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
                 <div style={{ width: '4px', height: '20px', borderRadius: '2px', backgroundColor: accentColor }} />
-                <h2 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#fff' }}>{category.name}</h2>
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>({category.items.length})</span>
+                <h2 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: colors.textPrimary }}>{category.name}</h2>
+                <span style={{ fontSize: '12px', color: colors.textTertiary, fontWeight: 600 }}>({category.items.length})</span>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -1099,6 +1158,8 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                       cartEntry={cartEntry}
                       onOpen={(i) => setSelectedItem({ item: i, idx })}
                       accentColor={accentColor}
+                      accentBtnTextColor={accentBtnTextColor}
+                      colors={colors}
                     />
                   )
                 })}
@@ -1113,86 +1174,86 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
         <div style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 50, maxWidth: '608px', margin: '0 auto', animation: 'slideUp 0.25s ease-out' }}>
           <div
             onClick={() => setShowCartDrawer(true)}
-            style={{ background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}cc 100%)`, borderRadius: '18px', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', boxShadow: `0 12px 32px ${accentColor}55` }}
+            style={{ background: accentColor, borderRadius: '18px', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', boxShadow: `0 12px 32px ${accentColor}55`, border: '1px solid rgba(255,255,255,0.2)' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px' }}>{totalItemCount}</span>
+              <span style={{ backgroundColor: accentBtnTextColor === '#000000' ? '#000000' : '#ffffff', color: accentBtnTextColor === '#000000' ? '#ffffff' : accentColor, width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px' }}>{totalItemCount}</span>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: 800, color: '#fff' }}>View Order</div>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: accentBtnTextColor }}>View Order</div>
               </div>
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', fontFamily: 'monospace' }}>${total.toFixed(2)} →</div>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: accentBtnTextColor, fontFamily: 'monospace' }}>${total.toFixed(2)} →</div>
           </div>
         </div>
       )}
 
       {/* ── Cart Drawer ────────────────────────────────────────────────────── */}
       {showCartDrawer && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-          <div style={{ maxWidth: '640px', width: '100%', margin: '0 auto', backgroundColor: '#141418', borderTopLeftRadius: '26px', borderTopRightRadius: '26px', border: '1px solid rgba(255,255,255,0.12)', maxHeight: '88vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'slideUp 0.25s ease-out' }}>
-            <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: 'rgba(255,255,255,0.2)', margin: '12px auto 0' }} />
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div style={{ maxWidth: '640px', width: '100%', margin: '0 auto', backgroundColor: colors.bgDrawer, borderTopLeftRadius: '26px', borderTopRightRadius: '26px', border: `1px solid ${colors.border}`, maxHeight: '88vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'slideUp 0.25s ease-out' }}>
+            <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: colors.border, margin: '12px auto 0' }} />
+            <div style={{ padding: '14px 20px', borderBottom: `1px solid ${colors.borderSubtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#fff' }}>🛒 Your Order</h3>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Review before sending to kitchen</div>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: colors.textPrimary }}>🛒 Your Order</h3>
+                <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>Review before sending to kitchen</div>
               </div>
-              <button onClick={() => setShowCartDrawer(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', fontSize: '18px' }}>×</button>
+              <button onClick={() => setShowCartDrawer(false)} style={{ background: colors.bgElevated, border: `1px solid ${colors.border}`, color: colors.textPrimary, width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)' }}>
+                <div style={{ textAlign: 'center', padding: '40px', color: colors.textTertiary }}>
                   <div style={{ fontSize: '40px', marginBottom: '10px' }}>🛒</div>
                   Your cart is empty. Add dishes from the menu!
                 </div>
               ) : (
                 cart.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', backgroundColor: '#1a1a22', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', backgroundColor: colors.bgDrawerLine, borderRadius: '14px', border: `1px solid ${colors.borderSubtle}` }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>{item.menuItem.name}</div>
-                      {item.specialNote && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>📝 {item.specialNote}</div>}
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: colors.textPrimary }}>{item.menuItem.name}</div>
+                      {item.specialNote && <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>📝 {item.specialNote}</div>}
                       {item.selectedModifiers && item.selectedModifiers.length > 0 && (
-                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{item.selectedModifiers.map((m) => m.name).join(', ')}</div>
+                        <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>{item.selectedModifiers.map((m) => m.name).join(', ')}</div>
                       )}
                       <div style={{ fontSize: '13px', color: '#10b981', fontWeight: 700, fontFamily: 'monospace', marginTop: '4px' }}>
                         ${(Number(item.menuItem.price) * item.quantity).toFixed(2)}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <button onClick={() => updateQuantity(idx, -1)} style={{ width: '30px', height: '30px', borderRadius: '8px', backgroundColor: '#272730', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px' }}>−</button>
-                      <span style={{ fontSize: '15px', fontWeight: 800, width: '22px', textAlign: 'center' }}>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(idx, 1)} style={{ width: '30px', height: '30px', borderRadius: '8px', backgroundColor: accentColor, border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px' }}>+</button>
+                      <button onClick={() => updateQuantity(idx, -1)} style={{ width: '30px', height: '30px', borderRadius: '8px', backgroundColor: colors.bgElevated, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontWeight: 800, cursor: 'pointer', fontSize: '16px' }}>−</button>
+                      <span style={{ fontSize: '15px', fontWeight: 800, width: '22px', textAlign: 'center', color: colors.textPrimary }}>{item.quantity}</span>
+                      <button onClick={() => updateQuantity(idx, 1)} style={{ width: '30px', height: '30px', borderRadius: '8px', backgroundColor: accentColor, border: 'none', color: accentBtnTextColor, fontWeight: 800, cursor: 'pointer', fontSize: '16px' }}>+</button>
                     </div>
                   </div>
                 ))
               )}
 
               {/* Guest info */}
-              <div style={{ marginTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input type="text" placeholder="👤 Your name (Optional)" value={guestName} onChange={(e) => setGuestName(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
-                <input type="tel" placeholder="📱 Phone number (Optional)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
-                <input type="text" placeholder="⚠️ Allergies / Kitchen notes" value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px' }} />
+              <div style={{ marginTop: '8px', borderTop: `1px dashed ${colors.border}`, paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input type="text" placeholder="👤 Your name (Optional)" value={guestName} onChange={(e) => setGuestName(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: colors.bgInput, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', outline: 'none' }} />
+                <input type="tel" placeholder="📱 Phone number (Optional)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: colors.bgInput, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', outline: 'none' }} />
+                <input type="text" placeholder="⚠️ Allergies / Kitchen notes" value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', backgroundColor: colors.bgInput, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', outline: 'none' }} />
               </div>
 
               {/* Totals */}
-              <div style={{ backgroundColor: '#1a1a22', padding: '14px', borderRadius: '12px', fontSize: '13px' }}>
+              <div style={{ backgroundColor: colors.bgElevated, padding: '14px', borderRadius: '12px', fontSize: '13px', border: `1px solid ${colors.borderSubtle}` }}>
                 {[['Subtotal', `$${subtotal.toFixed(2)}`], ['Tax (8%)', `$${tax.toFixed(2)}`]].map(([l, v]) => (
-                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: 'rgba(255,255,255,0.55)' }}>
+                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: colors.textSecondary }}>
                     <span>{l}</span><span>{v}</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '17px', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '4px' }}>
-                  <span>Total</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '17px', borderTop: `1px dashed ${colors.border}`, paddingTop: '8px', marginTop: '4px' }}>
+                  <span style={{ color: colors.textPrimary }}>Total</span>
                   <span style={{ color: '#10b981', fontFamily: 'monospace' }}>${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
-            <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ padding: '16px 20px', borderTop: `1px solid ${colors.borderSubtle}` }}>
               <button
                 onClick={handleSubmitOrder}
                 disabled={submittingOrder || cart.length === 0}
-                style={{ width: '100%', padding: '15px', background: cart.length === 0 ? '#27272a' : `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}cc 100%)`, border: 'none', borderRadius: '14px', color: '#fff', fontSize: '16px', fontWeight: 900, cursor: cart.length === 0 ? 'not-allowed' : 'pointer', opacity: submittingOrder ? 0.7 : 1, boxShadow: cart.length > 0 ? `0 6px 24px ${accentColor}44` : 'none' }}
+                style={{ width: '100%', padding: '15px', backgroundColor: cart.length === 0 ? colors.bgElevated : accentColor, border: 'none', borderRadius: '14px', color: cart.length === 0 ? colors.textTertiary : accentBtnTextColor, fontSize: '16px', fontWeight: 900, cursor: cart.length === 0 ? 'not-allowed' : 'pointer', opacity: submittingOrder ? 0.7 : 1, boxShadow: cart.length > 0 ? `0 6px 24px ${accentColor}44` : 'none' }}
               >
                 {submittingOrder ? '⏳ Sending to Kitchen...' : `🚀 Fire Order — $${total.toFixed(2)}`}
               </button>
@@ -1210,41 +1271,43 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
           onClose={() => setSelectedItem(null)}
           onAdd={(item, mods, note) => addToCart(item, mods, note)}
           accentColor={accentColor}
+          accentBtnTextColor={accentBtnTextColor}
+          colors={colors}
         />
       )}
 
       {/* ── AI Concierge Modal ─────────────────────────────────────────────── */}
       {showAiModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 60, backgroundColor: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '540px', backgroundColor: '#0f1016', borderRadius: '28px 28px 0 0', border: '1px solid rgba(255,255,255,0.12)', maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 -20px 48px rgba(0,0,0,0.8)', animation: 'slideUp 0.25s ease-out' }}>
-            <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '12px auto 0' }} />
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ width: '100%', maxWidth: '540px', backgroundColor: colors.bgDrawer, borderRadius: '28px 28px 0 0', border: `1px solid ${colors.border}`, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: colors.cardShadow, animation: 'slideUp 0.25s ease-out' }}>
+            <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: colors.border, margin: '12px auto 0' }} />
+            <div style={{ padding: '14px 20px', borderBottom: `1px solid ${colors.borderSubtle}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: colors.bgElevated, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: '12px' }}>✨</span>
                 </div>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>Prominentz Concierge</div>
-                  <div style={{ fontSize: '11px', color: '#94a3b8' }}>Allergens · Pairings · Recommendations</div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: colors.textPrimary }}>Prominentz Concierge</div>
+                  <div style={{ fontSize: '11px', color: colors.textTertiary }}>Allergens · Pairings · Recommendations</div>
                 </div>
               </div>
-              <button onClick={() => setShowAiModal(false)} style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', fontSize: '16px', cursor: 'pointer' }}>×</button>
+              <button onClick={() => setShowAiModal(false)} style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: colors.bgElevated, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {aiMessages.map((m, idx) => (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: m.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-                  <div style={{ maxWidth: '88%', padding: '12px 14px', borderRadius: m.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', backgroundColor: m.sender === 'user' ? `${accentColor}33` : '#171822', border: m.sender === 'user' ? `1px solid ${accentColor}55` : '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                  <div style={{ maxWidth: '88%', padding: '12px 14px', borderRadius: m.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', backgroundColor: m.sender === 'user' ? `${accentColor}22` : colors.bgElevated, border: m.sender === 'user' ? `1px solid ${accentColor}55` : `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                     {m.text}
                     {m.dishCards && m.dishCards.length > 0 && (
                       <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         {m.dishCards.map((dish) => (
-                          <div key={dish.id} style={{ padding: '8px 10px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div key={dish.id} style={{ padding: '8px 10px', borderRadius: '10px', backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div>
-                              <div style={{ fontSize: '12px', fontWeight: 700 }}>{dish.name}</div>
+                              <div style={{ fontSize: '12px', fontWeight: 700, color: colors.textPrimary }}>{dish.name}</div>
                               <div style={{ fontSize: '11px', color: '#10b981' }}>${dish.price.toFixed(2)}</div>
                             </div>
-                            <button onClick={() => handleAddDishFromAi(dish.id)} style={{ padding: '4px 10px', borderRadius: '8px', backgroundColor: accentColor, color: '#fff', border: 'none', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
+                            <button onClick={() => handleAddDishFromAi(dish.id)} style={{ padding: '4px 10px', borderRadius: '8px', backgroundColor: accentColor, color: accentBtnTextColor, border: 'none', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
                               + Add
                             </button>
                           </div>
@@ -1255,7 +1318,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                   {m.suggestedPills && m.suggestedPills.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
                       {m.suggestedPills.map((pill, pIdx) => (
-                        <button key={pIdx} onClick={() => sendDinerAiMessage(pill)} style={{ fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#93c5fd', cursor: 'pointer' }}>
+                        <button key={pIdx} onClick={() => sendDinerAiMessage(pill)} style={{ fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '999px', backgroundColor: colors.bgElevated, border: `1px solid ${colors.border}`, color: isDark ? '#93c5fd' : '#2563eb', cursor: 'pointer' }}>
                           {pill}
                         </button>
                       ))}
@@ -1264,26 +1327,26 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 </div>
               ))}
               {aiLoading && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '12px', backgroundColor: '#171822', width: 'fit-content' }}>
-                  <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: accentColor, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Consulting the menu...</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '12px', backgroundColor: colors.bgElevated, border: `1px solid ${colors.border}`, width: 'fit-content' }}>
+                  <div style={{ width: '14px', height: '14px', border: `2px solid ${accentColor}33`, borderTopColor: accentColor, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  <span style={{ fontSize: '12px', color: colors.textTertiary }}>Consulting the menu...</span>
                 </div>
               )}
             </div>
 
-            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '10px' }}>
+            <div style={{ padding: '12px 16px', borderTop: `1px solid ${colors.borderSubtle}`, display: 'flex', gap: '10px' }}>
               <input
                 type="text"
                 placeholder="Ask about allergens, pairings, specials..."
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') sendDinerAiMessage() }}
-                style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', backgroundColor: '#1a1a22', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '13px', outline: 'none' }}
+                style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', backgroundColor: colors.bgInput, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontSize: '13px', outline: 'none' }}
               />
               <button
                 onClick={() => sendDinerAiMessage()}
                 disabled={!aiPrompt.trim() || aiLoading}
-                style={{ padding: '10px 16px', borderRadius: '10px', backgroundColor: aiPrompt.trim() && !aiLoading ? accentColor : '#27272a', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '13px' }}
+                style={{ padding: '10px 16px', borderRadius: '10px', backgroundColor: aiPrompt.trim() && !aiLoading ? accentColor : colors.bgElevated, border: 'none', color: aiPrompt.trim() && !aiLoading ? accentBtnTextColor : colors.textTertiary, fontWeight: 800, cursor: 'pointer', fontSize: '13px' }}
               >
                 Send
               </button>
@@ -1311,35 +1374,38 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             style={{
               width: '100%',
               maxWidth: '480px',
-              backgroundColor: '#121218',
-              borderTop: '1px solid rgba(255,255,255,0.12)',
+              backgroundColor: colors.bgDrawer,
+              borderTop: `1px solid ${colors.border}`,
               borderRadius: '24px 24px 0 0',
               padding: '24px 20px',
-              boxShadow: '0 -10px 40px rgba(0,0,0,0.6)',
+              boxShadow: colors.cardShadow,
               animation: 'slideUp 0.25s ease',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#fff' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: colors.textPrimary }}>
                   🔔 Call Table Server
                 </h3>
-                <div style={{ fontSize: '12px', color: '#a1a1aa', marginTop: '2px' }}>
+                <div style={{ fontSize: '12px', color: colors.textTertiary, marginTop: '2px' }}>
                   Select a quick request or send a message
                 </div>
               </div>
               <button
                 onClick={() => setShowAssistanceModal(false)}
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: 'none',
-                  color: '#fff',
+                  background: colors.bgElevated,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.textPrimary,
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   fontSize: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 ×
@@ -1364,9 +1430,9 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                   style={{
                     padding: '14px 12px',
                     borderRadius: '14px',
-                    backgroundColor: assistanceType === opt.type ? '#27272a' : '#181822',
-                    border: assistanceType === opt.type ? '1.5px solid #ffffff' : '1px solid rgba(255,255,255,0.08)',
-                    color: '#fff',
+                    backgroundColor: assistanceType === opt.type ? (isDark ? '#27272a' : '#e2e8f0') : colors.bgElevated,
+                    border: assistanceType === opt.type ? `1.5px solid ${accentColor}` : `1px solid ${colors.border}`,
+                    color: colors.textPrimary,
                     textAlign: 'left',
                     cursor: sendingAssistance ? 'wait' : 'pointer',
                     transition: 'all 0.15s ease',
@@ -1374,14 +1440,14 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 >
                   <div style={{ fontSize: '20px', marginBottom: '4px' }}>{opt.emoji}</div>
                   <div style={{ fontSize: '13px', fontWeight: 800 }}>{opt.label}</div>
-                  <div style={{ fontSize: '11px', color: '#71717a' }}>{opt.sub}</div>
+                  <div style={{ fontSize: '11px', color: colors.textTertiary }}>{opt.sub}</div>
                 </button>
               ))}
             </div>
 
             {/* Custom Notes */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#a1a1aa', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: colors.textSecondary, marginBottom: '6px' }}>
                 Optional special note:
               </label>
               <input
@@ -1393,9 +1459,9 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                   width: '100%',
                   padding: '11px 14px',
                   borderRadius: '12px',
-                  backgroundColor: '#181822',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#fff',
+                  backgroundColor: colors.bgInput,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.textPrimary,
                   fontSize: '13px',
                   outline: 'none',
                 }}
@@ -1411,7 +1477,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 borderRadius: '14px',
                 backgroundColor: accentColor,
                 border: 'none',
-                color: '#fff',
+                color: accentBtnTextColor,
                 fontSize: '15px',
                 fontWeight: 900,
                 cursor: sendingAssistance ? 'wait' : 'pointer',

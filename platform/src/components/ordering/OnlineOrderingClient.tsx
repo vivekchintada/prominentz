@@ -568,7 +568,7 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
                   <span>{effectiveDeliveryFee === 0 ? 'FREE' : money(effectiveDeliveryFee)}</span>
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 800, color: '#ffffff', marginTop: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary, #ffffff)', marginTop: '8px' }}>
                 <span>Total</span>
                 <span>{money(estimateTotal)}</span>
               </div>
@@ -693,7 +693,7 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
               {paymentMethod === 'CARD' && (
                 <div className={styles.cardBox}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary, rgba(255,255,255,0.7))', textTransform: 'uppercase' }}>
                       Card Details
                     </span>
                   </div>
