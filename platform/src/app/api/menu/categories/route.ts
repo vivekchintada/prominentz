@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
       const catAppetizers = await prisma.menuCategory.create({
         data: {
           restaurantId,
-          name: '🍕 Appetizers & Starters',
+          name: 'Appetizers & Starters',
           displayOrder: 1,
           items: {
             create: [
@@ -75,6 +75,7 @@ export async function GET(req: NextRequest) {
                 name: 'Truffle Arancini',
                 description: 'Crispy risotto balls filled with wild mushrooms, fontina cheese, and black truffle aioli.',
                 price: 14.50,
+                imageUrl: '/images/menu/gallery_bread.png',
                 kdsStation: 'HOT',
                 displayOrder: 1,
               },
@@ -82,6 +83,7 @@ export async function GET(req: NextRequest) {
                 name: 'Burrata Caprese',
                 description: 'Heirloom tomatoes, fresh Puglia burrata, aged balsamic glaze, and fresh basil oil.',
                 price: 16.00,
+                imageUrl: '/images/menu/burrata_prosciutto.jpg',
                 kdsStation: 'COLD',
                 displayOrder: 2,
               },
@@ -93,7 +95,7 @@ export async function GET(req: NextRequest) {
       const catMains = await prisma.menuCategory.create({
         data: {
           restaurantId,
-          name: '🍝 Pastas & Mains',
+          name: 'Pastas & Mains',
           displayOrder: 2,
           items: {
             create: [
@@ -101,6 +103,7 @@ export async function GET(req: NextRequest) {
                 name: 'Handcrafted Truffle Tagliolini',
                 description: 'Fresh pasta ribbons, rich butter emulsion, Parmigiano-Reggiano, and shaved summer truffles.',
                 price: 26.00,
+                imageUrl: '/images/menu/gallery_pasta.png',
                 kdsStation: 'HOT',
                 displayOrder: 1,
               },
@@ -108,8 +111,17 @@ export async function GET(req: NextRequest) {
                 name: 'Prime Wagyu Ribeye (12oz)',
                 description: 'Charred broccolini, roasted garlic pomme puree, and rosemary red wine demi-glace.',
                 price: 48.00,
+                imageUrl: '/images/menu/hero_dish.png',
                 kdsStation: 'HOT',
                 displayOrder: 2,
+              },
+              {
+                name: 'Pan-Seared Atlantic Salmon',
+                description: 'Crispy skin salmon fillet, saffron risotto, and lemon caper beurre blanc.',
+                price: 38.00,
+                imageUrl: '/images/menu/pan_seared_salmon.jpg',
+                kdsStation: 'HOT',
+                displayOrder: 3,
               },
             ],
           },
@@ -119,7 +131,7 @@ export async function GET(req: NextRequest) {
       const catDrinks = await prisma.menuCategory.create({
         data: {
           restaurantId,
-          name: '🍷 Cocktails & Drinks',
+          name: 'Cocktails & Cellar',
           displayOrder: 3,
           items: {
             create: [
@@ -127,15 +139,25 @@ export async function GET(req: NextRequest) {
                 name: 'Smoked Rosemary Old Fashioned',
                 description: 'Bourbon, aromatic bitters, charred orange peel, and torched rosemary sprig.',
                 price: 15.00,
+                imageUrl: '/images/menu/gallery_drinks.png',
                 kdsStation: 'BAR',
                 displayOrder: 1,
+              },
+              {
+                name: 'Classic Negroni & Barolo',
+                description: 'Campari, sweet vermouth, botanical gin, orange twist.',
+                price: 16.00,
+                imageUrl: '/images/menu/gallery_drinks.png',
+                kdsStation: 'BAR',
+                displayOrder: 2,
               },
               {
                 name: 'San Pellegrino Sparkling (750ml)',
                 description: 'Crisp Italian sparkling mineral water.',
                 price: 6.50,
+                imageUrl: '/images/menu/gallery_drinks.png',
                 kdsStation: 'BAR',
-                displayOrder: 2,
+                displayOrder: 3,
               },
             ],
           },

@@ -65,41 +65,41 @@ function getDietaryBadges(item: MenuItem): string[] {
   return badges
 }
 
-// ── Food gradient placeholders ────────────────────────────────────────────────
+// ── Food Image & Sommelier Pairing Resolvers ───────────────────────────────
 
-const FOOD_GRADIENTS = [
-  '#18181b',
-  '#27272a',
-  '#1f1f23',
-  '#26262b',
-  '#1c1c20',
-  '#222226',
+const DEFAULT_MENU_IMAGES: { pattern: RegExp; url: string; pairing?: string }[] = [
+  { pattern: /wagyu|ribeye|steak|beef|tenderloin|sirloin|filet|burger/i, url: '/images/menu/hero_dish.png', pairing: '2021 Barolo DOCG or Napa Valley Cabernet' },
+  { pattern: /pasta|tagliolini|tagliatelle|linguine|spaghetti|risotto|carbonara/i, url: '/images/menu/gallery_pasta.png', pairing: 'Tuscan Chianti Classico or Pinot Grigio' },
+  { pattern: /burrata|caprese|prosciutto|arugula|antipast/i, url: '/images/menu/burrata_prosciutto.jpg', pairing: 'Prosecco Superiore or Crisp Sancerre' },
+  { pattern: /arancini|bread|bruschetta|focaccia|sourdough|crostini/i, url: '/images/menu/gallery_bread.png', pairing: 'Franciacorta or Aperol Spritz' },
+  { pattern: /calamari|squid|fritti|shrimp|prawn|crab|lobster/i, url: '/images/menu/calamari_fritti.jpg', pairing: 'Chablis Premier Cru or Dry Vermentino' },
+  { pattern: /salmon|halibut|fish|tuna|branzino|cod|seabass/i, url: '/images/menu/pan_seared_salmon.jpg', pairing: 'Sauvignon Blanc or Saffron Chardonnay' },
+  { pattern: /tiramisu|brule|brûlée|custard|panna cotta/i, url: '/images/menu/tiramisu_classic.jpg', pairing: 'Espresso Martini or Vin Santo' },
+  { pattern: /chocolate|fondant|mousse|cake|dessert|brownie|lava/i, url: '/images/menu/gallery_dessert.png', pairing: 'Ruby Port or Highland Single Malt' },
+  { pattern: /cocktail|negroni|spritz|old fashioned|wine|champagne|gin|whiskey|beer|lemonade|sparkling|drink/i, url: '/images/menu/gallery_drinks.png', pairing: 'Artisan Citrus Twist & Torched Herbs' },
 ]
 
-const FOOD_EMOJIS = ['🍕', '🍔', '🥩', '🍜', '🥗', '🍱', '🌮', '🍣', '🥘', '🍝', '🍛', '🥙']
-
-function getItemGradient(item: MenuItem, idx: number) {
-  return FOOD_GRADIENTS[idx % FOOD_GRADIENTS.length]
+export function resolveDishImage(item: { name: string; description?: string; imageUrl?: string }): string {
+  if (item.imageUrl && !item.imageUrl.includes('placeholder') && !item.imageUrl.includes('undefined')) {
+    return item.imageUrl
+  }
+  const text = `${item.name} ${item.description || ''}`.toLowerCase()
+  for (const rule of DEFAULT_MENU_IMAGES) {
+    if (rule.pattern.test(text)) {
+      return rule.url
+    }
+  }
+  return '/images/menu/hero_dish.png'
 }
-function getItemEmoji(item: MenuItem, idx: number) {
-  const name = item.name.toLowerCase()
-  if (name.includes('pizza')) return '🍕'
-  if (name.includes('burger') || name.includes('sandwich')) return '🍔'
-  if (name.includes('steak') || name.includes('beef') || name.includes('ribeye')) return '🥩'
-  if (name.includes('pasta') || name.includes('spaghetti') || name.includes('noodle')) return '🍝'
-  if (name.includes('salad')) return '🥗'
-  if (name.includes('sushi') || name.includes('salmon')) return '🍣'
-  if (name.includes('taco') || name.includes('burrito')) return '🌮'
-  if (name.includes('soup') || name.includes('ramen')) return '🍜'
-  if (name.includes('wine') || name.includes('champagne')) return '🍷'
-  if (name.includes('beer') || name.includes('ale') || name.includes('lager')) return '🍺'
-  if (name.includes('cocktail') || name.includes('martini') || name.includes('mojito')) return '🍹'
-  if (name.includes('coffee') || name.includes('espresso') || name.includes('latte')) return '☕'
-  if (name.includes('dessert') || name.includes('cake') || name.includes('ice cream') || name.includes('chocolate')) return '🍰'
-  if (name.includes('chicken') || name.includes('wings')) return '🍗'
-  if (name.includes('fish') || name.includes('seafood') || name.includes('prawn')) return '🐟'
-  if (name.includes('rice') || name.includes('biryani') || name.includes('curry')) return '🍛'
-  return FOOD_EMOJIS[idx % FOOD_EMOJIS.length]
+
+export function getSommelierPairing(item: { name: string; description?: string }): string | null {
+  const text = `${item.name} ${item.description || ''}`.toLowerCase()
+  for (const rule of DEFAULT_MENU_IMAGES) {
+    if (rule.pattern.test(text) && rule.pairing) {
+      return rule.pairing
+    }
+  }
+  return null
 }
 
 // ── Hero Carousel Card ────────────────────────────────────────────────────────
@@ -110,80 +110,89 @@ function HeroItemCard({
   item: MenuItem; idx: number; isPopular: boolean; onAdd: (item: MenuItem) => void; accentColor: string
 }) {
   const [imgError, setImgError] = useState(false)
-  const gradient = getItemGradient(item, idx)
-  const emoji = getItemEmoji(item, idx)
+  const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
+  const pairing = getSommelierPairing(item)
 
   return (
     <div
       onClick={() => onAdd(item)}
       style={{
-        width: '200px',
+        width: '240px',
         flexShrink: 0,
         borderRadius: '20px',
         overflow: 'hidden',
-        backgroundColor: '#1a1a22',
-        border: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: '#121217',
+        border: '1px solid rgba(255,255,255,0.12)',
         cursor: 'pointer',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-        transition: 'transform 0.2s ease',
+        boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
       }}
-      onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.97)' }}
+      onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.98)' }}
       onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
     >
-      {/* Photo */}
-      <div style={{ height: '130px', position: 'relative', overflow: 'hidden', background: gradient }}>
-        {item.imageUrl && !imgError ? (
-          <img
-            src={item.imageUrl}
-            alt={item.name}
-            onError={() => setImgError(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px' }}>
-            {emoji}
-          </div>
-        )}
+      {/* High-res Photo with Luxury Vignette */}
+      <div style={{ height: '150px', position: 'relative', overflow: 'hidden', backgroundColor: '#18181f' }}>
+        <img
+          src={imgError ? '/images/menu/hero_dish.png' : imageUrl}
+          alt={item.name}
+          onError={() => setImgError(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(18,18,23,0.95) 0%, transparent 60%)' }} />
+
         {/* Badge overlay */}
-        <div style={{ position: 'absolute', top: '8px', left: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {isPopular && (
-            <span style={{ fontSize: '9px', fontWeight: 900, padding: '2px 7px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff', letterSpacing: '0.04em' }}>
-              🔥 BEST SELLER
+            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff', letterSpacing: '0.04em', boxShadow: '0 2px 8px rgba(239,68,68,0.4)' }}>
+              🔥 CHEF'S SIGNATURE
             </span>
           )}
           {idx === 0 && !isPopular && (
-            <span style={{ fontSize: '9px', fontWeight: 900, padding: '2px 7px', borderRadius: '999px', backgroundColor: '#f59e0b', color: '#fff', letterSpacing: '0.04em' }}>
-              🌟 CHEF'S PICK
+            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: '#f59e0b', color: '#fff', letterSpacing: '0.04em', boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
+              ★ SOMMELIER PICK
             </span>
           )}
         </div>
+
         {/* Add button overlay */}
-        <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '28px', height: '28px', borderRadius: '50%', backgroundColor: accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 900, color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
+        <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, color: '#fff', boxShadow: '0 4px 14px rgba(0,0,0,0.6)' }}>
           +
+        </div>
+
+        {/* Price on image */}
+        <div style={{ position: 'absolute', bottom: '10px', left: '12px', fontSize: '16px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>
+          ${Number(item.price).toFixed(2)}
         </div>
       </div>
 
       {/* Info */}
-      <div style={{ padding: '10px 12px' }}>
-        <div style={{ fontSize: '13px', fontWeight: 800, color: '#ffffff', lineHeight: 1.3, marginBottom: '4px' }}>{item.name}</div>
-        {badges.length > 0 && (
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px' }}>
-            {badges.slice(0, 2).map((b) => (
-              <span key={b} style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>{b}</span>
-            ))}
+      <div style={{ padding: '12px 14px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff', lineHeight: 1.3, marginBottom: '6px' }}>{item.name}</div>
+          {badges.length > 0 && (
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '8px' }}>
+              {badges.slice(0, 2).map((b) => (
+                <span key={b} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>{b}</span>
+              ))}
+            </div>
+          )}
+        </div>
+        {pairing && (
+          <div style={{ fontSize: '10px', color: '#f59e0b', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+            <span>🍷</span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pairing}</span>
           </div>
         )}
-        <div style={{ fontSize: '14px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>
-          ${Number(item.price).toFixed(2)}
-        </div>
       </div>
     </div>
   )
 }
 
-// ── Menu Item Card (Full width, with photo) ───────────────────────────────────
+// ── Menu Item Card (Full luxury editorial presentation) ───────────────────────
 
 function MenuItemCard({
   item, idx, isPopular, cartEntry, onOpen, accentColor,
@@ -191,114 +200,122 @@ function MenuItemCard({
   item: MenuItem; idx: number; isPopular: boolean; cartEntry?: CartItem; onOpen: (item: MenuItem) => void; accentColor: string
 }) {
   const [imgError, setImgError] = useState(false)
-  const gradient = getItemGradient(item, idx)
-  const emoji = getItemEmoji(item, idx)
+  const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
-  const hasImage = item.imageUrl && !imgError
+  const pairing = getSommelierPairing(item)
+  const isAvailable = item.isAvailable && !item.is86d
 
   return (
     <div
       style={{
-        backgroundColor: '#141418',
-        border: cartEntry ? `1.5px solid ${accentColor}66` : '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '18px',
+        backgroundColor: '#121217',
+        border: cartEntry ? `1.5px solid ${accentColor}88` : '1px solid rgba(255,255,255,0.09)',
+        borderRadius: '20px',
         overflow: 'hidden',
         transition: 'all 0.2s ease',
-        boxShadow: cartEntry ? `0 4px 20px ${accentColor}22` : '0 2px 8px rgba(0,0,0,0.3)',
+        boxShadow: cartEntry ? `0 8px 28px ${accentColor}25` : '0 4px 16px rgba(0,0,0,0.35)',
+        opacity: isAvailable ? 1 : 0.6,
+        filter: isAvailable ? 'none' : 'grayscale(0.4)',
       }}
     >
-      {/* Image section */}
-      {hasImage ? (
-        <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
-          <img
-            src={item.imageUrl!}
-            alt={item.name}
-            onError={() => setImgError(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            loading="lazy"
-          />
-          {/* Gradient overlay for text legibility */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(20,20,24,0.95) 0%, transparent 55%)' }} />
-          {/* Badge overlays on image */}
-          <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '5px' }}>
-            {isPopular && <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff' }}>🔥 BEST SELLER</span>}
-            {item.kdsStation === 'BAR' && <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: 'rgba(139,92,246,0.9)', color: '#fff' }}>🍷 BAR</span>}
-          </div>
-          {/* Price overlay on image */}
-          <div style={{ position: 'absolute', bottom: '10px', left: '12px', fontSize: '17px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
-            ${Number(item.price).toFixed(2)}
-          </div>
-        </div>
-      ) : (
-        /* Compact gradient placeholder row (no image) */
-        <div style={{ display: 'flex', gap: '12px', padding: '14px 14px 0 14px', alignItems: 'center' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '14px', background: gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', flexShrink: 0 }}>
-            {emoji}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: '#ffffff', lineHeight: 1.3 }}>{item.name}</h3>
-              {isPopular && <span style={{ fontSize: '9px', fontWeight: 900, padding: '2px 6px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff', flexShrink: 0, alignSelf: 'flex-start', marginTop: '2px' }}>🔥</span>}
-              {item.kdsStation === 'BAR' && <span style={{ fontSize: '9px', fontWeight: 900, padding: '2px 6px', borderRadius: '999px', backgroundColor: 'rgba(139,92,246,0.25)', color: '#a78bfa', flexShrink: 0, alignSelf: 'flex-start', marginTop: '2px' }}>BAR</span>}
-            </div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', marginTop: '4px' }}>
-              ${Number(item.price).toFixed(2)}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* High-res Editorial Image Section */}
+      <div style={{ height: '190px', overflow: 'hidden', position: 'relative', backgroundColor: '#18181f' }}>
+        <img
+          src={imgError ? '/images/menu/hero_dish.png' : imageUrl}
+          alt={item.name}
+          onError={() => setImgError(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          loading="lazy"
+        />
+        {/* Luxury Vignette */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(18,18,23,0.96) 0%, rgba(18,18,23,0.2) 50%, rgba(0,0,0,0.4) 100%)' }} />
 
-      {/* Card body */}
-      <div style={{ padding: hasImage ? '10px 14px 14px' : '8px 14px 14px' }}>
-        {hasImage && (
-          <h3 style={{ fontSize: '15px', fontWeight: 800, margin: '0 0 4px', color: '#ffffff', lineHeight: 1.3 }}>{item.name}</h3>
-        )}
+        {/* Top Badges */}
+        <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {isPopular && (
+            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: '#ef4444', color: '#fff', letterSpacing: '0.04em', boxShadow: '0 2px 8px rgba(239,68,68,0.5)' }}>
+              🔥 CHEF'S SIGNATURE
+            </span>
+          )}
+          {item.kdsStation === 'BAR' && (
+            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: 'rgba(139,92,246,0.95)', color: '#fff' }}>
+              🍸 CELLAR &amp; BAR
+            </span>
+          )}
+          {!isAvailable && (
+            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: '#6b7280', color: '#fff' }}>
+              86'D · SOLD OUT TODAY
+            </span>
+          )}
+        </div>
+
+        {/* Floating Price */}
+        <div style={{ position: 'absolute', bottom: '12px', right: '14px', fontSize: '18px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', textShadow: '0 2px 8px rgba(0,0,0,0.9)', backgroundColor: 'rgba(0,0,0,0.6)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          ${Number(item.price).toFixed(2)}
+        </div>
+      </div>
+
+      {/* Card Body */}
+      <div style={{ padding: '14px 16px 16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: '#ffffff', lineHeight: 1.3 }}>{item.name}</h3>
+        </div>
+
         {item.description && (
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', margin: '0 0 8px', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
             {item.description}
           </p>
         )}
 
+        {/* Sommelier Wine & Beverage Pairing */}
+        {pairing && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#f59e0b', marginBottom: '10px', backgroundColor: 'rgba(245,158,11,0.08)', padding: '5px 10px', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.2)' }}>
+            <span>🍷</span>
+            <span><strong>Sommelier Recommendation:</strong> {pairing}</span>
+          </div>
+        )}
+
         {/* Dietary badges */}
         {badges.length > 0 && (
-          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
             {badges.map((b) => (
-              <span key={b} style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.65)', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)' }}>{b}</span>
+              <span key={b} style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.75)', fontWeight: 700, border: '1px solid rgba(255,255,255,0.12)' }}>{b}</span>
             ))}
           </div>
         )}
 
-        {/* Action row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Action Row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           {cartEntry ? (
-            <span style={{ fontSize: '12px', fontWeight: 700, color: accentColor, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✓ {cartEntry.quantity} in order
+            <span style={{ fontSize: '13px', fontWeight: 800, color: accentColor, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              ✓ {cartEntry.quantity} selected for table
             </span>
           ) : (
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
-              {item.modifiers && item.modifiers.length > 0 ? '⚙️ Customizable' : 'Tap to add'}
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+              {item.modifiers && item.modifiers.length > 0 ? '✦ Customizable Courses' : 'Direct-to-line dispatch'}
             </span>
           )}
 
           <button
-            onClick={() => onOpen(item)}
+            onClick={() => isAvailable && onOpen(item)}
+            disabled={!isAvailable}
             style={{
-              padding: '9px 18px',
-              backgroundColor: cartEntry ? 'rgba(16,185,129,0.15)' : accentColor,
-              border: cartEntry ? `1.5px solid #10b981` : 'none',
+              padding: '10px 20px',
+              backgroundColor: !isAvailable ? '#27272a' : cartEntry ? 'rgba(16,185,129,0.15)' : accentColor,
+              border: !isAvailable ? 'none' : cartEntry ? `1.5px solid #10b981` : 'none',
               borderRadius: '12px',
-              color: cartEntry ? '#10b981' : '#ffffff',
+              color: !isAvailable ? 'rgba(255,255,255,0.4)' : cartEntry ? '#10b981' : '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-              boxShadow: cartEntry ? 'none' : `0 4px 14px ${accentColor}44`,
+              cursor: !isAvailable ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s ease',
+              boxShadow: !isAvailable ? 'none' : cartEntry ? 'none' : `0 4px 16px ${accentColor}44`,
               display: 'flex',
               alignItems: 'center',
-              gap: '5px',
+              gap: '6px',
             }}
           >
-            {cartEntry ? '+ More' : '+ Add'}
+            {!isAvailable ? 'Unavailable' : cartEntry ? '+ Add More' : '+ Add to Order'}
           </button>
         </div>
       </div>
@@ -733,7 +750,12 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
     }
   }
 
-  const accentColor = qrConfig.accentColor || '#18181B'
+  const rawAccent = qrConfig.accentColor
+  const accentColor = (rawAccent && rawAccent !== '#18181B' && rawAccent !== '#000000' && rawAccent !== 'var(--brand)')
+    ? rawAccent
+    : '#d4af37'
+  const isLightAccent = accentColor === '#d4af37' || accentColor === '#f59e0b' || accentColor === '#eab308' || accentColor === '#ffffff'
+  const accentBtnTextColor = isLightAccent ? '#000000' : '#ffffff'
 
   // Build global item index for gradient assignment
   const allItems = categories.flatMap((c) => c.items)
@@ -849,11 +871,11 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             </div>
             <button
               onClick={() => setShowCartDrawer(true)}
-              style={{ position: 'relative', padding: '9px 16px', backgroundColor: accentColor, border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: `0 4px 16px ${accentColor}44` }}
+              style={{ position: 'relative', padding: '9px 16px', backgroundColor: accentColor, border: 'none', borderRadius: '12px', color: accentBtnTextColor, fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: `0 4px 16px ${accentColor}44` }}
             >
               🛒 <span>Cart</span>
               {totalItemCount > 0 && (
-                <span style={{ backgroundColor: '#fff', color: accentColor, borderRadius: '999px', padding: '1px 7px', fontSize: '11px', fontWeight: 900 }}>{totalItemCount}</span>
+                <span style={{ backgroundColor: accentBtnTextColor === '#000000' ? '#000000' : '#ffffff', color: accentBtnTextColor === '#000000' ? '#ffffff' : accentColor, borderRadius: '999px', padding: '1px 7px', fontSize: '11px', fontWeight: 900 }}>{totalItemCount}</span>
               )}
             </button>
           </div>
