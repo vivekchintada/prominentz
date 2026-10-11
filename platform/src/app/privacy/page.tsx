@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
           <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.7, color: 'rgba(255,255,255,0.85)' }}>
             <li>We process restaurant operator data and diner order information exclusively to facilitate restaurant management, POS, kitchen routing, and payments.</li>
             <li>We do not sell, rent, or monetize your personal or diner data to third-party data brokers or advertisers.</li>
-            <li>All payment transactions are tokenized and processed securely via PCI-DSS Level 1 certified partners (Stripe); Prominentz never stores raw credit card numbers.</li>
+            <li>All payment transactions are tokenized and processed securely via PCI-DSS Level 1 certified partners (such as Razorpay, Cashfree, or Stripe); Prominentz never stores raw credit card numbers.</li>
             <li>You possess full rights to request data export, correction, or deletion under GDPR and CCPA/CPRA guidelines.</li>
           </ul>
         </div>
@@ -70,7 +70,7 @@ export default function PrivacyPolicyPage() {
             1. Overview and Scope
           </h2>
           <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'rgba(255,255,255,0.78)', margin: '0 0 14px' }}>
-            Prominentz Inc. (&quot;Prominentz,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) provides a cloud-based restaurant operating system encompassing Point-of-Sale (POS), Kitchen Display Systems (KDS), online table QR ordering, inventory management, and operational analytics.
+            Prominentz (&quot;Prominentz,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), incorporated in India, provides a cloud-based restaurant operating system encompassing Point-of-Sale (POS), Kitchen Display Systems (KDS), online table QR ordering, inventory management, and operational analytics for hospitality businesses globally and in the United States.
           </p>
           <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'rgba(255,255,255,0.78)', margin: 0 }}>
             This Privacy Policy describes our practices regarding the collection, use, disclosure, and protection of information obtained from: (a) restaurant owners, managers, and staff (&quot;Operators&quot;), (b) restaurant customers and diners utilizing QR codes or online ordering (&quot;Guests&quot;), and (c) visitors to our websites, applications, and APIs.
@@ -144,8 +144,8 @@ export default function PrivacyPolicyPage() {
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>Stripe Payments</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Payment processing &amp; PCI-DSS Level 1 compliance.</div>
+              <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>Payment Gateways (Razorpay / Cashfree / Stripe)</div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Tokenized payment processing &amp; PCI-DSS Level 1 compliance.</div>
             </div>
             <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '16px' }}>
               <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>Resend Email API</div>
@@ -156,7 +156,7 @@ export default function PrivacyPolicyPage() {
               <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Realtime websocket pipeline for instant KDS updates.</div>
             </div>
             <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>Supabase / PostgreSQL</div>
+              <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>PostgreSQL / Managed Cloud</div>
               <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Secure cloud database hosting with encryption at rest.</div>
             </div>
           </div>
@@ -230,12 +230,12 @@ export default function PrivacyPolicyPage() {
           
           <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '24px' }}>
             <div style={{ fontWeight: 700, fontSize: '15px', color: '#ffffff', marginBottom: '8px' }}>
-              Prominentz Inc. — Privacy &amp; Data Governance Office
+              Prominentz — Privacy &amp; Data Governance Office
             </div>
             <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+              Entity: Prominentz (Incorporated in India)<br />
               Email: <a href="mailto:privacy@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>privacy@prominentz.com</a><br />
               Support: <a href="mailto:support@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>support@prominentz.com</a><br />
-              Hours: Monday – Friday, 9:00 AM – 6:00 PM EST<br />
               Response SLA: Formal privacy inquiries are acknowledged within 48 business hours.
             </div>
           </div>

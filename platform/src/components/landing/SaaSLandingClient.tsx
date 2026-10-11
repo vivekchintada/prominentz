@@ -74,7 +74,7 @@ export default function SaaSLandingClient() {
               <a href="#qr-dining" className={styles.navLink}>QR Dining</a>
               <a href="#features" className={styles.navLink}>Features</a>
               <a href="#comparison" className={styles.navLink}>Comparison</a>
-              <Link href="/pricing" className={styles.navLink}>Pricing ($40/mo)</Link>
+              <Link href="/pricing" className={styles.navLink}>Pricing ($50/mo)</Link>
               <a href="#faq" className={styles.navLink}>FAQ</a>
             </nav>
 
@@ -84,7 +84,7 @@ export default function SaaSLandingClient() {
                 Sign in
               </Link>
               <Link href="/signup" className={styles.btnPrimary}>
-                Get started — $40/mo
+                Get started — $50/mo
               </Link>
             </div>
 
@@ -127,7 +127,7 @@ export default function SaaSLandingClient() {
             <a href="#qr-dining" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>QR Dining</a>
             <a href="#features" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Features</a>
             <a href="#comparison" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Comparison</a>
-            <Link href="/pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing ($40/mo)</Link>
+            <Link href="/pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing ($50/mo)</Link>
             <a href="#faq" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>FAQ</a>
           </div>
           <div className={styles.mobileActions}>
@@ -135,7 +135,7 @@ export default function SaaSLandingClient() {
               Sign in
             </Link>
             <Link href="/signup" className={styles.btnPrimary} onClick={() => setMobileMenuOpen(false)}>
-              Get started — $40/mo
+              Get started — $50/mo
             </Link>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function SaaSLandingClient() {
             </p>
             <div className={styles.heroCtas}>
               <Link href="/signup" className={styles.btnPrimary}>
-                Get started — $40/mo
+                Get started — $50/mo
               </Link>
               <a href="#showcase" className={styles.btnSecondary}>
                 Explore live demo
@@ -190,7 +190,7 @@ export default function SaaSLandingClient() {
               <div className={styles.kpiSub}>Keep 100% of your food sales</div>
             </div>
             <div className={styles.kpiCell}>
-              <div className={styles.kpiValue}>$40/mo</div>
+              <div className={styles.kpiValue}>$50/mo</div>
               <div className={styles.kpiLabel}>All-Inclusive Predictable Rate</div>
               <div className={styles.kpiSub}>Unlimited terminals, tables &amp; staff</div>
             </div>
@@ -1080,7 +1080,7 @@ export default function SaaSLandingClient() {
               <tbody>
                 <tr>
                   <td>Monthly Software Cost</td>
-                  <td><span className={styles.tableCheck}>✓ $40 / month (Flat, All-Inclusive)</span></td>
+                  <td><span className={styles.tableCheck}>✓ $50 / month (Flat, All-Inclusive)</span></td>
                   <td><span className={styles.tableCross}>$150 – $350+ / month per station</span></td>
                 </tr>
                 <tr>
@@ -1163,9 +1163,9 @@ export default function SaaSLandingClient() {
             </div>
 
             <div className={styles.pricingPriceBox}>
-              <div className={styles.pricingMonthly}>$40</div>
+              <div className={styles.pricingMonthly}>$50</div>
               <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', marginBottom: '20px' }}>
-                per month · billed monthly ($400/yr annual)
+                per month · billed monthly ($500/yr annual)
               </div>
               <Link href="/signup" className={styles.btnPrimary} style={{ width: '100%', backgroundColor: '#FFFFFF', color: '#171717', fontWeight: 600 }}>
                 Start 14-Day Free Trial →

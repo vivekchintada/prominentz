@@ -70,7 +70,7 @@ export default function TermsOfServicePage() {
             1. Acceptance of Terms
           </h2>
           <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'rgba(255,255,255,0.78)', margin: '0 0 14px' }}>
-            These Terms of Service (&quot;Terms&quot;) constitute a legally binding agreement between you (&quot;Customer,&quot; &quot;Operator,&quot; &quot;you,&quot; or &quot;your&quot;) and Prominentz Inc. (&quot;Prominentz,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By creating an account, accessing, or using our POS, KDS, online ordering, or related APIs, you affirm that you have read, understood, and agree to be bound by these Terms.
+            These Terms of Service (&quot;Terms&quot;) constitute a legally binding agreement between you (&quot;Customer,&quot; &quot;Operator,&quot; &quot;you,&quot; or &quot;your&quot;) and Prominentz (&quot;Prominentz,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By creating an account, accessing, or using our POS, KDS, online ordering, or related APIs, you affirm that you have read, understood, and agree to be bound by these Terms.
           </p>
           <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'rgba(255,255,255,0.78)', margin: 0 }}>
             If you represent a corporate entity, restaurant group, or franchise, you warrant that you hold sufficient corporate authority to bind that entity to these Terms.
@@ -96,8 +96,8 @@ export default function TermsOfServicePage() {
             3. Subscription Plans, Billing &amp; Taxes
           </h2>
           <ul style={{ paddingLeft: '20px', fontSize: '14px', lineHeight: 1.8, color: 'rgba(255,255,255,0.75)' }}>
-            <li><strong>Recurring Billing:</strong> Subscriptions are billed in advance on a recurring monthly or annual cycle. Fees are non-refundable except where mandated by applicable consumer protection laws.</li>
-            <li><strong>Plan Tiers:</strong> Features, terminal allowances, and location limits are governed by the selected plan (e.g., Basic Plan at $40/month or custom Enterprise Plan).</li>
+            <li><strong>Recurring Billing:</strong> Subscriptions are billed in advance on a recurring monthly or annual cycle ($50/month or $500/year). Fees are non-refundable except where mandated by applicable consumer protection laws.</li>
+            <li><strong>Plan Tiers:</strong> Features, terminal allowances, and location limits are governed by the selected plan (e.g., Basic Plan at $50/month or custom Enterprise Plan).</li>
             <li><strong>Price Changes:</strong> Prominentz reserves the right to modify subscription pricing with a minimum of 30 days prior written notice before renewal.</li>
             <li><strong>Taxes:</strong> All listed fees are exclusive of applicable federal, state, local, VAT, or sales taxes, which will be added where required by statute.</li>
           </ul>
@@ -192,17 +192,17 @@ export default function TermsOfServicePage() {
             10. Governing Law &amp; Dispute Resolution
           </h2>
           <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'rgba(255,255,255,0.78)', margin: '0 0 16px' }}>
-            These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, without giving effect to conflicts of law principles. Any dispute arising out of or related to these Terms shall be resolved by binding arbitration in accordance with the American Arbitration Association (AAA) commercial arbitration rules.
+            These Terms shall be governed by and construed in accordance with applicable commercial laws. For customers in the United States, disputes may be submitted to binding commercial arbitration in accordance with standard arbitration rules. For all other matters, the courts and arbitration procedures of India shall hold primary jurisdiction, without giving effect to conflicts of law principles.
           </p>
 
           <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '24px' }}>
             <div style={{ fontWeight: 700, fontSize: '15px', color: '#ffffff', marginBottom: '8px' }}>
-              Prominentz Inc. — Legal Inquiries &amp; Contract Administration
+              Prominentz — Legal Inquiries &amp; Contract Administration
             </div>
             <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+              Entity: Prominentz (Incorporated in India)<br />
               Legal Department: <a href="mailto:legal@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>legal@prominentz.com</a><br />
-              General Inquiries: <a href="mailto:support@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>support@prominentz.com</a><br />
-              Address: Prominentz Inc., 100 Innovation Way, Suite 400, Wilmington, DE 19801
+              Customer Support: <a href="mailto:support@prominentz.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>support@prominentz.com</a>
             </div>
           </div>
         </section>

@@ -91,7 +91,7 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
           </h2>
 
           <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-            Intelligence, Guest CRM, and Loyalty Rewards are not included in the $40/mo Basic Plan. These features will launch in upcoming advanced tiers.
+            Intelligence, Guest CRM, and Loyalty Rewards are not included in the $50/mo Basic Plan. These features will launch in upcoming advanced tiers.
           </p>
         </div>
 
@@ -143,7 +143,7 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
           }}>
             <span style={{ fontSize: '14px' }}>ℹ️</span>
             <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
-              Your <strong style={{ color: 'var(--color-text-primary)' }}>Basic Plan ($40/mo)</strong> covers complete POS, KDS, Floor Tables, QR Studio, and Sales Reports.
+              Your <strong style={{ color: 'var(--color-text-primary)' }}>Basic Plan ($50/mo)</strong> covers complete POS, KDS, Floor Tables, QR Studio, and Sales Reports.
             </span>
           </div>
 
@@ -154,7 +154,7 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
               className="btn btn--primary btn--full"
               style={{ height: '40px', fontSize: '13px' }}
             >
-              View Basic Plan Details ($40/mo)
+              View Basic Plan Details ($50/mo)
             </button>
             <button
               onClick={onClose}

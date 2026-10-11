@@ -1,16 +1,16 @@
 // ─── Prominentz — Central Pricing Source of Truth ──────────────────────────────
-// Basic Plan ($40/mo) — Pro Plan currently removed / in development
+// Basic Plan ($50/mo) — Pro Plan currently removed / in development
 
 export type PlanTier = 'STARTER' | 'PRO' | 'ENTERPRISE'
 
 export const PRICING = {
   STARTER: {
-    monthly: 40,
-    annual:  400,   // ~2 months free
+    monthly: 50,
+    annual:  500,   // ~2 months free
     label:   'Basic Plan',
     color:   '#5b45f5',
     tagline: 'Affordable, full-featured operating foundation for restaurants, bistros, and cafes.',
-    badge:   'Most Popular · $40/mo',
+    badge:   'Most Popular · $50/mo',
   },
   PRO: {
     monthly: 129,
@@ -72,7 +72,7 @@ export function getUpgradeFeatures(fromPlan: PlanTier, toPlan: PlanTier) {
 }
 
 export function getUpgradeMessage(fromPlan: PlanTier, toPlan: PlanTier) {
-  const fromPrice = PRICING[fromPlan]?.monthly || 40
+  const fromPrice = PRICING[fromPlan]?.monthly || 50
   const toPrice = PRICING[toPlan]?.monthly || 129
   const delta = Math.max(toPrice - fromPrice, 0)
   return {

@@ -579,6 +579,25 @@ function SignupForm() {
                 </div>
               )}
 
+              <div style={{
+                fontSize: '11px',
+                color: 'rgba(255, 255, 255, 0.55)',
+                lineHeight: 1.5,
+                marginTop: '8px',
+                marginBottom: '12px',
+                textAlign: 'center',
+              }}>
+                By clicking {accountType === 'OWNER' ? 'Start 14-Day Free Trial' : 'Complete Registration'}, you agree to Prominentz&apos;s{' '}
+                <Link href="/terms" target="_blank" style={{ color: 'var(--brand-primary, #6366f1)', textDecoration: 'underline' }}>
+                  Terms of Service
+                </Link>{' '}
+                and acknowledge our{' '}
+                <Link href="/privacy" target="_blank" style={{ color: 'var(--brand-primary, #6366f1)', textDecoration: 'underline' }}>
+                  Privacy Policy
+                </Link>
+                {accountType === 'OWNER' ? '. Subscriptions automatically renew at $50/month after the trial unless canceled.' : '.'}
+              </div>
+
               <Button
                 type="submit"
                 variant="primary"

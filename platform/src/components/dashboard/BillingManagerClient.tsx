@@ -297,7 +297,7 @@ export function BillingManagerClient() {
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Monthly Rate</div>
             <div style={{ fontSize: '24px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>
-              $40
+              $50
               <span style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>/mo</span>
             </div>
           </div>

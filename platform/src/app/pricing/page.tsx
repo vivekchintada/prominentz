@@ -7,7 +7,7 @@ import styles from '@/components/landing/MiddayMarketing.module.css'
 
 export const metadata = {
   title: 'Pricing | Prominentz — Transparent Restaurant Intelligence',
-  description: 'Simple, predictable restaurant operations system. Built for modern hospitality teams. Starting at $40/month.',
+  description: 'Simple, predictable restaurant operations system. Built for modern hospitality teams. Starting at $50/month.',
 }
 
 const CHECK = () => (
@@ -140,7 +140,7 @@ export default function PricingPage() {
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#111114' }}>
                 <th style={{ padding: '14px 20px', textAlign: 'left', color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '12px' }}>Feature Capability</th>
                 <th style={{ padding: '14px 20px', textAlign: 'center', color: '#ffffff', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Basic Plan ($40/mo)
+                  Basic Plan ($50/mo)
                 </th>
               </tr>
             </thead>

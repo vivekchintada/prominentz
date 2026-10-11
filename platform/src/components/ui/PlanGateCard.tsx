@@ -85,7 +85,7 @@ export function PlanGateCard({
           lineHeight: '1.6',
         }}
       >
-        {description || 'This feature (Intelligence, Guest CRM, and Loyalty Rewards) is not included in the $40/mo Basic Plan and will be made available in future advanced tiers.'}
+        {description || 'This feature (Intelligence, Guest CRM, and Loyalty Rewards) is not included in the $50/mo Basic Plan and will be made available in future advanced tiers.'}
       </p>
 
       <div
@@ -136,7 +136,7 @@ export function PlanGateCard({
             textDecoration: 'none',
           }}
         >
-          View Basic Plan ($40/mo)
+          View Basic Plan ($50/mo)
         </Link>
       </div>
     </div>
