@@ -7,6 +7,7 @@ import { signOut } from 'next-auth/react'
 import { UpgradeModal } from '@/components/ui/UpgradeModal'
 import { NAV_ITEMS, hasPlanAccess, PlanTier } from '@/lib/plans'
 import { useSidebarCollapse } from './SidebarCollapseContext'
+import ProminentzLogo from '@/components/brand/ProminentzLogo'
 
 /* ─────────────────────────────────────────────
    NAV GROUP DEFINITIONS
@@ -292,6 +293,17 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
     <>
       {/* ── TIER 1: Icon Rail (always visible) ── */}
       <div className="sidebar-rail">
+        {/* Prominentz Brand Icon */}
+        <Link
+          href="/dashboard"
+          className="sidebar-rail__btn"
+          title="Prominentz Dashboard"
+          aria-label="Prominentz Dashboard"
+          style={{ marginBottom: '6px' }}
+        >
+          <ProminentzLogo variant="app-icon" size={28} />
+        </Link>
+
         {NAV_GROUPS.map((group) => {
           const isGroupActive = group.id === currentActiveGroupId
           const isGroupOpen = group.id === openGroupId
@@ -328,6 +340,17 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
 
       {/* ── TIER 2: Text Panel (collapses) ── */}
       <div className={`sidebar-panel${collapsed ? ' sidebar-panel--collapsed' : ''}`}>
+        {/* Prominentz Brand Header Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 14px 10px', borderBottom: '1px solid var(--color-border)' }}>
+          <ProminentzLogo variant="app-icon" size={20} />
+          <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-text-primary)' }}>
+            Prominentz
+          </span>
+          <span style={{ marginLeft: 'auto', fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', padding: '2px 5px', borderRadius: '4px', background: 'rgba(104, 53, 249, 0.15)', color: '#8b5cf6', letterSpacing: '0.04em' }}>
+            {planTier}
+          </span>
+        </div>
+
         {/* Section header */}
         {openGroup && (
           <div className="sidebar-panel__section-header">

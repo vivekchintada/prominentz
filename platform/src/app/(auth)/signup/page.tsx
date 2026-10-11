@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import ProminentzLogo from '@/components/brand/ProminentzLogo'
 import styles from '../login/page.module.css'
 
 function SignupForm() {
@@ -108,12 +109,12 @@ function SignupForm() {
       {/* ── Top Header Navigation ── */}
       <header className={styles.topNav}>
         <Link href="/" className={styles.brandLink}>
-          <span className={styles.brandMark} aria-hidden="true">R</span>
-          <span className={styles.brandName}>Resto</span>
+          <ProminentzLogo variant="app-icon" size={30} />
+          <span className={styles.brandName}>Prominentz</span>
         </Link>
         <Link href="/" className={styles.backHomeLink}>
           <span>&larr;</span>
-          <span>Back to Resto</span>
+          <span>Back to Prominentz</span>
         </Link>
       </header>
 
@@ -122,7 +123,7 @@ function SignupForm() {
         <div className={styles.heroShowcase}>
           <div className={styles.brandBadge}>
             <span className={styles.badgeDot} />
-            Resto Platform Onboarding
+            Prominentz Platform Onboarding
           </div>
 
           <h1 className={styles.heroTitle}>
@@ -220,7 +221,7 @@ function SignupForm() {
             <div className={styles.cardHeader}>
               <div className={styles.logoRow}>
                 <div className={styles.logoBadge}>
-                  <div className={styles.logoIcon}>P</div>
+                  <ProminentzLogo variant="app-icon" size={30} />
                   <div>
                     <div className={styles.logoBrandName}>Prominentz</div>
                   </div>
@@ -601,7 +602,7 @@ function SignupForm() {
               </div>
 
               <div className={styles.footerSecurityNotice}>
-                Protected by Resto Role-Based Access Control
+                Protected by Prominentz Role-Based Access Control
               </div>
             </div>
           </div>

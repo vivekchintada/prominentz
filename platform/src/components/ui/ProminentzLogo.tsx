@@ -1,14 +1,14 @@
 import React from 'react'
+import BrandProminentzLogo, { ProminentzLogoVariant } from '@/components/brand/ProminentzLogo'
 
 /**
- * Resto Brand Logo (formerly ProminentzLogo)
- * Unified minimalist aesthetic inspired by Midday.ai.
- * Monochrome square [R] monogram mark + crisp modern wordmark.
+ * Official Prominentz Brand Logo Component (UI Bridge)
+ * Uses the official Pz ligature monogram and geometric brand typography.
  */
 
-interface ProminentzLogoProps {
-  variant?: 'full' | 'icon' | 'wordmark'
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+export interface ProminentzLogoProps {
+  variant?: 'full' | 'icon' | 'wordmark' | ProminentzLogoVariant
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number
   className?: string
   style?: React.CSSProperties
   color?: string
@@ -16,10 +16,10 @@ interface ProminentzLogoProps {
 }
 
 const SIZE_MAP = {
-  sm: { box: 22, fontMark: 12, fontSize: 14, gap: 8, radius: 5 },
-  md: { box: 28, fontMark: 14, fontSize: 17, gap: 10, radius: 6 },
-  lg: { box: 36, fontMark: 18, fontSize: 22, gap: 12, radius: 8 },
-  xl: { box: 48, fontMark: 24, fontSize: 28, gap: 14, radius: 10 },
+  sm: { box: 24, fontSize: 15, gap: 8 },
+  md: { box: 30, fontSize: 17, gap: 10 },
+  lg: { box: 38, fontSize: 22, gap: 12 },
+  xl: { box: 48, fontSize: 28, gap: 14 },
 }
 
 export function ProminentzLogo({
@@ -28,65 +28,48 @@ export function ProminentzLogo({
   className,
   style,
   inverse = false,
+  color,
 }: ProminentzLogoProps) {
-  const dim = SIZE_MAP[size]
+  const dim = typeof size === 'number'
+    ? { box: size, fontSize: Math.round(size * 0.55), gap: Math.round(size * 0.3) }
+    : SIZE_MAP[size] || SIZE_MAP.md
 
-  const Mark = (
-    <span
-      style={{
-        width: dim.box,
-        height: dim.box,
-        borderRadius: dim.radius,
-        backgroundColor: '#ffffff',
-        color: '#000000',
-        fontWeight: 800,
-        fontSize: dim.fontMark,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        letterSpacing: '-0.04em',
-        lineHeight: 1,
-        flexShrink: 0,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-      }}
-      aria-hidden="true"
-    >
-      P
-    </span>
-  )
-
-  const Text = (
-    <span
-      style={{
-        color: '#ffffff',
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        fontWeight: 700,
-        fontSize: dim.fontSize,
-        letterSpacing: '-0.03em',
-        lineHeight: 1,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      Prominentz
-    </span>
-  )
-
-  if (variant === 'icon') {
+  // Standalone Icon
+  if (variant === 'icon' || variant === 'app-icon') {
     return (
-      <span className={className} style={{ display: 'inline-flex', alignItems: 'center', ...style }}>
-        {Mark}
-      </span>
+      <BrandProminentzLogo
+        variant="app-icon"
+        size={dim.box}
+        className={className}
+        style={style}
+      />
     )
   }
 
+  // Standalone Wordmark
   if (variant === 'wordmark') {
     return (
-      <span className={className} style={{ display: 'inline-flex', alignItems: 'center', ...style }}>
-        {Text}
+      <span
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          color: color || '#ffffff',
+          fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif",
+          fontWeight: 800,
+          fontSize: dim.fontSize,
+          letterSpacing: '-0.04em',
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+          ...style,
+        }}
+      >
+        prominentz
       </span>
     )
   }
 
+  // Full Lockup: Official Pz App Icon + Wordmark
   return (
     <span
       className={className}
@@ -98,8 +81,20 @@ export function ProminentzLogo({
         ...style,
       }}
     >
-      {Mark}
-      {Text}
+      <BrandProminentzLogo variant="app-icon" size={dim.box} />
+      <span
+        style={{
+          color: color || '#ffffff',
+          fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif",
+          fontWeight: 800,
+          fontSize: dim.fontSize,
+          letterSpacing: '-0.04em',
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Prominentz
+      </span>
     </span>
   )
 }

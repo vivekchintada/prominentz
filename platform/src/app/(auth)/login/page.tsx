@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import ProminentzLogo from '@/components/brand/ProminentzLogo'
 import styles from './page.module.css'
 
 type PortalRole = 'OWNER' | 'MANAGER' | 'SERVER' | 'KITCHEN'
@@ -135,7 +136,7 @@ function LoginForm() {
       {/* ── Top Header Navigation ── */}
       <header className={styles.topNav}>
         <Link href="/" className={styles.brandLink}>
-          <span className={styles.brandMark} aria-hidden="true">P</span>
+          <ProminentzLogo variant="app-icon" size={30} />
           <span className={styles.brandName}>Prominentz</span>
         </Link>
         <Link href="/" className={styles.backHomeLink}>
@@ -205,7 +206,7 @@ function LoginForm() {
 
           {/* Hospitality quote */}
           <div className={styles.testimonialCard}>
-            &ldquo;Resto cut our peak dinner rush turn times by 22% in our very first month.&rdquo;
+            &ldquo;Prominentz cut our peak dinner rush turn times by 22% in our very first month.&rdquo;
             <span className={styles.testimonialAuthor}>— Executive Chef Marcus Vance, Osteria Group</span>
           </div>
         </div>
@@ -216,9 +217,9 @@ function LoginForm() {
             <div className={styles.cardHeader}>
               <div className={styles.logoRow}>
                 <div className={styles.logoBadge}>
-                  <div className={styles.logoIcon}>R</div>
+                  <ProminentzLogo variant="app-icon" size={30} />
                   <div>
-                    <div className={styles.logoBrandName}>Resto</div>
+                    <div className={styles.logoBrandName}>Prominentz</div>
                   </div>
                 </div>
                 <span className={styles.logoBrandTag}>PORTAL AUTH</span>
@@ -426,7 +427,7 @@ function LoginForm() {
               </div>
 
               <div className={styles.footerSecurityNotice}>
-                Protected by Resto Role-Based Access Control
+                Protected by Prominentz Role-Based Access Control
               </div>
             </div>
           </div>

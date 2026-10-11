@@ -8,7 +8,7 @@ export default function PublicHeader() {
     <header className={styles.header}>
       <div className={styles.navInner}>
         <Link href="/" className={styles.brand}>
-          <div className={styles.brandMark}>P</div>
+          <ProminentzLogo variant="app-icon" size={28} />
           <div className={styles.brandName}>Prominentz</div>
         </Link>
         <nav className={styles.navLinks}>
