@@ -65,9 +65,9 @@ export function getThemeColors(isDark: boolean) {
     cardShadow: isDark
       ? '0 4px 16px rgba(0,0,0,0.35)'
       : '0 4px 16px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.06)',
-    pairingBg: isDark ? 'rgba(245, 158, 11, 0.08)' : 'rgba(245, 158, 11, 0.12)',
-    pairingBorder: isDark ? 'rgba(245, 158, 11, 0.2)' : 'rgba(245, 158, 11, 0.3)',
-    pairingText: isDark ? '#f59e0b' : '#b45309',
+    pairingBg: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.08)',
+    pairingBorder: isDark ? 'rgba(99, 102, 241, 0.28)' : 'rgba(99, 102, 241, 0.22)',
+    pairingText: isDark ? '#a5b4fc' : '#4f46e5',
   }
 }
 
@@ -465,11 +465,11 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
   const colors = getThemeColors(isDark)
 
   const rawAccent = qrConfig.accentColor
-  const accentColor = (rawAccent && rawAccent !== '#18181B' && rawAccent !== '#000000' && rawAccent !== 'var(--brand)')
+  const accentColor = (rawAccent && rawAccent !== '#18181B' && rawAccent !== '#000000' && rawAccent !== 'var(--brand)' && rawAccent !== '#d4af37' && rawAccent !== '#c29d38')
     ? rawAccent
-    : isDark ? '#d4af37' : '#c29d38'
-  const isLightAccent = accentColor === '#d4af37' || accentColor === '#f59e0b' || accentColor === '#eab308' || accentColor === '#ffffff'
-  const accentTextColor = isLightAccent ? '#000000' : '#ffffff'
+    : isDark ? '#6366f1' : '#4f46e5'
+  const isLightAccent = accentColor === '#ffffff'
+  const accentTextColor = '#ffffff'
 
   const addToCart = (item: MenuItem) => {
     setCart((prev) => {
@@ -612,16 +612,36 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
       <header style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: colors.bgHeader, backdropFilter: 'blur(16px)', borderBottom: `1px solid ${colors.border}`, padding: '14px 16px' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '19px', fontWeight: 900, letterSpacing: '-0.02em', background: isDark ? `linear-gradient(135deg, ${accentColor} 0%, #ffffff 100%)` : `linear-gradient(135deg, ${accentColor} 0%, #0f172a 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Prominentz
-              </span>
-              <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', backgroundColor: `${accentColor}22`, color: accentColor, border: `1px solid ${accentColor}44`, letterSpacing: '0.04em' }}>
-                ★ HAUTE CUISINE
-              </span>
-            </div>
-            <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>
-              Michelin-Grade Table Service · Direct-to-Line KDS
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                fontWeight: 900,
+                fontSize: '18px',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+                flexShrink: 0
+              }}>
+                P
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.03em', color: colors.textPrimary }}>
+                    Prominentz
+                  </span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', backgroundColor: isDark ? 'rgba(99, 102, 241, 0.16)' : 'rgba(79, 70, 229, 0.1)', color: isDark ? '#a5b4fc' : '#4f46e5', border: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(79, 70, 229, 0.25)'}`, letterSpacing: '0.04em' }}>
+                    HAUTE CUISINE
+                  </span>
+                </div>
+                <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '1px' }}>
+                  Michelin-Grade Table Service · Direct-to-Line KDS
+                </div>
+              </div>
             </div>
           </div>
 
@@ -811,6 +831,46 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
             </section>
           ))
         )}
+
+        {/* ── Prominentz Dining OS Footer ── */}
+        <footer style={{
+          marginTop: '48px',
+          marginBottom: '24px',
+          padding: '24px 16px',
+          borderTop: `1px solid ${colors.borderSubtle}`,
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '7px',
+              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              fontSize: '12px',
+              fontWeight: 900,
+              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.35)'
+            }}>
+              P
+            </div>
+            <span style={{ fontSize: '14px', fontWeight: 900, color: colors.textPrimary, letterSpacing: '-0.01em' }}>
+              Prominentz Dining Experience
+            </span>
+            <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(79,70,229,0.1)', color: isDark ? '#a5b4fc' : '#4f46e5' }}>
+              VERIFIED
+            </span>
+          </div>
+          <div style={{ fontSize: '11px', color: colors.textTertiary }}>
+            Powered by Prominentz · Ultra-low latency KDS kitchen routing
+          </div>
+        </footer>
       </main>
 
       {/* Floating Bottom Check Bar */}

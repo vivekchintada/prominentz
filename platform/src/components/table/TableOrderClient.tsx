@@ -153,7 +153,7 @@ function HeroItemCard({
             </span>
           )}
           {idx === 0 && !isPopular && (
-            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', backgroundColor: '#f59e0b', color: '#fff', letterSpacing: '0.04em', boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
+            <span style={{ fontSize: '9px', fontWeight: 900, padding: '3px 8px', borderRadius: '999px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', letterSpacing: '0.04em', boxShadow: '0 2px 8px rgba(99,102,241,0.4)' }}>
               ★ SOMMELIER PICK
             </span>
           )}
@@ -345,7 +345,7 @@ function ComboDealCard({ combo, onAddCombo, accentColor, colors }: { combo: Comb
       backgroundColor: colors.bgCard,
     }} onClick={() => onAddCombo(combo)}>
       {/* Emoji badge */}
-      <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: `linear-gradient(135deg, ${accentColor} 0%, #f59e0b 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>
+      <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: `linear-gradient(135deg, ${accentColor} 0%, #4338ca 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>
         {combo.imageEmoji || '🍱'}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -361,7 +361,7 @@ function ComboDealCard({ combo, onAddCombo, accentColor, colors }: { combo: Comb
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '15px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>${combo.comboPrice.toFixed(2)}</span>
           <span style={{ fontSize: '12px', color: colors.textTertiary, textDecoration: 'line-through', fontFamily: 'monospace' }}>${combo.originalPrice.toFixed(2)}</span>
-          <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 700 }}>Save ${savings}</span>
+          <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Save ${savings}</span>
         </div>
       </div>
     </div>
@@ -780,11 +780,11 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
   const colors = getThemeColors(isDark)
 
   const rawAccent = qrConfig.accentColor
-  const accentColor = (rawAccent && rawAccent !== '#18181B' && rawAccent !== '#000000' && rawAccent !== 'var(--brand)')
+  const accentColor = (rawAccent && rawAccent !== '#18181B' && rawAccent !== '#000000' && rawAccent !== 'var(--brand)' && rawAccent !== '#d4af37' && rawAccent !== '#c29d38')
     ? rawAccent
-    : isDark ? '#d4af37' : '#c29d38'
-  const isLightAccent = accentColor === '#d4af37' || accentColor === '#f59e0b' || accentColor === '#eab308' || accentColor === '#ffffff'
-  const accentBtnTextColor = isLightAccent ? '#000000' : '#ffffff'
+    : isDark ? '#6366f1' : '#4f46e5'
+  const isLightAccent = accentColor === '#ffffff'
+  const accentBtnTextColor = '#ffffff'
 
   // Build global item index for gradient assignment
   const allItems = categories.flatMap((c) => c.items)
@@ -869,7 +869,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
 
       {/* ── Promo Banner ──────────────────────────────────────────────────── */}
       {qrConfig.promoText && showPromoBanner && (
-        <div style={{ background: `linear-gradient(135deg, ${accentColor} 0%, #f59e0b 100%)`, color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 700 }}>
+        <div style={{ background: `linear-gradient(135deg, ${accentColor} 0%, #4338ca 100%)`, color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 700 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>🎉</span><span>{qrConfig.promoText}</span>
           </div>
@@ -889,15 +889,37 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
         <div style={{ maxWidth: '640px', margin: '0 auto', padding: '12px 16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', background: isDark ? `linear-gradient(135deg, ${accentColor} 0%, #ffffff 100%)` : `linear-gradient(135deg, ${accentColor} 0%, #0f172a 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  Prominentz
-                </span>
-                <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: `${accentColor}22`, color: accentColor, border: `1px solid ${accentColor}44` }}>
-                  📱 TABLE ORDER
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '18px',
+                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+                  flexShrink: 0,
+                }}>
+                  P
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.03em', color: colors.textPrimary }}>
+                      Prominentz
+                    </span>
+                    <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', backgroundColor: isDark ? 'rgba(99, 102, 241, 0.16)' : 'rgba(79, 70, 229, 0.1)', color: isDark ? '#a5b4fc' : '#4f46e5', border: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(79, 70, 229, 0.25)'}`, letterSpacing: '0.04em' }}>
+                      TABLE ORDER
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '1px' }}>
+                    {tableId ? `Table ${tableId} · Contactless Service` : 'Scan · Browse · Order · Enjoy'}
+                  </div>
+                </div>
               </div>
-              <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>Scan · Browse · Order · Enjoy</div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1167,6 +1189,46 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             </section>
           ))
         )}
+
+        {/* ── Prominentz Dining OS Footer ── */}
+        <footer style={{
+          marginTop: '48px',
+          marginBottom: '24px',
+          padding: '24px 16px',
+          borderTop: `1px solid ${colors.borderSubtle}`,
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '7px',
+              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              fontSize: '12px',
+              fontWeight: 900,
+              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.35)',
+            }}>
+              P
+            </div>
+            <span style={{ fontSize: '14px', fontWeight: 900, color: colors.textPrimary, letterSpacing: '-0.01em' }}>
+              Prominentz Dining Experience
+            </span>
+            <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(79,70,229,0.1)', color: isDark ? '#a5b4fc' : '#4f46e5' }}>
+              VERIFIED
+            </span>
+          </div>
+          <div style={{ fontSize: '11px', color: colors.textTertiary }}>
+            Powered by Prominentz · Ultra-low latency KDS kitchen routing
+          </div>
+        </footer>
       </main>
 
       {/* ── Floating Cart Bar ──────────────────────────────────────────────── */}
