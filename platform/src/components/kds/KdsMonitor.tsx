@@ -1685,7 +1685,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
 
                         {/* Item List: Item Name (17-18px), Modifiers (15-16px) */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '14px 0' }}>
-                          {ticket.items.map((item) => (
+                          {ticket.items.map((item: any) => (
                             <div key={item.id}>
                               <div style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text)', lineHeight: 1.3 }}>
                                 {item.quantity}× {item.menuItem?.name || 'Dish'}
@@ -1694,7 +1694,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                               {/* Modifiers (15-16px) */}
                               {Boolean(item.specialNote) && (
                                 <div style={{ fontSize: '15px', color: 'var(--danger)', fontWeight: 600, marginLeft: '18px' }}>
-                                  ↳ {item.specialNote}
+                                  ↳ {String(item.specialNote)}
                                 </div>
                               )}
                               {item.modifiers && Array.isArray(item.modifiers) && item.modifiers.map((m: any, idx: number) => (
