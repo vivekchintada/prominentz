@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import styles from './MiddayMarketing.module.css'
+import ProminentzLogo from '@/components/brand/ProminentzLogo'
 
 export default function SaaSLandingClient() {
   // Mobile navigation state
@@ -61,7 +62,7 @@ export default function SaaSLandingClient() {
           <div className={styles.navInner}>
             {/* Brand Logo */}
             <Link href="/" className={styles.brand} aria-label="Prominentz Platform Home">
-              <span className={styles.brandMark} aria-hidden="true">P</span>
+              <ProminentzLogo variant="app-icon" size={32} />
               <span className={styles.brandName}>Prominentz</span>
             </Link>
 
@@ -1398,7 +1399,7 @@ export default function SaaSLandingClient() {
           <div className={styles.footerTop}>
             <div className={styles.footerBrandCol}>
               <div className={styles.brand}>
-                <span className={styles.brandMark} aria-hidden="true">P</span>
+                <ProminentzLogo variant="app-icon" size={28} />
                 <span className={styles.brandName}>Prominentz</span>
               </div>
               <p className={styles.footerBrandDesc}>
@@ -1413,6 +1414,7 @@ export default function SaaSLandingClient() {
               <a href="#how-it-works" className={styles.footerLink}>Workflow</a>
               <a href="#features" className={styles.footerLink}>Features</a>
               <Link href="/pricing" className={styles.footerLink}>Pricing</Link>
+              <Link href="/brand" className={styles.footerLink}>Brand Assets &amp; Logos</Link>
             </div>
 
             <div className={styles.footerLinks}>

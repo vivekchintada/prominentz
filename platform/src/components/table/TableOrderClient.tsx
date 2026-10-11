@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { getThemeColors } from './UniversalMenuClient'
+import ProminentzLogo from '@/components/brand/ProminentzLogo'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -890,22 +891,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontWeight: 900,
-                  fontSize: '18px',
-                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
-                  flexShrink: 0,
-                }}>
-                  P
-                </div>
+                <ProminentzLogo variant="app-icon" size={36} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.03em', color: colors.textPrimary }}>
@@ -1203,21 +1189,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
           gap: '8px',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '7px',
-              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontSize: '12px',
-              fontWeight: 900,
-              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.35)',
-            }}>
-              P
-            </div>
+            <ProminentzLogo variant="app-icon" size={24} />
             <span style={{ fontSize: '14px', fontWeight: 900, color: colors.textPrimary, letterSpacing: '-0.01em' }}>
               Prominentz Dining Experience
             </span>

@@ -9,6 +9,7 @@ import { NotificationsDropdown } from './NotificationsDropdown'
 import { CommandPalette } from './CommandPalette'
 import { LocationSwitcher } from './LocationSwitcher'
 import { PlanTier } from '@/lib/plans'
+import ProminentzLogo from '@/components/brand/ProminentzLogo'
 
 
 /* ── Quick-nav links (centre of top bar) ── */
@@ -214,10 +215,8 @@ export default function TopBar({
         </button>
 
         <div className="top-bar__brand" ref={locationMenuRef} style={{ position: 'relative' }}>
-          {/* Prominentz monochrome mark */}
-          <div className="top-bar__logo-mark" style={{ background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: '13px', letterSpacing: '-0.02em', borderRadius: '5px' }}>
-            P
-          </div>
+          {/* Official Prominentz Pz logo mark */}
+          <ProminentzLogo variant="app-icon" size={26} />
           <button
             onClick={() => setShowLocationMenu((prev) => !prev)}
             style={{

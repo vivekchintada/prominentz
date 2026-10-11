@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" fill="none">
+  <!-- Official Prominentz Stacked Brand Logo -->
+  <rect width="320" height="280" rx="36" fill="#6835F9"/>
+  <!-- Centered Monogram: White P, Dark Black z -->
+  <g transform="translate(110, 32)">
+    <path d="M 12 10 H 54 C 69.46 10 82 22.54 82 38 C 82 53.46 69.46 66 54 66 H 36 V 96 H 12 Z M 36 28 V 48 H 52 C 57.52 48 62 43.52 62 38 C 62 32.48 57.52 28 52 28 Z" fill="#FFFFFF"/>
+    <path d="M 36 54 H 82 V 66 L 54 84 H 82 V 96 H 36 V 84 L 64 66 H 36 Z" fill="#141416"/>
+  </g>
+  <!-- Wordmark: prominentz -->
+  <text x="160" y="200" text-anchor="middle" fill="#FFFFFF" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif" font-weight="800" font-size="36" letter-spacing="-0.04em">prominentz</text>
+  <!-- Accent bar under letter z -->
+  <rect x="238" y="210" width="16" height="3.5" rx="1.75" fill="#FFFFFF"/>
+</svg>
