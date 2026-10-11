@@ -135,12 +135,12 @@ function LoginForm() {
       {/* ── Top Header Navigation ── */}
       <header className={styles.topNav}>
         <Link href="/" className={styles.brandLink}>
-          <span className={styles.brandMark} aria-hidden="true">R</span>
-          <span className={styles.brandName}>Resto</span>
+          <span className={styles.brandMark} aria-hidden="true">P</span>
+          <span className={styles.brandName}>Prominentz</span>
         </Link>
         <Link href="/" className={styles.backHomeLink}>
           <span>&larr;</span>
-          <span>Back to Resto</span>
+          <span>Back to Prominentz</span>
         </Link>
       </header>
 
@@ -149,7 +149,7 @@ function LoginForm() {
         <div className={styles.heroShowcase}>
           <div className={styles.brandBadge}>
             <span className={styles.badgeDot} />
-            Resto Operating System
+            Prominentz Operating System
           </div>
 
           <h1 className={styles.heroTitle}>

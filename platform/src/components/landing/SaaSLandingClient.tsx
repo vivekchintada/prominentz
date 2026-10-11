@@ -60,9 +60,9 @@ export default function SaaSLandingClient() {
         <div className={styles.container}>
           <div className={styles.navInner}>
             {/* Brand Logo */}
-            <Link href="/" className={styles.brand} aria-label="Resto Platform Home">
-              <span className={styles.brandMark} aria-hidden="true">R</span>
-              <span className={styles.brandName}>Resto</span>
+            <Link href="/" className={styles.brand} aria-label="Prominentz Platform Home">
+              <span className={styles.brandMark} aria-hidden="true">P</span>
+              <span className={styles.brandName}>Prominentz</span>
             </Link>
 
             {/* Desktop Navigation Links */}
@@ -902,7 +902,7 @@ export default function SaaSLandingClient() {
                   aria-expanded={openFaqIndex === 0}
                   aria-controls="faq-ans-0"
                 >
-                  <span>How does Resto connect front-of-house servers with kitchen line stations?</span>
+                  <span>How does Prominentz connect front-of-house servers with kitchen line stations?</span>
                   <span className={`${styles.faqIcon} ${openFaqIndex === 0 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
                 </button>
                 {openFaqIndex === 0 && (
@@ -926,7 +926,7 @@ export default function SaaSLandingClient() {
                 </button>
                 {openFaqIndex === 1 && (
                   <div id="faq-ans-1" className={styles.faqAnswer}>
-                    Resto’s handheld and terminal clients include local queue buffering. Orders taken while offline are safely queued in the browser and automatically dispatched to kitchen monitors as soon as connectivity resumes.
+                    Prominentz’s handheld and terminal clients include local queue buffering. Orders taken while offline are safely queued in the browser and automatically dispatched to kitchen monitors as soon as connectivity resumes.
                   </div>
                 )}
               </div>
@@ -964,7 +964,7 @@ export default function SaaSLandingClient() {
                 </button>
                 {openFaqIndex === 3 && (
                   <div id="faq-ans-3" className={styles.faqAnswer}>
-                    Resto enforces strict role-based access control. Line cooks see only active kitchen tickets, servers access table ordering, and managers hold override privileges for voids, comps, 86-lists, and reporting.
+                    Prominentz enforces strict role-based access control. Line cooks see only active kitchen tickets, servers access table ordering, and managers hold override privileges for voids, comps, 86-lists, and reporting.
                   </div>
                 )}
               </div>
@@ -1018,8 +1018,8 @@ export default function SaaSLandingClient() {
           <div className={styles.footerTop}>
             <div className={styles.footerBrandCol}>
               <div className={styles.brand}>
-                <span className={styles.brandMark} aria-hidden="true">R</span>
-                <span className={styles.brandName}>Resto</span>
+                <span className={styles.brandMark} aria-hidden="true">P</span>
+                <span className={styles.brandName}>Prominentz</span>
               </div>
               <p className={styles.footerBrandDesc}>
                 The operating system for modern restaurants. Front-of-house, kitchen bump bars, and manager controls in one unified platform.
@@ -1051,7 +1051,7 @@ export default function SaaSLandingClient() {
           </div>
 
           <div className={styles.footerBottom}>
-            <div>&copy; 2026 Resto Platform. All rights reserved.</div>
+            <div>&copy; 2026 Prominentz Platform. All rights reserved.</div>
             <div>Built for high-performance dining rooms.</div>
           </div>
         </div>

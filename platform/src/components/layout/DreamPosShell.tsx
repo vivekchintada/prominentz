@@ -187,7 +187,7 @@ export default function DreamPosShell({
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontWeight: 800, fontSize: '15px', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                Resto
+                Prominentz
               </span>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
                 {workstationTitle || (role === 'SERVER' ? 'Server Floor' : 'Kitchen KDS')}

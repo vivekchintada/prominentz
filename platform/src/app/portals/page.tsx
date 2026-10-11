@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
 
 export const metadata: Metadata = {
-  title: 'Operating Portals | Resto — Role-Based Hospitality Workspaces',
+  title: 'Operating Portals | Prominentz — Role-Based Hospitality Workspaces',
   description: 'Choose your workspace: Dedicated portals and sign-in experiences for Restaurant Owners, Store Managers, Floor Servers, and Kitchen Chefs.',
 }
 
@@ -250,7 +250,7 @@ export default function PortalsPage() {
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '32px 40px', backgroundColor: '#000000' }}>
         <div style={{ maxWidth: '1160px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: 600, color: '#ffffff' }}>Resto</span>
+            <span style={{ fontWeight: 600, color: '#ffffff' }}>Prominentz</span>
             <span>© 2026. All rights reserved.</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>

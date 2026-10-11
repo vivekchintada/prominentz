@@ -7,8 +7,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Resto — The Operating System for Modern Restaurants',
-    template: '%s | Resto',
+    default: 'Prominentz — The Operating System for Modern Restaurants',
+    template: '%s | Prominentz',
   },
   description: 'The operating system for modern restaurants. Front-of-house, kitchen bump bars, and manager controls in one unified platform.',
   icons: {

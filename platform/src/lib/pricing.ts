@@ -31,7 +31,7 @@ export const PRICING = {
 } as const
 
 // All features by tier
-// NOTE: Intelligence (RestoIQ AI), Guest CRM, and Loyalty Rewards are strictly EXCLUDED from the Basic Plan.
+// NOTE: Intelligence (Prominentz AI), Guest CRM, and Loyalty Rewards are strictly EXCLUDED from the Basic Plan.
 export const PLAN_FEATURES = {
   STARTER: [
     { icon: '🛎️', label: 'Point of Sale (POS) & Table Floor Management' },
@@ -46,12 +46,12 @@ export const PLAN_FEATURES = {
     { icon: '📈', label: 'End-of-Day Z-Reports & Daily Sales Analytics' },
   ],
   NOT_INCLUDED_IN_BASIC: [
-    { icon: '🧠', label: 'RestoIQ AI Operations Agent & Intelligence' },
+    { icon: '🧠', label: 'Prominentz AI Operations Agent & Intelligence' },
     { icon: '👥', label: 'Guest CRM, Dining History & VIP Profiles' },
     { icon: '⭐', label: 'Automatic Loyalty Points & Customer Rewards Engine' },
   ],
   PRO: [
-    { icon: '🧠', label: 'RestoIQ AI Conversational Analytics & Intelligence' },
+    { icon: '🧠', label: 'Prominentz AI Conversational Analytics & Intelligence' },
     { icon: '👥', label: 'Guest CRM & VIP Guest Intelligence' },
     { icon: '⭐', label: 'Automatic Loyalty Points & Rewards Engine' },
     { icon: '🏢', label: 'Multi-Location Switching & Outlets' },

@@ -213,7 +213,7 @@ const COMMAND_ITEMS: CommandItem[] = [
   },
   {
     id: 'nav-ai',
-    label: 'RestoIQ AI & Automations',
+    label: 'Prominentz AI & Automations',
     category: 'Analytics & CRM',
     href: '/dashboard/ai',
     keywords: ['artificial intelligence', 'assistant', 'forecast', 'insights'],

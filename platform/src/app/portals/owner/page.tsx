@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
 
 export const metadata: Metadata = {
-  title: 'Executive HQ & Owner Portal | Resto',
+  title: 'Executive HQ & Owner Portal | Prominentz',
   description: 'Enterprise command center for restaurant owners and multi-unit hospitality operators. Unified financials, menu management, and real-time operations.',
 }
 
@@ -40,7 +40,7 @@ export default function OwnerPortalLandingPage() {
     {
       icon: '📦',
       title: 'Automated Purchase Orders & Par Levels',
-      desc: 'Never run out of key ingredients. Resto monitors consumption velocity and automatically suggests purchase orders to approved suppliers.',
+      desc: 'Never run out of key ingredients. Prominentz monitors consumption velocity and automatically suggests purchase orders to approved suppliers.',
     },
     {
       icon: '💳',
@@ -55,7 +55,7 @@ export default function OwnerPortalLandingPage() {
       <header style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: '1180px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Link href="/" aria-label="Resto Home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Link href="/" aria-label="Prominentz Home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
               <ProminentzLogo size="sm" />
             </Link>
             <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.12)', fontWeight: 600, letterSpacing: '0.04em' }}>
@@ -273,7 +273,7 @@ export default function OwnerPortalLandingPage() {
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '32px 40px', backgroundColor: '#000000' }}>
         <div style={{ maxWidth: '1180px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: 600, color: '#ffffff' }}>Resto</span>
+            <span style={{ fontWeight: 600, color: '#ffffff' }}>Prominentz</span>
             <span>© 2026. All rights reserved.</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>

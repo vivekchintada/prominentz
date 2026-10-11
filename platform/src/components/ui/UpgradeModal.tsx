@@ -103,7 +103,7 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
             {[
-              { icon: '🧠', label: 'RestoIQ AI Operations Agent & Intelligence' },
+              { icon: '🧠', label: 'Prominentz AI Operations Agent & Intelligence' },
               { icon: '👥', label: 'Guest CRM & VIP Dining Histories' },
               { icon: '⭐', label: 'Automatic Loyalty Points & Rewards Engine' },
             ].map((feature, i) => (

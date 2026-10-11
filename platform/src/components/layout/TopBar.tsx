@@ -214,9 +214,9 @@ export default function TopBar({
         </button>
 
         <div className="top-bar__brand" ref={locationMenuRef} style={{ position: 'relative' }}>
-          {/* Resto monochrome mark */}
+          {/* Prominentz monochrome mark */}
           <div className="top-bar__logo-mark" style={{ background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: '13px', letterSpacing: '-0.02em', borderRadius: '5px' }}>
-            R
+            P
           </div>
           <button
             onClick={() => setShowLocationMenu((prev) => !prev)}

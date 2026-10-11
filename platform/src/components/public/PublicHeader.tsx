@@ -8,8 +8,8 @@ export default function PublicHeader() {
     <header className={styles.header}>
       <div className={styles.navInner}>
         <Link href="/" className={styles.brand}>
-          <div className={styles.brandMark}>R</div>
-          <div className={styles.brandName}>Resto</div>
+          <div className={styles.brandMark}>P</div>
+          <div className={styles.brandName}>Prominentz</div>
         </Link>
         <nav className={styles.navLinks}>
           <Link href="/pricing" className={styles.navLink}>Pricing</Link>

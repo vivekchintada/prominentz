@@ -36,7 +36,7 @@ export const NAV_ITEMS: PlanFeature[] = [
   { href: '/dashboard/waitlist',     icon: '⏳', label: 'Walk-in Waitlist', tier: 'STARTER', roles: ['OWNER', 'MANAGER', 'SERVER'] },
   { href: '/dashboard/crm',          icon: '👥', label: 'Guest CRM',        tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
   { href: '/dashboard/loyalty',      icon: '🎁', label: 'Loyalty Rewards',  tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
-  { href: '/dashboard/ai',           icon: '✨', label: 'RestoIQ AI',       tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
+  { href: '/dashboard/ai',           icon: '✨', label: 'Prominentz AI',    tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
 
   // ─── Settings & Admin ──────────────────────────────────────────────────────
   { href: '/dashboard/settings',         icon: '⚙️', label: 'General Settings', tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },

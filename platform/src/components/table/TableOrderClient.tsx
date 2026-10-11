@@ -550,7 +550,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
     suggestedPills?: string[]
   }>>([{
     sender: 'assistant',
-    text: "👋 Welcome! I'm your **RestoIQ Digital Sommelier & Concierge**.\n\nAsk me anything about allergens, wine pairings, or recommendations!",
+    text: "👋 Welcome! I'm your **Prominentz Digital Sommelier & Concierge**.\n\nAsk me anything about allergens, wine pairings, or recommendations!",
     suggestedPills: ['🍷 Wine with Ribeye?', '🌱 Vegetarian options', '🌾 Gluten-free dishes', '⭐ Chef special today?'],
   }])
 
@@ -977,7 +977,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
               <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: '10px' }}>✨</span>
               </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#93c5fd' }}>Ask RestoIQ AI Concierge</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#93c5fd' }}>Ask Prominentz AI Concierge</span>
             </div>
             <span style={{ fontSize: '11px', color: '#a1a1aa' }}>Allergens · Pairings →</span>
           </button>
@@ -1202,7 +1202,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                   <span style={{ fontSize: '12px' }}>✨</span>
                 </div>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>RestoIQ Concierge</div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>Prominentz Concierge</div>
                   <div style={{ fontSize: '11px', color: '#94a3b8' }}>Allergens · Pairings · Recommendations</div>
                 </div>
               </div>

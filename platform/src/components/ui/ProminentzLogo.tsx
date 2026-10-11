@@ -51,7 +51,7 @@ export function ProminentzLogo({
       }}
       aria-hidden="true"
     >
-      R
+      P
     </span>
   )
 
@@ -67,7 +67,7 @@ export function ProminentzLogo({
         whiteSpace: 'nowrap',
       }}
     >
-      Resto
+      Prominentz
     </span>
   )
 

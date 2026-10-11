@@ -15,7 +15,7 @@ export function PlanGateCard({
   description,
   badge = 'Not Included in Basic Plan',
   features = [
-    'Resto IQ Autonomous Operations Agent',
+    'Prominentz Autonomous Operations Agent',
     'Real-time Multi-Location Outlets & Switching',
     'Guest CRM & Customer Spend Profiles',
     'Automated Loyalty Points & Rewards Engine',

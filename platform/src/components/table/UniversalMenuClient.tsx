@@ -211,7 +211,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
-                Resto
+                Prominentz
               </span>
               <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.12)' }}>
                 📱 DINE-IN DIGITAL MENU

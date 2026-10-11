@@ -209,7 +209,7 @@ function SignupForm() {
           </div>
 
           <div className={styles.testimonialCard}>
-            &ldquo;Setting up Resto took under ten minutes. The floor team was taking orders on handhelds the same evening.&rdquo;
+            &ldquo;Setting up Prominentz took under ten minutes. The floor team was taking orders on handhelds the same evening.&rdquo;
             <span className={styles.testimonialAuthor}>— Elena Rostova, General Manager @ Atelier Bistro</span>
           </div>
         </div>
@@ -220,9 +220,9 @@ function SignupForm() {
             <div className={styles.cardHeader}>
               <div className={styles.logoRow}>
                 <div className={styles.logoBadge}>
-                  <div className={styles.logoIcon}>R</div>
+                  <div className={styles.logoIcon}>P</div>
                   <div>
-                    <div className={styles.logoBrandName}>Resto</div>
+                    <div className={styles.logoBrandName}>Prominentz</div>
                   </div>
                 </div>
                 <span className={styles.logoBrandTag}>ACCOUNT SETUP</span>
