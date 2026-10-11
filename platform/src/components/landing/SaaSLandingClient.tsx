@@ -67,11 +67,13 @@ export default function SaaSLandingClient() {
 
             {/* Desktop Navigation Links */}
             <nav className={styles.navLinks} aria-label="Primary Navigation">
-              <a href="#showcase" className={styles.navLink}>Product</a>
+              <a href="#showcase" className={styles.navLink}>Live Demo</a>
               <a href="#roles" className={styles.navLink}>Roles</a>
-              <a href="#how-it-works" className={styles.navLink}>Workflow</a>
+              <a href="#hardware" className={styles.navLink}>Hardware &amp; Printers</a>
+              <a href="#qr-dining" className={styles.navLink}>QR Dining</a>
               <a href="#features" className={styles.navLink}>Features</a>
-              <Link href="/pricing" className={styles.navLink}>Pricing</Link>
+              <a href="#comparison" className={styles.navLink}>Comparison</a>
+              <Link href="/pricing" className={styles.navLink}>Pricing ($40/mo)</Link>
               <a href="#faq" className={styles.navLink}>FAQ</a>
             </nav>
 
@@ -81,7 +83,7 @@ export default function SaaSLandingClient() {
                 Sign in
               </Link>
               <Link href="/signup" className={styles.btnPrimary}>
-                Get started
+                Get started — $40/mo
               </Link>
             </div>
 
@@ -118,11 +120,13 @@ export default function SaaSLandingClient() {
           className={`${styles.mobileMenu} ${mobileMenuOpen ? styles.mobileMenuOpen : ''}`}
         >
           <div className={styles.mobileNavLinks}>
-            <a href="#showcase" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Product</a>
+            <a href="#showcase" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Live Demo</a>
             <a href="#roles" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Roles</a>
-            <a href="#how-it-works" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Workflow</a>
+            <a href="#hardware" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Hardware &amp; Printers</a>
+            <a href="#qr-dining" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>QR Dining</a>
             <a href="#features" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Features</a>
-            <Link href="/pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+            <a href="#comparison" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Comparison</a>
+            <Link href="/pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing ($40/mo)</Link>
             <a href="#faq" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>FAQ</a>
           </div>
           <div className={styles.mobileActions}>
@@ -130,7 +134,7 @@ export default function SaaSLandingClient() {
               Sign in
             </Link>
             <Link href="/signup" className={styles.btnPrimary} onClick={() => setMobileMenuOpen(false)}>
-              Get started
+              Get started — $40/mo
             </Link>
           </div>
         </div>
@@ -140,19 +144,54 @@ export default function SaaSLandingClient() {
       <section className={styles.hero} aria-label="Introduction">
         <div className={styles.container}>
           <div className={styles.heroContent}>
+            <span className={styles.eyebrow}>✦ Next-Generation Restaurant OS</span>
             <h1 className={styles.heroTitle}>
-              The operating system for modern restaurants.
+              The all-in-one operating system engineered for modern dining rooms.
             </h1>
             <p className={styles.heroDescription}>
-              Bring orders, kitchen coordination, and restaurant operations together in one workspace.
+              Unify front-of-house point of sale, multi-station kitchen display systems (KDS), contactless QR table ordering, WebUSB thermal printing, and live floor telemetry in one seamless workspace.
             </p>
             <div className={styles.heroCtas}>
               <Link href="/signup" className={styles.btnPrimary}>
-                Get started
+                Get started — $40/mo
               </Link>
               <a href="#showcase" className={styles.btnSecondary}>
-                Explore the platform
+                Explore live demo
               </a>
+            </div>
+
+            {/* Feature Pills */}
+            <div className={styles.heroPillRow}>
+              <span className={styles.heroPill}>⚡ &lt; 1.2s KDS Sync</span>
+              <span className={styles.heroPill}>🖨️ WebUSB &amp; ESC/POS Thermal Direct</span>
+              <span className={styles.heroPill}>📱 Contactless QR Table Dine-In</span>
+              <span className={styles.heroPill}>🤖 Prominentz AI Concierge</span>
+              <span className={styles.heroPill}>💳 Split-Check &amp; Stripe Direct</span>
+              <span className={styles.heroPill}>📶 Offline Queue Continuity</span>
+            </div>
+
+            {/* Live Operational Metrics HUD */}
+            <div className={styles.kpiGrid}>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiValue}>&lt; 1.2s</div>
+                <div className={styles.kpiLabel}>Ticket Dispatch Latency</div>
+                <div className={styles.kpiSub}>Instant sync from table to line</div>
+              </div>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiValue}>99.99%</div>
+                <div className={styles.kpiLabel}>Service Uptime &amp; Offline Queue</div>
+                <div className={styles.kpiSub}>Continuous orders during Wi-Fi drops</div>
+              </div>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiValue}>0%</div>
+                <div className={styles.kpiLabel}>Platform Take-Rate</div>
+                <div className={styles.kpiSub}>Keep 100% of your food sales</div>
+              </div>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiValue}>$40/mo</div>
+                <div className={styles.kpiLabel}>All-Inclusive Predictable Rate</div>
+                <div className={styles.kpiSub}>Unlimited terminals, tables &amp; staff</div>
+              </div>
             </div>
           </div>
         </div>
@@ -356,7 +395,144 @@ export default function SaaSLandingClient() {
         </div>
       </section>
 
-      {/* ── 4. “ONE PLATFORM. EVERY ROLE.” ───────────────────────────────── */}
+      {/* ── 4. HARDWARE FREEDOM & THERMAL PRINTING ───────────────────────── */}
+      <section id="hardware" className={styles.hardwareSection} aria-label="Hardware & Printing">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.eyebrow}>Hardware Freedom &amp; Thermal Printing</span>
+            <h2 className={styles.sectionTitle}>No locked-in $2,000 terminals. Bring any device and printer.</h2>
+            <p className={styles.sectionDesc}>
+              Prominentz runs natively in any modern browser on iPads, Android tablets, touchscreen monitors, and PC workstations with zero proprietary driver bloat.
+            </p>
+          </div>
+
+          <div className={styles.hardwareGrid}>
+            {/* Card 1 */}
+            <div className={styles.hardwareCard}>
+              <div>
+                <div className={styles.hardwareIconBox}>🖨️</div>
+                <h3 className={styles.hardwareTitle}>WebUSB ESC/POS Thermal Direct</h3>
+                <p className={styles.hardwareDesc}>
+                  Direct binary spooling for Epson, Star Micronics, TVS-E, and Xprinter thermal printers (80mm &amp; 58mm). Automatic paper cutting, formatted bills, and zero external print bridge software.
+                </p>
+              </div>
+              <div className={styles.hardwareBadge}>
+                <span>PROTOCOL: RAW ESC/POS BULK USB</span>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className={styles.hardwareCard}>
+              <div>
+                <div className={styles.hardwareIconBox}>⚡</div>
+                <h3 className={styles.hardwareTitle}>Auto-Spool &amp; Drawer Kick</h3>
+                <p className={styles.hardwareDesc}>
+                  Configurable solenoid pulse kicks the RJ11/RJ12 cash drawer open automatically upon cash checkout. Kiosk &amp; Table QR orders bypass manual cashier clicks and auto-spool straight to prep lines.
+                </p>
+              </div>
+              <div className={styles.hardwareBadge}>
+                <span>TRIGGER: SOLENOID RJ11/RJ12 KICK</span>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className={styles.hardwareCard}>
+              <div>
+                <div className={styles.hardwareIconBox}>📱</div>
+                <h3 className={styles.hardwareTitle}>Any Screen, Any Station</h3>
+                <p className={styles.hardwareDesc}>
+                  Use standard consumer hardware. Turn an iPad into a host stand, smartphones into server handhelds, and wall-mounted commercial monitors into kitchen display screens.
+                </p>
+              </div>
+              <div className={styles.hardwareBadge}>
+                <span>PLATFORMS: IOS · ANDROID · MACOS · WINDOWS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. CONTACTLESS QR TABLE ORDERING & AI CONCIERGE ──────────────── */}
+      <section id="qr-dining" className={styles.qrSection} aria-label="Contactless QR Dining">
+        <div className={styles.container}>
+          <div className={styles.qrGrid}>
+            <div className={styles.qrCopy}>
+              <span className={styles.eyebrow}>Self-Service Hospitality</span>
+              <h2 className={styles.sectionTitle}>Turn every table into an interactive digital concierge.</h2>
+              <p className={styles.sectionDesc}>
+                Guests scan high-resolution dynamic QR codes on their tables to browse your live menu with real-time stock sync, dietary filters, intelligent wine pairings, and instant tableside checkout.
+              </p>
+              <div className={styles.roleFeatures} style={{ marginTop: '24px' }}>
+                <div className={styles.roleFeatureItem}>
+                  <svg className={styles.checkIcon} viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span><strong>Prominentz AI Concierge:</strong> Smart wine pairings, dietary allergen filtering, and upsell suggestions.</span>
+                </div>
+                <div className={styles.roleFeatureItem}>
+                  <svg className={styles.checkIcon} viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span><strong>Direct-to-KDS Routing:</strong> Table orders fire straight to line stations without waiting for server availability.</span>
+                </div>
+                <div className={styles.roleFeatureItem}>
+                  <svg className={styles.checkIcon} viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span><strong>Instant Mobile Checkout:</strong> Apple Pay, Google Pay, and card settlement directly at the table.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Visual Mock of Guest Phone Interface */}
+            <div className={styles.qrMockupWrapper}>
+              <div className={styles.guestPhoneMock}>
+                <div className={styles.guestPhoneHeader}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700 }}>The Audrey &amp; Co.</div>
+                    <div style={{ fontSize: '11px', color: '#595959' }}>Table 7 · Patio Dining</div>
+                  </div>
+                  <span className={styles.aiPillBadge}>✦ AI Concierge Active</span>
+                </div>
+                <div style={{ backgroundColor: 'rgba(99, 102, 241, 0.05)', padding: '10px 12px', borderRadius: '6px', fontSize: '11px', color: '#3730a3', border: '1px solid rgba(99, 102, 241, 0.15)' }}>
+                  💡 <em>Prominentz AI Recommendation:</em> Guests who enjoy Wagyu Sirloin frequently pair it with our 2021 Barolo and Truffle Fries.
+                </div>
+                <div>
+                  <div className={styles.dishRow}>
+                    <div className={styles.dishInfo}>
+                      <span className={styles.dishName}>Wagyu Sirloin (8oz)</span>
+                      <span className={styles.dishSub}>Gluten-Free · Truffle Butter Glaze</span>
+                    </div>
+                    <span className={styles.dishPrice}>$48.00</span>
+                  </div>
+                  <div className={styles.dishRow}>
+                    <div className={styles.dishInfo}>
+                      <span className={styles.dishName}>Truffle Tagliatelle</span>
+                      <span className={styles.dishSub}>Fresh Pasta · Shaved Black Truffle</span>
+                    </div>
+                    <span className={styles.dishPrice}>$28.00</span>
+                  </div>
+                  <div className={styles.dishRow}>
+                    <div className={styles.dishInfo}>
+                      <span className={styles.dishName}>2021 Nebbiolo di Barolo</span>
+                      <span className={styles.dishSub}>By the Glass · Sommelier Selection</span>
+                    </div>
+                    <span className={styles.dishPrice}>$18.00</span>
+                  </div>
+                </div>
+                <div style={{ paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600 }}>Order Total: $94.00</div>
+                  <button type="button" className={styles.btnPrimary} style={{ padding: '8px 16px', fontSize: '12px' }}>
+                    Pay with Apple Pay 
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. “ONE PLATFORM. EVERY ROLE.” ───────────────────────────────── */}
       <section id="roles" className={styles.sectionRoles} aria-label="Role-Based Workspaces">
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
@@ -880,7 +1056,173 @@ export default function SaaSLandingClient() {
         </div>
       </section>
 
-      {/* ── 8. FAQ ACCORDION ──────────────────────────────────────────────── */}
+      {/* ── 8. PROMINENTZ VS LEGACY POS ─────────────────────────────────── */}
+      <section id="comparison" className={styles.comparisonSection} aria-label="POS Comparison">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.eyebrow}>Transparent Economics</span>
+            <h2 className={styles.sectionTitle}>Built to liberate restaurants from legacy POS lock-in.</h2>
+            <p className={styles.sectionDesc}>
+              Compare Prominentz against traditional legacy systems like Toast, Square, and Micros.
+            </p>
+          </div>
+
+          <div className={styles.comparisonWrapper}>
+            <table className={styles.comparisonTable}>
+              <thead>
+                <tr>
+                  <th>Platform Feature</th>
+                  <th>Prominentz</th>
+                  <th>Legacy POS (Toast / Micros / Clover)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Monthly Software Cost</td>
+                  <td><span className={styles.tableCheck}>✓ $40 / month (Flat, All-Inclusive)</span></td>
+                  <td><span className={styles.tableCross}>$150 – $350+ / month per station</span></td>
+                </tr>
+                <tr>
+                  <td>Hardware Freedom</td>
+                  <td><span className={styles.tableCheck}>✓ Any iPad, Android Tablet, PC, Phone</span></td>
+                  <td><span className={styles.tableCross}>$1,500+ Locked Proprietary Hardware</span></td>
+                </tr>
+                <tr>
+                  <td>Kitchen Display System (KDS)</td>
+                  <td><span className={styles.tableCheck}>✓ Included Free (Unlimited Screens)</span></td>
+                  <td><span className={styles.tableCross}>$40 – $50 / month per kitchen screen</span></td>
+                </tr>
+                <tr>
+                  <td>Contactless QR Table Ordering</td>
+                  <td><span className={styles.tableCheck}>✓ Included Free (Table Studio)</span></td>
+                  <td><span className={styles.tableCross}>$50 – $100 / month add-on module</span></td>
+                </tr>
+                <tr>
+                  <td>Thermal ESC/POS Printing</td>
+                  <td><span className={styles.tableCheck}>✓ Native WebUSB (Epson, Star, Xprinter)</span></td>
+                  <td><span className={styles.tableCross}>Proprietary Cloud Print Adapters</span></td>
+                </tr>
+                <tr>
+                  <td>Platform Order Take-Rate</td>
+                  <td><span className={styles.tableCheck}>✓ 0% Take-Rate on Food Sales</span></td>
+                  <td><span className={styles.tableCross}>2.9% – 3.5% + Percentage Markups</span></td>
+                </tr>
+                <tr>
+                  <td>Contracts &amp; Commitments</td>
+                  <td><span className={styles.tableCheck}>✓ Month-to-Month · Cancel Anytime</span></td>
+                  <td><span className={styles.tableCross}>2–3 Year Inflexible Contracts</span></td>
+                </tr>
+                <tr>
+                  <td>Offline Queue Resilience</td>
+                  <td><span className={styles.tableCheck}>✓ Built-in Local Buffer Continuity</span></td>
+                  <td><span className={styles.tableCross}>Partial or Station Freezes</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 9. ALL-INCLUSIVE PRICING SPOTLIGHT ───────────────────────────── */}
+      <section id="pricing" className={styles.pricingSection} aria-label="Transparent Pricing">
+        <div className={styles.container}>
+          <div className={styles.pricingBanner}>
+            <div>
+              <span className={styles.eyebrow} style={{ color: 'rgba(255,255,255,0.7)' }}>Single Predictable Plan</span>
+              <h2 className={styles.pricingBannerTitle}>Everything your restaurant needs. One honest price.</h2>
+              <p className={styles.pricingBannerDesc}>
+                No terminal licensing fees. No kitchen screen surcharges. No hidden surprises at the end of the month.
+              </p>
+              <div className={styles.pricingFeatureList}>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> Unlimited POS Terminals
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> Unlimited Kitchen KDS Screens
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> QR Dine-In &amp; Digital Menus
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> WebUSB Thermal Printing
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> Prominentz AI Concierge
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> Split Bills &amp; Table Pacing
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> Live Telemetry &amp; Z-Reports
+                </div>
+                <div className={styles.pricingFeatureItem}>
+                  <span>✓</span> 24/7 Priority Support
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.pricingPriceBox}>
+              <div className={styles.pricingMonthly}>$40</div>
+              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', marginBottom: '20px' }}>
+                per month · billed monthly ($400/yr annual)
+              </div>
+              <Link href="/signup" className={styles.btnPrimary} style={{ width: '100%', backgroundColor: '#FFFFFF', color: '#171717', fontWeight: 600 }}>
+                Start 14-Day Free Trial →
+              </Link>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '12px' }}>
+                Zero setup fees · Instant activation
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 10. TESTIMONIALS ─────────────────────────────────────────────── */}
+      <section className={styles.testimonialSection} aria-label="Testimonials">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader} style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
+            <span className={styles.eyebrow}>Hospitality Tested</span>
+            <h2 className={styles.sectionTitle}>Trusted by fast-paced dining rooms.</h2>
+            <p className={styles.sectionDesc}>
+              Hear how high-tempo restaurants run smoother services with Prominentz.
+            </p>
+          </div>
+
+          <div className={styles.testimonialGrid}>
+            <div className={styles.testimonialCard}>
+              <p className={styles.testimonialQuote}>
+                &ldquo;Switching from Toast saved us over $600 a month in terminal fees alone. The WebUSB thermal printer integration works seamlessly with our existing Epson printers.&rdquo;
+              </p>
+              <div>
+                <div className={styles.testimonialAuthor}>Marcus Vance</div>
+                <div className={styles.testimonialRole}>Owner &amp; General Manager · Osteria Vance</div>
+              </div>
+            </div>
+
+            <div className={styles.testimonialCard}>
+              <p className={styles.testimonialQuote}>
+                &ldquo;Our kitchen line ticket pacing improved by 4 minutes during Friday rushes. Station-routing and the color-coded bump timers keep the line calm and synchronized.&rdquo;
+              </p>
+              <div>
+                <div className={styles.testimonialAuthor}>Chef Camille Laurent</div>
+                <div className={styles.testimonialRole}>Executive Chef · Brasserie Laurent</div>
+              </div>
+            </div>
+
+            <div className={styles.testimonialCard}>
+              <p className={styles.testimonialQuote}>
+                &ldquo;The QR table ordering with Prominentz AI wine suggestions increased our beverage spend by 18%. Guests love splitting checks seat-by-seat without waiting for servers.&rdquo;
+              </p>
+              <div>
+                <div className={styles.testimonialAuthor}>Sofia Reyes</div>
+                <div className={styles.testimonialRole}>Director of Operations · Sol &amp; Luna Group</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 11. FAQ ACCORDION ─────────────────────────────────────────────── */}
       <section id="faq" className={styles.sectionFaq} aria-label="Frequently Asked Questions">
         <div className={styles.container}>
           <div className={styles.faqContainer}>
@@ -888,12 +1230,12 @@ export default function SaaSLandingClient() {
               <span className={styles.eyebrow}>Questions &amp; Answers</span>
               <h2 className={styles.sectionTitle}>Frequently asked questions.</h2>
               <p className={styles.sectionDesc}>
-                Common questions regarding the platform, architecture, and live restaurant deployment.
+                Common questions regarding the platform, architecture, thermal printing, and deployment.
               </p>
             </div>
 
             <div className={styles.faqList}>
-              {/* FAQ 1 */}
+              {/* FAQ 1: Thermal Printing */}
               <div className={styles.faqItem}>
                 <button
                   type="button"
@@ -902,17 +1244,17 @@ export default function SaaSLandingClient() {
                   aria-expanded={openFaqIndex === 0}
                   aria-controls="faq-ans-0"
                 >
-                  <span>How does Prominentz connect front-of-house servers with kitchen line stations?</span>
+                  <span>Will Prominentz automatically print thermal receipts and kick open the cash drawer?</span>
                   <span className={`${styles.faqIcon} ${openFaqIndex === 0 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
                 </button>
                 {openFaqIndex === 0 && (
                   <div id="faq-ans-0" className={styles.faqAnswer}>
-                    Orders captured on server handhelds or POS terminals route instantly to designated kitchen stations (KDS screens) via real-time WebSocket feeds, categorizing dishes by station and course.
+                    Yes. Prominentz features native WebUSB ESC/POS thermal printing for Epson, Star Micronics, TVS-E, and Xprinter devices (80mm &amp; 58mm). Cash settlements automatically trigger the RJ11/RJ12 drawer kick solenoid. In Chrome Kiosk Mode (<code>--kiosk-printing</code>), receipts print silently with zero popups or manual confirmations.
                   </div>
                 )}
               </div>
 
-              {/* FAQ 2 */}
+              {/* FAQ 2: Hardware freedom */}
               <div className={styles.faqItem}>
                 <button
                   type="button"
@@ -921,17 +1263,17 @@ export default function SaaSLandingClient() {
                   aria-expanded={openFaqIndex === 1}
                   aria-controls="faq-ans-1"
                 >
-                  <span>What happens if the restaurant’s internet connection drops during service?</span>
+                  <span>Can I use my existing tablets, iPads, and PCs without buying new hardware?</span>
                   <span className={`${styles.faqIcon} ${openFaqIndex === 1 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
                 </button>
                 {openFaqIndex === 1 && (
                   <div id="faq-ans-1" className={styles.faqAnswer}>
-                    Prominentz’s handheld and terminal clients include local queue buffering. Orders taken while offline are safely queued in the browser and automatically dispatched to kitchen monitors as soon as connectivity resumes.
+                    Yes. Unlike legacy POS systems that lock you into buying proprietary terminals for thousands of dollars, Prominentz is cloud-native and runs inside modern browsers across iPads, Android tablets, Mac, Windows PCs, and smartphones.
                   </div>
                 )}
               </div>
 
-              {/* FAQ 3 */}
+              {/* FAQ 3: FOH to BOH */}
               <div className={styles.faqItem}>
                 <button
                   type="button"
@@ -940,17 +1282,17 @@ export default function SaaSLandingClient() {
                   aria-expanded={openFaqIndex === 2}
                   aria-controls="faq-ans-2"
                 >
-                  <span>Does the platform support seat-level bill splitting and partial tenders?</span>
+                  <span>How does Prominentz connect front-of-house servers with kitchen line stations?</span>
                   <span className={`${styles.faqIcon} ${openFaqIndex === 2 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
                 </button>
                 {openFaqIndex === 2 && (
                   <div id="faq-ans-2" className={styles.faqAnswer}>
-                    Yes. Servers can divide checks evenly across guests or split items individually by seat number, accepting mixed payment tenders including cash and card.
+                    Orders captured on server handhelds, POS terminals, or guest QR scans route instantly to designated kitchen stations (KDS screens) via real-time WebSocket feeds, categorizing dishes by station (Grill, Sauté, Cold Bar) with color-coded elapsed cooking timers.
                   </div>
                 )}
               </div>
 
-              {/* FAQ 4 */}
+              {/* FAQ 4: Offline drops */}
               <div className={styles.faqItem}>
                 <button
                   type="button"
@@ -959,17 +1301,17 @@ export default function SaaSLandingClient() {
                   aria-expanded={openFaqIndex === 3}
                   aria-controls="faq-ans-3"
                 >
-                  <span>How are permissions and access managed across staff roles?</span>
+                  <span>What happens if the restaurant’s internet connection drops during service?</span>
                   <span className={`${styles.faqIcon} ${openFaqIndex === 3 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
                 </button>
                 {openFaqIndex === 3 && (
                   <div id="faq-ans-3" className={styles.faqAnswer}>
-                    Prominentz enforces strict role-based access control. Line cooks see only active kitchen tickets, servers access table ordering, and managers hold override privileges for voids, comps, 86-lists, and reporting.
+                    Prominentz’s handheld and terminal clients include local queue buffering. Orders taken while offline are safely held in the browser storage and automatically dispatched to kitchen monitors as soon as connectivity resumes.
                   </div>
                 )}
               </div>
 
-              {/* FAQ 5 */}
+              {/* FAQ 5: Bill splitting */}
               <div className={styles.faqItem}>
                 <button
                   type="button"
@@ -978,12 +1320,50 @@ export default function SaaSLandingClient() {
                   aria-expanded={openFaqIndex === 4}
                   aria-controls="faq-ans-4"
                 >
-                  <span>How do managers manage out-of-stock items during high-tempo service?</span>
+                  <span>Does the platform support seat-level bill splitting and partial tenders?</span>
                   <span className={`${styles.faqIcon} ${openFaqIndex === 4 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
                 </button>
                 {openFaqIndex === 4 && (
                   <div id="faq-ans-4" className={styles.faqAnswer}>
-                    Managers can 86 any menu item in two clicks from the manager operations bar. The item is instantly grayed out across all server handhelds to prevent servers from ringing up unavailable dishes.
+                    Yes. Servers can divide checks evenly across guests or split items individually by seat number, accepting mixed payment tenders including cash, cards (via Stripe), Apple Pay, Google Pay, and coupons.
+                  </div>
+                )}
+              </div>
+
+              {/* FAQ 6: Role permissions */}
+              <div className={styles.faqItem}>
+                <button
+                  type="button"
+                  className={styles.faqQuestion}
+                  onClick={() => toggleFaq(5)}
+                  aria-expanded={openFaqIndex === 5}
+                  aria-controls="faq-ans-5"
+                >
+                  <span>How are permissions and access managed across staff roles?</span>
+                  <span className={`${styles.faqIcon} ${openFaqIndex === 5 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
+                </button>
+                {openFaqIndex === 5 && (
+                  <div id="faq-ans-5" className={styles.faqAnswer}>
+                    Prominentz enforces strict role-based access control. Line cooks see only active kitchen tickets, servers access table ordering, and managers hold override privileges for voids, comps, 86-lists, and financial reporting.
+                  </div>
+                )}
+              </div>
+
+              {/* FAQ 7: 86 items */}
+              <div className={styles.faqItem}>
+                <button
+                  type="button"
+                  className={styles.faqQuestion}
+                  onClick={() => toggleFaq(6)}
+                  aria-expanded={openFaqIndex === 6}
+                  aria-controls="faq-ans-6"
+                >
+                  <span>How do managers manage out-of-stock items during high-tempo service?</span>
+                  <span className={`${styles.faqIcon} ${openFaqIndex === 6 ? styles.faqIconExpanded : ''}`} aria-hidden="true">+</span>
+                </button>
+                {openFaqIndex === 6 && (
+                  <div id="faq-ans-6" className={styles.faqAnswer}>
+                    Managers can 86 any menu item in two clicks from the manager operations bar. The item is instantly grayed out across all server handhelds and customer QR menus to prevent servers from ringing up unavailable dishes.
                   </div>
                 )}
               </div>

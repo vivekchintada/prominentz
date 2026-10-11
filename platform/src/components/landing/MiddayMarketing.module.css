@@ -1350,6 +1350,432 @@
   }
 }
 
+/* ── Enriched Landing Showcase Styles ─────────────────────────────────────── */
+.heroPillRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.heroPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.heroPill:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 48px;
+  margin-bottom: 24px;
+}
+
+.kpiCell {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+}
+
+.kpiValue {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.kpiLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.kpiSub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 900px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Hardware & Thermal Section ───────────────────────────────────────────── */
+.hardwareSection {
+  padding-top: 100px;
+  padding-bottom: 100px;
+  background-color: var(--surface-muted);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.hardwareGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.hardwareCard {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hardwareIconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.hardwareTitle {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.hardwareDesc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.hardwareBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+@media (max-width: 900px) {
+  .hardwareGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Contactless QR Dining Section ────────────────────────────────────────── */
+.qrSection {
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+.qrGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.qrMockupWrapper {
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.guestPhoneMock {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guestPhoneHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.aiPillBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background-color: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dishRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.dishInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dishName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dishSub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.dishPrice {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .qrGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+/* ── Comparison Table ─────────────────────────────────────────────────────── */
+.comparisonSection {
+  padding-top: 100px;
+  padding-bottom: 100px;
+  background-color: var(--surface-muted);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.comparisonWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background-color: var(--surface-card);
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.comparisonTable th {
+  padding: 18px 24px;
+  background-color: #FAFAFA;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.comparisonTable th:nth-child(2) {
+  background-color: #171717;
+  color: #FFFFFF;
+}
+
+.comparisonTable td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.comparisonTable td:nth-child(2) {
+  background-color: rgba(0, 0, 0, 0.02);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.comparisonTable tr:last-child td {
+  border-bottom: none;
+}
+
+.tableCheck {
+  color: #059669;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tableCross {
+  color: #DC2626;
+  font-weight: 500;
+}
+
+/* ── Embedded Pricing Callout ─────────────────────────────────────────────── */
+.pricingSection {
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+.pricingBanner {
+  background-color: #171717;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 56px 48px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.pricingBannerTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  color: #FFFFFF;
+}
+
+.pricingBannerDesc {
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 24px;
+}
+
+.pricingFeatureList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pricingFeatureItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.pricingPriceBox {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 36px;
+  text-align: center;
+}
+
+.pricingMonthly {
+  font-family: var(--font-mono);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  color: #FFFFFF;
+}
+
+@media (max-width: 900px) {
+  .pricingBanner {
+    grid-template-columns: 1fr;
+    padding: 36px 24px;
+  }
+  .pricingFeatureList {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Testimonials ─────────────────────────────────────────────────────────── */
+.testimonialSection {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.testimonialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.testimonialCard {
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: var(--surface-card);
+}
+
+.testimonialQuote {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.testimonialAuthor {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.testimonialRole {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+@media (max-width: 900px) {
+  .testimonialGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Motion & Accessibility ──────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .page,
