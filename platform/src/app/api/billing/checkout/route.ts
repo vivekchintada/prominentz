@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { createSubscriptionCheckoutSession, isMockStripe } from '@/lib/stripe'
+import { createSubscriptionCheckoutSession, isMockCashfree } from '@/lib/cashfree'
 import { logAuditEvent } from '@/lib/audit'
 import { PlanTier } from '@/lib/plans'
 import { resolveUserLocation } from '@/lib/location-resolver'
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const returnUrl = `${origin}/dashboard/settings/billing`
 
     // In simulated/demo mode, update restaurant planTier directly (strictly non-production)
-    if (isMockStripe() && process.env.NODE_ENV !== 'production') {
+    if (isMockCashfree() && process.env.NODE_ENV !== 'production') {
       const prevTier = restaurant.planTier
       await prisma.restaurant.update({
         where: { id: restaurant.id },

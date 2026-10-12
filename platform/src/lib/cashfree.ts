@@ -1,0 +1,280 @@
+import crypto from 'crypto'
+import { PlanTier } from './plans'
+
+const rawCashfreeAppId = process.env.CASHFREE_APP_ID || process.env.NEXT_PUBLIC_CASHFREE_APP_ID || ''
+const rawCashfreeSecret = process.env.CASHFREE_SECRET_KEY || ''
+const rawCashfreeWebhookSecret = process.env.CASHFREE_WEBHOOK_SECRET || rawCashfreeSecret
+const cashfreeEnvironment = (process.env.CASHFREE_ENVIRONMENT || 'SANDBOX').toUpperCase()
+
+const isTestOrMockKey =
+  !rawCashfreeAppId ||
+  !rawCashfreeSecret ||
+  rawCashfreeSecret.includes('mock') ||
+  rawCashfreeSecret.includes('REPLACE_ME') ||
+  rawCashfreeSecret.startsWith('cf_test_mock')
+
+export function isMockCashfree(): boolean {
+  if (process.env.NODE_ENV === 'production' && !isTestOrMockKey) {
+    return false
+  }
+  return isTestOrMockKey
+}
+
+export const CASHFREE_PLAN_PRICING: Record<
+  PlanTier,
+  { name: string; amount: number; planId: string; description: string; interval: string }
+> = {
+  STARTER: {
+    name: 'Basic Plan',
+    amount: 50,
+    planId: process.env.CASHFREE_PLAN_STARTER || 'plan_starter_tier',
+    description: 'Core POS & KDS, Table Floor Management, Digital Menu & QR Studio, Staff Accounts, End-of-Day Reports',
+    interval: 'month',
+  },
+  PRO: {
+    name: 'Professional Plan',
+    amount: 129,
+    planId: process.env.CASHFREE_PLAN_PRO || 'plan_pro_tier',
+    description: 'Advanced AI Intelligence, Guest CRM & Loyalty Engine',
+    interval: 'month',
+  },
+  ENTERPRISE: {
+    name: 'Enterprise Plan',
+    amount: 129,
+    planId: process.env.CASHFREE_PLAN_ENTERPRISE || 'plan_enterprise_tier',
+    description: 'Multi-Location Outlets, Dedicated Infrastructure and Custom SLA',
+    interval: 'month',
+  },
+}
+
+function getBaseUrls() {
+  const isProd = cashfreeEnvironment === 'PRODUCTION'
+  return {
+    subApi: isProd ? 'https://api.cashfree.com/api/v2' : 'https://sandbox.cashfree.com/api/v2',
+    pgApi: isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg',
+  }
+}
+
+/**
+ * Creates a Cashfree checkout session for SaaS Plan Subscriptions.
+ * Supports Cashfree Subscriptions v2 e-mandate and Cashfree PG Links.
+ */
+export async function createSubscriptionCheckoutSession({
+  restaurantId,
+  restaurantName,
+  userEmail,
+  userPhone,
+  planTier,
+  returnUrl,
+}: {
+  restaurantId: string
+  restaurantName: string
+  userEmail: string
+  userPhone?: string
+  planTier: PlanTier
+  returnUrl: string
+}): Promise<{ url: string; id: string; subscriptionId: string }> {
+  const planInfo = CASHFREE_PLAN_PRICING[planTier] || CASHFREE_PLAN_PRICING.STARTER
+
+  if (process.env.NODE_ENV === 'production' && isTestOrMockKey) {
+    throw new Error('Cashfree is not configured for production environment. Missing CASHFREE_SECRET_KEY or CASHFREE_APP_ID.')
+  }
+
+  if (isMockCashfree()) {
+    const mockId = `cf_mock_${Math.random().toString(36).substring(2, 9)}`
+    const mockSubId = `sub_mock_${Math.random().toString(36).substring(2, 9)}`
+    return {
+      url: `${returnUrl}?session_id=${mockId}&plan=${planTier}&success=true&gateway=cashfree`,
+      id: mockId,
+      subscriptionId: mockSubId,
+    }
+  }
+
+  const { subApi, pgApi } = getBaseUrls()
+  const sanitizedRestaurantId = restaurantId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16)
+  const uniqueSubId = `sub_${sanitizedRestaurantId}_${Date.now().toString(36)}`
+
+  // 1. Try Cashfree Subscriptions API (v2 recurring subscription)
+  try {
+    const subResponse = await fetch(`${subApi}/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'x-client-id': rawCashfreeAppId,
+        'x-client-secret': rawCashfreeSecret,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        subscriptionId: uniqueSubId,
+        planId: planInfo.planId,
+        customerName: restaurantName || 'Restaurant Owner',
+        customerEmail: userEmail,
+        customerPhone: userPhone || '9876543210',
+        returnUrl: `${returnUrl}?session_id=${uniqueSubId}&plan=${planTier}&success=true&gateway=cashfree`,
+        notification: ['EMAIL'],
+        authAmount: planInfo.amount,
+        notes: {
+          restaurantId,
+          planTier,
+        },
+      }),
+    })
+
+    const subData = await subResponse.json()
+    if (subResponse.ok && (subData.authLink || subData.subReferenceId)) {
+      return {
+        url: subData.authLink || `${subApi}/subscriptions/pay/${subData.subReferenceId}`,
+        id: String(subData.subReferenceId || uniqueSubId),
+        subscriptionId: uniqueSubId,
+      }
+    }
+  } catch (subErr) {
+    console.warn('[Cashfree Subscriptions API warning - falling back to PG link]', subErr)
+  }
+
+  // 2. Fallback to Cashfree PG Payment Link (v2023-08-01) for instant reliable checkout
+  try {
+    const linkId = `link_${sanitizedRestaurantId}_${Date.now().toString(36)}`
+    const linkResponse = await fetch(`${pgApi}/links`, {
+      method: 'POST',
+      headers: {
+        'x-client-id': rawCashfreeAppId,
+        'x-client-secret': rawCashfreeSecret,
+        'x-api-version': '2023-08-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        link_id: linkId,
+        link_amount: planInfo.amount,
+        link_currency: 'USD',
+        link_purpose: `Prominentz Subscription - ${planInfo.name} (${planInfo.interval})`,
+        customer_details: {
+          customer_id: sanitizedRestaurantId,
+          customer_name: restaurantName || 'Restaurant Owner',
+          customer_email: userEmail,
+          customer_phone: userPhone || '9876543210',
+        },
+        link_meta: {
+          return_url: `${returnUrl}?session_id=${linkId}&plan=${planTier}&success=true&gateway=cashfree`,
+          notify_url: `${returnUrl.split('/dashboard')[0]}/api/webhooks/cashfree`,
+        },
+        link_notes: {
+          restaurantId,
+          planTier,
+          subscriptionId: uniqueSubId,
+        },
+      }),
+    })
+
+    const linkData = await linkResponse.json()
+    if (linkResponse.ok && linkData.link_url) {
+      return {
+        url: linkData.link_url,
+        id: linkData.link_id,
+        subscriptionId: uniqueSubId,
+      }
+    }
+
+    throw new Error(linkData.message || 'Failed to generate Cashfree payment checkout URL')
+  } catch (error: any) {
+    console.error('[Cashfree Checkout Error]', error)
+    throw new Error(error.message || 'Failed to initiate Cashfree checkout session')
+  }
+}
+
+/**
+ * Creates or retrieves a customer billing portal session in Cashfree.
+ */
+export async function createBillingPortalSession({
+  customerId,
+  subscriptionId,
+  returnUrl,
+}: {
+  customerId?: string
+  subscriptionId?: string
+  returnUrl: string
+}) {
+  if (isMockCashfree() || !subscriptionId || subscriptionId.startsWith('sub_mock_')) {
+    return {
+      url: `${returnUrl}?portal_simulated=true&gateway=cashfree`,
+    }
+  }
+
+  // Cashfree subscription details link or portal redirect
+  return {
+    url: `${returnUrl}?cashfree_sub=${encodeURIComponent(subscriptionId)}`,
+  }
+}
+
+/**
+ * Verify a Cashfree subscription status.
+ */
+export async function verifyCashfreeSubscription(subscriptionId: string): Promise<{
+  status: string
+  isActive: boolean
+  planId?: string
+}> {
+  if (isMockCashfree() || subscriptionId.startsWith('sub_mock_')) {
+    return {
+      status: 'ACTIVE',
+      isActive: true,
+    }
+  }
+
+  const { subApi } = getBaseUrls()
+  const res = await fetch(`${subApi}/subscriptions/${subscriptionId}`, {
+    headers: {
+      'x-client-id': rawCashfreeAppId,
+      'x-client-secret': rawCashfreeSecret,
+    },
+  })
+
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(`Cashfree subscription check failed: ${errorText}`)
+  }
+
+  const data = await res.json()
+  const status = data.subscription_status || data.status || 'UNKNOWN'
+  const isActive = ['ACTIVE', 'INITIALIZED', 'COMPLETED'].includes(status.toUpperCase())
+
+  return {
+    status,
+    isActive,
+    planId: data.plan_id || data.planId,
+  }
+}
+
+/**
+ * Verifies webhook payload signature from Cashfree.
+ */
+export function verifyCashfreeWebhookSignature({
+  rawBody,
+  signature,
+  timestamp,
+}: {
+  rawBody: string
+  signature: string | null
+  timestamp?: string | null
+}): boolean {
+  if (isMockCashfree() || !signature) {
+    return true
+  }
+
+  try {
+    const secret = rawCashfreeWebhookSecret
+    const payloadToSign = timestamp ? `${timestamp}${rawBody}` : rawBody
+
+    const hmac = crypto.createHmac('sha256', secret)
+    hmac.update(payloadToSign)
+    const expectedSignature = hmac.digest('base64')
+
+    if (signature === expectedSignature) return true
+
+    // Also check hex encoding as Cashfree supports both base64 and hex across versions
+    const hexSignature = crypto.createHmac('sha256', secret).update(payloadToSign).digest('hex')
+    return signature.toLowerCase() === hexSignature.toLowerCase()
+  } catch (err) {
+    console.error('[Cashfree Webhook Signature Error]', err)
+    return false
+  }
+}

@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       const adminSecret = req.headers.get('x-admin-secret')
       if (!adminSecret || adminSecret !== process.env.INTERNAL_ADMIN_SECRET) {
         return NextResponse.json(
-          { error: 'Plan activation must be completed through Stripe checkout' },
+          { error: 'Plan activation must be completed through Cashfree checkout' },
           { status: 403 }
         )
       }

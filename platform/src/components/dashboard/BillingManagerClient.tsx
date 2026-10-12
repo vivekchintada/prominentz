@@ -289,7 +289,7 @@ export function BillingManagerClient() {
             </span>
           </div>
           <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '6px' }}>
-            Automatic renewal with Stripe billing security for <strong>{restaurantName}</strong>.
+            Automatic renewal with Cashfree billing security for <strong>{restaurantName}</strong>.
           </div>
         </div>
 
@@ -308,7 +308,7 @@ export function BillingManagerClient() {
             className="btn btn--secondary"
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', fontSize: '13px', fontWeight: 700 }}
           >
-            <span>🧾</span> {portalLoading ? 'Opening Portal...' : 'Stripe Invoices & Cards ↗'}
+            <span>🧾</span> {portalLoading ? 'Opening Portal...' : 'Cashfree Invoices & Subscriptions ↗'}
           </button>
         </div>
       </div>
@@ -414,7 +414,7 @@ export function BillingManagerClient() {
             <span>🏷️</span> Have a Partner Promo or Early-Adopter Coupon?
           </div>
           <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
-            Enter your promotion code below to apply lifetime percentage or flat rate discounts to your Stripe billing account.
+            Enter your promotion code below to apply lifetime percentage or flat rate discounts to your Cashfree billing account.
           </div>
         </div>
 
@@ -490,7 +490,7 @@ export function BillingManagerClient() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>🔒</span>
-          <span>Encrypted via Stripe 256-bit SSL infrastructure.</span>
+          <span>Encrypted via Cashfree PCI-DSS Level 1 infrastructure.</span>
         </div>
         <div>No contracts or hidden cancellation fees.</div>
       </div>

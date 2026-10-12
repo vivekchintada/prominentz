@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
       if (coupon?.discountAmount) serverCouponDiscount = Number(coupon.discountAmount)
     }
 
+    const orderRawSubtotal = Number(order.subtotal) || calculatedSubtotal
     const expectedSubtotal = Math.max(0, calculatedSubtotal - serverCouponDiscount)
     const taxRate = orderRawSubtotal > 0 ? Number(order.tax) / orderRawSubtotal : 0.10
     const expectedTax = Number((expectedSubtotal * taxRate).toFixed(2))

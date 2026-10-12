@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { createBillingPortalSession } from '@/lib/stripe'
+import { createBillingPortalSession } from '@/lib/cashfree'
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin || 'http://localhost:3000'
     const returnUrl = `${origin}/dashboard/settings/billing`
 
+    const settings = (restaurant.settings as Record<string, any>) || {}
+    const subscriptionId = settings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId || `sub_mock_${restaurant.id.substring(0, 8)}`
+
     const portal = await createBillingPortalSession({
+      subscriptionId,
       customerId: restaurant.stripeCustomerId || `cus_mock_${restaurant.id.substring(0, 8)}`,
       returnUrl,
     })

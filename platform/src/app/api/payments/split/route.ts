@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
     const initialOrder = await prisma.order.findFirst({
       where: {
         id: orderId,
-        id: orderId,
         OR: [
           { table: { location: { restaurantId } } },
           { server: { restaurantId } },
