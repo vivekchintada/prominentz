@@ -122,8 +122,8 @@ export default async function DashboardPage() {
 
   // 6. Top Customer
   let topCustomerData = {
-    name: 'Valued Guest',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&h=160&fit=crop&q=80',
+    name: 'No registered guests',
+    avatar: '',
     lifetimeSpend: 0,
     orderCount: 0,
   }

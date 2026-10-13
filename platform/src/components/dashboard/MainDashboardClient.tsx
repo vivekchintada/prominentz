@@ -1089,25 +1089,44 @@ export function MainDashboardClient({
           {/* Top User Profile Header */}
           <div className="dream-top-user">
             <div className="dream-top-user-left">
-              <Image
-                src={topCustomer.avatar}
-                alt={topCustomer.name}
-                width={44}
-                height={44}
-                className="dream-top-user-avatar"
-                unoptimized
-              />
+              {topCustomer.avatar && totalCustomersCount > 0 ? (
+                <Image
+                  src={topCustomer.avatar}
+                  alt={topCustomer.name}
+                  width={44}
+                  height={44}
+                  className="dream-top-user-avatar"
+                  unoptimized
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 20,
+                    color: 'var(--color-text-tertiary)',
+                  }}
+                >
+                  👤
+                </div>
+              )}
               <div>
                 <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Top VIP Guest</span>
                 <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                  {topCustomer.name}
+                  {totalCustomersCount > 0 ? topCustomer.name : 'No registered guests yet'}
                 </h4>
               </div>
             </div>
             <div className="dream-top-user-right">
               <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Lifetime Spend</span>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#16a34a' }}>
-                ${topCustomer.lifetimeSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <div style={{ fontSize: 18, fontWeight: 800, color: totalCustomersCount > 0 ? '#16a34a' : 'var(--color-text-tertiary)' }}>
+                ${totalCustomersCount > 0 ? topCustomer.lifetimeSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
               </div>
             </div>
           </div>
@@ -1118,40 +1137,61 @@ export function MainDashboardClient({
               <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Total Registered Guests</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                 <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text-primary)' }}>{totalCustomersCount}</span>
-                <span className="dream-kpi-badge dream-kpi-badge--up">⮭ 12.6%</span>
+                {totalCustomersCount > 0 ? (
+                  <span className="dream-kpi-badge dream-kpi-badge--up">⮭ 12.6%</span>
+                ) : (
+                  <span className="dream-kpi-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--color-text-tertiary)' }}>0%</span>
+                )}
               </div>
             </div>
 
             {/* Avatar Stack */}
-            <div className="dream-avatar-stack" aria-label="Active floor staff on shift">
-              <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" alt="Staff member Alex" width={28} height={28} className="dream-stack-img" unoptimized />
-              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" alt="Staff member Marcus" width={28} height={28} className="dream-stack-img" unoptimized />
-              <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&q=80" alt="Staff member Elena" width={28} height={28} className="dream-stack-img" unoptimized />
-              <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&q=80" alt="Staff member David" width={28} height={28} className="dream-stack-img" unoptimized />
-            </div>
+            {totalCustomersCount > 0 ? (
+              <div className="dream-avatar-stack" aria-label="Active guest community">
+                <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" alt="Guest" width={28} height={28} className="dream-stack-img" unoptimized />
+                <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" alt="Guest" width={28} height={28} className="dream-stack-img" unoptimized />
+                <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&q=80" alt="Guest" width={28} height={28} className="dream-stack-img" unoptimized />
+                <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&q=80" alt="Guest" width={28} height={28} className="dream-stack-img" unoptimized />
+              </div>
+            ) : (
+              <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>No guest profiles yet</span>
+            )}
           </div>
 
           {/* Smooth Area Chart Graphic */}
-          <div style={{ marginTop: 10, height: 120, width: '100%' }}>
-            <svg viewBox="0 0 300 120" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-              <defs>
-                <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--color-text-primary)" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="var(--color-text-primary)" stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 0 85 C 40 85, 60 95, 90 80 C 130 60, 160 80, 200 60 C 230 45, 260 70, 280 20 L 300 15 L 300 120 L 0 120 Z"
-                fill="url(#userGrad)"
-              />
-              <path
-                d="M 0 85 C 40 85, 60 95, 90 80 C 130 60, 160 80, 200 60 C 230 45, 260 70, 280 20 L 300 15"
-                fill="none"
-                stroke="var(--color-text-primary)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div style={{ marginTop: 10, height: 120, width: '100%', position: 'relative' }}>
+            {totalCustomersCount === 0 ? (
+              <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <svg viewBox="0 0 300 120" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                  <line x1="0" y1="30" x2="300" y2="30" stroke="var(--color-border)" strokeDasharray="3 3" strokeOpacity="0.3" />
+                  <line x1="0" y1="65" x2="300" y2="65" stroke="var(--color-border)" strokeDasharray="3 3" strokeOpacity="0.3" />
+                  <line x1="0" y1="100" x2="300" y2="100" stroke="var(--color-border)" strokeOpacity="0.5" strokeWidth="1.5" />
+                </svg>
+                <div style={{ position: 'absolute', color: 'var(--color-text-tertiary)', fontSize: 11, fontWeight: 500, letterSpacing: '0.02em' }}>
+                  No guest registration activity recorded
+                </div>
+              </div>
+            ) : (
+              <svg viewBox="0 0 300 120" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                <defs>
+                  <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-text-primary)" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="var(--color-text-primary)" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M 0 85 C 40 85, 60 95, 90 80 C 130 60, 160 80, 200 60 C 230 45, 260 70, 280 20 L 300 15 L 300 120 L 0 120 Z"
+                  fill="url(#userGrad)"
+                />
+                <path
+                  d="M 0 85 C 40 85, 60 95, 90 80 C 130 60, 160 80, 200 60 C 230 45, 260 70, 280 20 L 300 15"
+                  fill="none"
+                  stroke="var(--color-text-primary)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
           </div>
         </div>
       </div>
