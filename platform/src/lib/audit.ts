@@ -12,8 +12,20 @@ export type AuditAction =
   | 'EDIT_SETTINGS'
   | 'PLAN_UPGRADED'
   | 'PLAN_DOWNGRADED'
+  | 'LOGIN_SUCCESS'
+  | 'LOGIN_FAILURE'
+  | 'LOGOUT'
+  | 'PASSWORD_RESET'
+  | 'CONSENT_ACCEPTED'
+  | 'CONSENT_WITHDRAWN'
+  | 'DATA_EXPORT_REQUESTED'
+  | 'DATA_ERASURE_REQUESTED'
+  | 'BILLING_PAYMENT_SUCCESS'
+  | 'BILLING_PAYMENT_FAILED'
+  | 'RATE_LIMIT_EXCEEDED'
+  | 'UNAUTHORIZED_ACCESS_ATTEMPT'
 
-export type AuditTargetType = 'Order' | 'Payment' | 'MenuItem' | 'User' | 'Location' | 'Restaurant'
+export type AuditTargetType = 'Order' | 'Payment' | 'MenuItem' | 'User' | 'Location' | 'Restaurant' | 'Consent' | 'DataSubject' | 'Security'
 
 export interface AuditEventParams {
   restaurantId: string

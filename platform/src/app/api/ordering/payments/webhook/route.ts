@@ -59,7 +59,8 @@ export async function POST(req: NextRequest) {
         : null
 
       if (order) {
-        const auto = order.table.location.onlineOrderingConfig?.acceptanceMode === 'AUTOMATIC'
+        const auto = order.table?.location?.onlineOrderingConfig?.acceptanceMode === 'AUTOMATIC'
+        const restaurantId = order.table?.location?.restaurantId || order.table?.location?.restaurant?.id
 
         await prisma.order.update({
           where: { id: order.id },
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
           data: {
             orderId: order.id,
             eventType: 'online_order.payment_completed',
-            metadata: { paymentIntentId: pi.id },
+            metadata: { paymentIntentId: pi.id, restaurantId },
           },
         })
 
@@ -106,7 +107,7 @@ export async function POST(req: NextRequest) {
           })),
           total: Number(order.total),
           trackingUrl: `${origin}/order/track/${order.trackingToken}`,
-          restaurantName: order.table.location.restaurant.name || 'Our Restaurant',
+          restaurantName: order.table?.location?.restaurant?.name || 'Our Restaurant',
         })
       }
 

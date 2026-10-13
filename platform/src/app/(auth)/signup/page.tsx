@@ -363,7 +363,7 @@ function SignupForm() {
                   onClick={() => router.push(`/login?registered=true&portal=owner&email=${encodeURIComponent(createdData.user?.email || email)}`)}
                   className={styles.submitBtn}
                 >
-                  Proceed to Owner Sign In
+                  Proceed to Owner Sign In &amp; Activate Plan
                 </button>
               </div>
             ) : (

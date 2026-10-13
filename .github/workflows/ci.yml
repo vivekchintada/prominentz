@@ -39,8 +39,8 @@ jobs:
         run: npx tsc --noEmit
       - name: Lint
         run: npm run lint
-      - name: Security regression checks
-        run: npm run test:security
+      - name: Security & multi-tenant isolation tests
+        run: npm test
       - name: Dependency audit (critical gate)
         run: npm audit --omit=dev --audit-level=critical
       - name: Production build

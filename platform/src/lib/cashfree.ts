@@ -91,49 +91,89 @@ export async function createSubscriptionCheckoutSession({
   }
 
   const { subApi, pgApi } = getBaseUrls()
-  const sanitizedRestaurantId = restaurantId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16)
-  const uniqueSubId = `sub_${sanitizedRestaurantId}_${Date.now().toString(36)}`
+  const sanitizedRestaurantId = restaurantId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 12)
+  const uniqueSubId = `sub${sanitizedRestaurantId}${Date.now().toString(36)}`
 
   // 1. Try Cashfree Subscriptions API (v2 recurring subscription)
-  try {
-    const subResponse = await fetch(`${subApi}/subscriptions`, {
-      method: 'POST',
-      headers: {
-        'x-client-id': rawCashfreeAppId,
-        'x-client-secret': rawCashfreeSecret,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        subscriptionId: uniqueSubId,
-        planId: planInfo.planId,
-        customerName: restaurantName || 'Restaurant Owner',
-        customerEmail: userEmail,
-        customerPhone: userPhone || '9876543210',
-        returnUrl: `${returnUrl}?session_id=${uniqueSubId}&plan=${planTier}&success=true&gateway=cashfree`,
-        notification: ['EMAIL'],
-        authAmount: planInfo.amount,
-        notes: {
-          restaurantId,
-          planTier,
+  // Requires pre-created plans in Cashfree dashboard
+  if (planInfo.planId && !planInfo.planId.includes('plan_starter_tier') && !planInfo.planId.includes('plan_pro_tier') && !planInfo.planId.includes('plan_enterprise_tier')) {
+    try {
+      const subResponse = await fetch(`${subApi}/subscriptions`, {
+        method: 'POST',
+        headers: {
+          'x-client-id': rawCashfreeAppId,
+          'x-client-secret': rawCashfreeSecret,
+          'Content-Type': 'application/json',
         },
-      }),
-    })
+        body: JSON.stringify({
+          subscriptionId: uniqueSubId,
+          planId: planInfo.planId,
+          customerName: restaurantName || 'Restaurant Owner',
+          customerEmail: userEmail,
+          customerPhone: userPhone || '9999999999',
+          returnUrl: `${returnUrl}?session_id=${uniqueSubId}&plan=${planTier}&success=true&gateway=cashfree`,
+          notification: ['EMAIL'],
+          authAmount: 1, // INR 1 mandate authorization
+          notes: {
+            restaurantId,
+            planTier,
+          },
+        }),
+      })
 
-    const subData = await subResponse.json()
-    if (subResponse.ok && (subData.authLink || subData.subReferenceId)) {
-      return {
-        url: subData.authLink || `${subApi}/subscriptions/pay/${subData.subReferenceId}`,
-        id: String(subData.subReferenceId || uniqueSubId),
-        subscriptionId: uniqueSubId,
+      const subData = await subResponse.json()
+      console.info('[Cashfree Subscriptions API]', subResponse.status, JSON.stringify(subData))
+
+      if (subResponse.ok && (subData.authLink || subData.subReferenceId)) {
+        return {
+          url: subData.authLink || `${subApi}/subscriptions/pay/${subData.subReferenceId}`,
+          id: String(subData.subReferenceId || uniqueSubId),
+          subscriptionId: uniqueSubId,
+        }
       }
+    } catch (subErr) {
+      console.warn('[Cashfree Subscriptions API warning - falling back to PG link]', subErr)
     }
-  } catch (subErr) {
-    console.warn('[Cashfree Subscriptions API warning - falling back to PG link]', subErr)
   }
 
-  // 2. Fallback to Cashfree PG Payment Link (v2023-08-01) for instant reliable checkout
+  // 2. Fallback to Cashfree PG Payment Link (v2023-08-01)
+  // This works without pre-created plans — simplest approach for sandbox testing
   try {
-    const linkId = `link_${sanitizedRestaurantId}_${Date.now().toString(36)}`
+    // link_id: alphanumeric, max 50 chars, no spaces or special chars
+    const linkId = `sub${sanitizedRestaurantId}${Date.now().toString(36)}`
+    // Cashfree India supports INR. Convert USD amount → INR (approx, for testing)
+    // In production you can set INR prices directly in CASHFREE_PLAN_* pricing
+    const amountInINR = planInfo.amount * 84 // rough USD→INR conversion for sandbox testing
+
+    const linkPayload = {
+      link_id: linkId,
+      link_amount: amountInINR,
+      link_currency: 'INR',
+      link_purpose: `Prominentz ${planInfo.name}`,
+      customer_details: {
+        customer_id: sanitizedRestaurantId || 'cust001',
+        customer_name: (restaurantName || 'Restaurant Owner').slice(0, 50),
+        customer_email: userEmail,
+        customer_phone: userPhone || '9999999999',
+      },
+      link_notify: {
+        send_sms: false,
+        send_email: true,
+      },
+      link_auto_reminders: false,
+      link_notes: {
+        restaurantId,
+        planTier,
+        subscriptionId: uniqueSubId,
+      },
+      link_meta: {
+        notify_url: `${returnUrl.split('/dashboard')[0]}/api/webhooks/cashfree`,
+        return_url: `${returnUrl}?session_id=${linkId}&plan=${planTier}&success=true&gateway=cashfree`,
+      },
+    }
+
+    console.info('[Cashfree PG Link] Creating payment link:', JSON.stringify({ linkId, amountInINR, planTier }))
+
     const linkResponse = await fetch(`${pgApi}/links`, {
       method: 'POST',
       headers: {
@@ -142,30 +182,12 @@ export async function createSubscriptionCheckoutSession({
         'x-api-version': '2023-08-01',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        link_id: linkId,
-        link_amount: planInfo.amount,
-        link_currency: 'USD',
-        link_purpose: `Prominentz Subscription - ${planInfo.name} (${planInfo.interval})`,
-        customer_details: {
-          customer_id: sanitizedRestaurantId,
-          customer_name: restaurantName || 'Restaurant Owner',
-          customer_email: userEmail,
-          customer_phone: userPhone || '9876543210',
-        },
-        link_meta: {
-          return_url: `${returnUrl}?session_id=${linkId}&plan=${planTier}&success=true&gateway=cashfree`,
-          notify_url: `${returnUrl.split('/dashboard')[0]}/api/webhooks/cashfree`,
-        },
-        link_notes: {
-          restaurantId,
-          planTier,
-          subscriptionId: uniqueSubId,
-        },
-      }),
+      body: JSON.stringify(linkPayload),
     })
 
     const linkData = await linkResponse.json()
+    console.info('[Cashfree PG Link] Response:', linkResponse.status, JSON.stringify(linkData))
+
     if (linkResponse.ok && linkData.link_url) {
       return {
         url: linkData.link_url,
@@ -174,7 +196,9 @@ export async function createSubscriptionCheckoutSession({
       }
     }
 
-    throw new Error(linkData.message || 'Failed to generate Cashfree payment checkout URL')
+    // Surface Cashfree's exact error message
+    const errorMsg = linkData.message || linkData.error || JSON.stringify(linkData)
+    throw new Error(`Cashfree rejected the payment link request: ${errorMsg}`)
   } catch (error: any) {
     console.error('[Cashfree Checkout Error]', error)
     throw new Error(error.message || 'Failed to initiate Cashfree checkout session')
