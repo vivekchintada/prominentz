@@ -59,6 +59,14 @@ const createUserSchema = z.object({
 
                                                                                                                                                                         const { name, email, password, role } = parsed.data
 
+        // Privilege Escalation Prevention: Managers cannot create Owners or Managers
+        if (session.user.role === 'MANAGER' && ['OWNER', 'MANAGER'].includes(role)) {
+          return NextResponse.json(
+            { error: 'Forbidden: Managers cannot create or assign OWNER or MANAGER accounts. Only Owners can assign administrative roles.' },
+            { status: 403 }
+          )
+        }
+
                                                                                                                                                                             // Enforce Starter plan limit (up to 5 staff user accounts)
                                                                                                                                                                                 const restaurant = await prisma.restaurant.findUnique({
                                                                                                                                                                                       where: { id: session.user.restaurantId },

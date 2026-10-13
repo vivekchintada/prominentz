@@ -5,6 +5,8 @@ import { publishEvent, EVENTS } from '@/lib/redis'
 import { splitPaymentSchema } from '@/lib/validations/payments'
 import { verifyStripeIntent } from '@/lib/payments'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -24,8 +26,8 @@ export async function POST(req: NextRequest) {
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId
 
-    // Verify order exists and belongs to this restaurant
-    const initialOrder = await prisma.order.findFirst({
+    // Verify order exists and strictly belongs to this restaurant
+    const order = await prisma.order.findFirst({
       where: {
         id: orderId,
         OR: [
@@ -33,11 +35,13 @@ export async function POST(req: NextRequest) {
           { server: { restaurantId } },
         ],
       },
-      include: { table: { select: { id: true, name: true, locationId: true } } },
+      include: {
+        table: { select: { id: true, name: true, locationId: true } },
+        items: {
+          select: { id: true, priceAtOrder: true, quantity: true, status: true, modifiers: true },
+        },
+      },
     })
-
-    // No fallback – order must belong to this restaurant
-    const order = initialOrder
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found in restaurant records' }, { status: 404 })
@@ -46,43 +50,79 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
     }
 
-    // Sum details from splits
-    const totalSubtotal = Number(splits.reduce((acc, s) => acc + s.subtotal, 0).toFixed(2))
-    const totalTip = Number(splits.reduce((acc, s) => acc + s.tip, 0).toFixed(2))
-    const totalPayment = Number(splits.reduce((acc, s) => acc + s.total, 0).toFixed(2))
-    
-    // Security verification: ensure splits total covers the order balance due
-    const orderRawSubtotal = Number(order.subtotal)
-    const effectiveDiscount = couponDiscount ? Math.min(orderRawSubtotal > 0 ? orderRawSubtotal : totalSubtotal, Number(couponDiscount)) : 0
-    const effectiveBase = orderRawSubtotal > 0 ? Math.min(orderRawSubtotal, totalSubtotal) : totalSubtotal
-    const expectedNetSubtotal = Math.max(0, effectiveBase - effectiveDiscount)
-    const taxRate = orderRawSubtotal > 0 ? (Number(order.tax) / orderRawSubtotal) : 0.10
-    const expectedTax = Number((expectedNetSubtotal * taxRate).toFixed(2))
-    
-    // Total payment must be greater than zero and cover the net bill
-    if (totalPayment <= 0) {
+    // ── Server-Side Authoritative Total Calculation ─────────────────────────
+    const activeItems = (order.items || []).filter((item: any) => item.status !== 'VOIDED')
+    let serverCalculatedSubtotal = 0
+    for (const item of activeItems) {
+      let itemPrice = Number(item.priceAtOrder)
+      if (Array.isArray(item.modifiers)) {
+        for (const mod of (item.modifiers as any[])) {
+          itemPrice += Number(mod?.priceDelta ?? mod?.priceAdjustment ?? 0)
+        }
+      }
+      serverCalculatedSubtotal += itemPrice * item.quantity
+    }
+
+    // Use greater of item calculation or stored subtotal
+    const orderAuthoritativeSubtotal = Math.max(serverCalculatedSubtotal, Number(order.subtotal || 0))
+
+    // Verify coupon discount strictly on server
+    let serverCouponDiscount = 0
+    if (couponCode) {
+      const cleanCode = couponCode.trim().toUpperCase()
+      const coupon = await prisma.coupon.findFirst({
+        where: { restaurantId, code: cleanCode },
+        select: { discountAmount: true, minimumOrderAmount: true },
+      })
+      if (coupon?.discountAmount) {
+        if (!coupon.minimumOrderAmount || orderAuthoritativeSubtotal >= Number(coupon.minimumOrderAmount)) {
+          serverCouponDiscount = Number(coupon.discountAmount)
+        }
+      }
+    } else if (couponDiscount) {
+      serverCouponDiscount = Math.min(orderAuthoritativeSubtotal, Number(couponDiscount))
+    }
+
+    const netSubtotal = Math.max(0, orderAuthoritativeSubtotal - serverCouponDiscount)
+    const taxRate = orderAuthoritativeSubtotal > 0 ? (Number(order.tax) / orderAuthoritativeSubtotal) : 0.10
+    const expectedTax = Number((netSubtotal * taxRate).toFixed(2))
+    const requiredBalanceDue = Number((netSubtotal + expectedTax).toFixed(2))
+
+    // Sum details from client splits
+    const totalSubtotalSubmitted = Number(splits.reduce((acc, s) => acc + s.subtotal, 0).toFixed(2))
+    const totalTipSubmitted = Number(splits.reduce((acc, s) => acc + s.tip, 0).toFixed(2))
+    const totalPaymentSubmitted = Number(splits.reduce((acc, s) => acc + s.total, 0).toFixed(2))
+
+    if (totalPaymentSubmitted <= 0) {
       return NextResponse.json(
         { error: 'Split payments total must be greater than zero' },
         { status: 400 }
       )
     }
 
-    const minRequiredPayment = Number(Math.max(0, expectedNetSubtotal + expectedTax - 0.75).toFixed(2))
-    if (totalPayment < minRequiredPayment) {
+    // Strict underpayment check against SERVER authoritative balance due
+    // Allow maximum 10 cents rounding discrepancy
+    const netPaymentSubmitted = totalPaymentSubmitted - totalTipSubmitted
+    if (netPaymentSubmitted < requiredBalanceDue - 0.10) {
       return NextResponse.json(
-        { error: `Split payments total ($${totalPayment.toFixed(2)}) is less than the required balance due ($${minRequiredPayment.toFixed(2)})` },
+        {
+          error: `Underpayment rejected: Split payments net sum ($${netPaymentSubmitted.toFixed(2)}) is less than authoritative balance due ($${requiredBalanceDue.toFixed(2)})`,
+        },
         { status: 400 }
       )
     }
 
-    // Derive the primary method: if all splits use the same method, use that;
-    // otherwise default to CARD as the transaction anchor for the parent record
-    const uniqueMethods = [...new Set(splits.map((s) => s.method))]
-    const primaryMethod = uniqueMethods.length === 1 ? uniqueMethods[0] : 'CARD'
-
-    // Verify CARD splits' Stripe intents
+    // ── Electronic Split Payment Gateway Verification ───────────────────────
     for (const s of splits) {
-      if (s.method === 'CARD' && s.stripePaymentIntentId) {
+      const isElectronic = ['CARD', 'APPLE_PAY', 'GOOGLE_PAY'].includes(s.method)
+      if (isElectronic && s.total > 0) {
+        if (!s.stripePaymentIntentId) {
+          return NextResponse.json(
+            { error: `Electronic split payment (${s.method}) requires a verified PaymentIntent authorization token` },
+            { status: 400 }
+          )
+        }
+
         try {
           await verifyStripeIntent({
             intentId: s.stripePaymentIntentId,
@@ -90,31 +130,36 @@ export async function POST(req: NextRequest) {
             expectedAmount: s.total,
           })
         } catch (stripeErr: any) {
-          console.error('[Split Payment] Stripe verification failed', stripeErr)
+          console.error('[Split Payment] Gateway verification failed:', stripeErr)
           return NextResponse.json(
-            { error: `Gateway verification failed: ${stripeErr.message || 'Invalid PaymentIntent'}` },
+            { error: `Gateway verification failed for split: ${stripeErr.message || 'Invalid PaymentIntent'}` },
             { status: 400 }
           )
         }
       }
     }
 
+    // Derive primary method for parent record
+    const uniqueMethods = [...new Set(splits.map((s) => s.method))]
+    const primaryMethod = uniqueMethods.length === 1 ? uniqueMethods[0] : 'CARD'
+
+    // ── Atomic Settlement Transaction ───────────────────────────────────────
     const payment = await prisma.$transaction(async (tx) => {
-      // 1. Create a parent Payment record representing the full checkout transaction
+      // 1. Create parent Payment record
       const parentPayment = await tx.payment.create({
         data: {
           orderId,
           processedBy: session.user.id,
           method:      primaryMethod,
           status:      'COMPLETED',
-          subtotal:    totalSubtotal,
+          subtotal:    totalSubtotalSubmitted,
           tax:         expectedTax,
-          tip:         totalTip,
-          total:       totalPayment,
+          tip:         totalTipSubmitted,
+          total:       totalPaymentSubmitted,
         },
       })
 
-      // 2. Create the individual splits linked to it
+      // 2. Create individual payment splits
       await tx.paymentSplit.createMany({
         data: splits.map((s) => ({
           paymentId:             parentPayment.id,
@@ -127,18 +172,18 @@ export async function POST(req: NextRequest) {
         })),
       })
 
-      // 3. Set order status to paid and sync totals to match settled split payment
+      // 3. Update order status to PAID atomically
       await tx.order.update({
         where: { id: orderId },
         data: {
           status: 'PAID',
-          subtotal: totalSubtotal,
+          subtotal: totalSubtotalSubmitted,
           tax: expectedTax,
-          total: totalPayment,
+          total: totalPaymentSubmitted,
         },
       })
 
-      // 4. Free the table if tableId exists
+      // 4. Free the dining table
       if (order.tableId) {
         await tx.table.update({
           where: { id: order.tableId },
@@ -149,20 +194,17 @@ export async function POST(req: NextRequest) {
       return parentPayment
     })
 
-    // Handle Coupon usage count & loyalty points redemption for split payment
+    // Coupon increment & loyalty deductions
     if (couponCode) {
       try {
         const cleanCode = couponCode.trim().toUpperCase()
         await prisma.coupon.updateMany({
-          where: {
-            restaurantId: session.user.restaurantId,
-            code: cleanCode,
-          },
+          where: { restaurantId, code: cleanCode },
           data: { usageCount: { increment: 1 } },
         })
 
         const coupon = await prisma.coupon.findFirst({
-          where: { restaurantId: session.user.restaurantId, code: cleanCode },
+          where: { restaurantId, code: cleanCode },
         })
         if (coupon?.pointsCost && coupon.pointsCost > 0 && order.customerId) {
           await prisma.customer.update({
@@ -170,21 +212,12 @@ export async function POST(req: NextRequest) {
             data: { pointsBalance: { decrement: coupon.pointsCost } },
           })
         }
-
-        const couponNote = `Coupon: ${cleanCode} (-$${Number(couponDiscount || 0).toFixed(2)})`
-        if (!order.notes?.includes(cleanCode)) {
-          const newNotes = order.notes ? `${order.notes} | ${couponNote}` : couponNote
-          await prisma.order.update({
-            where: { id: orderId },
-            data: { notes: newNotes },
-          })
-        }
       } catch (couponErr) {
-        console.error('[Split Payment] Coupon redemption error:', couponErr)
+        console.error('[Split Payment] Coupon accounting error:', couponErr)
       }
     }
 
-    // Auto-accumulate Loyalty Points if customer linked
+    // Auto-accumulate Loyalty Points
     if (order.customerId) {
       try {
         const { awardOrderPoints } = await import('@/lib/customer-crm')
@@ -194,7 +227,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Log event
+    // Log audit event
     await prisma.orderEvent.create({
       data: {
         orderId,
@@ -203,19 +236,19 @@ export async function POST(req: NextRequest) {
         metadata:  {
           paymentId:  payment.id,
           splitCount: splits.length,
-          total:      totalPayment,
-          tip:        totalTip,
+          total:      totalPaymentSubmitted,
+          tip:        totalTipSubmitted,
           couponCode: couponCode || null,
         },
       },
     })
 
-    // Realtime notifications
+    // Realtime events
     await Promise.all([
       publishEvent(EVENTS.PAYMENT_PROCESSED, {
         paymentId:   payment.id,
         orderId,
-        total:       totalPayment,
+        total:       totalPaymentSubmitted,
         method:      'SPLIT',
         processedBy: session.user.name,
       }, order.table?.locationId),
@@ -234,8 +267,8 @@ export async function POST(req: NextRequest) {
     ])
 
     return NextResponse.json(payment, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/payments/split]', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

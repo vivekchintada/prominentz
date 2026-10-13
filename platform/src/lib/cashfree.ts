@@ -270,6 +270,7 @@ export async function verifyCashfreeSubscription(subscriptionId: string): Promis
 
 /**
  * Verifies webhook payload signature from Cashfree.
+ * Rejects missing signatures and missing secrets strictly.
  */
 export function verifyCashfreeWebhookSignature({
   rawBody,
@@ -280,12 +281,20 @@ export function verifyCashfreeWebhookSignature({
   signature: string | null
   timestamp?: string | null
 }): boolean {
-  if (isMockCashfree() || !signature) {
-    return true
+  if (!signature || typeof signature !== 'string' || signature.trim() === '') {
+    return false
+  }
+
+  const secret = rawCashfreeWebhookSecret || rawCashfreeSecret
+  if (!secret || secret === 'cf_test_mock_secret_key') {
+    // If running in development mock mode with explicit mock signature test
+    if (isMockCashfree() && signature === 'mock_valid_signature') {
+      return true
+    }
+    return false
   }
 
   try {
-    const secret = rawCashfreeWebhookSecret
     const payloadToSign = timestamp ? `${timestamp}${rawBody}` : rawBody
 
     const hmac = crypto.createHmac('sha256', secret)

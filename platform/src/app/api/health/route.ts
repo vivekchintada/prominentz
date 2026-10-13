@@ -77,6 +77,21 @@ export async function GET() {
     checks.email = { status: 'down', latencyMs: 0 }
   }
 
+  // 6. Cashfree SaaS Billing Gateway
+  try {
+    const start = Date.now()
+    const cfAppId = process.env.CASHFREE_APP_ID
+    const cfSecret = process.env.CASHFREE_SECRET_KEY
+    const isConfigured = Boolean(cfAppId && cfSecret && !cfAppId.includes('mock') && !cfSecret.includes('mock'))
+    checks.cashfree = {
+      status: isConfigured ? 'ok' : 'degraded',
+      latencyMs: Date.now() - start,
+      detail: isConfigured ? `Configured (${process.env.CASHFREE_ENVIRONMENT || 'SANDBOX'})` : 'Missing credentials',
+    }
+  } catch {
+    checks.cashfree = { status: 'down', latencyMs: 0 }
+  }
+
   // Overall status
   const allStatuses = Object.values(checks).map((c) => c.status)
   const overallStatus = allStatuses.every((s) => s === 'ok')

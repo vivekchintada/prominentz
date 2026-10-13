@@ -422,10 +422,14 @@ export default function CheckoutModal({
               const intentData = await intentRes.json()
               stripePaymentIntentId = intentData.paymentIntentId
             } else {
-              stripePaymentIntentId = `pi_settle_${Date.now()}`
+              const errData = await intentRes.json().catch(() => ({}))
+              throw new Error(errData.error || 'Failed to initialize card authorization with gateway')
             }
-          } catch {
-            stripePaymentIntentId = `pi_settle_${Date.now()}`
+          } catch (intentErr: any) {
+            setIsProcessingCard(false)
+            setIsFinishing(false)
+            showToast(intentErr.message || 'Payment gateway connection error', 'error')
+            return
           }
         } else {
           stripePaymentIntentId = 'zero_balance_settlement'

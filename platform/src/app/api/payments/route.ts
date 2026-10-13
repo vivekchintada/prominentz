@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       include: {
         table: { select: { id: true, name: true, locationId: true } },
         items: {
-          select: { id: true, priceAtOrder: true, quantity: true, status: true },
+          select: { id: true, priceAtOrder: true, quantity: true, status: true, modifiers: true },
         },
       },
     })
@@ -91,12 +91,18 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Calculate active items subtotal to verify non-zero totals
-    const activeItems = order.items.filter((item: any) => item.status !== 'VOID')
-    const calculatedSubtotal = activeItems.reduce(
-      (sum: number, item: any) => sum + Number(item.priceAtOrder) * item.quantity,
-      0
-    )
+    // Calculate active items subtotal to verify non-zero totals including modifiers
+    const activeItems = (order.items || []).filter((item: any) => item.status !== 'VOIDED')
+    let calculatedSubtotal = 0
+    for (const item of activeItems) {
+      let itemPrice = Number(item.priceAtOrder)
+      if (Array.isArray(item.modifiers)) {
+        for (const mod of (item.modifiers as any[])) {
+          itemPrice += Number(mod?.priceDelta ?? mod?.priceAdjustment ?? 0)
+        }
+      }
+      calculatedSubtotal += itemPrice * item.quantity
+    }
     const effectiveDiscount = Math.max(0, Number(couponDiscount || 0))
 
     if (activeItems.length > 0 && total <= 0 && effectiveDiscount < calculatedSubtotal) {
@@ -122,9 +128,10 @@ export async function POST(req: NextRequest) {
     const expectedSubtotal = Math.max(0, calculatedSubtotal - serverCouponDiscount)
     const taxRate = orderRawSubtotal > 0 ? Number(order.tax) / orderRawSubtotal : 0.10
     const expectedTax = Number((expectedSubtotal * taxRate).toFixed(2))
-    const expectedTotal = Number((expectedSubtotal + expectedTax).toFixed(2))
+    const effectiveTip = Math.max(0, Number(tip || 0))
+    const expectedTotal = Number((expectedSubtotal + expectedTax + effectiveTip).toFixed(2))
 
-    if (Math.abs(total - expectedTotal) > 0.05) {
+    if (Math.abs(total - expectedTotal) > 0.10) {
       return NextResponse.json(
         { error: `Submitted total $${total.toFixed(2)} does not match calculated order total $${expectedTotal.toFixed(2)}` },
         { status: 400 }
@@ -143,16 +150,16 @@ export async function POST(req: NextRequest) {
       serverCashChange = Number(Math.max(0, effectiveCash - total).toFixed(2))
     }
 
-    // Card transaction gateway verification
-    if (method === 'CARD') {
+    // Electronic transaction gateway verification
+    if (['CARD', 'APPLE_PAY', 'GOOGLE_PAY'].includes(method)) {
       if (!stripePaymentIntentId && total > 0) {
         return NextResponse.json(
-          { error: 'Card transaction missing authorization token / PaymentIntent' },
+          { error: `Electronic transaction (${method}) missing authorization token / PaymentIntent` },
           { status: 400 }
         )
       }
 
-      if (stripePaymentIntentId) {
+      if (stripePaymentIntentId && stripePaymentIntentId !== 'zero_balance_settlement') {
         try {
           await verifyStripeIntent({
             intentId: stripePaymentIntentId,

@@ -8,8 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node scripts/security-regression.mjs && node scripts/test-tenant-isolation.mjs",
+    "test": "node scripts/security-regression.mjs && node scripts/test-tenant-isolation.mjs && node scripts/test-two-tenant-security.mjs",
     "test:isolation": "node scripts/test-tenant-isolation.mjs",
+    "test:two-tenant": "node scripts/test-two-tenant-security.mjs",
     "test:e2e": "cypress run",
     "test:security": "node scripts/security-regression.mjs"
   },

@@ -21,8 +21,11 @@ export async function PATCH(
     const body = await req.json()
     const { action, clockOut, flagReason, status } = body // action: 'APPROVE' | 'CLOCK_OUT' | 'EDIT'
 
-    const entry = await prisma.timeEntry.findUnique({
-      where: { id },
+    const entry = await prisma.timeEntry.findFirst({
+      where: {
+        id,
+        location: { restaurantId: session.user.restaurantId },
+      },
     })
 
     if (!entry) {

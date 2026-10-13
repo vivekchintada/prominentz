@@ -38,6 +38,15 @@ export async function POST(req: NextRequest) {
     }
 
     const amountDollars = intent.amount_received / 100
+    const expectedOrderTotal = Number(order.total)
+
+    if (amountDollars < expectedOrderTotal - 0.50) {
+      return NextResponse.json(
+        { error: `Captured terminal payment ($${amountDollars.toFixed(2)}) is less than required order balance ($${expectedOrderTotal.toFixed(2)})` },
+        { status: 400 }
+      )
+    }
+
     const subtotal      = Number(order.subtotal)
     const tax           = Number(order.tax)
     const tip           = Math.max(0, Number((amountDollars - subtotal - tax).toFixed(2)))
