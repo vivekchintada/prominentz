@@ -65,24 +65,40 @@ export async function createPaymentIntent(
       }
     }
 
+    const isLive = process.env.NODE_ENV === 'production' || (!isTestOrMockKey && rawStripeSecret.startsWith('sk_live_'))
     const shouldConfirm = options?.confirm ?? true
-    const paymentMethod = options?.paymentMethod || 'pm_card_visa'
+
+    if (shouldConfirm && !options?.paymentMethod && isLive) {
+      throw new Error(
+        'A genuine customer or terminal payment method is required to confirm card transactions in production. ' +
+        'Mock/test tokens (pm_card_visa) are forbidden.'
+      )
+    }
+
+    const paymentMethod = options?.paymentMethod || (isTestOrMockKey ? 'pm_card_visa' : undefined)
 
     const createParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInCents,
       currency: 'usd',
       metadata: { orderId },
-      confirm: shouldConfirm,
-      payment_method: shouldConfirm ? paymentMethod : undefined,
-      automatic_payment_methods: shouldConfirm
+      confirm: shouldConfirm && !!paymentMethod,
+      payment_method: shouldConfirm && paymentMethod ? paymentMethod : undefined,
+      automatic_payment_methods: (shouldConfirm && paymentMethod)
         ? undefined
         : { enabled: true, allow_redirects: 'never' },
     }
 
+    // Stable idempotency key across retries:
+    // If a custom suffix/attempt key is provided, use it; otherwise use the stable order+amount pair.
+    // Avoid Date.now() so that network retries or repeated submissions don't double charge.
+    const idempotencyKey = options?.idempotencySuffix
+      ? `pi_${orderId}_${amountInCents}_${options.idempotencySuffix}`
+      : `pi_${orderId}_${amountInCents}`
+
     const intent = await stripe.paymentIntents.create(
       createParams,
       {
-        idempotencyKey: `pi_${orderId}_${amountInCents}_${options?.idempotencySuffix || Date.now()}`,
+        idempotencyKey,
       }
     )
 
