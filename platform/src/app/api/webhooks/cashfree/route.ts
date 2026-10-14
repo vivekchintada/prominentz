@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     // A. Payment Link Events (One-time checkouts / Quotes)
     // CRITICAL: An abandoned, expired, or cancelled payment link MUST NEVER downgrade an active subscription!
-    if (eventType === 'PAYMENT_LINK_EVENT' || (Boolean(data.link_id) && !eventType.includes('SUBSCRIPTION_'))) {
+    if (eventType === 'PAYMENT_LINK_EVENT' || linkStatus === 'PAID' || (Boolean(data.link_id) && !eventType.includes('SUBSCRIPTION_'))) {
       if (linkStatus !== 'PAID') {
         console.info(`[Cashfree Webhook] Payment link ${data.link_id} is in non-paid state (${linkStatus || 'PENDING'}). Preserving current restaurant subscription status.`)
         await prisma.stripeEventLog.create({
