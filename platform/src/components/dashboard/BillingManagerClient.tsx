@@ -131,9 +131,11 @@ export function BillingManagerClient() {
       if (res.ok) {
         const data = await res.json()
         const rName = data.name || data.restaurant?.name || data.settings?.store?.name || 'My Restaurant'
-        const rPlan = data.planTier || data.restaurant?.planTier || 'STARTER'
+        const rPlan = (data.planTier || data.restaurant?.planTier || 'STARTER') as PlanTier
         setRestaurantName(rName)
-        setCurrentPlan(rPlan as PlanTier)
+        setCurrentPlan(rPlan)
+        // Authoritative paid status derived strictly from server-side database
+        setIsPaidSubscription(rPlan !== 'STARTER')
       }
     } catch (err) {
       console.error('Failed to load restaurant settings', err)
@@ -146,30 +148,14 @@ export function BillingManagerClient() {
     reloadPlanInfo()
 
     if (typeof window !== 'undefined') {
-      if (localStorage.getItem('prominentz_subscription_paid') === 'true') {
-        setIsPaidSubscription(true)
-      }
-
       const params = new URLSearchParams(window.location.search)
       if (params.get('success') === 'true') {
         const upgradedPlan = (params.get('plan') as PlanTier) || 'STARTER'
-        fetch('/api/billing/activate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planTier: upgradedPlan }),
-        })
-          .then((r) => r.json())
-          .then((res) => {
-            if (res.success) {
-              setCurrentPlan(upgradedPlan)
-              setIsPaidSubscription(true)
-              setShowThankYouModal(true)
-              localStorage.setItem('prominentz_subscription_paid', 'true')
-              setMessage(`Subscription active. All capabilities unlocked for ${restaurantName}.`)
-              window.history.replaceState({}, '', window.location.pathname)
-            }
-          })
-          .catch((e) => console.error(e))
+        setShowThankYouModal(true)
+        setMessage(`Checkout completed. Verifying subscription status with gateway for ${restaurantName}...`)
+        // Authoritative update is processed via verified webhook; reload from DB
+        reloadPlanInfo()
+        window.history.replaceState({}, '', window.location.pathname)
       }
     }
   }, [restaurantName])

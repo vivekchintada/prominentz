@@ -22,25 +22,31 @@ export function isMockCashfree(): boolean {
 
 export const CASHFREE_PLAN_PRICING: Record<
   PlanTier,
-  { name: string; amount: number; planId: string; description: string; interval: string }
+  { name: string; amount: number; amountINR: number; currency: 'INR'; planId: string; description: string; interval: 'month' | 'year' }
 > = {
   STARTER: {
     name: 'Basic Plan',
-    amount: 50,
+    amount: 0,
+    amountINR: 0,
+    currency: 'INR',
     planId: process.env.CASHFREE_PLAN_STARTER || 'plan_starter_tier',
     description: 'Core POS & KDS, Table Floor Management, Digital Menu & QR Studio, Staff Accounts, End-of-Day Reports',
     interval: 'month',
   },
   PRO: {
     name: 'Professional Plan',
-    amount: 129,
+    amount: Number(process.env.CASHFREE_AMOUNT_PRO || 3999),
+    amountINR: Number(process.env.CASHFREE_AMOUNT_PRO || 3999),
+    currency: 'INR',
     planId: process.env.CASHFREE_PLAN_PRO || 'plan_pro_tier',
     description: 'Advanced AI Intelligence, Guest CRM & Loyalty Engine',
     interval: 'month',
   },
   ENTERPRISE: {
     name: 'Enterprise Plan',
-    amount: 129,
+    amount: Number(process.env.CASHFREE_AMOUNT_ENTERPRISE || 9999),
+    amountINR: Number(process.env.CASHFREE_AMOUNT_ENTERPRISE || 9999),
+    currency: 'INR',
     planId: process.env.CASHFREE_PLAN_ENTERPRISE || 'plan_enterprise_tier',
     description: 'Multi-Location Outlets, Dedicated Infrastructure and Custom SLA',
     interval: 'month',
@@ -141,9 +147,8 @@ export async function createSubscriptionCheckoutSession({
   try {
     // link_id: alphanumeric, max 50 chars, no spaces or special chars
     const linkId = `sub${sanitizedRestaurantId}${Date.now().toString(36)}`
-    // Cashfree India supports INR. Convert USD amount → INR (approx, for testing)
-    // In production you can set INR prices directly in CASHFREE_PLAN_* pricing
-    const amountInINR = planInfo.amount * 84 // rough USD→INR conversion for sandbox testing
+    // Direct INR amount configured for the plan
+    const amountInINR = planInfo.amountINR
 
     const linkPayload = {
       link_id: linkId,
@@ -270,7 +275,7 @@ export async function verifyCashfreeSubscription(subscriptionId: string): Promis
 
 /**
  * Verifies webhook payload signature from Cashfree.
- * Rejects missing signatures and missing secrets strictly.
+ * Rejects missing credentials, missing signatures, invalid signatures, and all mock-signature values strictly.
  */
 export function verifyCashfreeWebhookSignature({
   rawBody,
@@ -285,12 +290,13 @@ export function verifyCashfreeWebhookSignature({
     return false
   }
 
+  // Reject all mock signature strings across all environments
+  if (signature.includes('mock_') || signature === 'mock_valid_signature') {
+    return false
+  }
+
   const secret = rawCashfreeWebhookSecret || rawCashfreeSecret
   if (!secret || secret === 'cf_test_mock_secret_key') {
-    // If running in development mock mode with explicit mock signature test
-    if (isMockCashfree() && signature === 'mock_valid_signature') {
-      return true
-    }
     return false
   }
 

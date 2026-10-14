@@ -20,14 +20,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan tier' }, { status: 400 })
     }
 
-    if (process.env.NODE_ENV === 'production') {
-      const adminSecret = req.headers.get('x-admin-secret')
-      if (!adminSecret || adminSecret !== process.env.INTERNAL_ADMIN_SECRET) {
-        return NextResponse.json(
-          { error: 'Plan activation must be completed through Cashfree checkout' },
-          { status: 403 }
-        )
-      }
+    // Require explicit admin authorization in all environments; clients cannot self-activate
+    const adminSecret = req.headers.get('x-admin-secret')
+    if (!adminSecret || adminSecret !== process.env.INTERNAL_ADMIN_SECRET) {
+      return NextResponse.json(
+        { error: 'Forbidden: Plan activation must be completed through Cashfree checkout webhook' },
+        { status: 403 }
+      )
     }
 
     const { resolveUserLocation } = await import('@/lib/location-resolver')

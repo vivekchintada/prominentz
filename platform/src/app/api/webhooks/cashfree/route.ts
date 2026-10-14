@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { verifyCashfreeWebhookSignature, isMockCashfree, CASHFREE_PLAN_PRICING } from '@/lib/cashfree'
 import { PlanTier } from '@/lib/plans'
@@ -49,35 +50,51 @@ export async function POST(req: NextRequest) {
   const eventType = (event.type || event.event || event.event_type || '').toUpperCase()
   console.info(`[Cashfree Webhook] Verified event: ${eventType}`)
 
-  // 2. Persisted Replay Protection
-  const eventUniqueId =
-    event.event_id ||
-    event.data?.link_id ||
-    event.data?.payment?.cf_payment_id ||
-    event.data?.order?.cf_order_id ||
-    event.data?.subscription?.subscription_id ||
-    `cf_evt_${Date.now()}`
+  const data = event.data || {}
+  const eventTime = event.event_time || event.created_at || data.payment?.payment_time || ''
+
+  // 2. Stable, Provider-Specific Event Identity (No timestamp fallbacks)
+  let eventUniqueId = ''
+  if (event.event_id) {
+    eventUniqueId = `cf_evt_${event.event_id}`
+  } else if (data.payment?.cf_payment_id) {
+    eventUniqueId = `cf_pay_${data.payment.cf_payment_id}_${eventType}`
+  } else if (data.order?.cf_order_id) {
+    eventUniqueId = `cf_ord_${data.order.cf_order_id}_${eventType}`
+  } else if (data.link_id) {
+    eventUniqueId = `cf_link_${data.link_id}_${data.link_status || eventType}_${data.payment_id || eventTime}`
+  } else if (data.subscription?.subscription_id) {
+    const cycle = data.subscription.current_cycle ?? ''
+    const status = data.subscription.status ?? ''
+    eventUniqueId = `cf_sub_${data.subscription.subscription_id}_${eventType}_${cycle}_${status}_${eventTime}`
+  } else {
+    // Deterministic cryptographic hash of rawBody guarantees exact duplicates yield the exact same event ID
+    eventUniqueId = `cf_hash_${crypto.createHash('sha256').update(rawBody).digest('hex').slice(0, 32)}`
+  }
 
   try {
+    // Check if this provider event has already been processed using DB uniqueness constraint and audit log
+    const existingEvent = await prisma.stripeEventLog.findUnique({
+      where: { eventId: eventUniqueId },
+    }).catch(() => null)
+
     const existingLog = await prisma.auditLog.findFirst({
       where: {
         action: 'BILLING_PAYMENT_SUCCESS',
         targetId: String(eventUniqueId),
       },
-    })
+    }).catch(() => null)
 
-    if (existingLog) {
-      console.info(`[Cashfree Webhook] Replay detected for event ${eventUniqueId}. Skipping.`)
+    if (existingEvent || existingLog) {
+      console.info(`[Cashfree Webhook] Replay detected for event ${eventUniqueId}. Skipping duplicate.`)
       return NextResponse.json({ received: true, duplicate: true })
     }
 
     // 3. Process event lifecycle
-    const data = event.data || {}
-
-    // A. Cancellation / Revocation / Failure
     const subStatus = (data.subscription?.status || data.status || '').toUpperCase()
     const linkStatus = (data.link_status || '').toUpperCase()
 
+    // A. Cancellation / Revocation / Failure / Expiration
     if (
       eventType.includes('CANCEL') ||
       eventType.includes('REVOKED') ||
@@ -94,17 +111,38 @@ export async function POST(req: NextRequest) {
       const restaurantId = notes.restaurantId || notes.restaurant_id || data.customer_details?.customer_id
 
       if (restaurantId) {
-        await prisma.restaurant.update({
-          where: { id: restaurantId },
-          data: {
-            planTier: 'STARTER',
-            settings: {
-              cashfreeSubscriptionStatus: 'CANCELLED',
-              updatedAt: new Date().toISOString(),
+        await prisma.$transaction(async (tx) => {
+          // Record event atomically to prevent concurrent race conditions
+          await tx.stripeEventLog.create({
+            data: {
+              eventId: eventUniqueId,
+              eventType,
+              orderId: restaurantId,
             },
-          },
+          })
+
+          const restaurant = await tx.restaurant.findUnique({
+            where: { id: restaurantId },
+          })
+
+          if (restaurant) {
+            const currentSettings = (restaurant.settings as Record<string, any>) || {}
+            // Preserve ALL store, ordering, printer, tax, and unrelated settings
+            await tx.restaurant.update({
+              where: { id: restaurantId },
+              data: {
+                planTier: 'STARTER',
+                settings: {
+                  ...currentSettings,
+                  cashfreeSubscriptionStatus: 'CANCELLED',
+                  cashfreeCancelledAt: new Date().toISOString(),
+                  lastCashfreeEventTime: eventTime || new Date().toISOString(),
+                },
+              },
+            })
+            console.info(`[Cashfree Webhook] Subscription cancelled for ${restaurantId}. Preserved existing settings, reverted plan to STARTER.`)
+          }
         })
-        console.info(`[Cashfree Webhook] Subscription cancelled for ${restaurantId}. Reverted to STARTER.`)
       }
 
       return NextResponse.json({ received: true, status: 'CANCELLED' })
@@ -125,41 +163,61 @@ export async function POST(req: NextRequest) {
         : 'STARTER'
 
       if (restaurantId) {
-        const restaurant = await prisma.restaurant.findUnique({
-          where: { id: restaurantId },
-        })
-
-        if (restaurant) {
-          const currentSettings = (restaurant.settings as Record<string, any>) || {}
-          await prisma.restaurant.update({
-            where: { id: restaurantId },
+        await prisma.$transaction(async (tx) => {
+          await tx.stripeEventLog.create({
             data: {
-              planTier: planTier as any,
-              settings: {
-                ...currentSettings,
-                cashfreeSubscriptionStatus: 'ACTIVE',
-                cashfreeLinkId: data.link_id,
-                lastBillingGateway: 'CASHFREE',
-                lastBilledAt: new Date().toISOString(),
-              },
+              eventId: eventUniqueId,
+              eventType,
+              orderId: restaurantId,
             },
           })
 
-          await logAuditEvent({
-            restaurantId,
-            actorId: 'cashfree_webhook',
-            actorName: 'Cashfree Payment Link',
-            action: 'BILLING_PAYMENT_SUCCESS',
-            targetType: 'Restaurant',
-            targetId: String(eventUniqueId),
-            after: {
-              linkId: data.link_id,
-              amountPaid: data.link_amount_paid,
-              planTier,
-            },
+          const restaurant = await tx.restaurant.findUnique({
+            where: { id: restaurantId },
           })
-          console.info(`[Cashfree Webhook] Payment link ${data.link_id} paid. Activated ${planTier} for ${restaurantId}.`)
-        }
+
+          if (restaurant) {
+            const currentSettings = (restaurant.settings as Record<string, any>) || {}
+
+            // Prevent delayed older events from overwriting newer cancellation
+            const lastEventTime = currentSettings.lastCashfreeEventTime ? new Date(currentSettings.lastCashfreeEventTime).getTime() : 0
+            const incomingEventTime = eventTime ? new Date(eventTime).getTime() : Date.now()
+            if (currentSettings.cashfreeSubscriptionStatus === 'CANCELLED' && incomingEventTime < lastEventTime) {
+              console.warn(`[Cashfree Webhook] Outdated payment link event (${eventUniqueId}) arrived after cancellation. Skipping state update.`)
+              return
+            }
+
+            await tx.restaurant.update({
+              where: { id: restaurantId },
+              data: {
+                planTier: planTier as any,
+                settings: {
+                  ...currentSettings,
+                  cashfreeSubscriptionStatus: 'ACTIVE',
+                  cashfreeLinkId: data.link_id,
+                  lastBillingGateway: 'CASHFREE',
+                  lastBilledAt: new Date().toISOString(),
+                  lastCashfreeEventTime: eventTime || new Date().toISOString(),
+                },
+              },
+            })
+
+            await logAuditEvent({
+              restaurantId,
+              actorId: 'cashfree_webhook',
+              actorName: 'Cashfree Payment Link',
+              action: 'BILLING_PAYMENT_SUCCESS',
+              targetType: 'Restaurant',
+              targetId: String(eventUniqueId),
+              after: {
+                linkId: data.link_id,
+                amountPaid: data.link_amount_paid,
+                planTier,
+              },
+            })
+            console.info(`[Cashfree Webhook] Payment link ${data.link_id} paid. Activated ${planTier} for ${restaurantId}.`)
+          }
+        })
       }
 
       return NextResponse.json({ received: true, status: 'ACTIVATED' })
@@ -190,42 +248,62 @@ export async function POST(req: NextRequest) {
       const subscriptionId = sub.subscription_id || sub.subscriptionId || data.subscription_id || sub.cf_order_id || null
 
       if (restaurantId) {
-        const restaurant = await prisma.restaurant.findUnique({
-          where: { id: restaurantId },
-        })
-
-        if (restaurant) {
-          const currentSettings = (restaurant.settings as Record<string, any>) || {}
-          await prisma.restaurant.update({
-            where: { id: restaurantId },
+        await prisma.$transaction(async (tx) => {
+          await tx.stripeEventLog.create({
             data: {
-              planTier: planTier as any,
-              stripeSubscriptionId: subscriptionId || restaurant.stripeSubscriptionId,
-              settings: {
-                ...currentSettings,
-                cashfreeSubscriptionId: subscriptionId || currentSettings.cashfreeSubscriptionId,
-                cashfreeSubscriptionStatus: 'ACTIVE',
-                lastBillingGateway: 'CASHFREE',
-                lastBilledAt: new Date().toISOString(),
-              },
+              eventId: eventUniqueId,
+              eventType,
+              orderId: restaurantId,
             },
           })
 
-          await logAuditEvent({
-            restaurantId,
-            actorId: 'cashfree_webhook',
-            actorName: 'Cashfree Gateway',
-            action: 'BILLING_PAYMENT_SUCCESS',
-            targetType: 'Restaurant',
-            targetId: String(eventUniqueId),
-            after: {
-              subscriptionId,
-              planTier,
-              eventType,
-            },
+          const restaurant = await tx.restaurant.findUnique({
+            where: { id: restaurantId },
           })
-          console.info(`[Cashfree Webhook] Activated ${planTier} subscription for ${restaurantId}.`)
-        }
+
+          if (restaurant) {
+            const currentSettings = (restaurant.settings as Record<string, any>) || {}
+
+            // Prevent delayed older events from overwriting newer cancellation
+            const lastEventTime = currentSettings.lastCashfreeEventTime ? new Date(currentSettings.lastCashfreeEventTime).getTime() : 0
+            const incomingEventTime = eventTime ? new Date(eventTime).getTime() : Date.now()
+            if (currentSettings.cashfreeSubscriptionStatus === 'CANCELLED' && incomingEventTime < lastEventTime) {
+              console.warn(`[Cashfree Webhook] Outdated subscription activation (${eventUniqueId}) arrived after cancellation. Skipping state update.`)
+              return
+            }
+
+            await tx.restaurant.update({
+              where: { id: restaurantId },
+              data: {
+                planTier: planTier as any,
+                stripeSubscriptionId: subscriptionId || restaurant.stripeSubscriptionId,
+                settings: {
+                  ...currentSettings,
+                  cashfreeSubscriptionId: subscriptionId || currentSettings.cashfreeSubscriptionId,
+                  cashfreeSubscriptionStatus: 'ACTIVE',
+                  lastBillingGateway: 'CASHFREE',
+                  lastBilledAt: new Date().toISOString(),
+                  lastCashfreeEventTime: eventTime || new Date().toISOString(),
+                },
+              },
+            })
+
+            await logAuditEvent({
+              restaurantId,
+              actorId: 'cashfree_webhook',
+              actorName: 'Cashfree Gateway',
+              action: 'BILLING_PAYMENT_SUCCESS',
+              targetType: 'Restaurant',
+              targetId: String(eventUniqueId),
+              after: {
+                subscriptionId,
+                planTier,
+                eventType,
+              },
+            })
+            console.info(`[Cashfree Webhook] Activated ${planTier} subscription for ${restaurantId}.`)
+          }
+        })
       }
 
       return NextResponse.json({ received: true, status: 'ACTIVATED' })
@@ -233,6 +311,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true, status: 'UNHANDLED_EVENT' })
   } catch (error: any) {
+    if (error.code === 'P2002') {
+      console.info(`[Cashfree Webhook] Concurrent duplicate detected for ${eventUniqueId}. Skipping.`)
+      return NextResponse.json({ received: true, duplicate: true })
+    }
     console.error('[Cashfree Webhook Handler Error]', error)
     return NextResponse.json({ error: error.message || 'Webhook processing failed' }, { status: 500 })
   }

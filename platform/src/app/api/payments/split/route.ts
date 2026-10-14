@@ -66,22 +66,37 @@ export async function POST(req: NextRequest) {
     // Use greater of item calculation or stored subtotal
     const orderAuthoritativeSubtotal = Math.max(serverCalculatedSubtotal, Number(order.subtotal || 0))
 
-    // Verify coupon discount strictly on server
+    // Verify coupon discount strictly on server (ignore client-submitted discount amounts)
     let serverCouponDiscount = 0
     if (couponCode) {
       const cleanCode = couponCode.trim().toUpperCase()
-      const coupon = await prisma.coupon.findFirst({
-        where: { restaurantId, code: cleanCode },
-        select: { discountAmount: true, minimumOrderAmount: true },
+      const now = new Date()
+      const coupon = await prisma.coupon.findUnique({
+        where: {
+          restaurantId_code: {
+            restaurantId,
+            code: cleanCode,
+          },
+        },
       })
-      if (coupon?.discountAmount) {
-        if (!coupon.minimumOrderAmount || orderAuthoritativeSubtotal >= Number(coupon.minimumOrderAmount)) {
-          serverCouponDiscount = Number(coupon.discountAmount)
+
+      if (coupon && coupon.status === 'ACTIVE') {
+        const notStarted = coupon.startDate && now < new Date(coupon.startDate)
+        const expired = coupon.endDate && now > new Date(coupon.endDate)
+        const minSpendUnmet = coupon.minimumOrderAmount && orderAuthoritativeSubtotal < Number(coupon.minimumOrderAmount)
+        const usageLimitReached = coupon.usageLimit !== null && coupon.usageLimit !== undefined && coupon.usageCount >= coupon.usageLimit
+
+        if (!notStarted && !expired && !minSpendUnmet && !usageLimitReached) {
+          if (coupon.discountType === 'PERCENTAGE') {
+            serverCouponDiscount = Number(((orderAuthoritativeSubtotal * Number(coupon.discountAmount)) / 100).toFixed(2))
+          } else {
+            serverCouponDiscount = Math.min(orderAuthoritativeSubtotal, Number(coupon.discountAmount))
+          }
         }
       }
-    } else if (couponDiscount) {
-      serverCouponDiscount = Math.min(orderAuthoritativeSubtotal, Number(couponDiscount))
     }
+    // Client-submitted couponDiscount is explicitly ignored.
+    // Manual discounts require the authorized manager comp flow (POST /api/orders/[id]/comp).
 
     const netSubtotal = Math.max(0, orderAuthoritativeSubtotal - serverCouponDiscount)
     const taxRate = orderAuthoritativeSubtotal > 0 ? (Number(order.tax) / orderAuthoritativeSubtotal) : 0.10
@@ -89,7 +104,6 @@ export async function POST(req: NextRequest) {
     const requiredBalanceDue = Number((netSubtotal + expectedTax).toFixed(2))
 
     // Sum details from client splits
-    const totalSubtotalSubmitted = Number(splits.reduce((acc, s) => acc + s.subtotal, 0).toFixed(2))
     const totalTipSubmitted = Number(splits.reduce((acc, s) => acc + s.tip, 0).toFixed(2))
     const totalPaymentSubmitted = Number(splits.reduce((acc, s) => acc + s.total, 0).toFixed(2))
 
@@ -123,6 +137,13 @@ export async function POST(req: NextRequest) {
           )
         }
 
+        if (s.stripePaymentIntentId === 'zero_balance_settlement') {
+          return NextResponse.json(
+            { error: `Cannot settle positive split balance ($${s.total.toFixed(2)}) with zero balance token` },
+            { status: 400 }
+          )
+        }
+
         try {
           await verifyStripeIntent({
             intentId: s.stripePaymentIntentId,
@@ -142,20 +163,21 @@ export async function POST(req: NextRequest) {
     // Derive primary method for parent record
     const uniqueMethods = [...new Set(splits.map((s) => s.method))]
     const primaryMethod = uniqueMethods.length === 1 ? uniqueMethods[0] : 'CARD'
+    const authoritativeTotal = Number((netSubtotal + expectedTax + totalTipSubmitted).toFixed(2))
 
     // ── Atomic Settlement Transaction ───────────────────────────────────────
     const payment = await prisma.$transaction(async (tx) => {
-      // 1. Create parent Payment record
+      // 1. Create parent Payment record with authoritative server amounts
       const parentPayment = await tx.payment.create({
         data: {
           orderId,
           processedBy: session.user.id,
           method:      primaryMethod,
           status:      'COMPLETED',
-          subtotal:    totalSubtotalSubmitted,
+          subtotal:    netSubtotal,
           tax:         expectedTax,
           tip:         totalTipSubmitted,
-          total:       totalPaymentSubmitted,
+          total:       authoritativeTotal,
         },
       })
 
@@ -172,14 +194,17 @@ export async function POST(req: NextRequest) {
         })),
       })
 
-      // 3. Update order status to PAID atomically
+      // 3. Update order status to PAID atomically with server-calculated amounts
       await tx.order.update({
         where: { id: orderId },
         data: {
           status: 'PAID',
-          subtotal: totalSubtotalSubmitted,
+          paymentStatus: 'PAID',
+          subtotal: netSubtotal,
           tax: expectedTax,
-          total: totalPaymentSubmitted,
+          total: authoritativeTotal,
+          tip: totalTipSubmitted,
+          discount: serverCouponDiscount,
         },
       })
 

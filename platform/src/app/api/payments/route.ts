@@ -113,15 +113,34 @@ export async function POST(req: NextRequest) {
     }
 
     // Server-side total validation and cash change calculation
-    // Compute discount from coupon securely
+    // Compute discount from coupon securely with full validation
     let serverCouponDiscount = 0
     if (couponCode) {
       const cleanCode = couponCode.trim().toUpperCase()
-      const coupon = await prisma.coupon.findFirst({
-        where: { restaurantId, code: cleanCode },
-        select: { discountAmount: true },
+      const now = new Date()
+      const coupon = await prisma.coupon.findUnique({
+        where: {
+          restaurantId_code: {
+            restaurantId,
+            code: cleanCode,
+          },
+        },
       })
-      if (coupon?.discountAmount) serverCouponDiscount = Number(coupon.discountAmount)
+
+      if (coupon && coupon.status === 'ACTIVE') {
+        const notStarted = coupon.startDate && now < new Date(coupon.startDate)
+        const expired = coupon.endDate && now > new Date(coupon.endDate)
+        const minSpendUnmet = coupon.minimumOrderAmount && calculatedSubtotal < Number(coupon.minimumOrderAmount)
+        const usageLimitReached = coupon.usageLimit !== null && coupon.usageLimit !== undefined && coupon.usageCount >= coupon.usageLimit
+
+        if (!notStarted && !expired && !minSpendUnmet && !usageLimitReached) {
+          if (coupon.discountType === 'PERCENTAGE') {
+            serverCouponDiscount = Number(((calculatedSubtotal * Number(coupon.discountAmount)) / 100).toFixed(2))
+          } else {
+            serverCouponDiscount = Math.min(calculatedSubtotal, Number(coupon.discountAmount))
+          }
+        }
+      }
     }
 
     const orderRawSubtotal = Number(order.subtotal) || calculatedSubtotal
@@ -151,20 +170,23 @@ export async function POST(req: NextRequest) {
     }
 
     // Electronic transaction gateway verification
+    let effectiveStripeIntentId: string | null = stripePaymentIntentId ?? null
     if (['CARD', 'APPLE_PAY', 'GOOGLE_PAY'].includes(method)) {
-      if (!stripePaymentIntentId && total > 0) {
-        return NextResponse.json(
-          { error: `Electronic transaction (${method}) missing authorization token / PaymentIntent` },
-          { status: 400 }
-        )
-      }
+      if (expectedTotal > 0) {
+        // If the server-calculated balance due is greater than zero, a genuine, verified gateway transaction is MANDATORY.
+        // A client cannot pass 'zero_balance_settlement' or any custom string to bypass gateway verification.
+        if (!stripePaymentIntentId || stripePaymentIntentId === 'zero_balance_settlement') {
+          return NextResponse.json(
+            { error: `Electronic transaction (${method}) requires a verified gateway transaction. Positive balance ($${expectedTotal.toFixed(2)}) cannot be settled without payment gateway authorization.` },
+            { status: 400 }
+          )
+        }
 
-      if (stripePaymentIntentId && stripePaymentIntentId !== 'zero_balance_settlement') {
         try {
           await verifyStripeIntent({
             intentId: stripePaymentIntentId,
             orderId,
-            expectedAmount: total,
+            expectedAmount: expectedTotal,
           })
         } catch (stripeErr: any) {
           console.error('[Payment Gateway Error]', stripeErr)
@@ -173,39 +195,42 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           )
         }
+      } else {
+        // Only allow payment without a gateway transaction when the server-calculated balance is exactly zero after authorized discounts
+        effectiveStripeIntentId = 'zero_balance_comp'
       }
     }
 
     // Process checkout transaction
     const [payment] = await prisma.$transaction([
-      // 1. Create payment record
+      // 1. Create payment record with server-authoritative amounts
       prisma.payment.create({
         data: {
           orderId,
           processedBy: session.user.id,
           method,
           status: 'COMPLETED',
-          subtotal,
-          tax,
-          tip,
-          total,
+          subtotal: expectedSubtotal,
+          tax: expectedTax,
+          tip: effectiveTip,
+          total: expectedTotal,
           cashReceived: cashReceived ?? null,
           cashChange: serverCashChange ?? cashChange ?? null,
-          stripePaymentIntentId: stripePaymentIntentId ?? null,
+          stripePaymentIntentId: effectiveStripeIntentId,
           stripeChargeId: stripeChargeId ?? null,
         },
       }),
-      // 2. Update order status and record final billing amounts
+      // 2. Update order status and record final authoritative billing amounts
       prisma.order.update({
         where: { id: orderId },
         data: {
           status: 'PAID',
           paymentStatus: 'PAID',
-          subtotal,
-          tax,
-          total,
-          tip,
-          discount: couponDiscount ?? 0,
+          subtotal: expectedSubtotal,
+          tax: expectedTax,
+          total: expectedTotal,
+          tip: effectiveTip,
+          discount: serverCouponDiscount,
         },
       }),
       // 3. Reset table status

@@ -2,6 +2,8 @@
   "name": "prominentz-monorepo",
   "private": true,
   "scripts": {
+    "test": "npm --prefix platform run test",
+    "test:platform": "npm --prefix platform run test",
     "check:platform": "npm --prefix platform run lint && npm --prefix platform run build",
     "check:mobile": "npm --prefix mobile exec tsc -- --noEmit"
   }
