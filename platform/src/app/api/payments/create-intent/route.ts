@@ -7,6 +7,8 @@ import { z } from 'zod'
 const createIntentSchema = z.object({
   orderId: z.string().min(1),
   amount:  z.number().min(0.50, 'Minimum card charge is $0.50'), // Stripe minimum charge is 50 cents
+  confirm: z.boolean().optional().default(true),
+  paymentMethod: z.string().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { orderId, amount } = parsed.data
+    const { orderId, amount, confirm, paymentMethod } = parsed.data
 
     const { resolveUserLocation } = await import('@/lib/location-resolver')
     const resolved = await resolveUserLocation(session.user)
@@ -56,11 +58,15 @@ export async function POST(req: NextRequest) {
     // Convert amount to cents for Stripe
     const amountInCents = Math.round(amount * 100)
 
-    const intent = await createPaymentIntent(amountInCents, orderId)
+    const intent = await createPaymentIntent(amountInCents, orderId, {
+      confirm,
+      paymentMethod,
+    })
 
     return NextResponse.json({
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
+      status: intent.status,
     })
   } catch (error: any) {
     console.error('[POST /api/payments/create-intent]', error)

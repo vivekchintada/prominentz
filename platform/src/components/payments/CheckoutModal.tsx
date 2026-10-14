@@ -416,7 +416,7 @@ export default function CheckoutModal({
             const intentRes = await fetch('/api/payments/create-intent', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderId: effectiveOrderId, amount: finalTotal }),
+              body: JSON.stringify({ orderId: effectiveOrderId, amount: finalTotal, confirm: true }),
             })
             if (intentRes.ok) {
               const intentData = await intentRes.json()
@@ -496,20 +496,17 @@ export default function CheckoutModal({
 
       if (share.method === 'CARD') {
         if (share.total > 0) {
-          try {
-            const intentRes = await fetch('/api/payments/create-intent', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderId: order.id, amount: share.total }),
-            })
-            if (intentRes.ok) {
-              const intentData = await intentRes.json()
-              stripePaymentIntentId = intentData.paymentIntentId
-            } else {
-              stripePaymentIntentId = `pi_term_${Date.now()}_${index}`
-            }
-          } catch {
-            stripePaymentIntentId = `pi_term_${Date.now()}_${index}`
+          const intentRes = await fetch('/api/payments/create-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: order.id, amount: share.total, confirm: true }),
+          })
+          if (intentRes.ok) {
+            const intentData = await intentRes.json()
+            stripePaymentIntentId = intentData.paymentIntentId
+          } else {
+            const errData = await intentRes.json().catch(() => ({}))
+            throw new Error(errData.error || `Card authorization failed for ${share.guestRef}`)
           }
         } else {
           stripePaymentIntentId = 'zero_balance_split'
@@ -540,16 +537,42 @@ export default function CheckoutModal({
   }
 
   // Quick settle all splits
-  const handleQuickSettleAll = (method: 'CARD' | 'CASH') => {
-    setSplitShares((prev) =>
-      prev.map((s, idx) => ({
-        ...s,
-        method,
-        status: 'PAID',
-        stripePaymentIntentId: method === 'CARD' ? `pi_split_${Date.now()}_${idx}` : null,
-      }))
-    )
-    showToast(`All guests settled via ${method}!`, 'success')
+  const handleQuickSettleAll = async (method: 'CARD' | 'CASH') => {
+    setIsFinishing(true)
+    try {
+      const updatedShares = await Promise.all(
+        splitShares.map(async (s) => {
+          if (s.status === 'PAID') return s
+          let stripePaymentIntentId: string | null = null
+          if (method === 'CARD' && s.total > 0) {
+            const intentRes = await fetch('/api/payments/create-intent', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId: order.id, amount: s.total, confirm: true }),
+            })
+            if (intentRes.ok) {
+              const intentData = await intentRes.json()
+              stripePaymentIntentId = intentData.paymentIntentId
+            } else {
+              const errData = await intentRes.json().catch(() => ({}))
+              throw new Error(errData.error || `Card authorization failed for ${s.guestRef}`)
+            }
+          }
+          return {
+            ...s,
+            method,
+            status: 'PAID' as const,
+            stripePaymentIntentId,
+          }
+        })
+      )
+      setSplitShares(updatedShares)
+      showToast(`All guests settled via ${method}!`, 'success')
+    } catch (err: any) {
+      showToast(err.message || `Failed to quick settle all with ${method}`, 'error')
+    } finally {
+      setIsFinishing(false)
+    }
   }
 
   const handleResetSplits = () => {

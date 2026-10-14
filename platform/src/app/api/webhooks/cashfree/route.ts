@@ -94,67 +94,22 @@ export async function POST(req: NextRequest) {
     const subStatus = (data.subscription?.status || data.status || '').toUpperCase()
     const linkStatus = (data.link_status || '').toUpperCase()
 
-    // A. Cancellation / Revocation / Failure / Expiration
-    if (
-      eventType.includes('CANCEL') ||
-      eventType.includes('REVOKED') ||
-      eventType.includes('EXPIRED') ||
-      eventType.includes('TERMINATED') ||
-      subStatus === 'CANCELLED' ||
-      subStatus === 'TERMINATED' ||
-      subStatus === 'ON_HOLD' ||
-      linkStatus === 'CANCELLED' ||
-      linkStatus === 'EXPIRED'
-    ) {
-      const sub = data.subscription || event.subscription || {}
-      const notes = sub.notes || data.link_notes || data.notes || {}
-      const restaurantId = notes.restaurantId || notes.restaurant_id || data.customer_details?.customer_id
-
-      if (restaurantId) {
-        await prisma.$transaction(async (tx) => {
-          // Record event atomically to prevent concurrent race conditions
-          await tx.stripeEventLog.create({
-            data: {
-              eventId: eventUniqueId,
-              eventType,
-              orderId: restaurantId,
-            },
-          })
-
-          const restaurant = await tx.restaurant.findUnique({
-            where: { id: restaurantId },
-          })
-
-          if (restaurant) {
-            const currentSettings = (restaurant.settings as Record<string, any>) || {}
-            // Preserve ALL store, ordering, printer, tax, and unrelated settings
-            await tx.restaurant.update({
-              where: { id: restaurantId },
-              data: {
-                planTier: 'STARTER',
-                settings: {
-                  ...currentSettings,
-                  cashfreeSubscriptionStatus: 'CANCELLED',
-                  cashfreeCancelledAt: new Date().toISOString(),
-                  lastCashfreeEventTime: eventTime || new Date().toISOString(),
-                },
-              },
-            })
-            console.info(`[Cashfree Webhook] Subscription cancelled for ${restaurantId}. Preserved existing settings, reverted plan to STARTER.`)
-          }
-        })
-      }
-
-      return NextResponse.json({ received: true, status: 'CANCELLED' })
-    }
-
-    // B. Payment Link Paid Event (PAYMENT_LINK_EVENT)
-    if (eventType === 'PAYMENT_LINK_EVENT' || linkStatus === 'PAID') {
+    // A. Payment Link Events (One-time checkouts / Quotes)
+    // CRITICAL: An abandoned, expired, or cancelled payment link MUST NEVER downgrade an active subscription!
+    if (eventType === 'PAYMENT_LINK_EVENT' || (Boolean(data.link_id) && !eventType.includes('SUBSCRIPTION_'))) {
       if (linkStatus !== 'PAID') {
-        // Link created, viewed, or expired - no activation
+        console.info(`[Cashfree Webhook] Payment link ${data.link_id} is in non-paid state (${linkStatus || 'PENDING'}). Preserving current restaurant subscription status.`)
+        await prisma.stripeEventLog.create({
+          data: {
+            eventId: eventUniqueId,
+            eventType,
+            orderId: String(data.link_notes?.restaurantId || data.customer_details?.customer_id || data.link_id || 'link_event'),
+          },
+        }).catch(() => null)
         return NextResponse.json({ received: true, status: linkStatus || 'IGNORED' })
       }
 
+      // Process PAID payment link
       const notes = data.link_notes || data.notes || {}
       const restaurantId = notes.restaurantId || notes.restaurant_id
       const rawPlanTier = (notes.planTier || notes.plan_tier || 'STARTER').toUpperCase()
@@ -178,12 +133,12 @@ export async function POST(req: NextRequest) {
 
           if (restaurant) {
             const currentSettings = (restaurant.settings as Record<string, any>) || {}
-
-            // Prevent delayed older events from overwriting newer cancellation
             const lastEventTime = currentSettings.lastCashfreeEventTime ? new Date(currentSettings.lastCashfreeEventTime).getTime() : 0
             const incomingEventTime = eventTime ? new Date(eventTime).getTime() : Date.now()
-            if (currentSettings.cashfreeSubscriptionStatus === 'CANCELLED' && incomingEventTime < lastEventTime) {
-              console.warn(`[Cashfree Webhook] Outdated payment link event (${eventUniqueId}) arrived after cancellation. Skipping state update.`)
+
+            // Reject stale transition in activation direction
+            if (incomingEventTime < lastEventTime) {
+              console.warn(`[Cashfree Webhook] Outdated payment link paid event (${eventUniqueId}) arrived after newer recorded state. Skipping.`)
               return
             }
 
@@ -221,6 +176,82 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json({ received: true, status: 'ACTIVATED' })
+    }
+
+    // B. Subscription Cancellation / Revocation / Termination
+    const isSubscriptionCancellation =
+      eventType.includes('SUBSCRIPTION_CANCEL') ||
+      eventType.includes('SUBSCRIPTION_REVOKED') ||
+      eventType.includes('SUBSCRIPTION_TERMINATED') ||
+      eventType.includes('SUBSCRIPTION_ON_HOLD') ||
+      (subStatus === 'CANCELLED' && Boolean(data.subscription?.subscription_id || event.subscription?.subscription_id)) ||
+      (subStatus === 'TERMINATED' && Boolean(data.subscription?.subscription_id || event.subscription?.subscription_id))
+
+    if (isSubscriptionCancellation) {
+      const sub = data.subscription || event.subscription || {}
+      const notes = sub.notes || data.link_notes || data.notes || {}
+      const restaurantId = notes.restaurantId || notes.restaurant_id || data.customer_details?.customer_id
+      const incomingSubId = sub.subscription_id || sub.subscriptionId || data.subscription_id || null
+
+      if (restaurantId) {
+        await prisma.$transaction(async (tx) => {
+          // Record event atomically to prevent concurrent duplicate processing
+          await tx.stripeEventLog.create({
+            data: {
+              eventId: eventUniqueId,
+              eventType,
+              orderId: restaurantId,
+            },
+          })
+
+          const restaurant = await tx.restaurant.findUnique({
+            where: { id: restaurantId },
+          })
+
+          if (restaurant) {
+            const currentSettings = (restaurant.settings as Record<string, any>) || {}
+            const recordedSubId = currentSettings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId
+
+            // Fix 1: Bind event to current recorded subscription.
+            // If the restaurant has an active subscription recorded, verify the cancellation belongs to IT!
+            if (recordedSubId && incomingSubId && recordedSubId !== incomingSubId) {
+              console.warn(`[Cashfree Webhook] Cancellation event for subscription ${incomingSubId} does not match active recorded subscription ${recordedSubId}. Ignoring mismatch.`)
+              return
+            }
+
+            // Fix 2: Stale transition ordering check in cancellation direction.
+            const lastEventTime = currentSettings.lastCashfreeEventTime ? new Date(currentSettings.lastCashfreeEventTime).getTime() : 0
+            const incomingEventTime = eventTime ? new Date(eventTime).getTime() : Date.now()
+            if (incomingEventTime < lastEventTime) {
+              console.warn(`[Cashfree Webhook] Stale cancellation event (${eventUniqueId}, eventTime: ${eventTime}) arrived after newer recorded active state (${currentSettings.lastCashfreeEventTime}). Rejecting stale downgrade.`)
+              return
+            }
+
+            // If already on STARTER with CANCELLED status, no duplicate downgrade
+            if (restaurant.planTier === 'STARTER' && currentSettings.cashfreeSubscriptionStatus === 'CANCELLED') {
+              console.info(`[Cashfree Webhook] Restaurant ${restaurantId} already in CANCELLED/STARTER state.`)
+              return
+            }
+
+            // Preserve ALL store, ordering, printer, tax, and unrelated settings
+            await tx.restaurant.update({
+              where: { id: restaurantId },
+              data: {
+                planTier: 'STARTER',
+                settings: {
+                  ...currentSettings,
+                  cashfreeSubscriptionStatus: 'CANCELLED',
+                  cashfreeCancelledAt: new Date().toISOString(),
+                  lastCashfreeEventTime: eventTime || new Date().toISOString(),
+                },
+              },
+            })
+            console.info(`[Cashfree Webhook] Subscription ${incomingSubId || recordedSubId} cancelled for ${restaurantId}. Preserved existing settings, reverted plan to STARTER.`)
+          }
+        })
+      }
+
+      return NextResponse.json({ received: true, status: 'CANCELLED' })
     }
 
     // C. Subscription Activated / Recurring Payment Success
@@ -264,11 +295,11 @@ export async function POST(req: NextRequest) {
           if (restaurant) {
             const currentSettings = (restaurant.settings as Record<string, any>) || {}
 
-            // Prevent delayed older events from overwriting newer cancellation
+            // Stale transition ordering check in activation direction
             const lastEventTime = currentSettings.lastCashfreeEventTime ? new Date(currentSettings.lastCashfreeEventTime).getTime() : 0
             const incomingEventTime = eventTime ? new Date(eventTime).getTime() : Date.now()
-            if (currentSettings.cashfreeSubscriptionStatus === 'CANCELLED' && incomingEventTime < lastEventTime) {
-              console.warn(`[Cashfree Webhook] Outdated subscription activation (${eventUniqueId}) arrived after cancellation. Skipping state update.`)
+            if (incomingEventTime < lastEventTime) {
+              console.warn(`[Cashfree Webhook] Outdated subscription activation (${eventUniqueId}, eventTime: ${eventTime}) arrived after newer recorded state (${currentSettings.lastCashfreeEventTime}). Skipping stale upgrade.`)
               return
             }
 

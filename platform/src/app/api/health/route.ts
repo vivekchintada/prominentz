@@ -83,10 +83,15 @@ export async function GET() {
     const cfAppId = process.env.CASHFREE_APP_ID
     const cfSecret = process.env.CASHFREE_SECRET_KEY
     const isConfigured = Boolean(cfAppId && cfSecret && !cfAppId.includes('mock') && !cfSecret.includes('mock'))
+    const missingKeys: string[] = []
+    if (!cfAppId || cfAppId.includes('mock')) missingKeys.push('CASHFREE_APP_ID')
+    if (!cfSecret || cfSecret.includes('mock')) missingKeys.push('CASHFREE_SECRET_KEY')
     checks.cashfree = {
       status: isConfigured ? 'ok' : 'degraded',
       latencyMs: Date.now() - start,
-      detail: isConfigured ? `Configured (${process.env.CASHFREE_ENVIRONMENT || 'SANDBOX'})` : 'Missing credentials',
+      detail: isConfigured
+        ? `Configured (${process.env.CASHFREE_ENVIRONMENT || 'SANDBOX'}, mode: ${process.env.CASHFREE_BILLING_MODE || 'RECURRING_SUBSCRIPTION'})`
+        : `Missing or mock credentials: ${missingKeys.join(', ')}`,
     }
   } catch {
     checks.cashfree = { status: 'down', latencyMs: 0 }

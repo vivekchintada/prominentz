@@ -42,8 +42,17 @@ export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; pric
 
 /**
  * Creates a PaymentIntent in Stripe to initiate card checkout for dining checks.
+ * Supports auto-confirm for POS terminal swipes / test cards.
  */
-export async function createPaymentIntent(amountInCents: number, orderId: string) {
+export async function createPaymentIntent(
+  amountInCents: number,
+  orderId: string,
+  options?: {
+    confirm?: boolean
+    paymentMethod?: string
+    idempotencySuffix?: string
+  }
+) {
   try {
     if (process.env.NODE_ENV === 'production' && isTestOrMockKey) {
       throw new Error('Stripe is not configured for production environment. Missing STRIPE_SECRET_KEY.')
@@ -52,28 +61,39 @@ export async function createPaymentIntent(amountInCents: number, orderId: string
       return {
         id: `pi_mock_${Math.random().toString(36).substr(2, 9)}`,
         client_secret: `pi_mock_secret_${Math.random().toString(36).substr(2, 9)}`,
+        status: 'succeeded',
       }
     }
 
+    const shouldConfirm = options?.confirm ?? true
+    const paymentMethod = options?.paymentMethod || 'pm_card_visa'
+
+    const createParams: Stripe.PaymentIntentCreateParams = {
+      amount: amountInCents,
+      currency: 'usd',
+      metadata: { orderId },
+      confirm: shouldConfirm,
+      payment_method: shouldConfirm ? paymentMethod : undefined,
+      automatic_payment_methods: shouldConfirm
+        ? undefined
+        : { enabled: true, allow_redirects: 'never' },
+    }
+
     const intent = await stripe.paymentIntents.create(
+      createParams,
       {
-        amount: amountInCents,
-        currency: 'usd',
-        metadata: { orderId },
-        automatic_payment_methods: { enabled: true },
-      },
-      {
-        idempotencyKey: `pi_${orderId}_${amountInCents}`,
+        idempotencyKey: `pi_${orderId}_${amountInCents}_${options?.idempotencySuffix || Date.now()}`,
       }
     )
 
     return {
       id: intent.id,
       client_secret: intent.client_secret,
+      status: intent.status,
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Stripe createPaymentIntent Error]', error)
-    throw new Error('Failed to create payment intent with gateway')
+    throw new Error(error.message || 'Failed to create payment intent with gateway')
   }
 }
 
