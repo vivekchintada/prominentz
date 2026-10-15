@@ -1,4 +1,4 @@
-﻿/* ── Reset & tokens ───────────────────────────────── */
+/* ── Reset & tokens ───────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -163,7 +163,22 @@ a { text-decoration: none; color: inherit; }
 .nav__link:hover { color: var(--color-white); }
 .nav.scrolled .nav__link { color: var(--color-ink-2); }
 .nav.scrolled .nav__link:hover { color: var(--color-ink); }
-.nav.scrolled .btn--outline { border-color: var(--color-ink); }
+.nav:not(.scrolled) .btn--outline {
+  color: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.nav:not(.scrolled) .btn--outline:hover {
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+.nav.scrolled .btn--outline {
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+}
+.nav.scrolled .btn--outline:hover {
+  background: var(--color-ink);
+  color: var(--color-white);
+}
 
 .nav__hamburger {
   display: none;

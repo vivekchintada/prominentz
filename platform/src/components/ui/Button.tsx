@@ -83,9 +83,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             </svg>
           </span>
         )}
-        {!loading && leftIcon && <span className="btn__icon btn__icon--left">{leftIcon}</span>}
-        <span className="btn__text">{children}</span>
-        {!loading && rightIcon && <span className="btn__icon btn__icon--right">{rightIcon}</span>}
+        {!loading && leftIcon && <span className="btn__icon btn__icon--left" style={{ color: 'inherit' }}>{leftIcon}</span>}
+        <span className="btn__text" style={{ color: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 'inherit' }}>{children}</span>
+        {!loading && rightIcon && <span className="btn__icon btn__icon--right" style={{ color: 'inherit' }}>{rightIcon}</span>}
       </button>
     )
   }
