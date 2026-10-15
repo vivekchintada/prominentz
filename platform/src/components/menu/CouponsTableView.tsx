@@ -267,7 +267,7 @@ export default function CouponsTableView() {
               padding: '9px 18px',
               fontSize: 13,
               fontWeight: 700,
-              color: '#ffffff',
+              color: 'var(--brand-contrast)',
               cursor: 'pointer',
               boxShadow: '0 2px 4px rgba(37,99,235,0.25)',
             }}
@@ -640,7 +640,7 @@ export default function CouponsTableView() {
                   borderRadius: 8,
                   fontSize: 13,
                   fontWeight: 600,
-                  color: '#ffffff',
+                  color: 'var(--brand-contrast)',
                   cursor: 'pointer',
                 }}
               >
@@ -935,7 +935,7 @@ export default function CouponsTableView() {
                     borderRadius: 8,
                     fontSize: 13,
                     fontWeight: 700,
-                    color: '#ffffff',
+                    color: 'var(--brand-contrast)',
                     cursor: 'pointer',
                   }}
                 >

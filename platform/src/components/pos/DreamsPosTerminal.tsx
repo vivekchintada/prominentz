@@ -1818,7 +1818,7 @@ export function DreamsPosTerminal({
                         <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>Kitchen finished cooking · Deliver to table</div>
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: 'var(--brand)', color: '#fff' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: 'var(--brand)', color: 'var(--brand-contrast)' }}>
                       🔔 READY
                     </span>
                   </div>

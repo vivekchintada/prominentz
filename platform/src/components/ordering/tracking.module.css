@@ -181,7 +181,7 @@
 .stepActive .stepIcon {
   background: var(--brand, #5b45f5);
   border-color: var(--brand-light, #7b68f7);
-  color: #ffffff;
+  color: var(--brand-contrast, #000000);
   box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
 }
 

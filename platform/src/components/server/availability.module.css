@@ -71,7 +71,7 @@
 
 .navPillActive {
   background: var(--brand) !important;
-  color: #ffffff !important;
+  color: var(--brand-contrast) !important;
   font-weight: 700;
 }
 
@@ -92,7 +92,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--brand);
-  color: #ffffff;
+  color: var(--brand-contrast) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -320,7 +320,7 @@
   gap: 8px;
   padding: 10px 24px;
   background: var(--brand);
-  color: #ffffff;
+  color: var(--brand-contrast) !important;
   border: none;
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);

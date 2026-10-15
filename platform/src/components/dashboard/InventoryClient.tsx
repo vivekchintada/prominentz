@@ -659,7 +659,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               padding: '9px 18px',
               fontSize: 13,
               fontWeight: 700,
-              color: '#ffffff',
+              color: 'var(--brand-contrast)',
               cursor: 'pointer',
               boxShadow: '0 2px 4px rgba(37,99,235,0.25)',
               transition: 'all 0.15s ease',
@@ -1524,7 +1524,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 padding: '9px 18px',
                 fontSize: 13,
                 fontWeight: 700,
-                color: '#ffffff',
+                color: 'var(--brand-contrast)',
                 cursor: 'pointer',
               }}
             >

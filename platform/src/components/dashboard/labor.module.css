@@ -125,7 +125,7 @@
   gap: 8px;
   padding: 9px 18px;
   background: var(--brand);
-  color: #ffffff;
+  color: var(--brand-contrast) !important;
   border: none;
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
@@ -252,7 +252,7 @@
   height: 34px;
   border-radius: 50%;
   background: var(--brand);
-  color: #ffffff;
+  color: var(--brand-contrast) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -312,7 +312,7 @@
 .actionBtnPrimary {
   background: var(--brand);
   border-color: var(--brand);
-  color: #ffffff;
+  color: var(--brand-contrast) !important;
 }
 
 .actionBtnPrimary:hover {

@@ -241,7 +241,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
             borderRadius: 8,
             border: 'none',
             background: 'var(--brand)',
-            color: '#ffffff',
+            color: 'var(--brand-contrast)',
             fontSize: 13,
             fontWeight: 700,
             cursor: 'pointer',

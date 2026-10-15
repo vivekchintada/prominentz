@@ -596,7 +596,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                       borderRadius: 6,
                       border: 'none',
                       background: 'var(--brand)',
-                      color: '#ffffff',
+                      color: 'var(--brand-contrast)',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer',

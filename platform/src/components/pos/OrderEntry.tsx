@@ -967,7 +967,7 @@ export default function OrderEntry({
                 borderRadius: 'var(--radius-full)',
                 border: `1px solid ${selectedCategoryId === '' ? 'var(--brand)' : 'var(--color-border)'}`,
                 background: selectedCategoryId === '' ? 'var(--brand)' : 'var(--color-bg-card)',
-                color: selectedCategoryId === '' ? '#ffffff' : 'var(--color-text-secondary)',
+                color: selectedCategoryId === '' ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
@@ -989,7 +989,7 @@ export default function OrderEntry({
                     borderRadius: 'var(--radius-full)',
                     border: `1px solid ${isSel ? 'var(--brand)' : 'var(--color-border)'}`,
                     background: isSel ? 'var(--brand)' : 'var(--color-bg-card)',
-                    color: isSel ? '#ffffff' : 'var(--color-text-secondary)',
+                    color: isSel ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                   }}
@@ -1208,7 +1208,7 @@ export default function OrderEntry({
                       borderRadius: 'var(--radius-md)',
                       border: 'none',
                       background: active ? 'var(--brand)' : 'transparent',
-                      color: active ? '#fff' : 'var(--color-text-secondary)',
+                      color: active ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
                       fontSize: '11px',
                       fontWeight: active ? 700 : 500,
                       cursor: 'pointer',
