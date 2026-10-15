@@ -1110,14 +1110,14 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: 'pointer',
-                      background: statusFilter === s.key ? '#ffffff' : 'transparent',
+                      background: statusFilter === s.key ? 'var(--brand)' : 'transparent',
                       color:
                         statusFilter === s.key
                           ? s.key === 'SHORTAGE'
                             ? '#ea580c'
-                            : 'var(--brand)'
-                          : '#64748b',
-                      boxShadow: statusFilter === s.key ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                            : 'var(--brand-contrast)'
+                          : 'var(--color-text-secondary)',
+                      boxShadow: statusFilter === s.key ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
                       transition: 'all 0.15s ease',
                     }}
                   >

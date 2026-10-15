@@ -632,9 +632,9 @@ export default function ItemFormModal({
                       display: 'flex',
                       alignItems: 'center',
                       gap: 6,
-                      background: '#eff6ff',
-                      border: '1px solid #bfdbfe',
-                      color: 'var(--brand)',
+                      background: 'var(--color-bg-card-hover)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
                       borderRadius: 8,
                       padding: '7px 14px',
                       fontSize: 13,
@@ -684,8 +684,8 @@ export default function ItemFormModal({
                               justifyContent: 'space-between',
                               padding: '8px 12px',
                               borderRadius: 8,
-                              border: checked ? '1px solid var(--brand)' : '1px solid #e2e8f0',
-                              background: checked ? '#eff6ff' : '#ffffff',
+                              border: checked ? '1.5px solid var(--brand)' : '1px solid var(--color-border)',
+                              background: checked ? 'var(--color-bg-card-hover)' : 'var(--color-bg-card)',
                               cursor: 'pointer',
                             }}
                           >
@@ -697,7 +697,7 @@ export default function ItemFormModal({
                               />
                               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>{addon.name}</span>
                             </div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand)' }}>+${Number(addon.price).toFixed(2)}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)' }}>+${Number(addon.price).toFixed(2)}</span>
                           </label>
                         )
                       })}

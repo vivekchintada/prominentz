@@ -287,9 +287,9 @@ export default function AddonsTableView() {
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: statusFilter === s ? '#ffffff' : 'transparent',
-                  color: statusFilter === s ? 'var(--brand)' : '#64748b',
-                  boxShadow: statusFilter === s ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                  background: statusFilter === s ? 'var(--brand)' : 'transparent',
+                  color: statusFilter === s ? 'var(--brand-contrast)' : 'var(--color-text-secondary)',
+                  boxShadow: statusFilter === s ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
                 }}
               >
                 {s === 'ALL' ? 'All' : s === 'ACTIVE' ? 'Active' : 'Inactive'}
@@ -577,12 +577,12 @@ export default function AddonsTableView() {
                   onClick={() => setIsModalOpen(false)}
                   style={{
                     padding: '8px 16px',
-                    background: 'var(--color-bg-input)',
-                    border: 'none',
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
                     borderRadius: 8,
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                     cursor: 'pointer',
                   }}
                 >

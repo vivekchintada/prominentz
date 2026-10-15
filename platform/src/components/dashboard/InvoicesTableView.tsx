@@ -836,7 +836,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                   borderRadius: 8,
                   fontSize: 13,
                   fontWeight: 700,
-                  color: '#ffffff',
+                  color: 'var(--brand-contrast)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',

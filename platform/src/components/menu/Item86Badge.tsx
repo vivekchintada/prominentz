@@ -85,7 +85,7 @@ export default function Item86Badge({
         borderRadius:   'var(--radius-full)',
         border:         `1px solid ${is86d ? 'var(--color-error)' : 'var(--color-border)'}`,
         background:     is86d ? 'rgba(239,68,68,0.12)' : 'transparent',
-        color:          is86d ? 'var(--color-error)' : 'var(--color-text-tertiary)',
+        color:          is86d ? 'var(--color-error)' : 'var(--color-text-secondary)',
         fontSize:       'var(--text-xs)',
         fontWeight:     700,
         cursor:         loading ? 'not-allowed' : 'pointer',

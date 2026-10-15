@@ -275,7 +275,7 @@ export default function AttendanceClient() {
                       height: 38,
                       borderRadius: '50%',
                       background: isFlagged ? 'rgba(239,68,68,0.15)' : 'var(--brand)',
-                      color: isFlagged ? '#ef4444' : '#ffffff',
+                      color: isFlagged ? '#ef4444' : 'var(--brand-contrast)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
