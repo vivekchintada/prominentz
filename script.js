@@ -1,163 +1,150 @@
-﻿/* ── Intersection Observer: reveal on scroll ───── */
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver(
-  entries => entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
-  }),
-  { threshold: 0.12 }
-);
-reveals.forEach(el => observer.observe(el));
+// ── Prominentz Landing Page Vanilla JS ──────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Mobile Menu Toggle
+  const hamburger = document.getElementById('hamburger')
+  const drawer = document.getElementById('nav-drawer')
 
-/* ── Nav: scroll state ──────────────────────────── */
-const nav = document.getElementById('nav');
-const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 60);
-window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      const isOpen = drawer.classList.toggle('open')
+      hamburger.setAttribute('aria-expanded', isOpen)
+      drawer.setAttribute('aria-hidden', !isOpen)
+    })
 
-/* ── Nav: mobile hamburger ──────────────────────── */
-const hamburger = document.getElementById('hamburger');
-const drawer = document.getElementById('nav-drawer');
-hamburger.addEventListener('click', () => {
-  const open = drawer.classList.toggle('open');
-  hamburger.setAttribute('aria-expanded', open);
-  drawer.setAttribute('aria-hidden', !open);
-});
-drawer.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    drawer.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', false);
-    drawer.setAttribute('aria-hidden', true);
-  });
-});
-
-/* ── Counter ────────────────────────────────────── */
-let guestCount = 2;
-const counterVal = document.getElementById('counter-value');
-const guestInput = document.getElementById('guest-count');
-document.getElementById('counter-minus').addEventListener('click', () => {
-  if (guestCount > 1) { guestCount--; counterVal.textContent = guestCount; guestInput.value = guestCount; }
-});
-document.getElementById('counter-plus').addEventListener('click', () => {
-  if (guestCount < 20) { guestCount++; counterVal.textContent = guestCount; guestInput.value = guestCount; }
-});
-
-/* ── Animated number counters ───────────────────── */
-function animateCount(el) {
-  const target = parseInt(el.dataset.target, 10);
-  const suffix = el.dataset.suffix || '';
-  const duration = 1200;
-  const start = performance.now();
-  const update = (now) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.floor(ease * target) + suffix;
-    if (progress < 1) requestAnimationFrame(update);
-    else el.textContent = target + suffix;
-  };
-  requestAnimationFrame(update);
-}
-const statNums = document.querySelectorAll('.stat__num[data-target]');
-const statsObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { animateCount(e.target); statsObserver.unobserve(e.target); }
-  });
-}, { threshold: 0.5 });
-statNums.forEach(el => statsObserver.observe(el));
-
-/* ── Gallery Lightbox ───────────────────────────── */
-const lightbox = document.getElementById('lightbox');
-const lbImg = document.getElementById('lightbox-img');
-const lbCaption = document.getElementById('lightbox-caption');
-let galleryItems = [];
-let lbIndex = 0;
-
-document.querySelectorAll('.gallery__item').forEach((item, i) => {
-  const img = item.querySelector('img');
-  const title = item.querySelector('.gallery__caption-title');
-  const sub = item.querySelector('.gallery__caption-sub');
-  galleryItems.push({ src: img.src, alt: img.alt, caption: title ? `${title.textContent} — ${sub.textContent}` : img.alt });
-  item.addEventListener('click', () => openLightbox(i));
-  item.setAttribute('role', 'button');
-  item.setAttribute('tabindex', '0');
-  item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openLightbox(i); });
-});
-
-function openLightbox(index) {
-  lbIndex = index;
-  const item = galleryItems[lbIndex];
-  lbImg.src = item.src;
-  lbImg.alt = item.alt;
-  lbCaption.textContent = item.caption;
-  lightbox.hidden = false;
-  document.body.style.overflow = 'hidden';
-  document.getElementById('lightbox-close').focus();
-}
-function closeLightbox() {
-  lightbox.hidden = true;
-  document.body.style.overflow = '';
-}
-function prevItem() { lbIndex = (lbIndex - 1 + galleryItems.length) % galleryItems.length; openLightbox(lbIndex); }
-function nextItem() { lbIndex = (lbIndex + 1) % galleryItems.length; openLightbox(lbIndex); }
-
-document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-document.getElementById('lightbox-prev').addEventListener('click', prevItem);
-document.getElementById('lightbox-next').addEventListener('click', nextItem);
-lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-document.addEventListener('keydown', e => {
-  if (lightbox.hidden) return;
-  if (e.key === 'Escape') closeLightbox();
-  if (e.key === 'ArrowLeft') prevItem();
-  if (e.key === 'ArrowRight') nextItem();
-});
-
-/* ── Form ───────────────────────────────────────── */
-const form = document.getElementById('reserve-form');
-const submitBtn = document.getElementById('submit-btn');
-const toast = document.getElementById('toast');
-
-// Set min date to today
-const dateInput = document.getElementById('guest-date');
-const today = new Date().toISOString().split('T')[0];
-dateInput.setAttribute('min', today);
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!form.checkValidity()) {
-    form.querySelectorAll('input[required], select[required]').forEach(field => {
-      field.style.borderColor = field.value ? '' : '#d9534f';
-      field.addEventListener('input', () => field.style.borderColor = '', { once: true });
-    });
-    return;
+    // Close drawer when clicking any link
+    drawer.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        drawer.classList.remove('open')
+        hamburger.setAttribute('aria-expanded', 'false')
+        drawer.setAttribute('aria-hidden', 'true')
+      })
+    })
   }
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Confirming…';
-  await new Promise(r => setTimeout(r, 1400));
-  submitBtn.textContent = 'Reservation Confirmed';
-  showToast('Reservation confirmed! Check your email.');
-  setTimeout(() => {
-    form.reset();
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Confirm Reservation';
-    guestCount = 2;
-    counterVal.textContent = 2;
-    guestInput.value = 2;
-  }, 4000);
-});
 
-function showToast(msg) {
-  document.getElementById('toast-msg').textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 4000);
-}
+  // 2. Interactive Savings Calculator
+  const revInput = document.getElementById('calc-revenue')
+  const termInput = document.getElementById('calc-terminals')
+  const revVal = document.getElementById('calc-rev-val')
+  const termVal = document.getElementById('calc-term-val')
+  const savingsTotal = document.getElementById('calc-savings-total')
+  const legacyTotal = document.getElementById('calc-legacy-total')
+  const revBtns = document.querySelectorAll('.calc-btn')
+  const termBtns = document.querySelectorAll('.calc-btn-term')
 
-/* ── Smooth nav link active state ───────────────── */
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav__link');
-const sectionObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === `#${e.target.id}`));
+  function updateSavings() {
+    if (!revInput || !termInput) return
+
+    const revenue = Number(revInput.value)
+    const terminals = Number(termInput.value)
+
+    if (revVal) revVal.textContent = `$${revenue.toLocaleString()} / mo`
+    if (termVal) termVal.textContent = `${terminals} Screens`
+
+    // Prominentz: $50/mo * 12 = $600/yr
+    const prominentzAnnual = 50 * 12
+
+    // Legacy POS calculation:
+    // Base software: $110/mo
+    // Extra terminals: $65/mo per terminal over 1
+    // KDS screens: $45/mo per screen (roughly 1 screen per 2 terminals, min 1)
+    // QR / Online ordering add-on: $75/mo
+    // 0.45% hidden take-rate / processing fee markup
+    const kdsScreens = Math.max(1, Math.round(terminals / 2))
+    const legacyBase = 110 * 12
+    const legacyTerminals = Math.max(0, terminals - 1) * 65 * 12
+    const legacyKds = kdsScreens * 45 * 12
+    const legacyQr = 75 * 12
+    const legacyTakeRate = revenue * 12 * 0.0045
+
+    const legacySum = Math.round(legacyBase + legacyTerminals + legacyKds + legacyQr + legacyTakeRate)
+    const annualSavings = Math.max(0, legacySum - prominentzAnnual)
+
+    if (savingsTotal) savingsTotal.textContent = `$${annualSavings.toLocaleString()}`
+    if (legacyTotal) legacyTotal.textContent = `$${legacySum.toLocaleString()} / yr`
+  }
+
+  if (revInput && termInput) {
+    revInput.addEventListener('input', () => {
+      revBtns.forEach((b) => b.classList.remove('active'))
+      updateSavings()
+    })
+
+    termInput.addEventListener('input', () => {
+      termBtns.forEach((b) => b.classList.remove('active'))
+      updateSavings()
+    })
+
+    revBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        revBtns.forEach((b) => b.classList.remove('active'))
+        btn.classList.add('active')
+        revInput.value = btn.getAttribute('data-rev')
+        updateSavings()
+      })
+    })
+
+    termBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        termBtns.forEach((b) => b.classList.remove('active'))
+        btn.classList.add('active')
+        termInput.value = btn.getAttribute('data-term')
+        updateSavings()
+      })
+    })
+
+    updateSavings()
+  }
+
+  // 3. Role Tabs Switcher
+  const roleTabs = document.querySelectorAll('.role-tab')
+  const rolePanels = document.querySelectorAll('.role-panel')
+
+  roleTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const targetRole = tab.getAttribute('data-role')
+
+      roleTabs.forEach((t) => {
+        t.classList.remove('active')
+        t.setAttribute('aria-selected', 'false')
+      })
+      rolePanels.forEach((p) => p.classList.remove('active'))
+
+      tab.classList.add('active')
+      tab.setAttribute('aria-selected', 'true')
+
+      const panel = document.getElementById(`role-panel-${targetRole}`)
+      if (panel) panel.classList.add('active')
+    })
+  })
+
+  // 4. FAQ Accordion
+  const faqItems = document.querySelectorAll('.faq-item')
+
+  faqItems.forEach((item) => {
+    const question = item.querySelector('.faq-question')
+    const answer = item.querySelector('.faq-answer')
+    const icon = item.querySelector('.faq-icon')
+
+    if (question && answer) {
+      question.addEventListener('click', () => {
+        const isOpen = answer.classList.contains('open')
+
+        // Close other items
+        faqItems.forEach((other) => {
+          const otherAns = other.querySelector('.faq-answer')
+          const otherIcon = other.querySelector('.faq-icon')
+          const otherBtn = other.querySelector('.faq-question')
+          if (otherAns) otherAns.classList.remove('open')
+          if (otherIcon) otherIcon.textContent = '+'
+          if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false')
+        })
+
+        if (!isOpen) {
+          answer.classList.add('open')
+          question.setAttribute('aria-expanded', 'true')
+          if (icon) icon.textContent = '×'
+        }
+      })
     }
-  });
-}, { threshold: 0.4 });
-sections.forEach(s => sectionObserver.observe(s));
+  })
+})

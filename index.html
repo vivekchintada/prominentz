@@ -1,217 +1,799 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Resto — A refined dining experience where every detail matters. Discover our seasonal menu, curated gallery, and reserve your table today." />
-  <title>Resto — Refined Dining</title>
+  <meta name="description" content="Prominentz — The Restaurant Operating System for Independent and Mid-Scale Dining Rooms. Front-of-House POS, Kitchen Display Systems (KDS), QR Dining, and WebUSB Thermal Printing for $50/mo flat." />
+  <title>Prominentz — The Operating System for Modern Restaurants</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Navigation Header -->
   <header class="nav" id="nav">
     <div class="nav__inner">
-      <a href="#" class="nav__logo" id="nav-logo">Resto</a>
+      <a href="#" class="nav__brand" aria-label="Prominentz Home">
+        <svg width="32" height="32" viewBox="0 0 120 120" fill="none" class="nav__logo-svg" aria-hidden="true">
+          <rect width="120" height="120" rx="28" fill="#6835F9"/>
+          <path d="M26 22 H64 C77.25 22 88 31.85 88 44 C88 56.15 77.25 66 64 66 H48 V98 H26 Z M48 38 V50 H62 C65.3 50 68 47.3 68 44 C68 40.7 65.3 38 62 38 Z" fill="#FFFFFF"/>
+          <path d="M44 60 H88 V70 L62 86 H88 V98 H44 V88 L70 72 H44 Z" fill="#121217"/>
+        </svg>
+        <span class="nav__brand-name">Prominentz</span>
+      </a>
+
       <nav class="nav__links" id="nav-links" aria-label="Main navigation">
-        <a href="#about" class="nav__link" id="nav-about">About</a>
-        <a href="#gallery" class="nav__link" id="nav-gallery-link">Gallery</a>
-        <a href="#reserve" class="nav__link" id="nav-reserve">Reserve</a>
+        <a href="#why-independent" class="nav__link">Why Prominentz</a>
+        <a href="#showcase" class="nav__link">Live Demo</a>
+        <a href="#roles" class="nav__link">Roles</a>
+        <a href="#hardware" class="nav__link">Hardware</a>
+        <a href="#comparison" class="nav__link">Compare</a>
+        <a href="#calculator" class="nav__link">Calculator</a>
+        <a href="#pricing" class="nav__link">Pricing</a>
+        <a href="#faq" class="nav__link">FAQ</a>
       </nav>
-      <a href="#reserve" class="btn btn--outline" id="nav-cta">Book a Table</a>
-      <button class="nav__hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+
+      <div class="nav__actions">
+        <a href="http://localhost:3000/login" class="nav__signin">Sign in</a>
+        <a href="http://localhost:3000/signup" class="btn btn--primary">Start Free Trial &mdash; $50/mo</a>
+      </div>
+
+      <button class="nav__hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
+
+    <!-- Mobile Navigation Drawer -->
     <div class="nav__drawer" id="nav-drawer" aria-hidden="true">
-      <a href="#about" class="nav__drawer-link" id="drawer-about">About</a>
-      <a href="#gallery" class="nav__drawer-link" id="drawer-gallery">Gallery</a>
-      <a href="#reserve" class="nav__drawer-link" id="drawer-reserve">Reserve</a>
-      <a href="#reserve" class="btn btn--dark btn--full" id="drawer-cta">Book a Table</a>
+      <a href="#why-independent" class="nav__drawer-link">Why Prominentz</a>
+      <a href="#showcase" class="nav__drawer-link">Live Demo</a>
+      <a href="#roles" class="nav__drawer-link">FOH &amp; BOH Roles</a>
+      <a href="#hardware" class="nav__drawer-link">Hardware &amp; Printers</a>
+      <a href="#comparison" class="nav__drawer-link">Toast Comparison</a>
+      <a href="#calculator" class="nav__drawer-link">Savings Calculator</a>
+      <a href="#pricing" class="nav__drawer-link">Pricing</a>
+      <a href="#faq" class="nav__drawer-link">FAQ</a>
+      <div class="nav__drawer-actions">
+        <a href="http://localhost:3000/login" class="btn btn--secondary btn--full">Sign in</a>
+        <a href="http://localhost:3000/signup" class="btn btn--primary btn--full">Start Free Trial &mdash; $50/mo</a>
+      </div>
     </div>
   </header>
+
   <main>
+    <!-- ── 1. HERO SECTION ────────────────────────────────────────────────── -->
     <section class="hero" id="hero">
-      <div class="hero__bg" aria-hidden="true">
-        <img src="assets/hero_dish.png" alt="" class="hero__img" id="hero-img" />
-        <div class="hero__overlay"></div>
-      </div>
-      <div class="hero__content">
-        <p class="hero__eyebrow reveal" id="hero-eyebrow">Est. 2012 &nbsp;&middot;&nbsp; Fine Dining</p>
-        <h1 class="hero__title reveal" id="hero-title">Where every<br /><em>detail</em> matters.</h1>
-        <p class="hero__sub reveal" id="hero-sub">Seasonal ingredients. Considered craft. A table worth remembering.</p>
-        <div class="hero__actions reveal" id="hero-actions">
-          <a href="#reserve" class="btn btn--primary" id="hero-reserve-cta">Reserve a Table</a>
-          <a href="#gallery" class="btn btn--ghost" id="hero-gallery-cta">View Gallery</a>
+      <div class="container hero__content">
+        <div class="badge-pill">
+          <span class="badge-dot"></span>
+          <span>✦ Engineered for Independent &amp; Mid-Scale Restaurants</span>
+        </div>
+        <h1 class="hero__title">
+          Stop paying $400/month for locked POS terminals. Run your dining room for <span class="highlight">$50 flat</span>.
+        </h1>
+        <p class="hero__sub">
+          Unify front-of-house point of sale, multi-station kitchen display systems (KDS), contactless QR table ordering, and WebUSB thermal printing on devices you already own. Zero hardware lock-in, 0% take-rate on your food sales, and unbroken offline continuity.
+        </p>
+        <div class="hero__actions">
+          <a href="http://localhost:3000/signup" class="btn btn--primary btn--lg">Start 14-Day Free Trial &rarr;</a>
+          <a href="#calculator" class="btn btn--secondary btn--lg">Calculate Your Annual Savings &darr;</a>
+        </div>
+
+        <!-- Pills Row -->
+        <div class="pill-row">
+          <span class="pill-item">⚡ &lt; 1.2s Ticket Sync</span>
+          <span class="pill-item">💰 0% Platform Take-Rate</span>
+          <span class="pill-item">📱 BYOD: Any iPad, Tablet or PC</span>
+          <span class="pill-item">📶 100% Offline Queue Continuity</span>
+          <span class="pill-item">🖨️ Universal ESC/POS Thermal Direct</span>
+          <span class="pill-item">💳 Direct Stripe Payouts</span>
+        </div>
+
+        <!-- Metric Cards Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-val">&lt; 1.2s</div>
+            <div class="metric-label">Ticket Dispatch Latency</div>
+            <div class="metric-sub">Instant sync from table to line</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">0%</div>
+            <div class="metric-label">Platform Take-Rate</div>
+            <div class="metric-sub">Keep 100% of your food sales</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">$0</div>
+            <div class="metric-label">Proprietary Hardware Mandate</div>
+            <div class="metric-sub">Use any iPad, Android or PC</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">$50/mo</div>
+            <div class="metric-label">All-Inclusive Flat Rate</div>
+            <div class="metric-sub">Unlimited terminals, tables &amp; staff</div>
+          </div>
         </div>
       </div>
-      <a href="#about" class="hero__scroll" id="hero-scroll" aria-label="Scroll down">
-        <span class="hero__scroll-line"></span>
-        <span class="hero__scroll-text">Scroll</span>
-      </a>
     </section>
-    <section class="about" id="about">
-      <div class="container about__grid">
-        <div class="about__text">
-          <p class="section-label reveal" id="about-label">Our Philosophy</p>
-          <h2 class="section-title reveal" id="about-title">Simplicity is<br />the ultimate<br /><em>sophistication.</em></h2>
-          <p class="about__body reveal" id="about-body-1">At Resto, we believe great food begins with restraint &mdash; fewer ingredients, more intention. Our kitchen works directly with local farms and purveyors, changing the menu with the seasons and letting nature guide the plate.</p>
-          <p class="about__body reveal" id="about-body-2">Every dish is a quiet conversation between chef and guest. Come sit at our table.</p>
-          <div class="about__stats reveal" id="about-stats">
-            <div class="stat" id="stat-1"><span class="stat__num" data-target="14">0</span><span class="stat__label">Years of craft</span></div>
-            <div class="stat" id="stat-2"><span class="stat__num" data-target="3">0</span><span class="stat__label">Michelin stars</span></div>
-            <div class="stat" id="stat-3"><span class="stat__num" data-target="40">0</span><span class="stat__label">Local producers</span></div>
-          </div>
-        </div>
-        <div class="about__visual reveal" id="about-visual">
-          <div class="about__img-wrap">
-            <img src="assets/gallery_bread.png" alt="Artisan bread and herbs at Resto" class="about__img" id="about-img" loading="lazy" />
-          </div>
-          <div class="about__accent-card" id="about-accent">
-            <span class="about__accent-num">12</span>
-            <span class="about__accent-text">Curated dishes each season</span>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="gallery-section" id="gallery">
-      <div class="container gallery-section__header">
-        <p class="section-label reveal" id="gallery-label">The Gallery</p>
-        <h2 class="section-title reveal" id="gallery-title">Captured on the plate.</h2>
-      </div>
-      <div class="gallery" id="gallery-grid" role="list" aria-label="Food gallery">
-        <article class="gallery__item gallery__item--large reveal" id="gitem-1" role="listitem">
-          <div class="gallery__img-wrap">
-            <img src="assets/hero_dish.png" alt="Signature plated dish" loading="lazy" />
-            <div class="gallery__caption"><p class="gallery__caption-title">The Signature</p><p class="gallery__caption-sub">Chef's seasonal creation</p></div>
-          </div>
-        </article>
-        <article class="gallery__item reveal" id="gitem-2" role="listitem" style="--delay:0.1s">
-          <div class="gallery__img-wrap">
-            <img src="assets/gallery_pasta.png" alt="Handmade truffle pasta" loading="lazy" />
-            <div class="gallery__caption"><p class="gallery__caption-title">Handmade Pasta</p><p class="gallery__caption-sub">Truffle &amp; aged parmesan</p></div>
-          </div>
-        </article>
-        <article class="gallery__item reveal" id="gitem-3" role="listitem" style="--delay:0.2s">
-          <div class="gallery__img-wrap">
-            <img src="assets/gallery_dessert.png" alt="Chocolate mousse dessert" loading="lazy" />
-            <div class="gallery__caption"><p class="gallery__caption-title">Dark Chocolate Mousse</p><p class="gallery__caption-sub">Gold leaf &amp; berry coulis</p></div>
-          </div>
-        </article>
-        <article class="gallery__item reveal" id="gitem-4" role="listitem" style="--delay:0.15s">
-          <div class="gallery__img-wrap">
-            <img src="assets/gallery_bread.png" alt="Artisan bread with herbs" loading="lazy" />
-            <div class="gallery__caption"><p class="gallery__caption-title">Bread &amp; Herb Butter</p><p class="gallery__caption-sub">House-baked daily</p></div>
-          </div>
-        </article>
-        <article class="gallery__item gallery__item--wide reveal" id="gitem-5" role="listitem" style="--delay:0.05s">
-          <div class="gallery__img-wrap">
-            <img src="assets/gallery_drinks.png" alt="Signature cocktails" loading="lazy" />
-            <div class="gallery__caption"><p class="gallery__caption-title">Signature Cocktails</p><p class="gallery__caption-sub">Curated bar programme</p></div>
-          </div>
-        </article>
-      </div>
-      <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image lightbox" hidden>
-        <button class="lightbox__close" id="lightbox-close" aria-label="Close">&times;</button>
-        <button class="lightbox__prev" id="lightbox-prev" aria-label="Previous">&#8592;</button>
-        <button class="lightbox__next" id="lightbox-next" aria-label="Next">&#8594;</button>
-        <div class="lightbox__img-wrap"><img src="" alt="" id="lightbox-img" class="lightbox__img" /></div>
-        <p class="lightbox__caption" id="lightbox-caption"></p>
-      </div>
-    </section>
-    <section class="quote-section" id="quote">
+
+    <!-- ── 2. PAIN POINTS & OWNER SOLUTIONS ──────────────────────────────── -->
+    <section class="section section--alt" id="why-independent">
       <div class="container">
-        <blockquote class="quote reveal" id="quote-block">
-          <p class="quote__text">&ldquo;The best restaurants don&rsquo;t just feed you &mdash; they remind you what it means to be fully present.&rdquo;</p>
-          <footer class="quote__attr">&mdash; The Guardian, 2024</footer>
-        </blockquote>
-      </div>
-    </section>
-    <section class="reserve" id="reserve">
-      <div class="container reserve__grid">
-        <div class="reserve__info">
-          <p class="section-label reveal" id="reserve-label">Reservations</p>
-          <h2 class="section-title reveal" id="reserve-title">Reserve your<br /><em>evening.</em></h2>
-          <div class="reserve__details reveal" id="reserve-details">
-            <div class="reserve__detail" id="detail-hours"><span class="reserve__detail-label">Hours</span><span class="reserve__detail-value">Tue &ndash; Sun, 6 pm &ndash; 11 pm</span></div>
-            <div class="reserve__detail" id="detail-location"><span class="reserve__detail-label">Location</span><span class="reserve__detail-value">12 Harbour Lane, New City</span></div>
-            <div class="reserve__detail" id="detail-phone"><span class="reserve__detail-label">Phone</span><span class="reserve__detail-value">+1 (555) 012 3456</span></div>
+        <div class="section-header">
+          <span class="section-eyebrow">Built for Real Dining Rooms</span>
+          <h2 class="section-heading">Why independent restaurant owners are ditching legacy POS.</h2>
+          <p class="section-desc">
+            Independent restaurants operate on tight margins. Legacy systems lock you into expensive contracts, take cuts of your sales, and charge per-screen fees. Prominentz changes that.
+          </p>
+        </div>
+
+        <div class="pain-grid">
+          <div class="pain-card">
+            <div class="pain-tag-old">✕ Legacy Trap: Terminal Extortion</div>
+            <h3 class="pain-title">Forced $1,500 proprietary hardware bundles</h3>
+            <p class="pain-old-text">
+              Legacy providers force you to buy expensive locked terminals, charging $60&ndash;$80/month for each additional screen and refusing to let you use tablets you already own.
+            </p>
+            <div class="pain-tag-new">✓ Prominentz Solution</div>
+            <p class="pain-new-text">
+              <strong>Bring Your Own Device (BYOD):</strong> Run Prominentz on any iPad, Samsung tablet, cheap Android handheld, or existing PC touchscreen. Connect unlimited screens at no extra fee.
+            </p>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-tag-old">✕ Legacy Trap: Sneaky Take-Rates</div>
+            <h3 class="pain-title">Siphoning 0.99% to 3.5% of your food revenue</h3>
+            <p class="pain-old-text">
+              Hidden &ldquo;order processing fees&rdquo;, mandatory online ordering add-ons, and payment markups quietly extract thousands from your bank account every quarter.
+            </p>
+            <div class="pain-tag-new">✓ Prominentz Solution</div>
+            <p class="pain-new-text">
+              <strong>0% Platform Take-Rate:</strong> We never touch your food sales. Connect your own direct Stripe account, keep 100% of your earnings, and get direct deposits on your normal payout schedule.
+            </p>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-tag-old">✕ Legacy Trap: Saturday Night Blackouts</div>
+            <h3 class="pain-title">Cloud-only POS systems that freeze when Wi-Fi drops</h3>
+            <p class="pain-old-text">
+              When your neighborhood internet cuts out during a 7:30 PM Saturday rush, legacy cloud terminals stop firing orders to the kitchen and leave servers helpless.
+            </p>
+            <div class="pain-tag-new">✓ Prominentz Solution</div>
+            <p class="pain-new-text">
+              <strong>Local Queue Continuity:</strong> Prominentz caches menu data and orders locally in the browser. Thermal tickets keep printing, checks stay open, and orders sync automatically once back online.
+            </p>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-tag-old">✕ Legacy Trap: Multi-Year Hostage Contracts</div>
+            <h3 class="pain-title">2 to 3-year contracts with brutal cancellation penalties</h3>
+            <p class="pain-old-text">
+              Try leaving a legacy POS and you are hit with $3,000+ early termination fees, locked hardware you cannot resell, and hostile customer retention tactics.
+            </p>
+            <div class="pain-tag-new">✓ Prominentz Solution</div>
+            <p class="pain-new-text">
+              <strong>Month-to-Month Freedom:</strong> No contracts. No termination fees. Cancel anytime in one click and export all your customer records, menus, and sales history in standard CSV format.
+            </p>
           </div>
         </div>
-        <form class="reserve__form reveal" id="reserve-form" novalidate>
-          <div class="form-group" id="fg-name">
-            <label for="guest-name" class="form-label">Full Name</label>
-            <input type="text" id="guest-name" name="name" class="form-input" placeholder="Jane Smith" required />
-          </div>
-          <div class="form-row" id="fg-row-1">
-            <div class="form-group">
-              <label for="guest-email" class="form-label">Email</label>
-              <input type="email" id="guest-email" name="email" class="form-input" placeholder="jane@example.com" required />
+      </div>
+    </section>
+
+    <!-- ── 3. LIVE DEMO SHOWCASE ─────────────────────────────────────────── -->
+    <section class="section" id="showcase">
+      <div class="container">
+        <div class="showcase-frame">
+          <div class="showcase-header">
+            <div class="showcase-title-wrap">
+              <span class="showcase-live-dot"></span>
+              <span>Main Dining Room &amp; Kitchen Line &middot; Rush Service Active</span>
             </div>
-            <div class="form-group">
-              <label for="guest-phone" class="form-label">Phone</label>
-              <input type="tel" id="guest-phone" name="phone" class="form-input" placeholder="+1 555 000 0000" />
+            <span class="showcase-tag">Zero Latency Sync</span>
+          </div>
+
+          <div class="showcase-body">
+            <!-- Left: Active Floor Check -->
+            <div class="showcase-col">
+              <div class="panel-header">
+                <span>Active Floor Checks</span>
+                <span>Table 4 (Patio)</span>
+              </div>
+              <div class="demo-card">
+                <div class="demo-card-top">
+                  <strong>Order #104 &middot; 4 Guests</strong>
+                  <span class="status-pill status-pill--green">Fired to Line</span>
+                </div>
+                <div class="demo-items">
+                  <div class="demo-item"><span>2x Wagyu Burger (Med-Rare)</span><span>$56.00</span></div>
+                  <div class="demo-item"><span>1x Hand-Cut Truffle Fries</span><span>$14.00</span></div>
+                  <div class="demo-item"><span>2x Craft House IPA</span><span>$18.00</span></div>
+                </div>
+                <div class="demo-card-bottom">
+                  <span>Server: Jordan M.</span>
+                  <strong>$88.00 Tendered</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Kitchen Display System -->
+            <div class="showcase-col">
+              <div class="panel-header">
+                <span>Kitchen Display (Grill Station)</span>
+                <span style="color: #059669; font-weight: 600;">Sync &lt; 1.2s</span>
+              </div>
+              <div class="demo-card demo-card--dark">
+                <div class="demo-card-top">
+                  <strong style="color: #F8FAFC;">CHIT #104 &middot; TBL 4</strong>
+                  <span class="status-pill status-pill--amber">05:14</span>
+                </div>
+                <div class="demo-items demo-items--dark">
+                  <div><strong>2x Wagyu Burger</strong> <span class="mod-tag">MED-RARE &middot; NO ONION</span></div>
+                  <div><strong>1x Truffle Fries</strong> <span class="mod-tag">EXTRA CRISPY</span></div>
+                  <div><strong>2x Craft House IPA</strong> <span class="mod-tag">EXPEDITED TO BAR</span></div>
+                </div>
+                <div class="demo-card-bottom" style="border-top-color: rgba(255,255,255,0.1);">
+                  <span style="color: #94A3B8;">Station: Hot Pass</span>
+                  <button type="button" class="btn btn--sm btn--primary">Bump Chit</button>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="form-row" id="fg-row-2">
-            <div class="form-group">
-              <label for="guest-date" class="form-label">Date</label>
-              <input type="date" id="guest-date" name="date" class="form-input" required />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. INTERACTIVE SAVINGS CALCULATOR ─────────────────────────────── -->
+    <section class="section section--alt" id="calculator">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Real Economics</span>
+          <h2 class="section-heading">See how much you save every year with Prominentz.</h2>
+          <p class="section-desc">
+            Compare your actual costs against typical bundles from Toast, TouchBistro, Clover, and Square.
+          </p>
+        </div>
+
+        <div class="calculator-box">
+          <div class="calc-controls">
+            <!-- Revenue Slider -->
+            <div class="calc-group">
+              <div class="calc-label-row">
+                <label for="calc-revenue" class="calc-label">Monthly Food &amp; Beverage Sales</label>
+                <span class="calc-badge" id="calc-rev-val">$45,000 / mo</span>
+              </div>
+              <input type="range" id="calc-revenue" min="15000" max="150000" step="5000" value="45000" class="calc-range" />
+              <div class="calc-presets">
+                <button type="button" class="calc-btn" data-rev="25000">$25k/mo</button>
+                <button type="button" class="calc-btn active" data-rev="45000">$45k/mo</button>
+                <button type="button" class="calc-btn" data-rev="75000">$75k/mo</button>
+                <button type="button" class="calc-btn" data-rev="110000">$110k/mo</button>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="guest-time" class="form-label">Time</label>
-              <select id="guest-time" name="time" class="form-input" required>
-                <option value="" disabled selected>Select time</option>
-                <option value="18:00">6:00 PM</option>
-                <option value="18:30">6:30 PM</option>
-                <option value="19:00">7:00 PM</option>
-                <option value="19:30">7:30 PM</option>
-                <option value="20:00">8:00 PM</option>
-                <option value="20:30">8:30 PM</option>
-                <option value="21:00">9:00 PM</option>
-                <option value="21:30">9:30 PM</option>
-              </select>
+
+            <!-- Terminals Slider -->
+            <div class="calc-group">
+              <div class="calc-label-row">
+                <label for="calc-terminals" class="calc-label">Active POS Terminals &amp; Kitchen Screens</label>
+                <span class="calc-badge" id="calc-term-val">3 Screens</span>
+              </div>
+              <input type="range" id="calc-terminals" min="1" max="10" step="1" value="3" class="calc-range" />
+              <div class="calc-presets">
+                <button type="button" class="calc-btn-term" data-term="2">2 Screens</button>
+                <button type="button" class="calc-btn-term active" data-term="3">3 Screens</button>
+                <button type="button" class="calc-btn-term" data-term="5">5 Screens</button>
+                <button type="button" class="calc-btn-term" data-term="8">8 Screens</button>
+              </div>
             </div>
           </div>
-          <div class="form-group" id="fg-guests">
-            <label class="form-label">Number of Guests</label>
-            <div class="guest-counter" id="guest-counter">
-              <button type="button" class="counter-btn" id="counter-minus" aria-label="Decrease">&#8722;</button>
-              <span class="counter-val" id="counter-value" aria-live="polite">2</span>
-              <button type="button" class="counter-btn" id="counter-plus" aria-label="Increase">+</button>
+
+          <!-- Savings Result Card -->
+          <div class="calc-result">
+            <div class="calc-result-label">Your Estimated Annual Savings</div>
+            <div class="calc-result-number" id="calc-savings-total">$5,820</div>
+            <div class="calc-result-sub">saved every single year</div>
+
+            <div class="calc-breakdown">
+              <div class="calc-row">
+                <span>Prominentz Annual:</span>
+                <strong style="color: #00E599;">$600 / yr</strong>
+              </div>
+              <div class="calc-row">
+                <span>Typical Toast/Clover bill:</span>
+                <span style="text-decoration: line-through; opacity: 0.7;" id="calc-legacy-total">$6,420 / yr</span>
+              </div>
+              <div class="calc-row">
+                <span>Upfront hardware savings:</span>
+                <span style="color: #FCD34D;">Save ~$1,500/terminal</span>
+              </div>
             </div>
-            <input type="hidden" id="guest-count" name="guests" value="2" />
+
+            <a href="http://localhost:3000/signup" class="btn btn--primary btn--full">Claim Your $50/mo Rate &rarr;</a>
           </div>
-          <div class="form-group" id="fg-notes">
-            <label for="guest-notes" class="form-label">Special Requests <span class="form-optional">(optional)</span></label>
-            <textarea id="guest-notes" name="notes" class="form-input form-textarea" placeholder="Dietary requirements, occasions, seating preferences..." rows="3"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. FOH, BOH & MANAGER ROLES ──────────────────────────────────── -->
+    <section class="section" id="roles">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Every Role Synchronized</span>
+          <h2 class="section-heading">Purpose-built interfaces for every station.</h2>
+          <p class="section-desc">
+            No multi-level maze of menus. Servers, line cooks, and managers get clear, fast interfaces designed for 5-minute training.
+          </p>
+        </div>
+
+        <div class="role-tabs-wrap">
+          <div class="role-tabs" role="tablist">
+            <button type="button" class="role-tab active" data-role="server" role="tab" aria-selected="true">FOH Server Station</button>
+            <button type="button" class="role-tab" data-role="kitchen" role="tab" aria-selected="false">BOH Kitchen KDS</button>
+            <button type="button" class="role-tab" data-role="manager" role="tab" aria-selected="false">Owner &amp; Manager Control</button>
           </div>
-          <button type="submit" class="btn btn--primary btn--full" id="submit-btn">Confirm Reservation</button>
-          <p class="form-note" id="form-note">We'll confirm your booking via email within 2 hours.</p>
-        </form>
+
+          <!-- Server Panel -->
+          <div class="role-panel active" id="role-panel-server">
+            <div class="role-grid">
+              <div class="role-text">
+                <h3>Table-side speed that turns tables 12 minutes faster.</h3>
+                <p>Designed for fast handheld order entry on phone or tablet. Fast-fire courses, seat-by-seat guest allocation, allergen tagging, and 3-tap split billing at the table.</p>
+                <ul class="check-list">
+                  <li>Seat-by-seat guest checks with one-touch bill splitting</li>
+                  <li>Instant course pacing (Fire Appetizers, Hold Entrees)</li>
+                  <li>Dietary tags (Nut-Free, Gluten-Free, Vegan) sent directly to kitchen line</li>
+                  <li>PIN-protected quick server switching in under 1 second</li>
+                </ul>
+              </div>
+              <div class="role-visual">
+                <div class="preview-card">
+                  <div class="preview-header">
+                    <span>Server Handheld &middot; Table 4</span>
+                    <span class="badge-tag">Table Active</span>
+                  </div>
+                  <div class="preview-body">
+                    <div class="preview-line"><span>Seat 1 &middot; Wagyu Burger (MR)</span><strong>$28.00</strong></div>
+                    <div class="preview-line"><span>Seat 2 &middot; Truffle Tagliatelle</span><strong>$26.00</strong></div>
+                    <div class="preview-line"><span>Seat 3 &middot; Crispy Calamari</span><strong>$18.00</strong></div>
+                  </div>
+                  <div class="preview-actions">
+                    <button type="button" class="btn btn--secondary btn--sm">Split by Seat</button>
+                    <button type="button" class="btn btn--primary btn--sm">Fire to Kitchen</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kitchen Panel -->
+          <div class="role-panel" id="role-panel-kitchen">
+            <div class="role-grid">
+              <div class="role-text">
+                <h3>Kitchen display with real station routing &amp; 86 management.</h3>
+                <p>Eliminate paper chit chaos. Automatically route orders to Grill, Sauté, Raw, or Bar stations with elapsed timers and color-coded pacing alerts.</p>
+                <ul class="check-list">
+                  <li>Automated station routing (Grill, Saute, Fryer, Cold, Bar)</li>
+                  <li>One-tap item 86ing that instantly updates all server handhelds &amp; QR menus</li>
+                  <li>Audible chimes &amp; visual alerts for rush tickets</li>
+                  <li>Works on any touch screen, budget Android TV, or tablet</li>
+                </ul>
+              </div>
+              <div class="role-visual">
+                <div class="preview-card preview-card--dark">
+                  <div class="preview-header preview-header--dark">
+                    <span>Station: Hot Line (Grill &amp; Fryer)</span>
+                    <span class="badge-tag" style="background: rgba(217, 119, 6, 0.2); color: #F59E0B;">Rush Pacing</span>
+                  </div>
+                  <div class="preview-body preview-body--dark">
+                    <div class="preview-line"><span>Chit #104 &middot; Table 4</span><strong style="color: #10B981;">04:12</strong></div>
+                    <div class="preview-line"><span>Chit #105 &middot; Table 12</span><strong style="color: #F59E0B;">11:45</strong></div>
+                  </div>
+                  <div class="preview-actions">
+                    <button type="button" class="btn btn--secondary btn--sm">86 Item</button>
+                    <button type="button" class="btn btn--primary btn--sm">Bump Chit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manager Panel -->
+          <div class="role-panel" id="role-panel-manager">
+            <div class="role-grid">
+              <div class="role-text">
+                <h3>Real-time telemetry, void audits, and automatic Z-reports.</h3>
+                <p>Know your numbers from anywhere. Monitor live covers, hourly labor percentage, void/comp tracking with staff accountability, and automated end-of-shift reconciliation.</p>
+                <ul class="check-list">
+                  <li>Auditable void, comp, and discount tracking with mandatory manager PINs</li>
+                  <li>Live shift labor-to-sales ratios updated every 60 seconds</li>
+                  <li>Automated end-of-day Z-reports and cash drawer drawer reconciliations</li>
+                  <li>Direct Stripe payout monitoring with 0% platform deductions</li>
+                </ul>
+              </div>
+              <div class="role-visual">
+                <div class="preview-card">
+                  <div class="preview-header">
+                    <span>Shift Audit &middot; Live Telemetry</span>
+                    <span class="badge-tag">Balanced</span>
+                  </div>
+                  <div class="preview-body">
+                    <div class="preview-line"><span>Net Food &amp; Beverage</span><strong>$4,820.00</strong></div>
+                    <div class="preview-line"><span>Card Payments (Stripe Direct)</span><strong>$4,210.00</strong></div>
+                    <div class="preview-line"><span>Cash in Drawer</span><strong>$610.00</strong></div>
+                    <div class="preview-line"><span>Manager Comps / Voids</span><span style="color: #6B7280;">$24.00 (2 logged)</span></div>
+                  </div>
+                  <div class="preview-actions">
+                    <button type="button" class="btn btn--secondary btn--sm btn--full">Generate Shift Z-Report</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. HARDWARE FREEDOM (BYOD) ────────────────────────────────────── -->
+    <section class="section section--alt" id="hardware">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Zero Hardware Lock-In</span>
+          <h2 class="section-heading">Use what you already own. Save thousands upfront.</h2>
+          <p class="section-desc">
+            No expensive proprietary terminals. Prominentz runs smoothly in any modern browser on hardware you already have.
+          </p>
+        </div>
+
+        <div class="hardware-grid">
+          <div class="hardware-card">
+            <div class="hw-icon">📱</div>
+            <h3 class="hw-title">Tablets &amp; iPads</h3>
+            <p class="hw-desc">Use any iPad (5th Gen+), iPad Air, iPad Mini, Samsung Galaxy Tab, or budget Lenovo Android tablet.</p>
+            <ul class="hw-list">
+              <li>Apple iOS &amp; iPadOS</li>
+              <li>Android 10+ Tablets</li>
+              <li>Mounts to any standard stand</li>
+            </ul>
+          </div>
+
+          <div class="hardware-card">
+            <div class="hw-icon">🖨️</div>
+            <h3 class="hw-title">Thermal ESC/POS Printers</h3>
+            <p class="hw-desc">Direct WebUSB and LAN printing. Works with industry-standard 80mm and 58mm receipt printers.</p>
+            <ul class="hw-list">
+              <li>Epson TM-T88 &amp; TM-T20</li>
+              <li>Star Micronics TSP143</li>
+              <li>Munbyn, Xprinter, Generic ESC/POS</li>
+            </ul>
+          </div>
+
+          <div class="hardware-card">
+            <div class="hw-icon">💵</div>
+            <h3 class="hw-title">Cash Drawers</h3>
+            <p class="hw-desc">Standard RJ11 cash drawer kick line connects directly to your thermal printer for automatic drawer open on cash tender.</p>
+            <ul class="hw-list">
+              <li>Standard 24V RJ11 kick ports</li>
+              <li>APG, Star, generic drawers</li>
+              <li>Manual key override supported</li>
+            </ul>
+          </div>
+
+          <div class="hardware-card">
+            <div class="hw-icon">💳</div>
+            <h3 class="hw-title">Card Readers &amp; QR Pay</h3>
+            <p class="hw-desc">Seamless Stripe Terminal integration for contactless tap, chip, Apple Pay, plus instant table QR payment.</p>
+            <ul class="hw-list">
+              <li>Stripe BBPOS WisePOS E</li>
+              <li>Stripe Reader S700</li>
+              <li>Contactless Table QR pay</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. COMPARISON TABLE (PROMINENTZ VS TOAST VS SQUARE VS CLOVER) ─── -->
+    <section class="section" id="comparison">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Transparent Economics</span>
+          <h2 class="section-heading">Built to liberate restaurants from legacy POS lock-in.</h2>
+          <p class="section-desc">
+            Compare Prominentz against legacy incumbents like Toast, Square, Clover, and TouchBistro.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Platform Feature</th>
+                <th class="col-prominentz">Prominentz</th>
+                <th>Toast POS</th>
+                <th>Square for Restaurants</th>
+                <th>Clover POS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monthly Software Cost</td>
+                <td class="col-prominentz"><span class="check-good">✓ $50 / mo Flat (All-Inclusive)</span></td>
+                <td><span class="cross-bad">$69 &ndash; $165+ / mo base</span></td>
+                <td><span class="cross-bad">$60+ / mo + add-on fees</span></td>
+                <td><span class="cross-bad">$90 &ndash; $250+ / mo</span></td>
+              </tr>
+              <tr>
+                <td>Hardware Mandate</td>
+                <td class="col-prominentz"><span class="check-good">✓ BYOD: Any iPad, Tablet, PC, Phone</span></td>
+                <td><span class="cross-bad">$1,500+ Proprietary Hardware</span></td>
+                <td><span class="cross-bad">Proprietary Register or iPads</span></td>
+                <td><span class="cross-bad">$1,800+ Proprietary Station</span></td>
+              </tr>
+              <tr>
+                <td>Kitchen Display (KDS)</td>
+                <td class="col-prominentz"><span class="check-good">✓ Included Free (Unlimited Screens)</span></td>
+                <td><span class="cross-bad">$40 &ndash; $50 / mo per screen</span></td>
+                <td><span class="cross-bad">$20 / mo per screen</span></td>
+                <td><span class="cross-bad">$30 &ndash; $45 / mo per screen</span></td>
+              </tr>
+              <tr>
+                <td>Contactless QR Table Ordering</td>
+                <td class="col-prominentz"><span class="check-good">✓ Included Free (Table Studio)</span></td>
+                <td><span class="cross-bad">$50 &ndash; $100 / mo or $0.99 fee</span></td>
+                <td><span class="cross-bad">$60 / mo add-on module</span></td>
+                <td><span class="cross-bad">Requires 3rd party add-on</span></td>
+              </tr>
+              <tr>
+                <td>Thermal ESC/POS Printing</td>
+                <td class="col-prominentz"><span class="check-good">✓ Native WebUSB (Epson, Star, Xprinter)</span></td>
+                <td><span class="cross-bad">Proprietary Cloud Hub only</span></td>
+                <td><span class="cross-bad">Limited supported hardware</span></td>
+                <td><span class="cross-bad">Clover printers only</span></td>
+              </tr>
+              <tr>
+                <td>Platform Order Take-Rate</td>
+                <td class="col-prominentz"><span class="check-good">✓ 0% Take-Rate on Food Sales</span></td>
+                <td><span class="cross-bad">Hidden fees &amp; take-rates</span></td>
+                <td><span class="cross-bad">Higher per-transaction rates</span></td>
+                <td><span class="cross-bad">Card volume surcharges</span></td>
+              </tr>
+              <tr>
+                <td>Contracts &amp; Commitments</td>
+                <td class="col-prominentz"><span class="check-good">✓ Month-to-Month &middot; Cancel Anytime</span></td>
+                <td><span class="cross-bad">2&ndash;3 Year Inflexible Contracts</span></td>
+                <td><span class="cross-bad">Month-to-month</span></td>
+                <td><span class="cross-bad">3-Year Locked Lease</span></td>
+              </tr>
+              <tr>
+                <td>Offline Queue Resilience</td>
+                <td class="col-prominentz"><span class="check-good">✓ Built-in Local Buffer Continuity</span></td>
+                <td><span class="cross-bad">Intermittent or frozen lines</span></td>
+                <td><span class="cross-bad">Limited offline mode</span></td>
+                <td><span class="cross-bad">Degraded station mode</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 8. ZERO-RISK GUARANTEES (NO FAKE TESTIMONIALS) ────────────────── -->
+    <section class="section section--alt" id="guarantees">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Operator Peace of Mind</span>
+          <h2 class="section-heading">The Prominentz Zero-Risk Hospitality Guarantee.</h2>
+          <p class="section-desc">
+            We earn your business every month. No predatory sales contracts, no proprietary lock-ins, and no surprises.
+          </p>
+        </div>
+
+        <div class="guarantee-grid">
+          <div class="guarantee-card">
+            <div class="guarantee-badge">🛡️</div>
+            <h3 class="guarantee-title">14-Day Full Unrestricted Trial</h3>
+            <p class="guarantee-desc">Set up your menu, connect your thermal printers, and run real shifts with zero payment information required upfront.</p>
+          </div>
+
+          <div class="guarantee-card">
+            <div class="guarantee-badge">💰</div>
+            <h3 class="guarantee-title">0% Platform Take-Rate Guarantee</h3>
+            <p class="guarantee-desc">We never touch a penny of your food or bar sales. Connect your own direct Stripe account and keep 100% of your customer revenue.</p>
+          </div>
+
+          <div class="guarantee-card">
+            <div class="guarantee-badge">📋</div>
+            <h3 class="guarantee-title">Complimentary 24h Menu Import</h3>
+            <p class="guarantee-desc">Send us a photo or PDF of your current restaurant menu, and our team will build your categories, modifiers, and pricing into your account.</p>
+          </div>
+
+          <div class="guarantee-card">
+            <div class="guarantee-badge">🔓</div>
+            <h3 class="guarantee-title">Month-to-Month &middot; Zero Exit Penalties</h3>
+            <p class="guarantee-desc">Cancel anytime in one click. We never hold your restaurant hostage with multi-year leases or early termination penalties.</p>
+          </div>
+
+          <div class="guarantee-card">
+            <div class="guarantee-badge">📦</div>
+            <h3 class="guarantee-title">100% Data Portability</h3>
+            <p class="guarantee-desc">Your data belongs to you. Export your complete order history, sales telemetry, and customer lists anytime in clean CSV format.</p>
+          </div>
+
+          <div class="guarantee-card">
+            <div class="guarantee-badge">⚡</div>
+            <h3 class="guarantee-title">Instant 5-Minute Staff Onboarding</h3>
+            <p class="guarantee-desc">Intuitive interfaces with 4-digit PIN authentication mean high-turnover front-of-house staff can be trained in under 5 minutes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9. TRANSPARENT PRICING ────────────────────────────────────────── -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="pricing-card">
+          <div class="pricing-content">
+            <span class="pricing-tag">Single Honest Plan</span>
+            <h2 class="pricing-title">Everything your restaurant needs. One honest price.</h2>
+            <p class="pricing-desc">
+              No terminal licensing fees. No kitchen screen surcharges. No hidden surprise add-ons at the end of the month.
+            </p>
+            <div class="pricing-features">
+              <div>✓ Unlimited POS Terminals</div>
+              <div>✓ Unlimited Kitchen KDS Screens</div>
+              <div>✓ QR Dine-In &amp; Digital Menus</div>
+              <div>✓ WebUSB &amp; LAN Thermal Printing</div>
+              <div>✓ Local Offline Queue Continuity</div>
+              <div>✓ Split Bills &amp; Table Pacing</div>
+              <div>✓ Live Telemetry &amp; Shift Z-Reports</div>
+              <div>✓ 24/7 Priority Support</div>
+            </div>
+          </div>
+          <div class="pricing-side">
+            <div class="pricing-price">$50</div>
+            <div class="pricing-period">per month &middot; billed monthly ($500/yr annual)</div>
+            <a href="http://localhost:3000/signup" class="btn btn--primary btn--full btn--white">Start 14-Day Free Trial &rarr;</a>
+            <div class="pricing-sub">Zero setup fees &middot; No credit card required</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 10. FAQ ACCORDION ─────────────────────────────────────────────── -->
+    <section class="section section--alt" id="faq">
+      <div class="container faq-container">
+        <div class="section-header">
+          <span class="section-eyebrow">Questions &amp; Answers</span>
+          <h2 class="section-heading">Frequently asked questions by restaurant owners.</h2>
+          <p class="section-desc">
+            Direct answers to common questions about hardware, thermal printing, offline mode, and migration.
+          </p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="true">
+              <span>Will Prominentz automatically print thermal receipts and kick open our cash drawer?</span>
+              <span class="faq-icon">&times;</span>
+            </button>
+            <div class="faq-answer open">
+              <p>Yes. Prominentz communicates directly with thermal printers using native WebUSB and ESC/POS protocol. Connect standard Epson, Star Micronics, Munbyn, or generic 80mm printers directly to your tablet or PC via USB. Receipts print instantly and the cash drawer kicks open via the standard RJ11 connector without cloud delays.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Do I have to buy expensive hardware from Prominentz?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>No. We believe locking restaurants into proprietary hardware is unethical. Prominentz works on any iPad (iOS 14+), Android tablet, Windows PC, Mac, or smartphone. You can use hardware you already own or buy affordable commercial tablets on Amazon.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>What happens if our restaurant internet goes down during a rush?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Prominentz has an integrated IndexedDB offline queue. If your Wi-Fi drops, servers can still enter orders, checks remain editable, and orders buffer locally. Once internet connectivity is restored, all buffered records automatically synchronize with your cloud database with zero data loss.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>How does payment processing work? Do you take a cut of our sales?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>We have a strict 0% platform take-rate policy. You connect your own Stripe account with a single click. Customer payments deposit directly into your bank account on your normal schedule. You only pay standard Stripe processing fees with zero markups or technology surcharges from us.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>How difficult is it to switch from Toast, Square, or TouchBistro?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Most restaurants switch over in less than 24 hours. Send us your menu PDF or photo, and our onboarding team loads your categories, modifier groups, and pricing into your account for free. Since Prominentz runs in the browser, there are no proprietary software installations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 11. FINAL CTA ─────────────────────────────────────────────────── -->
+    <section class="section section--cta">
+      <div class="container">
+        <div class="cta-box">
+          <h2 class="cta-title">Ready to run your restaurant on your own terms?</h2>
+          <p class="cta-desc">Join independent dining rooms saving thousands every year with Prominentz.</p>
+          <div class="cta-actions">
+            <a href="http://localhost:3000/signup" class="btn btn--primary btn--lg">Start 14-Day Free Trial &mdash; $50/mo</a>
+            <a href="http://localhost:3000/login" class="btn btn--secondary btn--lg">Sign in to existing account</a>
+          </div>
+          <div class="cta-sub">No credit card required &middot; 0% take-rate &middot; Cancel anytime</div>
+        </div>
       </div>
     </section>
   </main>
-  <footer class="footer" id="footer">
-    <div class="container footer__inner">
-      <div class="footer__brand" id="footer-brand">
-        <span class="footer__logo">Resto</span>
-        <p class="footer__tagline">Refined dining, simply done.</p>
+
+  <!-- ── 12. FOOTER ──────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div>
+        <div class="footer__brand">
+          <svg width="24" height="24" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect width="120" height="120" rx="28" fill="#6835F9"/>
+            <path d="M26 22 H64 C77.25 22 88 31.85 88 44 C88 56.15 77.25 66 64 66 H48 V98 H26 Z M48 38 V50 H62 C65.3 50 68 47.3 68 44 C68 40.7 65.3 38 62 38 Z" fill="#FFFFFF"/>
+            <path d="M44 60 H88 V70 L62 86 H88 V98 H44 V88 L70 72 H44 Z" fill="#121217"/>
+          </svg>
+          <strong>Prominentz</strong>
+        </div>
+        <p class="footer__desc">The high-velocity restaurant operating system. Point of sale, KDS, QR dining, and thermal printing in one unified platform.</p>
+        <div class="footer__status">
+          <span class="status-dot"></span>
+          <span>All Systems Operational &middot; 99.99% Uptime</span>
+        </div>
       </div>
-      <nav class="footer__links" id="footer-nav" aria-label="Footer navigation">
-        <a href="#about" id="footer-about">About</a>
-        <a href="#gallery" id="footer-gallery">Gallery</a>
-        <a href="#reserve" id="footer-reserve">Reserve</a>
-        <a href="mailto:hello@resto.com" id="footer-contact">Contact</a>
-      </nav>
-      <p class="footer__copy" id="footer-copy">&copy; 2026 Resto. All rights reserved.</p>
+
+      <div class="footer__col">
+        <div class="footer__heading">Platform</div>
+        <a href="#showcase">Live Demo</a>
+        <a href="#roles">FOH &amp; BOH Roles</a>
+        <a href="#hardware">Hardware &amp; Printers</a>
+        <a href="#comparison">Toast Comparison</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+
+      <div class="footer__col">
+        <div class="footer__heading">Solutions</div>
+        <a href="http://localhost:3000/portals/pos">POS Terminal</a>
+        <a href="http://localhost:3000/portals/kds">Kitchen Display (KDS)</a>
+        <a href="http://localhost:3000/menu">QR Table Ordering</a>
+        <a href="http://localhost:3000/portals/manager">Manager Telemetry</a>
+      </div>
+
+      <div class="footer__col">
+        <div class="footer__heading">Security</div>
+        <a href="http://localhost:3000/privacy">Privacy Policy</a>
+        <a href="http://localhost:3000/terms">Terms of Service</a>
+        <span style="color: #9CA3AF;">PCI-DSS Level 1</span>
+        <span style="color: #9CA3AF;">Tenant Data Isolation</span>
+      </div>
+    </div>
+
+    <div class="container footer__bottom">
+      <div>&copy; 2026 Prominentz Technologies Inc. All rights reserved.</div>
+      <div class="footer__links">
+        <a href="http://localhost:3000/privacy">Privacy</a>
+        <a href="http://localhost:3000/terms">Terms</a>
+        <a href="http://localhost:3000/login">Operator Portal</a>
+      </div>
     </div>
   </footer>
-  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
-    <span class="toast__icon">&#10003;</span>
-    <span class="toast__msg" id="toast-msg">Reservation confirmed! Check your email.</span>
-  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
