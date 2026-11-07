@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Pick the gateway by the customer's own country, not a single global setting — Cashfree
     // only settles in INR, so a US/international customer must never land on it.
-    const countryCode = resolveCountryFromRequest(req, restaurant.phone)
+    const countryCode = resolveCountryFromRequest(req)
     const provider = billingProviderForCountry(countryCode)
     if (provider !== 'revenuecat' && isMockCashfree() && process.env.NODE_ENV !== 'production') {
       const prevTier = restaurant.planTier
