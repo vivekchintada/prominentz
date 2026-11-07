@@ -71,12 +71,6 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<'CARD' | 'PAY_LATER'>('CARD')
-  const [cardDetails, setCardDetails] = useState({
-    number: '',
-    expiry: '',
-    cvc: '',
-    zip: '',
-  })
   const [paymentFailure, setPaymentFailure] = useState<{
     hasError: boolean
     message: string
@@ -90,6 +84,16 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
     distanceKm?: number
     error?: string
   } | null>(null)
+
+  // Customer came back from a cancelled Stripe checkout
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('cancelled') === '1') {
+      setPaymentFailure({
+        hasError: true,
+        message: 'Card payment was cancelled. You can try again or choose Pay on Fulfilment.',
+      })
+    }
+  }, [])
 
   useEffect(() => {
     fetch(`/api/ordering/menu?locationId=${locationId}`)
@@ -226,12 +230,6 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
     setError('')
     setPaymentFailure(null)
 
-    if (paymentMethod === 'CARD' && !cardDetails.number.trim()) {
-      setError('Please enter your card number')
-      setBusy(false)
-      return
-    }
-
     try {
       const body: any = {
         locationId,
@@ -271,30 +269,10 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
       const j = await r.json()
       if (!r.ok) throw new Error(typeof j.error === 'string' ? j.error : 'Order could not be placed')
 
-      // Handle card payment confirmation
-      if (paymentMethod === 'CARD' && j.payment) {
-        // Test failure trigger if user typed "4000" or invalid card
-        if (cardDetails.number.replace(/\s/g, '').startsWith('400000000000')) {
-          setPaymentFailure({
-            hasError: true,
-            message: 'Your card was declined. Please check the card details or choose Pay on Fulfilment.',
-            orderId: j.orderId,
-            trackingToken: j.trackingToken,
-          })
-          setBusy(false)
-          return
-        }
-
-        // Trigger simulated or live webhook confirmation for payment intent
-        await fetch('/api/ordering/payments/webhook', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: `evt_${j.payment.id}_succ`,
-            type: 'payment_intent.succeeded',
-            data: { object: { id: j.payment.id, metadata: { orderId: j.orderId } } },
-          }),
-        }).catch(() => {})
+      // Card: hand off to Stripe's hosted checkout (charged to the restaurant's own account)
+      if (paymentMethod === 'CARD' && j.checkoutUrl) {
+        window.location.href = j.checkoutUrl
+        return
       }
 
       window.location.href = `/order/track/${j.trackingToken}`
@@ -306,9 +284,12 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
   }
 
   const recoverSwitchToPayLater = async () => {
-    if (!paymentFailure?.trackingToken) return
-    // Proceed directly to tracking as customer will pay on fulfilment
-    window.location.href = `/order/track/${paymentFailure.trackingToken}`
+    if (paymentFailure?.trackingToken) {
+      window.location.href = `/order/track/${paymentFailure.trackingToken}`
+      return
+    }
+    setPaymentMethod('PAY_LATER')
+    setPaymentFailure(null)
   }
 
   if (!data) {
@@ -689,40 +670,13 @@ export default function OnlineOrderingClient({ locationId }: { locationId: strin
                 </div>
               </div>
 
-              {/* ── Card Inputs (when Card selected) ─────────────── */}
+              {/* ── Card: paid on Stripe's secure hosted checkout ─── */}
               {paymentMethod === 'CARD' && (
                 <div className={styles.cardBox}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary, rgba(255,255,255,0.7))', textTransform: 'uppercase' }}>
-                      Card Details
-                    </span>
-                  </div>
-                  <input
-                    className={styles.formInput}
-                    placeholder="Card number (4242 •••• •••• 4242)"
-                    value={cardDetails.number}
-                    onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                  />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                    <input
-                      className={styles.formInput}
-                      placeholder="MM / YY"
-                      value={cardDetails.expiry}
-                      onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                    />
-                    <input
-                      className={styles.formInput}
-                      placeholder="CVC"
-                      value={cardDetails.cvc}
-                      onChange={(e) => setCardDetails({ ...cardDetails, cvc: e.target.value })}
-                    />
-                    <input
-                      className={styles.formInput}
-                      placeholder="ZIP"
-                      value={cardDetails.zip}
-                      onChange={(e) => setCardDetails({ ...cardDetails, zip: e.target.value })}
-                    />
-                  </div>
+                  <span style={{ fontSize: '13px', color: 'var(--color-text-secondary, rgba(255,255,255,0.7))' }}>
+                    🔒 You&apos;ll enter your card on Stripe&apos;s secure checkout page after placing the order.
+                    Apple Pay and Google Pay are supported where available.
+                  </span>
                 </div>
               )}
 

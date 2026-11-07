@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Prominentz — The Restaurant Operating System for Independent and Mid-Scale Dining Rooms. Front-of-House POS, Kitchen Display Systems (KDS), QR Dining, and WebUSB Thermal Printing for $50/mo flat." />
-  <title>Prominentz — The Operating System for Modern Restaurants</title>
+  <!-- Set this to your app domain (e.g. https://app.prominentz.com) if this page is hosted separately. Empty = same domain. -->
+    <meta name="prominentz-app-url" content="" />
+    <title>Prominentz — The Operating System for Modern Restaurants</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
@@ -35,8 +37,8 @@
       </nav>
 
       <div class="nav__actions">
-        <a href="http://localhost:3000/login" class="nav__signin">Sign in</a>
-        <a href="http://localhost:3000/signup" class="btn btn--primary">Start Free Trial &mdash; $50/mo</a>
+        <a href="/login" data-app-link class="nav__signin">Sign in</a>
+        <a href="/signup" data-app-link class="btn btn--primary">Start Free Trial &mdash; $50/mo</a>
       </div>
 
       <button class="nav__hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -55,8 +57,8 @@
       <a href="#pricing" class="nav__drawer-link">Pricing</a>
       <a href="#faq" class="nav__drawer-link">FAQ</a>
       <div class="nav__drawer-actions">
-        <a href="http://localhost:3000/login" class="btn btn--secondary btn--full">Sign in</a>
-        <a href="http://localhost:3000/signup" class="btn btn--primary btn--full">Start Free Trial &mdash; $50/mo</a>
+        <a href="/login" data-app-link class="btn btn--secondary btn--full">Sign in</a>
+        <a href="/signup" data-app-link class="btn btn--primary btn--full">Start Free Trial &mdash; $50/mo</a>
       </div>
     </div>
   </header>
@@ -73,19 +75,19 @@
           Stop paying $400/month for locked POS terminals. Run your dining room for <span class="highlight">$50 flat</span>.
         </h1>
         <p class="hero__sub">
-          Unify front-of-house point of sale, multi-station kitchen display systems (KDS), contactless QR table ordering, and WebUSB thermal printing on devices you already own. Zero hardware lock-in, 0% take-rate on your food sales, and unbroken offline continuity.
+          Unify front-of-house point of sale, multi-station kitchen display systems (KDS), contactless QR table ordering, and WebUSB thermal printing on devices you already own. Zero hardware lock-in, 0% take-rate on your food sales, and an offline order queue that keeps service moving when the Wi-Fi drops.
         </p>
         <div class="hero__actions">
-          <a href="http://localhost:3000/signup" class="btn btn--primary btn--lg">Start 14-Day Free Trial &rarr;</a>
+          <a href="/signup" data-app-link class="btn btn--primary btn--lg">Start 14-Day Free Trial &rarr;</a>
           <a href="#calculator" class="btn btn--secondary btn--lg">Calculate Your Annual Savings &darr;</a>
         </div>
 
         <!-- Pills Row -->
         <div class="pill-row">
-          <span class="pill-item">⚡ &lt; 1.2s Ticket Sync</span>
+          <span class="pill-item">⚡ Real-time Ticket Sync</span>
           <span class="pill-item">💰 0% Platform Take-Rate</span>
           <span class="pill-item">📱 BYOD: Any iPad, Tablet or PC</span>
-          <span class="pill-item">📶 100% Offline Queue Continuity</span>
+          <span class="pill-item">📶 Offline Order Queue</span>
           <span class="pill-item">🖨️ Universal ESC/POS Thermal Direct</span>
           <span class="pill-item">💳 Direct Stripe Payouts</span>
         </div>
@@ -93,9 +95,9 @@
         <!-- Metric Cards Grid -->
         <div class="metrics-grid">
           <div class="metric-card">
-            <div class="metric-val">&lt; 1.2s</div>
-            <div class="metric-label">Ticket Dispatch Latency</div>
-            <div class="metric-sub">Instant sync from table to line</div>
+            <div class="metric-val">Live</div>
+            <div class="metric-label">Kitchen Ticket Sync</div>
+            <div class="metric-sub">Orders hit the line in real time</div>
           </div>
           <div class="metric-card">
             <div class="metric-val">0%</div>
@@ -219,7 +221,7 @@
             <div class="showcase-col">
               <div class="panel-header">
                 <span>Kitchen Display (Grill Station)</span>
-                <span style="color: #059669; font-weight: 600;">Sync &lt; 1.2s</span>
+                <span style="color: #059669; font-weight: 600;">Live sync</span>
               </div>
               <div class="demo-card demo-card--dark">
                 <div class="demo-card-top">
@@ -307,7 +309,7 @@
               </div>
             </div>
 
-            <a href="http://localhost:3000/signup" class="btn btn--primary btn--full">Claim Your $50/mo Rate &rarr;</a>
+            <a href="/signup" data-app-link class="btn btn--primary btn--full">Claim Your $50/mo Rate &rarr;</a>
           </div>
         </div>
       </div>
@@ -335,7 +337,7 @@
           <div class="role-panel active" id="role-panel-server">
             <div class="role-grid">
               <div class="role-text">
-                <h3>Table-side speed that turns tables 12 minutes faster.</h3>
+                <h3>Table-side order entry built for speed.</h3>
                 <p>Designed for fast handheld order entry on phone or tablet. Fast-fire courses, seat-by-seat guest allocation, allergen tagging, and 3-tap split billing at the table.</p>
                 <ul class="check-list">
                   <li>Seat-by-seat guest checks with one-touch bill splitting</li>
@@ -645,13 +647,13 @@
               <div>✓ Local Offline Queue Continuity</div>
               <div>✓ Split Bills &amp; Table Pacing</div>
               <div>✓ Live Telemetry &amp; Shift Z-Reports</div>
-              <div>✓ 24/7 Priority Support</div>
+              <div>✓ Free Menu Setup &amp; Onboarding</div>
             </div>
           </div>
           <div class="pricing-side">
             <div class="pricing-price">$50</div>
             <div class="pricing-period">per month &middot; billed monthly ($500/yr annual)</div>
-            <a href="http://localhost:3000/signup" class="btn btn--primary btn--full btn--white">Start 14-Day Free Trial &rarr;</a>
+            <a href="/signup" data-app-link class="btn btn--primary btn--full btn--white">Start 14-Day Free Trial &rarr;</a>
             <div class="pricing-sub">Zero setup fees &middot; No credit card required</div>
           </div>
         </div>
@@ -696,7 +698,7 @@
               <span class="faq-icon">+</span>
             </button>
             <div class="faq-answer">
-              <p>Prominentz has an integrated IndexedDB offline queue. If your Wi-Fi drops, servers can still enter orders, checks remain editable, and orders buffer locally. Once internet connectivity is restored, all buffered records automatically synchronize with your cloud database with zero data loss.</p>
+              <p>Prominentz has an integrated IndexedDB offline queue. If your Wi-Fi drops, servers can still enter orders, checks remain editable, and orders buffer locally. Once internet connectivity is restored, all buffered records automatically synchronize with your cloud database automatically. Card payments need an internet connection.</p>
             </div>
           </div>
 
@@ -730,8 +732,8 @@
           <h2 class="cta-title">Ready to run your restaurant on your own terms?</h2>
           <p class="cta-desc">Join independent dining rooms saving thousands every year with Prominentz.</p>
           <div class="cta-actions">
-            <a href="http://localhost:3000/signup" class="btn btn--primary btn--lg">Start 14-Day Free Trial &mdash; $50/mo</a>
-            <a href="http://localhost:3000/login" class="btn btn--secondary btn--lg">Sign in to existing account</a>
+            <a href="/signup" data-app-link class="btn btn--primary btn--lg">Start 14-Day Free Trial &mdash; $50/mo</a>
+            <a href="/login" data-app-link class="btn btn--secondary btn--lg">Sign in to existing account</a>
           </div>
           <div class="cta-sub">No credit card required &middot; 0% take-rate &middot; Cancel anytime</div>
         </div>
@@ -769,16 +771,16 @@
 
       <div class="footer__col">
         <div class="footer__heading">Solutions</div>
-        <a href="http://localhost:3000/portals/pos">POS Terminal</a>
-        <a href="http://localhost:3000/portals/kds">Kitchen Display (KDS)</a>
-        <a href="http://localhost:3000/menu">QR Table Ordering</a>
-        <a href="http://localhost:3000/portals/manager">Manager Telemetry</a>
+        <a href="/portals/server">POS Terminal</a>
+        <a href="/portals/kitchen">Kitchen Display (KDS)</a>
+        <a href="#showcase">QR Table Ordering</a>
+        <a href="/portals/manager" data-app-link>Manager Telemetry</a>
       </div>
 
       <div class="footer__col">
         <div class="footer__heading">Security</div>
-        <a href="http://localhost:3000/privacy">Privacy Policy</a>
-        <a href="http://localhost:3000/terms">Terms of Service</a>
+        <a href="/privacy" data-app-link>Privacy Policy</a>
+        <a href="/terms" data-app-link>Terms of Service</a>
         <span style="color: #9CA3AF;">PCI-DSS Level 1</span>
         <span style="color: #9CA3AF;">Tenant Data Isolation</span>
       </div>
@@ -787,9 +789,9 @@
     <div class="container footer__bottom">
       <div>&copy; 2026 Prominentz Technologies Inc. All rights reserved.</div>
       <div class="footer__links">
-        <a href="http://localhost:3000/privacy">Privacy</a>
-        <a href="http://localhost:3000/terms">Terms</a>
-        <a href="http://localhost:3000/login">Operator Portal</a>
+        <a href="/privacy" data-app-link>Privacy</a>
+        <a href="/terms" data-app-link>Terms</a>
+        <a href="/login" data-app-link>Operator Portal</a>
       </div>
     </div>
   </footer>

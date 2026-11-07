@@ -8,15 +8,18 @@ export async function verifyStripeIntent({
   intentId,
   orderId,
   expectedAmount,
+  stripeAccount,
 }: {
   intentId: string
   orderId: string
   expectedAmount: number
+  /** Restaurant's connected Stripe account the charge was made on. */
+  stripeAccount?: string
 }) {
   const { stripe, isMockStripe } = await import('@/lib/stripe')
   // In non‑mock environments we enforce real Stripe verification.
   if (!isMockStripe() || process.env.NODE_ENV === 'production') {
-    const intent = await stripe.paymentIntents.retrieve(intentId)
+    const intent = await stripe.paymentIntents.retrieve(intentId, {}, stripeAccount ? { stripeAccount } : undefined)
 
     if (intent.status !== 'succeeded') {
       throw new Error(`PaymentIntent has not succeeded (status: ${intent.status})`)

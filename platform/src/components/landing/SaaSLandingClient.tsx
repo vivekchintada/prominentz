@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import styles from './MiddayMarketing.module.css'
 import ProminentzLogo from '@/components/brand/ProminentzLogo'
+import DemoRequestSection from '@/components/landing/DemoRequestSection'
 
 export default function SaaSLandingClient() {
   // Mobile navigation state
@@ -86,6 +87,7 @@ export default function SaaSLandingClient() {
               <a href="#comparison" className={styles.navLink}>Compare</a>
               <a href="#calculator" className={styles.navLink}>Calculator</a>
               <a href="#pricing" className={styles.navLink}>Pricing</a>
+              <a href="#demo" className={styles.navLink}>Book a demo</a>
               <a href="#faq" className={styles.navLink}>FAQ</a>
             </nav>
 
@@ -94,7 +96,7 @@ export default function SaaSLandingClient() {
               <Link href="/login" className={styles.signInLink}>
                 Sign in
               </Link>
-              <Link href="/signup" className={styles.btnPrimary}>
+              <Link href="/signup" className={`${styles.btnPrimary} plausible-event-name=Trial+Click`}>
                 Start Free Trial &mdash; $50/mo
               </Link>
             </div>
@@ -139,13 +141,14 @@ export default function SaaSLandingClient() {
             <a href="#comparison" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Comparison</a>
             <a href="#calculator" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Savings Calculator</a>
             <a href="#pricing" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+            <a href="#demo" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>Book a demo</a>
             <a href="#faq" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>FAQ</a>
           </div>
           <div className={styles.mobileActions}>
             <Link href="/login" className={styles.btnSecondary} onClick={() => setMobileMenuOpen(false)}>
               Sign in
             </Link>
-            <Link href="/signup" className={styles.btnPrimary} onClick={() => setMobileMenuOpen(false)}>
+            <Link href="/signup" className={`${styles.btnPrimary} plausible-event-name=Trial+Click`} onClick={() => setMobileMenuOpen(false)}>
               Start Free Trial &mdash; $50/mo
             </Link>
           </div>
@@ -161,23 +164,23 @@ export default function SaaSLandingClient() {
               Stop paying $400/month for locked POS terminals. Run your dining room for $50 flat.
             </h1>
             <p className={styles.heroDescription}>
-              Unify front-of-house point of sale, multi-station kitchen display systems (KDS), contactless QR table ordering, and WebUSB thermal printing on devices you already own. Zero hardware lock-in, zero take-rate on your food sales, and unbroken offline continuity.
+              Unify front-of-house point of sale, multi-station kitchen display systems (KDS), contactless QR table ordering, and WebUSB thermal printing on devices you already own. Zero hardware lock-in, zero take-rate on your food sales, and an offline order queue that keeps service moving when the Wi-Fi drops.
             </p>
             <div className={styles.heroCtas}>
-              <Link href="/signup" className={styles.btnPrimary}>
+              <Link href="/signup" className={`${styles.btnPrimary} plausible-event-name=Trial+Click`}>
                 Start 14-Day Free Trial &mdash; $50/mo
               </Link>
-              <a href="#calculator" className={styles.btnSecondary}>
-                Calculate your annual savings &darr;
+              <a href="#demo" className={styles.btnSecondary}>
+                Book a 15-min demo
               </a>
             </div>
 
             {/* Feature Pills */}
             <div className={styles.heroPillRow}>
-              <span className={styles.heroPill}>⚡ &lt; 1.2s Ticket Sync</span>
+              <span className={styles.heroPill}>⚡ Real-time Ticket Sync</span>
               <span className={styles.heroPill}>💰 0% Platform Take-Rate</span>
               <span className={styles.heroPill}>📱 BYOD: Any iPad, Tablet or PC</span>
-              <span className={styles.heroPill}>📶 100% Offline Queue Continuity</span>
+              <span className={styles.heroPill}>📶 Offline Order Queue</span>
               <span className={styles.heroPill}>🖨️ Universal ESC/POS Thermal Direct</span>
               <span className={styles.heroPill}>💳 Direct Stripe Payouts</span>
             </div>
@@ -186,9 +189,9 @@ export default function SaaSLandingClient() {
           {/* Operational Metrics HUD */}
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCell}>
-              <div className={styles.kpiValue}>&lt; 1.2s</div>
-              <div className={styles.kpiLabel}>Ticket Dispatch Latency</div>
-              <div className={styles.kpiSub}>Instant sync from table to line</div>
+              <div className={styles.kpiValue}>Live</div>
+              <div className={styles.kpiLabel}>Kitchen Ticket Sync</div>
+              <div className={styles.kpiSub}>Orders hit the line in real time</div>
             </div>
             <div className={styles.kpiCell}>
               <div className={styles.kpiValue}>0%</div>
@@ -373,7 +376,7 @@ export default function SaaSLandingClient() {
               <div className={styles.showcaseRight}>
                 <div className={styles.panelHeading}>
                   <span>Kitchen Line Station (Grill &amp; Sauté)</span>
-                  <span style={{ color: '#059669', fontWeight: 600 }}>Sync &lt; 1.2s</span>
+                  <span style={{ color: '#059669', fontWeight: 600 }}>Live sync</span>
                 </div>
                 <div className={styles.kdsChitList}>
                   {/* Chit 1 */}
@@ -525,7 +528,7 @@ export default function SaaSLandingClient() {
                 </div>
               </div>
 
-              <Link href="/signup" className={styles.btnWhite} style={{ width: '100%' }}>
+              <Link href="/signup" className={`${styles.btnWhite} plausible-event-name=Trial+Click`} style={{ width: '100%' }}>
                 Claim Your $50/mo Rate &rarr;
               </Link>
             </div>
@@ -590,7 +593,7 @@ export default function SaaSLandingClient() {
               <div id="panel-server" role="tabpanel" aria-labelledby="tab-server" className={styles.rolePanel}>
                 <div className={styles.rolePanelGrid}>
                   <div className={styles.rolePanelText}>
-                    <h3 className={styles.rolePanelHeading}>Table-side speed that turns tables 12 minutes faster.</h3>
+                    <h3 className={styles.rolePanelHeading}>Table-side order entry built for speed.</h3>
                     <p className={styles.rolePanelDesc}>
                       Designed for fast handheld order entry on phone or tablet. Fast-fire courses, seat-by-seat guest allocation, allergen tagging, and 3-tap split billing at the table.
                     </p>
@@ -963,7 +966,7 @@ export default function SaaSLandingClient() {
                   <span>✓</span> Live Telemetry &amp; Shift Z-Reports
                 </div>
                 <div className={styles.pricingFeatureItem}>
-                  <span>✓</span> 24/7 Priority Support
+                  <span>✓</span> Free Menu Setup &amp; Onboarding
                 </div>
               </div>
             </div>
@@ -973,7 +976,7 @@ export default function SaaSLandingClient() {
               <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', marginBottom: '20px' }}>
                 per month &middot; billed monthly ($500/yr annual)
               </div>
-              <Link href="/signup" className={styles.btnWhite} style={{ width: '100%' }}>
+              <Link href="/signup" className={`${styles.btnWhite} plausible-event-name=Trial+Click`} style={{ width: '100%' }}>
                 Start 14-Day Free Trial &rarr;
               </Link>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '12px' }}>
@@ -1058,7 +1061,7 @@ export default function SaaSLandingClient() {
                   className={`${styles.faqAnswer} ${openFaqIndex === 2 ? styles.faqAnswerOpen : ''}`}
                 >
                   <p>
-                    Prominentz has an integrated IndexedDB offline queue. If your Wi-Fi drops, servers can still enter orders, checks remain editable, and orders buffer locally. Once internet connectivity is restored, all buffered records automatically synchronize with your cloud database with zero data loss.
+                    Prominentz has an integrated IndexedDB offline queue. If your Wi-Fi drops, servers can still enter orders, checks remain editable, and orders buffer locally. Once the connection is back, buffered orders sync to the cloud automatically. Card payments need an internet connection, so take cash or run the card once you&apos;re back online.
                   </p>
                 </div>
               </div>
@@ -1111,16 +1114,19 @@ export default function SaaSLandingClient() {
         </div>
       </section>
 
+      {/* ── 11b. BOOK A DEMO (lead capture) ───────────────────────────────── */}
+      <DemoRequestSection />
+
       {/* ── 12. FINAL CALL TO ACTION ──────────────────────────────────────── */}
       <section className={styles.sectionCta} aria-label="Get Started">
         <div className={styles.container}>
           <div className={styles.ctaBox}>
             <h2 className={styles.ctaTitle}>Ready to run your restaurant on your own terms?</h2>
             <p className={styles.ctaDesc}>
-              Join hundreds of independent dining rooms saving thousands every year with Prominentz.
+              Start your free trial today, or book a 15-minute demo and we&apos;ll load your menu for you, free.
             </p>
             <div className={styles.ctaActions}>
-              <Link href="/signup" className={styles.btnPrimary}>
+              <Link href="/signup" className={`${styles.btnPrimary} plausible-event-name=Trial+Click`}>
                 Start 14-Day Free Trial &mdash; $50/mo
               </Link>
               <Link href="/login" className={styles.btnSecondary}>
@@ -1163,9 +1169,9 @@ export default function SaaSLandingClient() {
 
             <div className={styles.footerCol}>
               <div className={styles.footerColTitle}>Solutions</div>
-              <Link href="/portals/pos" className={styles.footerLink}>POS Terminal</Link>
-              <Link href="/portals/kds" className={styles.footerLink}>Kitchen Display (KDS)</Link>
-              <Link href="/menu" className={styles.footerLink}>QR Table Ordering</Link>
+              <Link href="/portals/server" className={styles.footerLink}>POS Terminal</Link>
+              <Link href="/portals/kitchen" className={styles.footerLink}>Kitchen Display (KDS)</Link>
+              <a href="#showcase" className={styles.footerLink}>QR Table Ordering</a>
               <Link href="/portals/manager" className={styles.footerLink}>Manager Telemetry</Link>
             </div>
 

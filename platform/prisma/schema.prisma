@@ -171,6 +171,9 @@ model Restaurant {
   planTier             PlanTier @default(STARTER)
   stripeCustomerId     String?
   stripeSubscriptionId String?
+  // Restaurant's own Stripe account (Stripe Connect). Diner payments go here, never to the platform.
+  stripeConnectAccountId String?  @unique
+  stripeChargesEnabled   Boolean  @default(false)
   onboardingStep       Int      @default(0) // 0=new, 5=complete
   settings             Json?    @default("{}")
   createdAt            DateTime @default(now())
@@ -203,6 +206,9 @@ model Location {
   lat             Float?
   lng             Float?
   geofenceRadiusM Float    @default(150.0) // Radius in meters
+  // Stripe Terminal (card reader) on the restaurant's connected account
+  stripeTerminalLocationId String?
+  stripeReaderId           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -475,6 +481,7 @@ model Order {
   @@index([status, createdAt])
   @@index([tableId])
   @@index([tableId, status])
+  @@index([serverId, status])
 }
 
 model OrderItem {
@@ -498,6 +505,7 @@ model OrderItem {
 
   order    Order    @relation(fields: [orderId], references: [id])
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+  @@index([orderId])
 }
 
 model OrderEvent {
@@ -541,6 +549,7 @@ model KdsTicket {
   items KdsTicketItem[]
 
   @@index([orderId, status])
+  @@index([status, createdAt])
 }
 
 model KdsTicketItem {
@@ -557,6 +566,7 @@ model KdsTicketItem {
 
   ticket   KdsTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   menuItem MenuItem  @relation(fields: [menuItemId], references: [id])
+  @@index([ticketId])
 }
 
 // ─── PAYMENTS ────────────────────────────────────────────────────────────────
@@ -1651,4 +1661,21 @@ model StaffInvitation {
   location   Location?   @relation(fields: [locationId], references: [id], onDelete: SetNull)
 
   @@index([organizationId, email])
+}
+
+// Inbound sales leads from the marketing site ("Book a demo").
+model Lead {
+  id             String   @id @default(cuid())
+  name           String
+  email          String
+  restaurantName String
+  phone          String?
+  locations      Int?
+  currentPos     String?
+  message        String?
+  source         String?
+  createdAt      DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
 }

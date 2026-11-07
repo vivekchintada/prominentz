@@ -74,12 +74,19 @@ export async function POST(req: NextRequest) {
         const subId = sessionObj.subscription as string | undefined
 
         if (restaurantId) {
+          const current = await prisma.restaurant.findUnique({ where: { id: restaurantId }, select: { settings: true } })
+          const currentSettings = (current?.settings as Record<string, any>) || {}
           await prisma.restaurant.update({
             where: { id: restaurantId },
             data: {
               planTier: planTier as any,
               stripeCustomerId: customerId || undefined,
               stripeSubscriptionId: subId || undefined,
+              settings: {
+                ...currentSettings,
+                lastBillingGateway: 'STRIPE',
+                stripeSubscriptionStatus: 'ACTIVE',
+              },
             },
           })
           console.info(`[Stripe Webhook] checkout.session.completed => ${restaurantId} upgraded to ${planTier}`)
@@ -112,14 +119,18 @@ export async function POST(req: NextRequest) {
           console.error(`[Stripe Webhook] Unrecognized plan or price ID in subscription ${sub.id}`)
           return NextResponse.json({ error: 'Unrecognized subscription plan or price ID' }, { status: 400 })
         }
+        const current = await prisma.restaurant.findUnique({ where: { id: restaurantId }, select: { settings: true } })
+        const currentSettings = (current?.settings as Record<string, any>) || {}
+        const status = sub.status === 'active' || sub.status === 'trialing' ? 'ACTIVE' : sub.status === 'past_due' ? 'PAST_DUE' : 'CANCELLED'
         await prisma.restaurant.update({
           where: { id: restaurantId },
           data: {
             planTier: newPlan,
             stripeSubscriptionId: sub.id,
+            settings: { ...currentSettings, lastBillingGateway: 'STRIPE', stripeSubscriptionStatus: status },
           },
         })
-        console.info(`[Stripe Webhook] subscription.updated => ${restaurantId} plan=${newPlan}`)
+        console.info(`[Stripe Webhook] subscription.updated => ${restaurantId} plan=${newPlan} status=${status}`)
         break
       }
 
@@ -130,9 +141,15 @@ export async function POST(req: NextRequest) {
           console.warn('[Stripe Webhook] subscription.deleted: no restaurantId')
           break
         }
+        const current = await prisma.restaurant.findUnique({ where: { id: restaurantId }, select: { settings: true } })
+        const currentSettings = (current?.settings as Record<string, any>) || {}
         await prisma.restaurant.update({
           where: { id: restaurantId },
-          data: { planTier: 'STARTER' },
+          data: {
+            planTier: 'STARTER',
+            stripeSubscriptionId: null,
+            settings: { ...currentSettings, stripeSubscriptionStatus: 'CANCELLED' },
+          },
         })
         console.info(`[Stripe Webhook] subscription.deleted => ${restaurantId} downgraded to STARTER`)
         break
@@ -140,8 +157,18 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
-        const customerId = typeof invoice.customer === 'string' ? invoice.customer : 'unknown'
-        console.warn(`[Stripe Webhook] invoice.payment_failed => stripeCustomerId=${customerId}, attempt=${invoice.attempt_count}`)
+        const customerId = typeof invoice.customer === 'string' ? invoice.customer : null
+        if (customerId) {
+          const restaurant = await prisma.restaurant.findFirst({ where: { stripeCustomerId: customerId }, select: { id: true, settings: true } })
+          if (restaurant) {
+            const currentSettings = (restaurant.settings as Record<string, any>) || {}
+            await prisma.restaurant.update({
+              where: { id: restaurant.id },
+              data: { settings: { ...currentSettings, stripeSubscriptionStatus: 'PAST_DUE' } },
+            })
+          }
+        }
+        console.warn(`[Stripe Webhook] invoice.payment_failed => stripeCustomerId=${customerId ?? 'unknown'}, attempt=${invoice.attempt_count}`)
         break
       }
 

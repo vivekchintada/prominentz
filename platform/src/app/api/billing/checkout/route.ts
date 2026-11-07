@@ -5,6 +5,9 @@ import { createSubscriptionCheckoutSession, isMockCashfree } from '@/lib/cashfre
 import { logAuditEvent } from '@/lib/audit'
 import { PlanTier } from '@/lib/plans'
 import { resolveUserLocation } from '@/lib/location-resolver'
+import { billingProviderForCountry, resolveCountryFromRequest } from '@/lib/billing-provider'
+import { createSubscriptionCheckoutSession as createStripeSubscriptionCheckout } from '@/lib/stripe'
+import { hasRevenueCatWebCheckout, MOBILE_SUBSCRIBE_MESSAGE, revenueCatPurchaseUrl } from '@/lib/revenuecat'
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,8 +38,11 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin || 'http://localhost:3000'
     const returnUrl = `${origin}/dashboard/settings/billing`
 
-    // In simulated/demo mode, update restaurant planTier directly (strictly non-production)
-    if (isMockCashfree() && process.env.NODE_ENV !== 'production') {
+    // Pick the gateway by the customer's own country, not a single global setting — Cashfree
+    // only settles in INR, so a US/international customer must never land on it.
+    const countryCode = resolveCountryFromRequest(req, restaurant.phone)
+    const provider = billingProviderForCountry(countryCode)
+    if (provider !== 'revenuecat' && isMockCashfree() && process.env.NODE_ENV !== 'production') {
       const prevTier = restaurant.planTier
       await prisma.restaurant.update({
         where: { id: restaurant.id },
@@ -55,10 +61,24 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const checkout = await createSubscriptionCheckoutSession({
+    // RevenueCat: hosted Web Purchase Link if set up, otherwise subscribe in the mobile app.
+    if (provider === 'revenuecat') {
+      if (!hasRevenueCatWebCheckout(planTier as PlanTier)) {
+        return NextResponse.json({ error: MOBILE_SUBSCRIBE_MESSAGE, mobileOnly: true }, { status: 409 })
+      }
+      return NextResponse.json({
+        url: revenueCatPurchaseUrl(planTier as PlanTier, restaurant.id, session.user.email),
+        sessionId: null,
+        planTier,
+      })
+    }
+
+    const createCheckout =
+      provider === 'stripe' ? createStripeSubscriptionCheckout : createSubscriptionCheckoutSession
+    const checkout = await createCheckout({
       restaurantId: restaurant.id,
       restaurantName: restaurant.name,
-      userEmail: session.user.email || 'billing@resto.ai',
+      userEmail: session.user.email || '',
       planTier: planTier as PlanTier,
       returnUrl,
     })

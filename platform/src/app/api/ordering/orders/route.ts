@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { quoteOnlineOrder } from '@/lib/online-ordering'
 import { fireOnlineOrder } from '@/lib/online-order-orchestration'
-import { createPaymentIntent } from '@/lib/stripe'
+import { stripe, isMockStripe } from '@/lib/stripe'
+import { requireConnectedAccount, paymentErrorStatus } from '@/lib/stripe-connect'
 import { sendOrderConfirmationNotification } from '@/lib/order-notifications'
+import { getRestaurantAccessStatus } from '@/lib/subscription-status'
 import { randomBytes } from 'crypto'
 import { z } from 'zod'
 
@@ -70,6 +72,19 @@ export async function POST(req: NextRequest) {
 
     if (d.fulfilmentType === 'DELIVERY' && !d.address) {
       return NextResponse.json({ error: 'Delivery address required' }, { status: 400 })
+    }
+
+    // 1b. Pause online ordering for the restaurant if its trial has ended with no active subscription
+    const location = await prisma.location.findUnique({ where: { id: d.locationId }, select: { restaurantId: true } })
+    if (!location) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+    }
+    const access = await getRestaurantAccessStatus(location.restaurantId)
+    if (access?.isExpired) {
+      return NextResponse.json(
+        { error: 'Online ordering is temporarily unavailable for this restaurant.' },
+        { status: 402 }
+      )
     }
 
     // 2. Server-side quote & validation (checks holiday closures, operating hours, delivery radius)
@@ -224,16 +239,57 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    let payment = null
+    // Card orders pay on Stripe's hosted checkout page, charged directly to the
+    // restaurant's own Stripe account. Card details never touch our servers.
+    let checkoutUrl: string | null = null
     if (d.paymentMethod === 'CARD') {
-      const intent = await createPaymentIntent(Math.round(q.total * 100), order.id)
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { stripePaymentIntentId: intent.id },
-      })
-      payment = intent
+      const origin = req.nextUrl.origin
+      const trackingUrl = `${origin}/order/track/${token}`
+      if (isMockStripe()) {
+        // Local development without Stripe keys: treat the card as paid immediately.
+        const autoAccept = q.config.acceptanceMode === 'AUTOMATIC'
+        await prisma.order.update({
+          where: { id: order.id },
+          data: {
+            paymentStatus: 'PAID',
+            stripePaymentIntentId: `pi_mock_${order.id}`,
+            onlineStatus: autoAccept ? 'ACCEPTED' : 'PENDING_ACCEPTANCE',
+            acceptedAt: autoAccept ? new Date() : undefined,
+          },
+        })
+        if (autoAccept && !d.scheduledFor) await fireOnlineOrder(order.id, 'AUTO_ACCEPT')
+        checkoutUrl = `${trackingUrl}?paid=mock`
+      } else {
+        const stripeAccount = await requireConnectedAccount(order.table.location.restaurantId)
+        const session = await stripe.checkout.sessions.create(
+          {
+            mode: 'payment',
+            line_items: [
+              {
+                quantity: 1,
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: Math.round(q.total * 100),
+                  product_data: {
+                    name: `${order.table.location.restaurant.name} — Order #${num}`,
+                  },
+                },
+              },
+            ],
+            customer_email: d.customer.email,
+            payment_intent_data: { metadata: { orderId: order.id, channel: 'online' } },
+            metadata: { orderId: order.id },
+            success_url: `${trackingUrl}?paid=1`,
+            cancel_url: `${origin}/order/${d.locationId}?cancelled=1`,
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+          },
+          { stripeAccount, idempotencyKey: `online_checkout_${order.id}` },
+        )
+        checkoutUrl = session.url
+      }
     }
 
+    // Card orders are fired to the kitchen by the payment webhook once paid (automatic is PAY_LATER only).
     if (automatic && !d.scheduledFor) {
       await fireOnlineOrder(order.id, 'AUTO_ACCEPT')
     }
@@ -265,15 +321,16 @@ export async function POST(req: NextRequest) {
         orderNumber: num,
         status: order.onlineStatus,
         total: q.total,
-        payment,
+        checkoutUrl,
       },
       { status: 201 }
     )
   } catch (e) {
     console.error('[Create Online Order Error]', e)
+    const status = paymentErrorStatus(e)
     return NextResponse.json(
       { error: e instanceof Error ? e.message : 'Order failed' },
-      { status: 400 }
+      { status: status === 500 ? 400 : status }
     )
   }
 }

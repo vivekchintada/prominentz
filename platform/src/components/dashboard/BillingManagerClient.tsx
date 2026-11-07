@@ -153,8 +153,10 @@ export function BillingManagerClient() {
         const upgradedPlan = (params.get('plan') as PlanTier) || 'STARTER'
         setShowThankYouModal(true)
         setMessage(`Checkout completed. Verifying subscription status with gateway for ${restaurantName}...`)
-        // Authoritative update is processed via verified webhook; reload from DB
-        reloadPlanInfo()
+        // Ask the server to re-check RevenueCat now (the webhook may lag), then reload from DB
+        fetch('/api/billing/sync', { method: 'POST' })
+          .catch(() => {})
+          .finally(() => reloadPlanInfo())
         window.history.replaceState({}, '', window.location.pathname)
       }
     }

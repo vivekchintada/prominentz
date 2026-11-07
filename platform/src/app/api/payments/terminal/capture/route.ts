@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Capture the payment
-    const intent = await stripe.paymentIntents.capture(paymentIntentId)
+    const { findConnectedAccount, onAccount } = await import('@/lib/stripe-connect')
+    const stripeAccount = await findConnectedAccount(session.user.restaurantId)
+    const intent = await stripe.paymentIntents.capture(paymentIntentId, {}, onAccount(stripeAccount))
 
     if (intent.status !== 'succeeded') {
       return NextResponse.json({ error: `Payment not succeeded. Status: ${intent.status}` }, { status: 402 })

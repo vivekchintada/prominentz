@@ -17,7 +17,9 @@ export async function POST() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const connectionToken = await stripe.terminal.connectionTokens.create()
+    const { requireConnectedAccount, onAccount } = await import('@/lib/stripe-connect')
+    const stripeAccount = await requireConnectedAccount(session.user.restaurantId)
+    const connectionToken = await stripe.terminal.connectionTokens.create({}, onAccount(stripeAccount))
 
     return NextResponse.json({ secret: connectionToken.secret })
   } catch (error) {

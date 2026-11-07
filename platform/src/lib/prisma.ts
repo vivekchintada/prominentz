@@ -8,12 +8,18 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL
+  // Long-running servers (Docker/Railway/Render) need a real pool for dinner rush.
+  // On serverless, set DB_POOL_MAX=2-3 and point DATABASE_URL at a pooler (PgBouncer / Neon / Supabase).
+  const max = Number(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === 'production' ? 10 : 5)
   const pool = new Pool({
     connectionString,
-    max: process.env.NODE_ENV === 'production' ? 2 : 5,
-    idleTimeoutMillis: 10000,
+    max,
+    idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
+    // Fail slow queries instead of letting them pile up and starve the pool.
+    statement_timeout: Number(process.env.DB_STATEMENT_TIMEOUT_MS) || 15000,
   })
+  pool.on('error', (err) => console.error('[DB Pool] idle client error:', err.message))
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }

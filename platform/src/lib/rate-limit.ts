@@ -16,15 +16,18 @@ export async function rateLimit(
   const prefixed = `resto:ratelimit:${key}`
 
   try {
-    const current = await redis.incr(prefixed)
-
-    if (current === 1) {
-      // First request in this window — set expiry
-      await redis.expire(prefixed, windowSec)
-    }
+    // Atomic: INCR and set the expiry in one round-trip. (Separate calls could leave a
+    // key without a TTL if the process died in between, locking the user out forever.)
+    const results = await redis
+      .multi()
+      .set(prefixed, 0, 'EX', windowSec, 'NX')
+      .incr(prefixed)
+      .ttl(prefixed)
+      .exec()
+    const current = Number(results?.[1]?.[1] ?? 0)
+    const ttl = Number(results?.[2]?.[1] ?? windowSec)
 
     if (current > limit) {
-      const ttl = await redis.ttl(prefixed)
       return { allowed: false, remaining: 0, retryAfterSec: ttl > 0 ? ttl : windowSec }
     }
 

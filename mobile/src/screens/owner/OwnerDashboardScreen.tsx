@@ -21,6 +21,7 @@ import { useOwnerStats, useResolveShiftApproval, useNotifications } from '../../
 import { useRealtimeEvents } from '../../api/useRealtimeEvents'
 import { UserProfile } from '../../types/models'
 import Toast from 'react-native-toast-message'
+import { hasActivePlan, manageSubscription, openPlans, subscriptionsAvailable } from '../../billing/subscriptions'
 
 interface OwnerDashboardScreenProps {
   user: UserProfile
@@ -76,6 +77,30 @@ export function OwnerDashboardScreen({
     }
   }
 
+  const [planBusy, setPlanBusy] = useState(false)
+
+  const handleSubscription = async () => {
+    triggerHaptic.light()
+    setPlanBusy(true)
+    try {
+      if (await hasActivePlan(user.restaurantId)) {
+        await manageSubscription(user.restaurantId)
+        return
+      }
+      const result = await openPlans(user.restaurantId)
+      if (result === 'purchased') {
+        triggerHaptic.success()
+        Toast.show({ type: 'success', text1: 'Subscription active', text2: 'Your plan is now live on every device.' })
+      } else if (result === 'error') {
+        Toast.show({ type: 'error', text1: 'Could not open plans', text2: 'Please try again in a moment.' })
+      }
+    } catch {
+      Toast.show({ type: 'error', text1: 'Could not reach the store', text2: 'Check your connection and try again.' })
+    } finally {
+      setPlanBusy(false)
+    }
+  }
+
   const occupancyPercent = Math.round(
     (stats.occupiedTablesCount / (stats.totalTablesCount || 1)) * 100
   )
@@ -101,6 +126,22 @@ export function OwnerDashboardScreen({
             <Ionicons name="server-outline" size={13} color={Colors.systemBlue} />
             <Text style={styles.hostChipText}>SaaS</Text>
           </TouchableOpacity>
+
+          {user.role === 'OWNER' && subscriptionsAvailable() && (
+            <TouchableOpacity
+              style={styles.hostChip}
+              onPress={handleSubscription}
+              disabled={planBusy}
+              activeOpacity={0.7}
+            >
+              {planBusy ? (
+                <ActivityIndicator size="small" color={Colors.systemBlue} />
+              ) : (
+                <Ionicons name="card-outline" size={13} color={Colors.systemBlue} />
+              )}
+              <Text style={styles.hostChipText}>Plan</Text>
+            </TouchableOpacity>
+          )}
 
           <ConnectionIndicator />
 

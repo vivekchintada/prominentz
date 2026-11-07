@@ -7,6 +7,8 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { PlanTier } from '@/lib/plans'
+import { getRestaurantAccessStatus } from '@/lib/subscription-status'
+import { SubscriptionBanner } from '@/components/dashboard/SubscriptionBanner'
 
 interface UnifiedAppShellProps {
   children: React.ReactNode
@@ -31,6 +33,7 @@ export async function UnifiedAppShell({ children }: UnifiedAppShellProps) {
 
   let planTier: PlanTier = 'STARTER'
   let restaurantName = 'My Restaurant'
+  let accessStatus: Awaited<ReturnType<typeof getRestaurantAccessStatus>> = null
 
   try {
     const restaurantId: string | undefined = session?.user?.restaurantId
@@ -41,6 +44,7 @@ export async function UnifiedAppShell({ children }: UnifiedAppShellProps) {
       })
       if (restaurant?.planTier) planTier = restaurant.planTier as PlanTier
       if (restaurant?.name) restaurantName = restaurant.name
+      accessStatus = await getRestaurantAccessStatus(restaurantId)
     }
   } catch {
     // Fallback on any error
@@ -70,6 +74,16 @@ export async function UnifiedAppShell({ children }: UnifiedAppShellProps) {
 
           {/* Main content */}
           <main className="main-content">
+            {accessStatus && (userRole === 'OWNER' || userRole === 'MANAGER') && (
+              <div style={{ paddingTop: 16 }}>
+                <SubscriptionBanner
+                  isTrialing={accessStatus.isTrialing}
+                  isExpired={accessStatus.isExpired}
+                  isPastDue={accessStatus.isPastDue}
+                  daysLeftInTrial={accessStatus.daysLeftInTrial}
+                />
+              </div>
+            )}
             <div style={{ padding: '16px 24px 0 24px' }}>
               <Breadcrumbs />
             </div>

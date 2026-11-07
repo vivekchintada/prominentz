@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { cancelCashfreeSubscription } from '@/lib/cashfree'
+import { stripe, isMockStripe } from '@/lib/stripe'
 import { logAuditEvent } from '@/lib/audit'
+import { getRevenueCatSubscriber, planStateFromSubscriber } from '@/lib/revenuecat'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,11 +29,27 @@ export async function POST(req: NextRequest) {
     }
 
     const currentSettings = (restaurant.settings as Record<string, any>) || {}
+
+    // RevenueCat subscriptions are cancelled on RevenueCat's hosted page; the plan stays
+    // active until the paid period ends and the webhook then downgrades it.
+    if (currentSettings.lastBillingGateway === 'REVENUECAT') {
+      const { managementUrl } = planStateFromSubscriber(await getRevenueCatSubscriber(restaurant.id))
+      return NextResponse.json({
+        success: false,
+        url: managementUrl,
+        message: 'Open the subscription page to cancel. Your plan stays active until the end of the paid period.',
+      })
+    }
+
     const subscriptionId = currentSettings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId
 
     if (subscriptionId) {
       try {
-        await cancelCashfreeSubscription(subscriptionId)
+        if (!currentSettings.cashfreeSubscriptionId && subscriptionId.startsWith('sub_') && !isMockStripe()) {
+          await stripe.subscriptions.cancel(subscriptionId)
+        } else {
+          await cancelCashfreeSubscription(subscriptionId)
+        }
       } catch (err: any) {
         console.warn('[POST /api/billing/cancel] Gateway cancellation warning:', err.message)
       }

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { UserProfile, UserRole } from '../types/models'
 import { AuthService } from '../api/auth'
 import { Api } from '../api/client'
+import { initSubscriptions } from '../billing/subscriptions'
 
 export type TabKey =
   | 'OVERVIEW'
@@ -50,6 +51,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { user } = await AuthService.getSession()
     if (user) {
       set({ user, activeTab: defaultTabForRole(user.role), isRestoringSession: false })
+      initSubscriptions(user.restaurantId).catch(() => {})
     } else {
       set({ isRestoringSession: false })
     }
@@ -57,6 +59,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   login: (user) => {
     set({ user, activeTab: defaultTabForRole(user.role) })
+    initSubscriptions(user.restaurantId).catch(() => {})
   },
 
   logout: async () => {

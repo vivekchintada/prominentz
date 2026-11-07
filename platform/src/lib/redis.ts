@@ -14,7 +14,9 @@ export const redis =
     maxRetriesPerRequest: 1,
     lazyConnect: true,
     enableOfflineQueue: false,
-    retryStrategy: () => null, // Don't retry indefinitely in serverless
+    // Reconnect with capped backoff so a brief Redis blip doesn't silently kill live updates
+    // and rate limiting until the server restarts.
+    retryStrategy: (times: number) => Math.min(times * 200, 3000),
   })
 
 if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis

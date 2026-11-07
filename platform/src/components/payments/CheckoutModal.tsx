@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { collectCardOnReader } from '@/lib/terminal-client'
 
 interface ModifierSelection {
   modifierName: string
@@ -413,18 +414,9 @@ export default function CheckoutModal({
         setIsProcessingCard(true)
         if (finalTotal > 0) {
           try {
-            const intentRes = await fetch('/api/payments/create-intent', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderId: effectiveOrderId, amount: finalTotal, confirm: true }),
+            stripePaymentIntentId = await collectCardOnReader(effectiveOrderId, finalTotal, {
+              onStatus: (msg) => showToast(msg, 'info'),
             })
-            if (intentRes.ok) {
-              const intentData = await intentRes.json()
-              stripePaymentIntentId = intentData.paymentIntentId
-            } else {
-              const errData = await intentRes.json().catch(() => ({}))
-              throw new Error(errData.error || 'Failed to initialize card authorization with gateway')
-            }
           } catch (intentErr: any) {
             setIsProcessingCard(false)
             setIsFinishing(false)
@@ -435,7 +427,6 @@ export default function CheckoutModal({
           stripePaymentIntentId = 'zero_balance_settlement'
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 600))
         setIsProcessingCard(false)
       }
 
@@ -496,18 +487,10 @@ export default function CheckoutModal({
 
       if (share.method === 'CARD') {
         if (share.total > 0) {
-          const intentRes = await fetch('/api/payments/create-intent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: order.id, amount: share.total, confirm: true }),
+          stripePaymentIntentId = await collectCardOnReader(order.id, share.total, {
+            attempt: `split_${index}`,
+            onStatus: (msg) => showToast(`${share.guestRef}: ${msg}`, 'info'),
           })
-          if (intentRes.ok) {
-            const intentData = await intentRes.json()
-            stripePaymentIntentId = intentData.paymentIntentId
-          } else {
-            const errData = await intentRes.json().catch(() => ({}))
-            throw new Error(errData.error || `Card authorization failed for ${share.guestRef}`)
-          }
         } else {
           stripePaymentIntentId = 'zero_balance_split'
         }
@@ -540,32 +523,22 @@ export default function CheckoutModal({
   const handleQuickSettleAll = async (method: 'CARD' | 'CASH') => {
     setIsFinishing(true)
     try {
-      const updatedShares = await Promise.all(
-        splitShares.map(async (s) => {
-          if (s.status === 'PAID') return s
-          let stripePaymentIntentId: string | null = null
-          if (method === 'CARD' && s.total > 0) {
-            const intentRes = await fetch('/api/payments/create-intent', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderId: order.id, amount: s.total, confirm: true }),
-            })
-            if (intentRes.ok) {
-              const intentData = await intentRes.json()
-              stripePaymentIntentId = intentData.paymentIntentId
-            } else {
-              const errData = await intentRes.json().catch(() => ({}))
-              throw new Error(errData.error || `Card authorization failed for ${s.guestRef}`)
-            }
-          }
-          return {
-            ...s,
-            method,
-            status: 'PAID' as const,
-            stripePaymentIntentId,
-          }
-        })
-      )
+      // One card reader per station, so card shares are collected one guest at a time.
+      const updatedShares: typeof splitShares = []
+      for (const [i, s] of splitShares.entries()) {
+        if (s.status === 'PAID') {
+          updatedShares.push(s)
+          continue
+        }
+        let stripePaymentIntentId: string | null = null
+        if (method === 'CARD' && s.total > 0) {
+          stripePaymentIntentId = await collectCardOnReader(order.id, s.total, {
+            attempt: `split_${i}`,
+            onStatus: (msg) => showToast(`${s.guestRef}: ${msg}`, 'info'),
+          })
+        }
+        updatedShares.push({ ...s, method, status: 'PAID' as const, stripePaymentIntentId })
+      }
       setSplitShares(updatedShares)
       showToast(`All guests settled via ${method}!`, 'success')
     } catch (err: any) {
@@ -1188,8 +1161,8 @@ export default function CheckoutModal({
               <div className="flex gap-2" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 'var(--space-3)' }}>
                 {[
                   { key: 'CASH', label: '💵 Cash' },
-                  { key: 'CARD', label: '💳 Card' },
-                  { key: 'QR', label: '📲 Dynamic QR Payment' },
+                  { key: 'CARD', label: '💳 Card (reader)' },
+                  // QR payments are hidden until they pay into the restaurant's own account.
                   { key: 'SPLIT', label: '🔀 Split Bill' },
                 ].map((meth) => (
                   <button

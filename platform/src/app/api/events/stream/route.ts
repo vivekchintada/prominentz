@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@/auth'
-import { redis } from '@/lib/redis'
+import { subscribeToRestaurant } from '@/lib/event-hub'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -19,10 +19,13 @@ export async function GET(req: NextRequest) {
   }
 
   const restaurantId = session.user.restaurantId
+  if (!restaurantId) {
+    return new Response('Unauthorized', { status: 401 })
+  }
   const locationId = session.user.locationId
 
   const encoder = new TextEncoder()
-  let subscriber: typeof redis | null = null
+  let unsubscribe: (() => void) | null = null
   let closed = false
 
   const stream = new ReadableStream({
@@ -30,23 +33,11 @@ export async function GET(req: NextRequest) {
       // Send initial ping so client knows connection is alive
       controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected', payload: { restaurantId } })}\n\n`))
 
-      // Create a dedicated subscriber connection
-      subscriber = redis.duplicate()
-      await subscriber.subscribe('resto:events')
-
-      subscriber.on('message', (_channel: string, message: string) => {
+      // Shared per-process subscriber; the hub only delivers this restaurant's events.
+      const sub = await subscribeToRestaurant(restaurantId, (parsed) => {
         if (closed) return
         try {
-          const parsed = JSON.parse(message)
           const payload = parsed.payload || {}
-
-          // Strict Tenant Isolation:
-          // An event MUST explicitly belong to this subscriber's restaurantId.
-          // Unscoped events or cross-tenant events are immediately dropped to prevent data leakage.
-          const eventRestaurantId = payload._restaurantId || (typeof payload.restaurantId === 'string' ? payload.restaurantId : undefined)
-          if (!eventRestaurantId || eventRestaurantId !== restaurantId) {
-            return
-          }
 
           // Optional location filter if subscriber is restricted to a location
           if (locationId && payload._locationId && payload._locationId !== locationId) {
@@ -77,9 +68,10 @@ export async function GET(req: NextRequest) {
 
           controller.enqueue(encoder.encode(`data: ${ssePayload}\n\n`))
         } catch {
-          // ignore parse errors
+          // ignore malformed events
         }
       })
+      unsubscribe = sub.unsubscribe
 
       // Keepalive ping every 25 seconds to prevent proxy timeouts
       const keepalive = setInterval(() => {
@@ -95,22 +87,16 @@ export async function GET(req: NextRequest) {
       req.signal.addEventListener('abort', async () => {
         closed = true
         clearInterval(keepalive)
-        if (subscriber) {
-          await subscriber.unsubscribe('resto:events').catch(() => {})
-          subscriber.disconnect()
-          subscriber = null
-        }
+        unsubscribe?.()
+        unsubscribe = null
         try { controller.close() } catch {}
       })
     },
 
     cancel() {
       closed = true
-      if (subscriber) {
-        subscriber.unsubscribe('resto:events').catch(() => {})
-        subscriber.disconnect()
-        subscriber = null
-      }
+      unsubscribe?.()
+      unsubscribe = null
     },
   })
 

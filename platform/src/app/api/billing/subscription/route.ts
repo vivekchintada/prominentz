@@ -36,8 +36,13 @@ export async function GET(req: NextRequest) {
 
     const settings = (restaurant.settings as Record<string, any>) || {}
     const activeGateway = settings.lastBillingGateway || (settings.cashfreeSubscriptionId ? 'CASHFREE' : 'STRIPE')
-    const subscriptionStatus = settings.cashfreeSubscriptionStatus || (restaurant.stripeSubscriptionId ? 'ACTIVE' : 'INACTIVE')
-    const subscriptionId = settings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId || null
+    const isRevenueCat = activeGateway === 'REVENUECAT'
+    const subscriptionStatus = isRevenueCat
+      ? settings.revenuecatStatus || 'INACTIVE'
+      : settings.cashfreeSubscriptionStatus || (restaurant.stripeSubscriptionId ? 'ACTIVE' : 'INACTIVE')
+    const subscriptionId = isRevenueCat
+      ? settings.revenuecatProductId || null
+      : settings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId || null
 
     const planInfo = PRICING[restaurant.planTier as keyof typeof PRICING] || PRICING.STARTER
     const cashfreePricing = CASHFREE_PLAN_PRICING[restaurant.planTier as keyof typeof CASHFREE_PLAN_PRICING] || CASHFREE_PLAN_PRICING.STARTER
@@ -64,6 +69,7 @@ export async function GET(req: NextRequest) {
       status: subscriptionStatus,
       lastBilledAt: settings.lastBilledAt || null,
       cancelledAt: settings.cashfreeCancelledAt || null,
+      currentPeriodEnd: isRevenueCat ? settings.revenuecatExpiresAt || null : null,
       billingHistory: billingLogs.map((log) => ({
         id: log.id,
         eventId: log.eventId,

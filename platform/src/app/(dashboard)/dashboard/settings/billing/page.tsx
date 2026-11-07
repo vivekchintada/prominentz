@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { BillingManagerClient } from '@/components/dashboard/BillingManagerClient'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { PaymentsSetupCard } from '@/components/dashboard/PaymentsSetupCard'
 
 export const metadata = {
   title: 'Subscription & Billing Portal | Prominentz',
@@ -14,11 +15,12 @@ export default async function BillingPage() {
   return (
     <>
       <PageHeader
-        title="Subscription & Billing"
+        title="Payments & Billing"
         showRefresh
-        subtitle="Manage your SaaS tier, Stripe invoices, and active payment methods"
+        subtitle="Accept card payments and manage your Prominentz subscription"
       />
       <div className="page-body">
+        <PaymentsSetupCard />
         <BillingManagerClient />
       </div>
     </>

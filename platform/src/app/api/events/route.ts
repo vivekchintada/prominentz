@@ -1,110 +1,70 @@
 import { NextRequest } from 'next/server'
-import { redis } from '@/lib/redis'
 import { auth } from '@/auth'
+import { subscribeToRestaurant } from '@/lib/event-hub'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
+/**
+ * Server-Sent Events stream for dashboard, POS and KDS screens.
+ * Only events for the signed-in user's restaurant (and location, if scoped) are sent.
+ */
 export async function GET(req: NextRequest) {
   const session = await auth()
-  if (!session?.user) {
+  if (!session?.user?.restaurantId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
   }
 
+  const restaurantId = session.user.restaurantId
+  const locationId = session.user.locationId
   const encoder = new TextEncoder()
-  const sub = redis.duplicate()
 
   const stream = new ReadableStream({
     async start(controller) {
-      let destroyed = false
-
-      let isSubscribed = false
-
-      const cleanup = async () => {
-        if (destroyed) return
-        destroyed = true
-        clearInterval(pingInterval)
+      let closed = false
+      const send = (event: string, data: unknown) => {
+        if (closed) return
         try {
-          if (isSubscribed) {
-            await sub.unsubscribe('resto:events')
-            await sub.quit()
-          } else {
-            sub.disconnect()
-          }
-        } catch (e) {
-          // ignore cleanup error
+          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
+        } catch {
+          close()
         }
       }
 
-      const sendEvent = (event: string, data: unknown) => {
-        if (destroyed) return
-        try {
-          controller.enqueue(
-            encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-          )
-        } catch (e) {
-          console.error('[SSE] Failed to enqueue event:', e)
-        }
-      }
+      const { live, unsubscribe } = await subscribeToRestaurant(restaurantId, ({ event, payload }) => {
+        if (locationId && payload._locationId && payload._locationId !== locationId) return
+        send(event, payload)
+      })
 
-      try {
-        if (sub.status === 'wait' || sub.status === 'close') {
-          await sub.connect()
-        }
-        await sub.subscribe('resto:events')
-        isSubscribed = true
-      } catch (err) {
-        console.warn('[SSE] Redis subscription unavailable, operating in heartbeat mode:', err instanceof Error ? err.message : err)
-      }
+      send('connected', { success: true, live, timestamp: Date.now() })
 
-      if (isSubscribed) {
-        sub.on('message', (channel, message) => {
-          if (destroyed) return
-          try {
-            const parsed = JSON.parse(message)
-            sendEvent(parsed.event, parsed.payload)
-          } catch (e) {
-            console.error('[SSE] Message parsing error:', e)
-          }
-        })
-      }
-
-      // Send initial acknowledgement
-      sendEvent('connected', { success: true, timestamp: Date.now() })
-
-      // Keep-alive ping interval (15s)
-      const pingInterval = setInterval(() => {
-        if (destroyed) return
+      const ping = setInterval(() => {
+        if (closed) return
         try {
           controller.enqueue(encoder.encode(': ping\n\n'))
-        } catch (e) {
-          cleanup()
+        } catch {
+          close()
         }
-      }, 15000)
+      }, 15_000)
 
-      // Max connection lifetime (5 minutes) to recycle stale SSE streams cleanly
+      // Recycle long-lived streams so proxies and load balancers stay healthy.
       const maxLifetime = setTimeout(() => {
-        if (destroyed) return
-        sendEvent('reconnect', { reason: 'max_lifetime_exceeded' })
-        cleanup().then(() => {
-          try { controller.close() } catch (e) {}
-        })
+        send('reconnect', { reason: 'max_lifetime_exceeded' })
+        close()
       }, 5 * 60 * 1000)
 
-      const cleanupWithMaxLifetime = async () => {
+      function close() {
+        if (closed) return
+        closed = true
+        clearInterval(ping)
         clearTimeout(maxLifetime)
-        await cleanup()
+        unsubscribe()
+        try {
+          controller.close()
+        } catch {}
       }
 
-      req.signal.addEventListener('abort', () => {
-        cleanupWithMaxLifetime().then(() => {
-          try {
-            controller.close()
-          } catch (e) {}
-        })
-      })
-    },
-    cancel() {
-      // Handled by abort listener
+      req.signal.addEventListener('abort', close)
     },
   })
 
@@ -112,7 +72,8 @@ export async function GET(req: NextRequest) {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   })
 }

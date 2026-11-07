@@ -34,7 +34,7 @@ export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; pric
   },
   ENTERPRISE: {
     name: 'Enterprise',
-    amount: 129,
+    amount: 299,
     priceId: process.env.STRIPE_PRICE_ENTERPRISE || 'price_enterprise_tier',
     description: 'Multi-Location Outlets, Dedicated Infrastructure and Custom SLA',
   },
@@ -51,6 +51,10 @@ export async function createPaymentIntent(
     confirm?: boolean
     paymentMethod?: string
     idempotencySuffix?: string
+    /** Restaurant's connected Stripe account (direct charge). */
+    stripeAccount?: string
+    /** e.g. ['card_present'] for Stripe Terminal readers. */
+    paymentMethodTypes?: string[]
   }
 ) {
   try {
@@ -68,7 +72,7 @@ export async function createPaymentIntent(
     const isLive = process.env.NODE_ENV === 'production' || (!isTestOrMockKey && rawStripeSecret.startsWith('sk_live_'))
     const shouldConfirm = options?.confirm ?? true
 
-    if (shouldConfirm && !options?.paymentMethod && isLive) {
+    if (shouldConfirm && !options?.paymentMethod && !options?.paymentMethodTypes && isLive) {
       throw new Error(
         'A genuine customer or terminal payment method is required to confirm card transactions in production. ' +
         'Mock/test tokens (pm_card_visa) are forbidden.'
@@ -77,16 +81,24 @@ export async function createPaymentIntent(
 
     const paymentMethod = options?.paymentMethod || (isTestOrMockKey ? 'pm_card_visa' : undefined)
 
-    const createParams: Stripe.PaymentIntentCreateParams = {
-      amount: amountInCents,
-      currency: 'usd',
-      metadata: { orderId },
-      confirm: shouldConfirm && !!paymentMethod,
-      payment_method: shouldConfirm && paymentMethod ? paymentMethod : undefined,
-      automatic_payment_methods: (shouldConfirm && paymentMethod)
-        ? undefined
-        : { enabled: true, allow_redirects: 'never' },
-    }
+    const createParams: Stripe.PaymentIntentCreateParams = options?.paymentMethodTypes
+      ? {
+          amount: amountInCents,
+          currency: 'usd',
+          metadata: { orderId },
+          payment_method_types: options.paymentMethodTypes,
+          capture_method: 'automatic',
+        }
+      : {
+          amount: amountInCents,
+          currency: 'usd',
+          metadata: { orderId },
+          confirm: shouldConfirm && !!paymentMethod,
+          payment_method: shouldConfirm && paymentMethod ? paymentMethod : undefined,
+          automatic_payment_methods: (shouldConfirm && paymentMethod)
+            ? undefined
+            : { enabled: true, allow_redirects: 'never' },
+        }
 
     // Stable idempotency key across retries:
     // If a custom suffix/attempt key is provided, use it; otherwise use the stable order+amount pair.
@@ -99,6 +111,7 @@ export async function createPaymentIntent(
       createParams,
       {
         idempotencyKey,
+        ...(options?.stripeAccount ? { stripeAccount: options.stripeAccount } : {}),
       }
     )
 
@@ -116,7 +129,7 @@ export async function createPaymentIntent(
 /**
  * Refunds a processed Stripe charge or PaymentIntent.
  */
-export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInCents?: number) {
+export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInCents?: number, stripeAccount?: string) {
   try {
     if (isMockStripe() || chargeIdOrPaymentIntentId.startsWith('pi_mock_')) {
       return {
@@ -128,7 +141,7 @@ export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInC
     const refund = await stripe.refunds.create({
       payment_intent: chargeIdOrPaymentIntentId,
       ...(amountInCents ? { amount: amountInCents } : {}),
-    })
+    }, stripeAccount ? { stripeAccount } : undefined)
 
     return {
       id: refund.id,
@@ -173,7 +186,16 @@ export async function createSubscriptionCheckoutSession({
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'subscription',
-    customer_email: userEmail,
+    customer_email: userEmail || undefined,
+    // Matches the 14-day free trial promised on the marketing site.
+    subscription_data: {
+      trial_period_days: 14,
+      metadata: { restaurantId, planTier },
+      trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
+    },
+    // 'No credit card required' for the trial; Stripe asks for a card before it ends.
+    payment_method_collection: 'if_required',
+    allow_promotion_codes: true,
     line_items: [
       {
         price_data: {

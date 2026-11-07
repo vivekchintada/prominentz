@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { createPaymentIntent } from '@/lib/stripe'
+import { getRestaurantAccessStatus } from '@/lib/subscription-status'
 import { z } from 'zod'
 
 const createIntentSchema = z.object({
@@ -29,6 +30,16 @@ export async function POST(req: NextRequest) {
     const { resolveUserLocation } = await import('@/lib/location-resolver')
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId
+
+    if (restaurantId) {
+      const access = await getRestaurantAccessStatus(restaurantId)
+      if (access?.isExpired) {
+        return NextResponse.json(
+          { error: 'Your free trial has ended. Subscribe to keep taking card payments.' },
+          { status: 402 }
+        )
+      }
+    }
 
     // Verify order belongs to this restaurant
     const initialOrder = await prisma.order.findFirst({
@@ -58,21 +69,26 @@ export async function POST(req: NextRequest) {
     // Convert amount to cents for Stripe
     const amountInCents = Math.round(amount * 100)
 
+    const { requireConnectedAccount } = await import('@/lib/stripe-connect')
+    const stripeAccount = await requireConnectedAccount(restaurantId)
+
     const intent = await createPaymentIntent(amountInCents, orderId, {
       confirm,
       paymentMethod,
+      stripeAccount,
     })
 
     return NextResponse.json({
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
       status: intent.status,
+      stripeAccount: stripeAccount ?? null,
     })
   } catch (error: any) {
     console.error('[POST /api/payments/create-intent]', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
-      { status: 500 }
+      { status: typeof error?.status === 'number' ? error.status : 500 }
     )
   }
 }

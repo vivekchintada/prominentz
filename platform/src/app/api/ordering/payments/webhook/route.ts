@@ -20,10 +20,33 @@ export async function POST(req: NextRequest) {
         event = { id: `evt_mock_${Date.now()}`, type: 'payment_intent.succeeded', data: { object: {} } }
       }
     } else {
-      if (!sig || !secret) {
+      // Diner payments are charged on restaurants' connected accounts, so Stripe delivers
+      // them through the Connect webhook endpoint (STRIPE_CONNECT_WEBHOOK_SECRET).
+      const secrets = [process.env.STRIPE_CONNECT_WEBHOOK_SECRET, secret].filter(Boolean) as string[]
+      if (!sig || secrets.length === 0) {
         return NextResponse.json({ error: 'Webhook signature verification required in production.' }, { status: 400 })
       }
-      event = stripe.webhooks.constructEvent(raw, sig, secret)
+      for (const s of secrets) {
+        try {
+          event = stripe.webhooks.constructEvent(raw, sig, s)
+          break
+        } catch {
+          // try next secret
+        }
+      }
+      if (!event) {
+        return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 })
+      }
+    }
+
+    // Keep each restaurant's "can accept cards" flag in sync with Stripe.
+    if (event.type === 'account.updated') {
+      const account = event.data.object
+      await prisma.restaurant.updateMany({
+        where: { stripeConnectAccountId: account.id },
+        data: { stripeChargesEnabled: Boolean(account.charges_enabled) },
+      })
+      return NextResponse.json({ received: true })
     }
 
     // 1. Replay Protection: Check if event was already handled
@@ -58,7 +81,8 @@ export async function POST(req: NextRequest) {
           })
         : null
 
-      if (order) {
+      // POS/Terminal charges also carry an orderId; only online orders (with a tracking token) are handled here.
+      if (order && order.trackingToken && order.paymentStatus !== 'PAID') {
         const auto = order.table?.location?.onlineOrderingConfig?.acceptanceMode === 'AUTOMATIC'
         const restaurantId = order.table?.location?.restaurantId || order.table?.location?.restaurant?.id
 
@@ -66,6 +90,7 @@ export async function POST(req: NextRequest) {
           where: { id: order.id },
           data: {
             paymentStatus: 'PAID',
+            stripePaymentIntentId: pi.id,
             onlineStatus: auto ? 'ACCEPTED' : 'PENDING_ACCEPTANCE',
             acceptedAt: auto ? new Date() : undefined,
           },
@@ -126,7 +151,7 @@ export async function POST(req: NextRequest) {
       const pi = event.data.object
       const orderId = pi.metadata?.orderId
 
-      if (orderId) {
+      if (orderId && pi.metadata?.channel === 'online') {
         await prisma.order.update({
           where: { id: orderId },
           data: {

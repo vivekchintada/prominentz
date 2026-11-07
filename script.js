@@ -1,5 +1,13 @@
 // ── Prominentz Landing Page Vanilla JS ──────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // 0. Point app links (sign in / sign up / legal) at the app domain, if this page is hosted separately
+  const appUrl = (document.querySelector('meta[name="prominentz-app-url"]')?.getAttribute('content') || '').replace(/\/$/, '')
+  if (appUrl) {
+    document.querySelectorAll('a[data-app-link]').forEach((a) => {
+      a.setAttribute('href', appUrl + a.getAttribute('href'))
+    })
+  }
+
   // 1. Mobile Menu Toggle
   const hamburger = document.getElementById('hamburger')
   const drawer = document.getElementById('nav-drawer')

@@ -56,7 +56,9 @@ export async function POST(
     if (payment.method === 'CARD' && payment.stripePaymentIntentId) {
       try {
         const amountInCents = Math.round(Number(payment.total) * 100)
-        const refund = await refundPayment(payment.stripePaymentIntentId, amountInCents)
+        const { findConnectedAccount } = await import('@/lib/stripe-connect')
+        const stripeAccount = await findConnectedAccount(session.user.restaurantId)
+        const refund = await refundPayment(payment.stripePaymentIntentId, amountInCents, stripeAccount)
         refundId = refund.id
         refundAmount = Number(payment.total)
       } catch (err) {
