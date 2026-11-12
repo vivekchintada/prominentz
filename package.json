@@ -6,5 +6,13 @@
     "test:platform": "npm --prefix platform run test",
     "check:platform": "npm --prefix platform run lint && npm --prefix platform run build",
     "check:mobile": "npm --prefix mobile exec tsc -- --noEmit"
+  },
+  "dependencies": {
+    "@astryxdesign/core": "^0.7.11",
+    "@astryxdesign/theme-neutral": "^0.7.11",
+    "@stylexjs/stylex": "^0.19.1"
+  },
+  "devDependencies": {
+    "@astryxdesign/cli": "^0.7.11"
   }
 }
