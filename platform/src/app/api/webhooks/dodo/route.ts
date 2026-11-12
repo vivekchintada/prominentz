@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { DodoSubscription, verifyDodoWebhookSignature } from '@/lib/dodo-payments'
-import { applyDodoSubscriptionState, findRestaurantForDodoSubscription } from '@/lib/dodo-subscription-sync'
+import { applyDodoSubscriptionState, findRestaurantForDodoSubscription, lockRestaurantForBilling } from '@/lib/dodo-subscription-sync'
 import { AuditAction, logAuditEvent } from '@/lib/audit'
 
 export const dynamic = 'force-dynamic'
@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
     const sub = data as DodoSubscription
     const result = await prisma.$transaction(async (tx) => {
       await tx.stripeEventLog.create({ data: { eventId: eventUniqueId, eventType, orderId: restaurant.id } })
-      // Re-read inside the transaction so concurrent deliveries don't clobber each other's settings.
-      const fresh = await tx.restaurant.findUnique({ where: { id: restaurant.id } })
+      // Lock and re-read so concurrent deliveries (or a manual sync) don't clobber each other's settings.
+      const fresh = await lockRestaurantForBilling(tx, restaurant.id)
       if (!fresh) return null
       return applyDodoSubscriptionState(tx, fresh, sub, { eventType, eventTimestamp: event.timestamp })
     })

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
+import { getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
 import { PRICING } from '@/lib/pricing'
 
@@ -10,6 +11,12 @@ export async function GET(req: NextRequest) {
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Owners manage billing; managers may see the plan. Other staff have no reason to read it.
+    const authCtx = await getAuthContext(session.user)
+    if (!authCtx || authCtx.status !== 'ACTIVE' || !['OWNER', 'MANAGER'].includes(authCtx.role)) {
+      return NextResponse.json({ error: 'Only owners and managers can view billing' }, { status: 403 })
     }
 
     const restaurantId = session.user.restaurantId
@@ -78,6 +85,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('[GET /api/billing/subscription Error]', error)
-    return NextResponse.json({ error: error.message || 'Failed to fetch subscription' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch subscription' }, { status: 500 })
   }
 }

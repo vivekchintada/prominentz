@@ -6,7 +6,20 @@ import { isAuthorizedCron } from '@/lib/cron-auth'
 
 export const dynamic = 'force-dynamic'
 
+// Vercel Cron calls GET. GET is cron-only so a link or prefetch can't trigger the sweep for a
+// signed-in manager; managers use POST from the dashboard.
+export async function GET(req: NextRequest) {
+  if (!isAuthorizedCron(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  return releaseScheduled(req)
+}
+
 export async function POST(req: NextRequest) {
+  return releaseScheduled(req)
+}
+
+async function releaseScheduled(req: NextRequest) {
   const session = await auth()
   const cronAllowed = isAuthorizedCron(req)
 
@@ -18,7 +31,9 @@ export async function POST(req: NextRequest) {
   const tenantScope = cronAllowed ? {} : { table: { location: { restaurantId: session!.user.restaurantId } } }
 
   const now = new Date()
-  const lookaheadWindow = new Date(now.getTime() + 45 * 60000) // 45-minute default lead time window
+  // Coarse prefilter only. Each order is released at its own location's lead time below, and those
+  // are configurable (a 60-minute delivery lead must be visible before it is 45 minutes out).
+  const lookaheadWindow = new Date(now.getTime() + 24 * 60 * 60000)
 
   // 1. Release scheduled orders that have reached their kitchen prep lead time
   const scheduledOrders = await prisma.order.findMany({

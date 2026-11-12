@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('[POST /api/billing/checkout]', error)
-    return NextResponse.json({ error: error.message || 'Failed to create checkout session' }, { status: 500 })
+    // Gateway errors can carry API detail; log it, return a plain message.
+    return NextResponse.json({ error: 'Failed to create checkout session. Please try again.' }, { status: 500 })
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthorizedCron } from '@/lib/cron-auth'
 import { prisma } from '@/lib/prisma'
+import { startOfDayInTimeZone } from '@/lib/dashboard-metrics'
 import { generateDailyDigestHtml } from '@/lib/email-templates/daily-digest'
 
 export const dynamic = 'force-dynamic'
@@ -14,12 +15,6 @@ export async function GET(req: NextRequest) {
     if (!isAuthorizedCron(req)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    // Yesterday's window
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const start = new Date(yesterday); start.setHours(0, 0, 0, 0)
-    const end   = new Date(yesterday); end.setHours(23, 59, 59, 999)
 
     // Fetch all active locations
     const locations = await prisma.location.findMany({
@@ -35,6 +30,14 @@ export async function GET(req: NextRequest) {
     let totalSent = 0
 
     for (const location of locations) {
+      // "Yesterday" in the location's own timezone: from its previous local midnight up to (not
+      // including) today's. Stepping back 12h before taking the day start stays correct across DST.
+      let tz = location.timezone || 'UTC'
+      try { new Intl.DateTimeFormat('en-US', { timeZone: tz }) } catch { tz = 'UTC' }
+      const end = startOfDayInTimeZone(tz)
+      const start = startOfDayInTimeZone(tz, new Date(end.getTime() - 12 * 60 * 60 * 1000))
+      const yesterday = new Date(start.getTime() + 12 * 60 * 60 * 1000)
+
       // Revenue aggregates
       const revenueAgg = await prisma.payment.aggregate({
         _sum: { subtotal: true, tax: true, tip: true, total: true },
@@ -43,7 +46,7 @@ export async function GET(req: NextRequest) {
         where: {
           order: { table: { locationId: location.id } },
           status: 'COMPLETED',
-          createdAt: { gte: start, lte: end },
+          createdAt: { gte: start, lt: end },
         },
       })
 
@@ -55,7 +58,7 @@ export async function GET(req: NextRequest) {
           order: {
             table: { locationId: location.id },
             status: 'PAID',
-            createdAt: { gte: start, lte: end },
+            createdAt: { gte: start, lt: end },
           },
         },
         orderBy: { _sum: { quantity: 'desc' } },
@@ -82,13 +85,13 @@ export async function GET(req: NextRequest) {
         where: {
           order: { table: { locationId: location.id } },
           status: 'VOIDED',
-          createdAt: { gte: start, lte: end },
+          createdAt: { gte: start, lt: end },
         },
       })
 
       // Labor cost
       const shifts = await prisma.shift.findMany({
-        where: { locationId: location.id, scheduledStart: { gte: start, lte: end } },
+        where: { locationId: location.id, scheduledStart: { gte: start, lt: end } },
         include: { employee: { select: { hourlyRate: true } } },
       })
       let laborCost = 0
@@ -106,7 +109,7 @@ export async function GET(req: NextRequest) {
       const digestData = {
         restaurantName: location.restaurant.name,
         locationName: location.name,
-        date: yesterday.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+        date: yesterday.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: tz }),
         totalRevenue,
         totalOrders: revenueAgg._count.id,
         avgCheck: Number(revenueAgg._avg.total ?? 0),

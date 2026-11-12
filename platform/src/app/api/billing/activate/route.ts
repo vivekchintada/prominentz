@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { logAuditEvent } from '@/lib/audit'
 import { PlanTier } from '@/lib/plans'
 
 export const dynamic = 'force-dynamic'
+
+const TIER_RANK: Record<string, number> = { STARTER: 0, PRO: 1, ENTERPRISE: 2 }
+
+function planChangeAction(from: string, to: string): 'PLAN_UPGRADED' | 'PLAN_DOWNGRADED' | 'PLAN_CHANGED' {
+  const delta = (TIER_RANK[to] ?? 0) - (TIER_RANK[from] ?? 0)
+  return delta > 0 ? 'PLAN_UPGRADED' : delta < 0 ? 'PLAN_DOWNGRADED' : 'PLAN_CHANGED'
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,8 +29,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Require explicit admin authorization in all environments; clients cannot self-activate
-    const adminSecret = req.headers.get('x-admin-secret')
-    if (!adminSecret || adminSecret !== process.env.INTERNAL_ADMIN_SECRET) {
+    const adminSecret = Buffer.from(req.headers.get('x-admin-secret') || '', 'utf8')
+    const expectedSecret = Buffer.from(process.env.INTERNAL_ADMIN_SECRET || '', 'utf8')
+    const secretOk =
+      expectedSecret.length > 0 && adminSecret.length === expectedSecret.length && timingSafeEqual(adminSecret, expectedSecret)
+    if (!secretOk) {
       return NextResponse.json(
         { error: 'Forbidden: Plan activation must be completed through the Dodo Payments checkout webhook' },
         { status: 403 }
@@ -63,7 +74,7 @@ export async function POST(req: NextRequest) {
       restaurantId,
       actorId: session.user.id || 'system',
       actorName: session.user.name || 'Admin',
-      action: previousTier === 'STARTER' && planTier !== 'STARTER' ? 'PLAN_UPGRADED' : 'PLAN_DOWNGRADED',
+      action: planChangeAction(previousTier, planTier),
       targetType: 'Restaurant',
       targetId: restaurantId,
       before: { planTier: previousTier },

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
+import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { getDodoSubscription, isMockDodo } from '@/lib/dodo-payments'
-import { applyDodoSubscriptionState } from '@/lib/dodo-subscription-sync'
+import { applyDodoSubscriptionState, lockRestaurantForBilling } from '@/lib/dodo-subscription-sync'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,10 @@ export async function POST(req: NextRequest) {
   const restaurantId = session?.user?.restaurantId
   if (!restaurantId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const authCtx = await getAuthContext(session.user)
+  if (!authCtx || !canManageBilling(authCtx)) {
+    return NextResponse.json({ error: 'Only the restaurant owner can manage billing' }, { status: 403 })
   }
 
   const limited = await rateLimit(`billing-sync:${restaurantId}`, 10, 60)
@@ -44,6 +49,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // The fetched state is only as new as the moment we asked for it. Stamping the write with that
+    // time (not when it lands) means a webhook created after the fetch still wins, and is never
+    // dropped as stale afterwards.
+    const fetchedAt = new Date().toISOString()
     const subscription = await getDodoSubscription(subscriptionId)
 
     const isKnown = subscriptionId === settings.dodoSubscriptionId
@@ -52,7 +61,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Subscription does not belong to this restaurant' }, { status: 403 })
     }
 
-    const result = await applyDodoSubscriptionState(prisma, restaurant, subscription, { eventType: 'sync' })
+    const result = await prisma.$transaction(async (tx) => {
+      const fresh = await lockRestaurantForBilling(tx, restaurantId)
+      if (!fresh) return null
+      return applyDodoSubscriptionState(tx, fresh, subscription, { eventType: 'sync', eventTimestamp: fetchedAt })
+    })
+    if (!result) {
+      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
+    }
     if (!result.applied) {
       return NextResponse.json({ synced: false, reason: result.reason })
     }

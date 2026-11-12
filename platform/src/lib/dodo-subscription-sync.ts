@@ -11,6 +11,19 @@ import {
 
 type Db = Prisma.TransactionClient | typeof prisma
 
+/**
+ * Lock the restaurant row for the rest of the transaction and return its current billing state.
+ * Billing writes merge into the settings JSON, so the webhook and the manual sync must not
+ * read-modify-write it at the same time or one silently undoes the other.
+ */
+export async function lockRestaurantForBilling(tx: Prisma.TransactionClient, restaurantId: string) {
+  await tx.$queryRaw`SELECT 1 FROM "Restaurant" WHERE "id" = ${restaurantId} FOR UPDATE`
+  return tx.restaurant.findUnique({
+    where: { id: restaurantId },
+    select: { id: true, planTier: true, settings: true },
+  })
+}
+
 /** Statuses where the restaurant keeps its paid plan (access is still decided by subscription-status.ts). */
 const PLAN_RETAINING: DodoInternalStatus[] = ['ACTIVE', 'BILLING_ISSUE', 'PAUSED']
 
