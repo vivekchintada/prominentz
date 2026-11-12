@@ -1,52 +1,21 @@
+/** Bento-shaped placeholder shown while a dashboard page loads. */
 export default function DashboardLoading() {
   return (
-    <main className="main-content">
-      <header className="page-header" style={{ flexShrink: 0 }}>
-        <div style={{ width: 160, height: 18, borderRadius: 6, background: 'rgba(255,255,255,0.06)' }} />
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div style={{ width: 60, height: 24, borderRadius: 12, background: 'rgba(255,255,255,0.06)' }} />
-          <div style={{ width: 100, height: 24, borderRadius: 6, background: 'rgba(255,255,255,0.04)' }} />
-        </div>
-      </header>
-      <div className="page-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-        {/* Welcome skeleton */}
-        <div
-          style={{
-            borderRadius: 'var(--radius-2xl)',
-            padding: 'var(--space-6)',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--color-border)',
-            height: 140,
-          }}
-        />
-        {/* KPI grid skeleton */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 'var(--space-4)' }}>
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              style={{
-                borderRadius: 'var(--radius-xl)',
-                padding: 'var(--space-5)',
-                background: 'var(--color-bg-card)',
-                borderTop: '3px solid rgba(255,255,255,0.06)',
-                boxShadow: 'inset 0 0 0 0.5px var(--color-border)',
-                height: 130,
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }}
-            />
-          ))}
-        </div>
-        {/* Content skeleton */}
-        <div
-          style={{
-            borderRadius: 'var(--radius-xl)',
-            background: 'var(--color-bg-card)',
-            boxShadow: 'inset 0 0 0 0.5px var(--color-border)',
-            height: 300,
-            animation: 'pulse 1.5s ease-in-out infinite',
-          }}
-        />
+    <div aria-busy="true" aria-label="Loading" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '4px 6px' }}>
+        <div className="bz-skel" style={{ width: 160, height: 14, borderRadius: 6 }} />
+        <div className="bz-skel" style={{ width: 'min(520px, 80%)', height: 40, borderRadius: 10 }} />
       </div>
-    </main>
+      <div className="bz-grid" style={{ gridAutoRows: 'minmax(200px, auto)' }}>
+        <div className="bz-skel bz-c6 bz-r2" style={{ minHeight: 420 }} />
+        <div className="bz-skel bz-c3" />
+        <div className="bz-skel bz-c3" />
+        <div className="bz-skel bz-c3" />
+        <div className="bz-skel bz-c3" />
+        <div className="bz-skel bz-c4" />
+        <div className="bz-skel bz-c5" />
+        <div className="bz-skel bz-c3" />
+      </div>
+    </div>
   )
 }

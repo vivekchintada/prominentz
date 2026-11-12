@@ -294,7 +294,7 @@ export default function OrderingSettingsClient() {
         <button className={styles.saveBtn} onClick={save} disabled={saving}>
           {saving ? (
             <>
-              <div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+              <div style={{ width: 14, height: 14, border: '2px solid color-mix(in srgb, var(--color-text-primary) 30%, transparent)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
               Saving Settings…
             </>
           ) : (

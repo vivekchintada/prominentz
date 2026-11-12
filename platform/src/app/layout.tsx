@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import './globals.css'
+import '@/styles/bento.css'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#0E1014',
 }
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export const metadata: Metadata = {
 }
 
 import { CookieConsent } from '@/components/ui/CookieConsent'
+import { AppToaster } from '@/components/ui/AppToaster'
 
 export default function RootLayout({
   children,
@@ -65,7 +67,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Barlow+Condensed:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         />
         {/* Inline theme init — runs before first paint to avoid flash */}
         <script
@@ -80,6 +82,7 @@ export default function RootLayout({
         </a>
         {children}
         <CookieConsent />
+        <AppToaster />
         {plausibleDomain && (
           <Script
             defer

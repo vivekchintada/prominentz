@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { RestoIqDrawer } from '@/components/dashboard/RestoIqDrawer'
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 export interface TopSoldDish {
   id: string
@@ -221,6 +223,7 @@ export function MainDashboardClient({
   notifications,
   user,
 }: MainDashboardData) {
+  const { money } = useMoney()
   // KPI Detail Tab Modal State ('orders' | 'sales' | 'aov' | 'reservations' | null)
   const [activeKpiModal, setActiveKpiModal] = useState<'orders' | 'sales' | 'aov' | 'reservations' | null>(null)
 
@@ -505,13 +508,13 @@ export function MainDashboardClient({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: '#0e0e11',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'var(--color-bg-card)',
+              border: '1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
               borderRadius: 20,
               padding: '4px 12px',
               fontSize: 11,
               fontWeight: 600,
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
@@ -556,7 +559,7 @@ export function MainDashboardClient({
                   <span
                     style={{
                       background: completedLaunchpadCount === 5 ? 'rgba(34, 197, 94, 0.15)' : 'var(--color-border)',
-                      color: completedLaunchpadCount === 5 ? '#22c55e' : 'var(--color-text-secondary)',
+                      color: completedLaunchpadCount === 5 ? 'var(--color-success)' : 'var(--color-text-secondary)',
                       padding: '2px 8px',
                       borderRadius: 12,
                       fontSize: 10,
@@ -566,7 +569,7 @@ export function MainDashboardClient({
                     Starter Pack {completedLaunchpadCount === 5 ? '• 100% Ready' : `• ${launchpadPercent}% Ready`}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.5)', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
                   Essential operational milestones to get your dining room, menu, and POS fully primed for service.
                 </div>
               </div>
@@ -575,10 +578,10 @@ export function MainDashboardClient({
             {/* Actions & Progress Summary */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: completedLaunchpadCount === 5 ? '#22c55e' : '#ffffff' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: completedLaunchpadCount === 5 ? 'var(--color-success)' : '#ffffff' }}>
                   {completedLaunchpadCount} of {launchpadItems.length} Milestones
                 </span>
-                <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.4)' }}>
+                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
                   {completedLaunchpadCount === 5 ? 'All starter features verified' : 'Complete remaining steps'}
                 </div>
               </div>
@@ -588,7 +591,7 @@ export function MainDashboardClient({
                 title={checklistCollapsed ? 'Expand checklist' : 'Collapse checklist'}
                 style={{
                   background: '#18181c',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                   borderRadius: 6,
                   width: 30,
                   height: 30,
@@ -597,7 +600,7 @@ export function MainDashboardClient({
                   justifyContent: 'center',
                   cursor: 'pointer',
                   fontSize: 11,
-                  color: 'rgba(255, 255, 255, 0.7)',
+                  color: 'var(--color-text-secondary)',
                 }}
               >
                 {checklistCollapsed ? '▼' : '▲'}
@@ -617,7 +620,7 @@ export function MainDashboardClient({
                   justifyContent: 'center',
                   cursor: 'pointer',
                   fontSize: 14,
-                  color: 'rgba(255, 255, 255, 0.4)',
+                  color: 'var(--color-text-tertiary)',
                 }}
               >
                 ✕
@@ -626,12 +629,12 @@ export function MainDashboardClient({
           </div>
 
           {/* Progress Bar */}
-          <div style={{ width: '100%', height: 4, background: 'rgba(255, 255, 255, 0.08)', borderRadius: 4, marginTop: 14, overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: 4, background: 'color-mix(in srgb, var(--color-text-primary) 8%, transparent)', borderRadius: 4, marginTop: 14, overflow: 'hidden' }}>
             <div
               style={{
                 width: `${launchpadPercent}%`,
                 height: '100%',
-                background: completedLaunchpadCount === 5 ? '#22c55e' : '#ffffff',
+                background: completedLaunchpadCount === 5 ? 'var(--color-success)' : 'var(--color-bg-card)',
                 borderRadius: 4,
                 transition: 'width 0.4s ease',
               }}
@@ -652,8 +655,8 @@ export function MainDashboardClient({
                 <div
                   key={item.id}
                   style={{
-                    background: item.completed ? 'rgba(34, 197, 94, 0.04)' : '#111114',
-                    border: `1px solid ${item.completed ? 'rgba(34, 197, 94, 0.25)' : 'rgba(255, 255, 255, 0.08)'}`,
+                    background: item.completed ? 'rgba(34, 197, 94, 0.04)' : 'var(--color-bg-card)',
+                    border: `1px solid ${item.completed ? 'rgba(34, 197, 94, 0.25)' : 'color-mix(in srgb, var(--color-text-primary) 8%, transparent)'}`,
                     borderRadius: 10,
                     padding: '12px 14px',
                     display: 'flex',
@@ -670,8 +673,8 @@ export function MainDashboardClient({
                           width: 20,
                           height: 20,
                           borderRadius: '50%',
-                          background: item.completed ? '#22c55e' : 'rgba(255, 255, 255, 0.12)',
-                          color: item.completed ? '#000' : 'rgba(255, 255, 255, 0.7)',
+                          background: item.completed ? 'var(--color-success)' : 'rgba(255, 255, 255, 0.12)',
+                          color: item.completed ? 'var(--color-text-primary)' : 'rgba(255, 255, 255, 0.7)',
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -685,8 +688,8 @@ export function MainDashboardClient({
                         style={{
                           fontSize: 10,
                           fontWeight: 600,
-                          color: item.completed ? '#22c55e' : 'rgba(255, 255, 255, 0.5)',
-                          background: item.completed ? 'rgba(34, 197, 94, 0.12)' : 'rgba(255, 255, 255, 0.05)',
+                          color: item.completed ? 'var(--color-success)' : 'var(--color-text-tertiary)',
+                          background: item.completed ? 'rgba(34, 197, 94, 0.12)' : 'color-mix(in srgb, var(--color-text-primary) 5%, transparent)',
                           padding: '2px 6px',
                           borderRadius: 4,
                         }}
@@ -695,10 +698,10 @@ export function MainDashboardClient({
                       </span>
                     </div>
 
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', marginBottom: 3 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 3 }}>
                       {item.title}
                     </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.5)', lineHeight: 1.4, marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.4, marginBottom: 12 }}>
                       {item.desc}
                     </div>
                   </div>
@@ -715,9 +718,9 @@ export function MainDashboardClient({
                       fontSize: 11,
                       fontWeight: 600,
                       textDecoration: 'none',
-                      color: item.completed ? '#22c55e' : '#ffffff',
-                      background: item.completed ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.08)',
-                      border: `1px solid ${item.completed ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.12)'}`,
+                      color: item.completed ? 'var(--color-success)' : 'var(--color-text-primary)',
+                      background: item.completed ? 'rgba(34, 197, 94, 0.1)' : 'color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
+                      border: `1px solid ${item.completed ? 'rgba(34, 197, 94, 0.2)' : 'color-mix(in srgb, var(--color-text-primary) 12%, transparent)'}`,
                       transition: 'background 0.15s ease',
                     }}
                   >
@@ -741,7 +744,7 @@ export function MainDashboardClient({
         >
           <div className="dream-kpi-left">
             <div className="dream-kpi-val-row">
-              <span className="dream-kpi-val">{stats.totalOrders.toLocaleString()}</span>
+              <span className="dream-kpi-val"><AnimatedNumber value={stats.totalOrders} /></span>
               <span className="dream-kpi-badge dream-kpi-badge--up">{stats.ordersGrowth}</span>
             </div>
             <span className="dream-kpi-label">Total Orders</span>
@@ -764,11 +767,11 @@ export function MainDashboardClient({
         >
           <div className="dream-kpi-left">
             <div className="dream-kpi-val-row">
-              <span className="dream-kpi-val">${stats.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="dream-kpi-val"><AnimatedNumber value={stats.totalSales} money /></span>
               <span className="dream-kpi-badge dream-kpi-badge--up">{stats.salesGrowth}</span>
             </div>
             <span className="dream-kpi-label">Total Sales</span>
-            <span className="dream-kpi-drilldown-hint" style={{ color: '#16a34a' }}>View Details & Breakdown →</span>
+            <span className="dream-kpi-drilldown-hint" style={{ color: 'var(--color-success)' }}>View Details & Breakdown →</span>
           </div>
           <div className="dream-kpi-icon dream-kpi-icon--sales">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -786,7 +789,7 @@ export function MainDashboardClient({
         >
           <div className="dream-kpi-left">
             <div className="dream-kpi-val-row">
-              <span className="dream-kpi-val">${stats.avgOrderValue.toFixed(2)}</span>
+              <span className="dream-kpi-val"><AnimatedNumber value={stats.avgOrderValue} money /></span>
               <span className="dream-kpi-badge dream-kpi-badge--down">{stats.avgGrowth}</span>
             </div>
             <span className="dream-kpi-label">Average Value</span>
@@ -810,11 +813,11 @@ export function MainDashboardClient({
         >
           <div className="dream-kpi-left">
             <div className="dream-kpi-val-row">
-              <span className="dream-kpi-val">{stats.reservationsCount}</span>
+              <span className="dream-kpi-val"><AnimatedNumber value={stats.reservationsCount} /></span>
               <span className="dream-kpi-badge dream-kpi-badge--up">{stats.resvGrowth}</span>
             </div>
             <span className="dream-kpi-label">Reservations</span>
-            <span className="dream-kpi-drilldown-hint" style={{ color: '#ea580c' }}>View Details & Breakdown →</span>
+            <span className="dream-kpi-drilldown-hint" style={{ color: 'var(--color-warning)' }}>View Details & Breakdown →</span>
           </div>
           <div className="dream-kpi-icon dream-kpi-icon--reservations">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -833,7 +836,7 @@ export function MainDashboardClient({
         <div className="dream-card">
           <div className="dream-card-header">
             <div className="dream-card-title">
-              <span style={{ color: '#16a34a' }}>$</span> Total Revenue
+              <span style={{ color: 'var(--color-success)' }}>$</span> Total Revenue
             </div>
             <button
               className="dream-dropdown-btn"
@@ -893,8 +896,8 @@ export function MainDashboardClient({
                         style={{
                           position: 'absolute',
                           top: -30,
-                          backgroundColor: '#0f172a',
-                          color: '#ffffff',
+                          backgroundColor: 'var(--color-text-primary)',
+                          color: 'var(--color-bg)',
                           padding: '3px 8px',
                           borderRadius: '6px',
                           fontSize: '10px',
@@ -913,7 +916,7 @@ export function MainDashboardClient({
                       style={{
                         fontSize: 10,
                         fontWeight: 600,
-                        color: isHovered ? '#ffffff' : 'rgba(255, 255, 255, 0.45)',
+                        color: isHovered ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
                         transition: 'color var(--transition-fast)',
                       }}
                     >
@@ -927,7 +930,7 @@ export function MainDashboardClient({
                           width: '100%',
                           height: `${bar.height}%`,
                           background: isHovered
-                            ? '#ffffff'
+                            ? 'var(--color-bg-card)'
                             : 'rgba(255, 255, 255, 0.28)',
                           borderRadius: '4px 4px 0 0',
                           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -996,8 +999,8 @@ export function MainDashboardClient({
                   <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-tertiary)' }}>
                     No of Orders : <strong style={{ color: 'var(--color-text-primary)' }}>{mostOrdered.ordersCount}</strong>
                   </p>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#16a34a' }}>
-                    ${mostOrdered.price.toFixed(2)}
+                  <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-success)' }}>
+                    {money(mostOrdered.price)}
                   </span>
                 </div>
               </div>
@@ -1058,7 +1061,7 @@ export function MainDashboardClient({
                 <div className="dream-menu-info">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="dream-menu-name" title={dish.name}>{dish.name}</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-text-primary)' }}>${dish.price.toFixed(2)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-text-primary)' }}>{money(dish.price)}</span>
                   </div>
                   <div className="dream-menu-meta">
                     <span>Orders : {dish.orders}</span>
@@ -1125,7 +1128,7 @@ export function MainDashboardClient({
             </div>
             <div className="dream-top-user-right">
               <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Lifetime Spend</span>
-              <div style={{ fontSize: 18, fontWeight: 800, color: totalCustomersCount > 0 ? '#16a34a' : 'var(--color-text-tertiary)' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: totalCustomersCount > 0 ? 'var(--color-success)' : 'var(--color-text-tertiary)' }}>
                 ${totalCustomersCount > 0 ? topCustomer.lifetimeSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
               </div>
             </div>
@@ -1140,7 +1143,7 @@ export function MainDashboardClient({
                 {totalCustomersCount > 0 ? (
                   <span className="dream-kpi-badge dream-kpi-badge--up">⮭ 12.6%</span>
                 ) : (
-                  <span className="dream-kpi-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--color-text-tertiary)' }}>0%</span>
+                  <span className="dream-kpi-badge" style={{ background: 'color-mix(in srgb, var(--color-text-primary) 5%, transparent)', color: 'var(--color-text-tertiary)' }}>0%</span>
                 )}
               </div>
             </div>
@@ -1210,7 +1213,7 @@ export function MainDashboardClient({
                 padding: '3px 10px',
                 borderRadius: 999,
                 backgroundColor: clockedInStaff.length > 0 ? 'rgba(34,197,94,0.15)' : 'rgba(148,163,184,0.15)',
-                color: clockedInStaff.length > 0 ? '#16a34a' : 'var(--color-text-tertiary)',
+                color: clockedInStaff.length > 0 ? 'var(--color-success)' : 'var(--color-text-tertiary)',
                 border: clockedInStaff.length > 0 ? '1px solid rgba(34,197,94,0.3)' : '1px solid var(--color-border)',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -1239,7 +1242,7 @@ export function MainDashboardClient({
             </button>
             <Link
               href="/dashboard/team"
-              style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand)', textDecoration: 'none' }}
+              style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-text)', textDecoration: 'none' }}
             >
               Manage Staff & Shifts →
             </Link>
@@ -1297,8 +1300,8 @@ export function MainDashboardClient({
                     style={{
                       width: 40,
                       height: 40,
-                      background: '#18181B',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'var(--color-bg-card)',
+                      border: '1px solid color-mix(in srgb, var(--color-text-primary) 15%, transparent)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1317,7 +1320,7 @@ export function MainDashboardClient({
                         width: 10,
                         height: 10,
                         borderRadius: '50%',
-                        backgroundColor: '#22c55e',
+                        backgroundColor: 'var(--color-success)',
                         border: '2px solid var(--color-bg)',
                       }}
                     />
@@ -1365,7 +1368,7 @@ export function MainDashboardClient({
                         style={{
                           fontSize: 10,
                           fontWeight: 700,
-                          color: '#16a34a',
+                          color: 'var(--color-success)',
                           backgroundColor: 'rgba(34,197,94,0.12)',
                           padding: '1px 6px',
                           borderRadius: 4,
@@ -1379,7 +1382,7 @@ export function MainDashboardClient({
                           style={{
                             fontSize: 10,
                             fontWeight: 800,
-                            color: '#b45309',
+                            color: 'var(--color-warning)',
                             backgroundColor: 'rgba(245,158,11,0.16)',
                             padding: '1px 6px',
                             borderRadius: 4,
@@ -1409,7 +1412,7 @@ export function MainDashboardClient({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 13, color: 'var(--brand)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 13, color: 'var(--brand-text)' }}>
                 <span>🔄</span>
                 <span>Shift Swap Approval Queue ({pendingTrades.length} Pending)</span>
               </div>
@@ -1451,8 +1454,8 @@ export function MainDashboardClient({
                       style={{
                         padding: '4px 12px',
                         borderRadius: 6,
-                        backgroundColor: '#16a34a',
-                        color: '#fff',
+                        backgroundColor: 'var(--color-success)',
+                        color: 'var(--on-success)',
                         border: 'none',
                         fontWeight: 700,
                         fontSize: 11,
@@ -1468,8 +1471,8 @@ export function MainDashboardClient({
                         padding: '4px 10px',
                         borderRadius: 6,
                         backgroundColor: 'transparent',
-                        color: '#dc2626',
-                        border: '1px solid #fecdd3',
+                        color: 'var(--color-error)',
+                        border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
                         fontWeight: 700,
                         fontSize: 11,
                         cursor: 'pointer',
@@ -1688,13 +1691,13 @@ export function MainDashboardClient({
                       borderRadius: 9999,
                       backgroundColor:
                         selectedDashboardTable.status === 'RESERVED'
-                          ? '#ffedd5'
+                          ? 'color-mix(in srgb, var(--color-warning) 14%, transparent)'
                           : selectedDashboardTable.status === 'ACTIVE'
                           ? '#ffe4e6'
                           : '#dcfce7',
                       color:
                         selectedDashboardTable.status === 'RESERVED'
-                          ? '#ea580c'
+                          ? 'var(--color-warning)'
                           : selectedDashboardTable.status === 'ACTIVE'
                           ? '#e11d48'
                           : '#16a34a',
@@ -1707,7 +1710,7 @@ export function MainDashboardClient({
                       : 'Available'}
                   </span>
                 </div>
-                <span style={{ fontSize: 12, color: '#64748b' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   {selectedDashboardTable.floor || 'Floor'} · Capacity: {selectedDashboardTable.capacity} Seats
                 </span>
               </div>
@@ -1718,7 +1721,7 @@ export function MainDashboardClient({
                   border: 'none',
                   cursor: 'pointer',
                   fontSize: 18,
-                  color: '#94a3b8',
+                  color: 'var(--color-text-tertiary)',
                   padding: 4,
                   lineHeight: 1,
                 }}
@@ -1731,8 +1734,8 @@ export function MainDashboardClient({
             {selectedDashboardTable.activeBooking && (
               <div
                 style={{
-                  backgroundColor: '#fffbeb',
-                  border: '1px solid #fef3c7',
+                  backgroundColor: 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)',
                   borderRadius: 12,
                   padding: '12px 14px',
                   marginBottom: 16,
@@ -1745,7 +1748,7 @@ export function MainDashboardClient({
                 <div style={{ color: '#78350f' }}>
                   <strong>Guest:</strong> {selectedDashboardTable.activeBooking.guestName} ({selectedDashboardTable.activeBooking.partySize} guests)
                 </div>
-                <div style={{ color: '#b45309', fontSize: 12, marginTop: 2 }}>
+                <div style={{ color: 'var(--color-warning)', fontSize: 12, marginTop: 2 }}>
                   {selectedDashboardTable.activeBooking.bookingTime}
                 </div>
               </div>
@@ -1755,41 +1758,41 @@ export function MainDashboardClient({
             {selectedDashboardTable.activeOrder ? (
               <div
                 style={{
-                  backgroundColor: '#111114',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'var(--color-bg-card)',
+                  border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                   borderRadius: 10,
                   padding: '14px',
                   marginBottom: 16,
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Active Order Check
                   </span>
-                  <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.45)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
                     {selectedDashboardTable.activeOrder.guestCount} Guests
                   </span>
                 </div>
 
                 {selectedDashboardTable.activeOrder.items && selectedDashboardTable.activeOrder.items.length > 0 ? (
-                  <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 6, padding: '6px 10px', backgroundColor: '#09090b', marginBottom: 10 }}>
+                  <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)', borderRadius: 6, padding: '6px 10px', backgroundColor: 'var(--color-bg-card)', marginBottom: 10 }}>
                     {selectedDashboardTable.activeOrder.items.map((it, idx) => (
                       <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '3px 0' }}>
-                        <span style={{ color: 'rgba(255, 255, 255, 0.8)' }}>{it.quantity}× {it.name}</span>
-                        <span style={{ fontWeight: 600, color: '#ffffff' }}>${(it.price * it.quantity).toFixed(2)}</span>
+                        <span style={{ color: 'var(--color-text-primary)' }}>{it.quantity}× {it.name}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{money((it.price * it.quantity))}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic', marginBottom: 8 }}>
                     Tab opened · No dishes added yet
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>Running Bill:</span>
-                  <span style={{ fontSize: 16, fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono, monospace)' }}>
-                    ${selectedDashboardTable.activeOrder.total.toFixed(2)}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)', paddingTop: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Running Bill:</span>
+                  <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono, monospace)' }}>
+                    {money(selectedDashboardTable.activeOrder.total)}
                   </span>
                 </div>
               </div>
@@ -1802,7 +1805,7 @@ export function MainDashboardClient({
                   padding: '12px 14px',
                   marginBottom: 16,
                   fontSize: 13,
-                  color: '#ef4444',
+                  color: 'var(--color-error)',
                 }}
               >
                 🪑 Table is currently occupied by walk-in guests.
@@ -1821,13 +1824,13 @@ export function MainDashboardClient({
                       justifyContent: 'center',
                       gap: 8,
                       padding: '11px',
-                      backgroundColor: '#ffffff',
-                      color: '#000000',
+                      backgroundColor: 'var(--color-bg-card)',
+                      color: 'var(--color-text-primary)',
                       borderRadius: 6,
                       fontWeight: 600,
                       fontSize: 13,
                       textDecoration: 'none',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      border: '1px solid color-mix(in srgb, var(--color-text-primary) 20%, transparent)',
                     }}
                   >
                     🧾 Open Table in POS / Add Items
@@ -1838,7 +1841,7 @@ export function MainDashboardClient({
                     style={{
                       padding: '10px',
                       backgroundColor: '#18181c',
-                      color: '#ef4444',
+                      color: 'var(--color-error)',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
                       borderRadius: 6,
                       fontWeight: 600,
@@ -1856,8 +1859,8 @@ export function MainDashboardClient({
                     onClick={() => handleSeatTable(selectedDashboardTable.id)}
                     style={{
                       padding: '11px',
-                      backgroundColor: '#16a34a',
-                      color: '#ffffff',
+                      backgroundColor: 'var(--color-success)',
+                      color: 'var(--on-success)',
                       border: 'none',
                       borderRadius: 10,
                       fontWeight: 700,
@@ -1931,7 +1934,7 @@ export function MainDashboardClient({
                 style={{
                   fontSize: 12,
                   textAlign: 'center',
-                  color: 'var(--brand)',
+                  color: 'var(--brand-text)',
                   fontWeight: 600,
                   textDecoration: 'none',
                   marginTop: 4,
@@ -2077,7 +2080,7 @@ export function MainDashboardClient({
                   onClick={() => setActiveKpiModal('sales')}
                 >
                   <span>💵</span> Total Sales
-                  <span className="kpi-tab-pill">${kpiData.sales.netSales.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span className="kpi-tab-pill">{money(kpiData.sales.netSales, 0)}</span>
                 </button>
 
                 <button
@@ -2085,7 +2088,7 @@ export function MainDashboardClient({
                   onClick={() => setActiveKpiModal('aov')}
                 >
                   <span>📊</span> Average Value
-                  <span className="kpi-tab-pill">${kpiData.aov.avgOrderValue.toFixed(2)}</span>
+                  <span className="kpi-tab-pill">{money(kpiData.aov.avgOrderValue)}</span>
                 </button>
 
                 <button
@@ -2107,12 +2110,12 @@ export function MainDashboardClient({
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Total Orders</div>
                         <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>{kpiData.orders.totalCount}</div>
-                        <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, marginTop: 2 }}>{stats.ordersGrowth} vs last week</div>
+                        <div style={{ fontSize: 11, color: 'var(--color-success)', fontWeight: 600, marginTop: 2 }}>{stats.ordersGrowth} vs last week</div>
                       </div>
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>In Kitchen / Live</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand)', marginTop: 4 }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand-text)', marginTop: 4 }}>
                           {kpiData.orders.statusCounts.open + kpiData.orders.statusCounts.sentToKitchen + kpiData.orders.statusCounts.ready}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Active tickets</div>
@@ -2120,7 +2123,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Completed & Paid</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>{kpiData.orders.statusCounts.paid}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-success)', marginTop: 4 }}>{kpiData.orders.statusCounts.paid}</div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>
                           {kpiData.orders.totalCount > 0 ? `${Math.round((kpiData.orders.statusCounts.paid / kpiData.orders.totalCount) * 100)}% completion` : '0%'}
                         </div>
@@ -2128,7 +2131,7 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Voided / Hold</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626', marginTop: 4 }}>{kpiData.orders.statusCounts.voided}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-error)', marginTop: 4 }}>{kpiData.orders.statusCounts.voided}</div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>0.0% loss rate</div>
                       </div>
                     </div>
@@ -2143,7 +2146,7 @@ export function MainDashboardClient({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           {[
                             { label: 'Paid & Completed', count: kpiData.orders.statusCounts.paid, color: '#16a34a' },
-                            { label: 'Sent to Kitchen', count: kpiData.orders.statusCounts.sentToKitchen, color: 'var(--brand)' },
+                            { label: 'Sent to Kitchen', count: kpiData.orders.statusCounts.sentToKitchen, color: 'var(--brand-text)' },
                             { label: 'Open / Unsent', count: kpiData.orders.statusCounts.open, color: '#f59e0b' },
                             { label: 'Ready for Service', count: kpiData.orders.statusCounts.ready, color: 'var(--color-text-secondary)' },
                             { label: 'Voided', count: kpiData.orders.statusCounts.voided, color: '#dc2626' },
@@ -2171,7 +2174,7 @@ export function MainDashboardClient({
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                           {[
-                            { label: 'POS Terminal & Dine-In', count: kpiData.orders.channelCounts.pos, icon: '🖥️', color: 'var(--brand)' },
+                            { label: 'POS Terminal & Dine-In', count: kpiData.orders.channelCounts.pos, icon: '🖥️', color: 'var(--brand-text)' },
                             { label: 'QR Self-Order Tabletop', count: kpiData.orders.channelCounts.qrTable, icon: '📱', color: '#10b981' },
                             { label: 'Delivery Apps (DoorDash/Uber)', count: kpiData.orders.channelCounts.delivery, icon: '🛵', color: '#f59e0b' },
                           ].map((c) => {
@@ -2225,7 +2228,7 @@ export function MainDashboardClient({
                                     {o.itemSummary || 'Order items'}
                                   </td>
                                   <td style={{ padding: '8px', color: 'var(--color-text-secondary)' }}>{o.guestCount}</td>
-                                  <td style={{ padding: '8px', fontWeight: 800, color: '#16a34a' }}>${o.total.toFixed(2)}</td>
+                                  <td style={{ padding: '8px', fontWeight: 800, color: 'var(--color-success)' }}>{money(o.total)}</td>
                                   <td style={{ padding: '8px' }}>
                                     <span
                                       style={{
@@ -2234,7 +2237,7 @@ export function MainDashboardClient({
                                         fontSize: 10,
                                         fontWeight: 800,
                                         background: o.status === 'PAID' ? 'rgba(34, 197, 94, 0.15)' : o.status === 'SENT_TO_KITCHEN' ? 'var(--brand-tint)' : 'rgba(245, 158, 11, 0.15)',
-                                        color: o.status === 'PAID' ? '#16a34a' : o.status === 'SENT_TO_KITCHEN' ? 'var(--brand)' : '#d97706',
+                                        color: o.status === 'PAID' ? 'var(--color-success)' : o.status === 'SENT_TO_KITCHEN' ? 'var(--brand-text)' : 'var(--color-warning)',
                                       }}
                                     >
                                       {o.status}
@@ -2293,23 +2296,23 @@ export function MainDashboardClient({
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Gross Sales</div>
                         <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>
-                          ${kpiData.sales.grossSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {money(kpiData.sales.grossSales)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Subtotal before tax & tip</div>
                       </div>
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Net Collected</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>
-                          ${kpiData.sales.netSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-success)', marginTop: 4 }}>
+                          {money(kpiData.sales.netSales)}
                         </div>
-                        <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, marginTop: 2 }}>{stats.salesGrowth} vs previous</div>
+                        <div style={{ fontSize: 11, color: 'var(--color-success)', fontWeight: 600, marginTop: 2 }}>{stats.salesGrowth} vs previous</div>
                       </div>
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Sales Tax</div>
                         <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>
-                          ${kpiData.sales.totalTax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {money(kpiData.sales.totalTax)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Compliant sales tax</div>
                       </div>
@@ -2317,7 +2320,7 @@ export function MainDashboardClient({
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Tips & Gratuity</div>
                         <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-secondary)', marginTop: 4 }}>
-                          ${kpiData.sales.totalTips.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {money(kpiData.sales.totalTips)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Staff tips pool</div>
                       </div>
@@ -2369,7 +2372,7 @@ export function MainDashboardClient({
                                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)' }}>{pm.method}</span>
                               </div>
                               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
-                                ${pm.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                {money(pm.amount)}
                               </div>
                               <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', display: 'flex', justifyContent: 'space-between' }}>
                                 <span>{pm.percentage}% share</span>
@@ -2390,18 +2393,18 @@ export function MainDashboardClient({
                         <div style={{ padding: '10px 12px', background: 'var(--color-bg-card)', borderRadius: 10, border: '1px solid var(--color-border)' }}>
                           <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Avg Revenue / Order</span>
                           <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 2 }}>
-                            ${kpiData.sales.avgTransaction.toFixed(2)}
+                            {money(kpiData.sales.avgTransaction)}
                           </div>
                         </div>
                         <div style={{ padding: '10px 12px', background: 'var(--color-bg-card)', borderRadius: 10, border: '1px solid var(--color-border)' }}>
                           <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Settlement Status</span>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#16a34a', marginTop: 2 }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-success)', marginTop: 2 }}>
                             ✓ 100% Reconciled
                           </div>
                         </div>
                         <div style={{ padding: '10px 12px', background: 'var(--color-bg-card)', borderRadius: 10, border: '1px solid var(--color-border)' }}>
                           <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Digital Payment Ratio</span>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--brand)', marginTop: 2 }}>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--brand-text)', marginTop: 2 }}>
                             78.0% Non-Cash
                           </div>
                         </div>
@@ -2430,8 +2433,8 @@ export function MainDashboardClient({
                         style={{
                           padding: '9px 18px',
                           borderRadius: 10,
-                          background: '#16a34a',
-                          color: '#ffffff',
+                          background: 'var(--color-success)',
+                          color: 'var(--on-success)',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',
@@ -2452,7 +2455,7 @@ export function MainDashboardClient({
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Average Order Value</div>
                         <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-secondary)', marginTop: 4 }}>
-                          ${kpiData.aov.avgOrderValue.toFixed(2)}
+                          {money(kpiData.aov.avgOrderValue)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Per completed transaction</div>
                       </div>
@@ -2467,8 +2470,8 @@ export function MainDashboardClient({
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Spend Per Guest</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>
-                          ${kpiData.aov.avgSpendPerGuest.toFixed(2)}
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-success)', marginTop: 4 }}>
+                          {money(kpiData.aov.avgSpendPerGuest)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Average per person spend</div>
                       </div>
@@ -2476,7 +2479,7 @@ export function MainDashboardClient({
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Peak Ticket Size</div>
                         <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>
-                          ${kpiData.aov.highestOrderValue.toFixed(2)}
+                          {money(kpiData.aov.highestOrderValue)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Highest order total</div>
                       </div>
@@ -2569,7 +2572,7 @@ export function MainDashboardClient({
                           padding: '9px 18px',
                           borderRadius: 10,
                           background: 'var(--color-text-secondary)',
-                          color: '#ffffff',
+                          color: 'var(--color-bg)',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',
@@ -2589,19 +2592,19 @@ export function MainDashboardClient({
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Total Bookings</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#ea580c', marginTop: 4 }}>{kpiData.reservations.totalCount}</div>
-                        <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, marginTop: 2 }}>{stats.resvGrowth} vs last week</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-warning)', marginTop: 4 }}>{kpiData.reservations.totalCount}</div>
+                        <div style={{ fontSize: 11, color: 'var(--color-success)', fontWeight: 600, marginTop: 2 }}>{stats.resvGrowth} vs last week</div>
                       </div>
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Confirmed / Booked</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>{kpiData.reservations.statusCounts.booked}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-success)', marginTop: 4 }}>{kpiData.reservations.statusCounts.booked}</div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Upcoming confirmed</div>
                       </div>
 
                       <div style={{ background: 'var(--color-bg-primary)', padding: '14px 16px', borderRadius: 12, border: '1px solid var(--color-border)' }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Currently Seated</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand)', marginTop: 4 }}>{kpiData.reservations.statusCounts.seated}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand-text)', marginTop: 4 }}>{kpiData.reservations.statusCounts.seated}</div>
                         <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>Dining right now</div>
                       </div>
 
@@ -2652,7 +2655,7 @@ export function MainDashboardClient({
                                       fontSize: 10,
                                       fontWeight: 800,
                                       background: r.status === 'Booked' || r.status === 'CONFIRMED' ? 'rgba(34, 197, 94, 0.15)' : r.status === 'Seated' || r.status === 'SEATED' ? 'var(--brand-tint)' : 'rgba(245, 158, 11, 0.15)',
-                                      color: r.status === 'Booked' || r.status === 'CONFIRMED' ? '#16a34a' : r.status === 'Seated' || r.status === 'SEATED' ? 'var(--brand)' : '#d97706',
+                                      color: r.status === 'Booked' || r.status === 'CONFIRMED' ? 'var(--color-success)' : r.status === 'Seated' || r.status === 'SEATED' ? 'var(--brand-text)' : 'var(--color-warning)',
                                     }}
                                   >
                                     {r.status}
@@ -2687,8 +2690,8 @@ export function MainDashboardClient({
                         style={{
                           padding: '9px 18px',
                           borderRadius: 10,
-                          background: '#ea580c',
-                          color: '#ffffff',
+                          background: 'var(--color-warning)',
+                          color: 'var(--on-warning)',
                           fontSize: 13,
                           fontWeight: 700,
                           textDecoration: 'none',

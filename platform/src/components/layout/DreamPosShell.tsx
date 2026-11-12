@@ -174,12 +174,12 @@ export default function DreamPosShell({
                 width: '32px',
                 height: '32px',
                 borderRadius: '8px',
-                background: '#18181B',
-                border: '1px solid #18181B',
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
               }}
             >

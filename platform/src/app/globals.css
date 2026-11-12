@@ -1,88 +1,96 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Resto — Midday.ai Obsidian Design System
-   Monochrome palette (#000000 / #09090b / #121215) · Crisp 1px hairline borders
-   Inter & Newsreader typography · High-contrast white buttons · Minimalist precision
+   Prominentz — Direction C "Across the Room"
+   Dark-first graphite (#0E1014) · Violet (#6835F9, the Pz logo colour) as the ONLY action color
+   Status = solid color blocks with a word (not dots)
+   Barlow Condensed 800 (headlines, timers) · Barlow 400/600 (body) · JetBrains Mono (IDs)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root,
 [data-theme="dark"] {
-  /* ─── Midday Core Monochrome & Brand Tokens (Obsidian Dark) ─── */
-  --brand: #ffffff;
-  --brand-contrast: #000000;
-  --color-brand-contrast: #000000;
-  --brand-hover: #e4e4e7;
-  --brand-gradient: #ffffff;
-  --brand-glow: rgba(255, 255, 255, 0.15);
-  --brand-tint: rgba(255, 255, 255, 0.08);
-  --brand-light: #ffffff;
-  --color-brand-500: #ffffff;
-  --color-brand-tint: rgba(255, 255, 255, 0.08);
+  /* ─── Direction C Brand Tokens — Violet ONLY as action color ─── */
+  --brand: #6835F9;
+  --brand-contrast: #FFFFFF;
+  --color-brand-contrast: #FFFFFF;
+  --brand-hover: #7a4dfa;
+  --brand-gradient: #6835F9;
+  --brand-glow: rgba(104, 53, 249, 0.25);
+  --brand-tint: rgba(104, 53, 249, 0.10);
+  --brand-light: #A98BFF;
+  --color-brand-500: #A98BFF;
+  --color-brand-tint: rgba(104, 53, 249, 0.10);
+  --brand-text: #A98BFF;
 
-  /* Canonical Canvas & Surfaces (Obsidian) */
-  --canvas: #000000;
-  --surface: #09090b;
-  --surface-raised: #121215;
-  --surface-card: #0e0e11;
-  --surface-card-hover: #16161a;
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --surface-border-strong: rgba(255, 255, 255, 0.16);
+  /* ─── Direction C Palette ─── */
+  /* Graphite  */ --color-graphite: #0E1014;
+  /* Panel     */ --color-panel: #171A28;
+  /* Raised    */ --color-raised: #262A33;
+  /* Muted     */ --color-muted: #9BA3AF;
+  /* Text      */ --color-ink: #F3F4F6;
 
-  /* Apple system reference colors (for semantic use only, NOT accents) */
-  --apple-blue: #007AFF;
-  --apple-red: #FF453A;
-  --apple-orange: #FF9F0A;
-  --apple-yellow: #FFD60A;
-  --apple-green: #30D158;
-  --apple-mint: #63E6E2;
-  --apple-cyan: #32ADE6;
-  --apple-purple: #BF5AF2;
-  --apple-pink: #FF375F;
+  /* Status block colors (Direction C: solid blocks, not dots) */
+  --status-aging:  #FFB029;   /* amber  — order aging */
+  --status-ready:  #34D278;   /* green  — ready / on-time */
+  --status-late:   #D92020;   /* red    — late / overdue */
+  --status-new:    #262A33;   /* raised — new / unknown */
+  --status-paid:   #34D278;   /* green  — paid */
+  --status-online: #262A33;   /* raised — online order */
 
-  /* Backgrounds — Midday dark obsidian */
-  --color-bg: #000000;
-  --color-bg-raised: #111114;
-  --color-bg-card: #0e0e11;
-  --color-bg-card-hover: #16161a;
-  --color-bg-input: #09090b;
-  --color-bg-overlay: rgba(0, 0, 0, 0.88);
-  --color-bg-vibrancy: rgba(9, 9, 11, 0.85);
-  --color-bg-sidebar: #08080a;
+  /* Canonical Canvas & Surfaces */
+  --canvas: #0E1014;
+  --surface: #0E1014;
+  --surface-raised: #262A33;
+  --surface-card: #171A28;
+  --surface-card-hover: #1E2230;
+  --surface-border: rgba(255, 255, 255, 0.07);
+  --surface-border-strong: rgba(255, 255, 255, 0.13);
 
-  /* Separators — Crisp 1px hairlines */
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
-  --color-border-input: rgba(255, 255, 255, 0.12);
-  --color-separator: rgba(255, 255, 255, 0.06);
+  /* Backgrounds */
+  --color-bg: #0E1014;
+  --color-bg-raised: #171A28;
+  --color-bg-card: #171A28;
+  --color-bg-card-hover: #1E2230;
+  --color-bg-input: #262A33;
+  --color-bg-overlay: rgba(0, 0, 0, 0.90);
+  --color-bg-vibrancy: rgba(14, 16, 20, 0.90);
+  --color-bg-sidebar: #0E1014;
 
-  /* Typography — WCAG AA compliant contrast ratios */
-  --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(255, 255, 255, 0.70);
-  --color-text-tertiary: rgba(255, 255, 255, 0.45);
-  --color-text-quaternary: rgba(255, 255, 255, 0.28);
+  /* Separators */
+  --color-border: rgba(255, 255, 255, 0.07);
+  --color-border-strong: rgba(255, 255, 255, 0.13);
+  --color-border-input: rgba(255, 255, 255, 0.10);
+  --color-separator: rgba(255, 255, 255, 0.05);
 
-  /* Semantic - Tested foreground/background pairs */
-  --color-success: #166534;
-  --color-warning: #b45309;
-  --color-error: #991b1b;
-  --color-info: #1d4ed8;
+  /* Typography */
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #9BA3AF;
+  --color-text-tertiary: rgba(155, 163, 175, 0.70);
+  --color-text-quaternary: rgba(155, 163, 175, 0.45);
 
-  /* KDS Station Colors */
-  --color-station-hot: #ef4444;
-  --color-station-cold: #06b6d4;
-  --color-station-bar: #a855f7;
-  --color-station-expo: #22c55e;
+  /* Semantic */
+  --color-success: #34D278;
+  --color-warning: #FFB029;
+  --color-error: #D92020;
+  --color-info: var(--brand-text);
+
+  /* KDS Station Colors — keep semantic station colors */
+  --color-station-hot: #D92020;
+  --color-station-cold: #30D0F5;
+  --color-station-bar: #9B59B6;
+  --color-station-expo: #34D278;
 
   /* Table Status */
-  --color-table-empty: #27272a;
-  --color-table-active: #22c55e;
-  --color-table-paying: #a855f7;
-  --color-table-reserved: #3b82f6;
+  --color-table-empty: #262A33;
+  --color-table-active: #34D278;
+  --color-table-paying: #FFB029;
+  --color-table-reserved: #30D0F5;
 
-  /* ─── Typography ─── */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Newsreader', Georgia, serif;
-  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  /* ─── Typography — Direction C ─── */
+  /* Barlow for all UI text, Barlow Condensed for timers/headlines */
+  --font-sans: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Barlow Condensed', 'Barlow', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 
+  /* Scale — slightly larger for kitchen readability */
   --text-xs: 0.6875rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -90,13 +98,18 @@
   --text-xl: 1.1875rem;
   --text-2xl: 1.375rem;
   --text-3xl: 1.75rem;
-  --text-4xl: 2.25rem;
+  --text-4xl: 2.5rem;
+  /* Condensed timer sizes */
+  --text-timer-sm: 2rem;
+  --text-timer-md: 2.75rem;
+  --text-timer-lg: 3.5rem;
 
   --font-light: 300;
   --font-regular: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+  --font-black: 800;
 
   /* ─── Spacing ─── */
   --space-1: 0.25rem;
@@ -110,28 +123,27 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* ─── Radius (Crisp Midday Geometry) ─── */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
-  --radius-3xl: 24px;
+  /* ─── Radius — Direction C uses sharper geometry ─── */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
   --radius-full: 9999px;
 
   /* ─── Shadows ─── */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.85);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.7);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.75);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.90);
   --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.95);
-  --shadow-glow-blue: 0 0 24px rgba(255, 255, 255, 0.08);
-  --shadow-glow-brand: 0 0 24px rgba(255, 255, 255, 0.08);
+  --shadow-glow-brand: 0 0 20px rgba(104, 53, 249, 0.20);
 
   /* ─── Transitions ─── */
-  --transition-fast: 120ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-normal: 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-slow: 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --spring: 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-normal: 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-slow: 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --spring: 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ─── Z-index ─── */
   --z-base: 0;
@@ -168,7 +180,35 @@ body {
   background-color: var(--color-bg);
   line-height: 1.5;
   min-height: 100vh;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+}
+
+/* Headings — Barlow Condensed, tight tracking */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* Display (timers, big numbers) — Barlow Condensed 800 */
+.font-display,
+.timer,
+.kpi-number {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* IDs, codes, SKUs — JetBrains Mono only */
+.font-mono,
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-weight: 500;
 }
 
 /* Form Elements Theme Contrast & Option Visibility */
@@ -216,9 +256,9 @@ select option {
 
 /* ─── Keyboard Focus & Accessibility (WCAG 2.1 AA) ──────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--brand, #18181B);
+  outline: 2px solid var(--brand, #6835F9);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(24, 24, 27, 0.12);
+  box-shadow: 0 0 0 4px rgba(104, 53, 249, 0.15);
 }
 
 /* Skip to main content link */
@@ -226,7 +266,7 @@ select option {
   position: absolute;
   top: -100px;
   left: 16px;
-  background: var(--brand, #18181B);
+  background: var(--brand, #6835F9);
   color: #ffffff;
   padding: 10px 18px;
   border-radius: 8px;
@@ -318,19 +358,20 @@ select option {
   letter-spacing: 0.05em;
 }
 
-/* ─── Buttons (Apple HIG: Filled / Tinted / Plain / Gray) ───────────────── */
+/* ─── Buttons — Direction C: Violet ONLY for primary action ───────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   padding: 0 var(--space-5);
-  height: 34px;
+  height: 36px;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
   border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -348,13 +389,13 @@ select option {
   pointer-events: none;
 }
 
-/* Filled — Midday high-contrast monochrome primary action (Obsidian Dark) */
+/* Filled — Direction C: Violet primary action */
 .btn--primary {
-  background: #ffffff;
-  color: #000000 !important;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  background: #6835F9;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  border: 1px solid #6835F9;
+  box-shadow: 0 0 0 0 rgba(104, 53, 249, 0);
 }
 
 .btn--primary,
@@ -366,9 +407,9 @@ select option {
 .btn--primary b,
 .btn--primary div,
 .btn--primary label {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-  fill: #000000 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  fill: #FFFFFF !important;
 }
 
 .btn--primary svg,
@@ -377,13 +418,13 @@ select option {
 .btn--primary svg polyline,
 .btn--primary svg circle,
 .btn--primary svg rect {
-  stroke: #000000 !important;
+  stroke: #FFFFFF !important;
 }
 
 .btn--primary:hover {
-  background: #e4e4e7;
-  color: #000000 !important;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+  background: #7a4dfa;
+  color: #FFFFFF !important;
+  box-shadow: 0 0 20px rgba(104, 53, 249, 0.30);
 }
 
 .btn--primary:hover,
@@ -391,8 +432,8 @@ select option {
 .btn--primary:hover .btn__text,
 .btn--primary:hover span,
 .btn--primary:hover strong {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
 }
 
 .btn--primary:active {
@@ -402,23 +443,23 @@ select option {
 
 /* Secondary */
 .btn--secondary {
-  background: #111114;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #262A33;
+  color: #F3F4F6;
+  border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .btn--secondary:hover {
-  background: #18181c;
+  background: #2d3240;
   border-color: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
+  color: #F3F4F6;
 }
 
 .btn--secondary:active {
   transform: scale(0.98);
 }
 
-/* Outline — crisp hairline monochrome border */
+/* Outline — crisp hairline border */
 .btn--outline {
   background: transparent;
   color: var(--color-text-primary);
@@ -435,7 +476,7 @@ select option {
   transform: scale(0.98);
 }
 
-/* Ghost — subtle monochrome */
+/* Ghost */
 .btn--ghost {
   background: transparent;
   color: var(--color-text-primary);
@@ -666,45 +707,78 @@ select option {
   border-radius: var(--radius-2xl);
 }
 
-/* ─── Badge (Apple system label style) ───────────────────────────────────── */
+/* ─── Badge / Status Block — Direction C: solid color blocks with a word ─── */
+/* Status is shown as a solid-fill block with a short uppercase label.         */
+/* Violet is never used as a status color — it stays reserved for action only. */
 .badge {
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  letter-spacing: 0.01em;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.6;
 }
 
+.badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* Direction C solid block status colors */
+/* READY / ACTIVE / PAID / AVAILABLE / COMPLETED / OPEN */
+.badge--active,
 .badge--success {
-  background: rgba(48, 209, 88, 0.16);
-  color: var(--color-success);
+  background: #34D278;
+  color: #0E1014;
 }
 
-.badge--warning {
-  background: rgba(255, 159, 10, 0.16);
-  color: var(--color-warning);
+/* AGING / PENDING / PROCESSING / BOOKED / DRAFT */
+.badge--pending,
+.badge--warning,
+.badge--processing {
+  background: #FFB029;
+  color: #0E1014;
 }
 
-.badge--error {
-  background: rgba(255, 69, 58, 0.16);
-  color: var(--color-error);
+/* LATE / UNPAID / ERROR / CANCELLED / EXPIRED */
+.badge--error,
+.badge--expired {
+  background: #D92020;
+  color: #ffffff;
 }
 
+/* INFO — violet text for informational states only */
 .badge--info {
-  background: rgba(50, 173, 230, 0.16);
-  color: var(--color-info);
+  background: rgba(104, 53, 249, 0.15);
+  color: var(--brand-text);
+  border: 1px solid rgba(104, 53, 249, 0.25);
 }
 
 .badge--brand {
-  background: var(--color-brand-tint);
-  color: var(--color-brand-500);
+  background: rgba(104, 53, 249, 0.12);
+  color: var(--brand-text);
 }
 
+/* INACTIVE / CLOSED / NEUTRAL */
+.badge--inactive,
 .badge--neutral {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--color-text-secondary);
+  background: #262A33;
+  color: #9BA3AF;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Badge sm modifier */
+.badge--sm {
+  padding: 1px 6px;
+  font-size: 10px;
 }
 
 /* ─── Form Inputs (Apple text field style) ───────────────────────────────── */
@@ -726,7 +800,6 @@ select option {
   background: rgba(255, 255, 255, 0.07);
   box-shadow: 0 0 0 3px var(--brand-glow), inset 0 0 0 0.5px var(--brand);
 }
-
 .input::placeholder {
   color: var(--color-text-tertiary);
 }
@@ -822,23 +895,45 @@ select.input {
   background: var(--color-table-reserved);
 }
 
-/* ─── KDS Ticket Status ──────────────────────────────────────────────────── */
+/* ─── KDS Ticket Status — Direction C solid left border ──────────────────── */
 .ticket-new {
-  border-left: 2px solid var(--apple-yellow);
+  border-left: 3px solid #262A33;
 }
 
 .ticket-in-progress {
-  border-left: 2px solid var(--apple-blue);
+  border-left: 3px solid #6835F9; /* violet — in progress = action */
 }
 
 .ticket-ready {
-  border-left: 2px solid var(--apple-green);
+  border-left: 3px solid #34D278; /* green — ready */
 }
 
 .ticket-alert {
-  border-left: 2px solid var(--apple-red);
+  border-left: 3px solid #D92020; /* red — late/alert */
   animation: pulse 1.2s ease-in-out infinite;
 }
+
+/* ─── Direction C Status Block utilities ─────────────────────────────────── */
+/* Use these for the solid-block ticket header rows in KDS */
+.status-block {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+.status-block--aging  { background: #FFB029; color: #0E1014; }
+.status-block--ready  { background: #34D278; color: #0E1014; }
+.status-block--late   { background: #D92020; color: #ffffff; }
+.status-block--new    { background: #262A33; color: #9BA3AF; }
+.status-block--online { background: #262A33; color: #9BA3AF; }
+.status-block--paid   { background: #34D278; color: #0E1014; }
 
 @keyframes pulse {
 
@@ -886,18 +981,6 @@ select.input {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes bounce {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-6px);
   }
 }
 
@@ -1430,12 +1513,12 @@ select.input {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
-/* Current active section (current page lives here) */
+/* Current active section — Direction C: violet indicator */
 .sidebar-rail__btn--current {
-  color: #ffffff;
-  background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: #0E1014;
+  background: #6835F9;
+  border: 1px solid #6835F9;
+  box-shadow: 0 4px 14px rgba(104, 53, 249, 0.20);
 }
 
 .sidebar-rail__btn--current::before {
@@ -1446,13 +1529,13 @@ select.input {
   bottom: 9px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: #ffffff;
+  background: #6835F9;
 }
 
 .sidebar-rail__btn--current:hover {
-  background: #27272a;
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.75);
+  background: #7a4dfa;
+  border-color: #7a4dfa;
+  box-shadow: 0 6px 18px rgba(104, 53, 249, 0.30);
 }
 
 /* Light mode overrides for icon rail */
@@ -1688,7 +1771,7 @@ select.input {
 .sidebar__logo-badge {
   font-size: 9px;
   font-weight: 800;
-  color: var(--brand);
+  color: var(--brand-text);
   background: var(--brand-tint);
   border: 0.5px solid var(--color-border);
   padding: 2px 6px;
@@ -2244,66 +2327,67 @@ select.input {
 /* ─── Light Mode Theme ───────────────────────────────────────────────────── */
 /* Toggle by setting data-theme="light" on <html>                            */
 [data-theme="light"] {
-  /* ─── Midday Core Monochrome & Brand Tokens (Clean Light) ─── */
-  --brand: #18181B;
+  /* ─── Night Shift Ledger Brand Tokens (Clean Light Ground) ─── */
+  --brand: #6835F9;
   --brand-contrast: #ffffff;
   --color-brand-contrast: #ffffff;
-  --brand-hover: #27272A;
-  --brand-gradient: #18181B;
-  --brand-glow: rgba(24, 24, 27, 0.12);
-  --brand-tint: rgba(24, 24, 27, 0.05);
-  --brand-light: #27272A;
-  --color-brand-500: #18181B;
-  --color-brand-tint: rgba(24, 24, 27, 0.05);
+  --brand-hover: #5b28ee;
+  --brand-gradient: #6835F9;
+  --brand-glow: rgba(104, 53, 249, 0.22);
+  --brand-tint: rgba(104, 53, 249, 0.08);
+  --brand-light: #6835F9;
+  --color-brand-500: #6835F9;
+  --color-brand-tint: rgba(104, 53, 249, 0.08);
+  --brand-text: #6835F9;
 
-  /* Canonical Canvas & Surfaces */
-  --canvas: #fbfaf8;
+  /* Canonical Canvas & Surfaces (purewhite light ground) */
+  --canvas: #ffffff;
   --surface: #ffffff;
-  --surface-raised: #f5f4f0;
+  --surface-raised: #f7f8fa;
   --surface-card: #ffffff;
-  --surface-card-hover: #f9f8f6;
-  --surface-border: rgba(0, 0, 0, 0.10);
-  --surface-border-strong: rgba(0, 0, 0, 0.20);
+  --surface-card-hover: #f3f5f7;
+  --surface-border: rgba(11, 11, 12, 0.14);
+  --surface-border-strong: rgba(11, 11, 12, 0.22);
 
-  /* Backgrounds — crisp clean whites */
-  --color-bg: #F8FAFC;
-  --color-bg-raised: #FFFFFF;
-  --color-bg-card: #FFFFFF;
-  --color-bg-card-hover: #F1F5F9;
-  --color-bg-input: #FFFFFF;
-  --color-bg-overlay: rgba(248, 250, 252, 0.95);
+  /* Backgrounds — purewhite light ground */
+  --color-bg: #ffffff;
+  --color-bg-raised: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f3f5f7;
+  --color-bg-input: #ffffff;
+  --color-bg-overlay: rgba(255, 255, 255, 0.95);
   --color-bg-vibrancy: rgba(255, 255, 255, 0.88);
-  --color-bg-sidebar: #FFFFFF;
+  --color-bg-sidebar: #ffffff;
 
-  /* Separators */
-  --color-border: rgba(0, 0, 0, 0.12);
-  --color-border-strong: rgba(0, 0, 0, 0.22);
-  --color-border-input: rgba(0, 0, 0, 0.18);
-  --color-separator: rgba(0, 0, 0, 0.08);
+  /* Separators — midblack ink at low opacity */
+  --color-border: rgba(11, 11, 12, 0.14);
+  --color-border-strong: rgba(11, 11, 12, 0.22);
+  --color-border-input: rgba(11, 11, 12, 0.18);
+  --color-separator: rgba(11, 11, 12, 0.09);
 
-  /* Typography — crisp dark slate on light */
-  --color-text-primary: #0F172A;
-  /* Slate 900 — crisp primary text */
-  --color-text-secondary: #334155;
-  /* Slate 700 — high-contrast secondary & descriptions */
-  --color-text-tertiary: #64748B;
-  /* Slate 500 — clear tertiary labels */
-  --color-text-quaternary: #94A3B8;
-  /* Slate 400 */
+  /* Typography — midblack #0b0b0c (matches dark mode's base, not navy ink) */
+  --color-text-primary: #0b0b0c;
+  --color-text-secondary: rgba(11, 11, 12, 0.68);
+  --color-text-tertiary: rgba(11, 11, 12, 0.46);
+  --color-text-quaternary: rgba(11, 11, 12, 0.30);
+
+  /* Semantic */
+  --color-success: #24ab5c;
+  --color-info: var(--brand-text);
 
   /* Shadows — crisp layered shadows for light mode */
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 8px 32px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(15, 23, 42, 0.08);
-  --shadow-xl: 0 20px 60px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 1px 2px rgba(11, 11, 12, 0.04), 0 10px 30px rgba(11, 11, 12, 0.07);
+  --shadow-md: 0 4px 16px rgba(11, 11, 12, 0.08), 0 0 0 1px rgba(11, 11, 12, 0.08);
+  --shadow-lg: 0 8px 32px rgba(11, 11, 12, 0.10), 0 0 0 1px rgba(11, 11, 12, 0.08);
+  --shadow-xl: 0 20px 60px rgba(11, 11, 12, 0.12), 0 0 0 1px rgba(11, 11, 12, 0.08);
 }
 
 /* Light mode button & navigation contrast enhancements */
 [data-theme="light"] .btn--primary {
-  background: #18181B;
-  color: #FFFFFF !important;
-  border: 1px solid #18181B;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  background: #6835F9;
+  color: #ffffff !important;
+  border: 1px solid #6835F9;
+  box-shadow: 0 1px 2px rgba(11, 11, 12, 0.08);
 }
 
 [data-theme="light"] .btn--primary,
@@ -2312,29 +2396,29 @@ select.input {
 [data-theme="light"] .btn--primary span,
 [data-theme="light"] .btn--primary p,
 [data-theme="light"] .btn--primary strong {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  fill: #ffffff !important;
 }
 
 [data-theme="light"] .btn--primary svg,
 [data-theme="light"] .btn--primary svg path,
 [data-theme="light"] .btn--primary svg line {
-  stroke: #FFFFFF !important;
+  stroke: #ffffff !important;
 }
 
 [data-theme="light"] .btn--primary:hover {
-  background: #27272A;
-  color: #FFFFFF !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  background: #5b28ee;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(104, 53, 249, 0.25);
 }
 
 [data-theme="light"] .btn--primary:hover,
 [data-theme="light"] .btn--primary:hover *,
 [data-theme="light"] .btn--primary:hover .btn__text,
 [data-theme="light"] .btn--primary:hover span {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 [data-theme="light"] .btn--secondary {
@@ -2416,15 +2500,15 @@ select.input {
 [data-theme="dark"] [style*="background-color:var(--brand)"],
 :root:not([data-theme="light"]) [style*="background: var(--brand)"],
 :root:not([data-theme="light"]) [style*="background:var(--brand)"] {
-  color: #000000 !important;
+  color: #FFFFFF !important;
 }
 
 [data-theme="dark"] [style*="background: var(--brand)"] *,
 [data-theme="dark"] [style*="background:var(--brand)"] *,
 :root:not([data-theme="light"]) [style*="background: var(--brand)"] *,
 :root:not([data-theme="light"]) [style*="background:var(--brand)"] * {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
 }
 
 [data-theme="light"] [style*="background: var(--brand)"],
@@ -2655,7 +2739,7 @@ html.theme-transitioning *::after {
 .landing-logo__badge {
   font-size: 9px;
   font-weight: 800;
-  color: var(--brand);
+  color: var(--brand-text);
   background: var(--brand-tint);
   border: 0.5px solid var(--color-border);
   padding: 2px 6px;
@@ -2704,7 +2788,7 @@ html.theme-transitioning *::after {
   border-radius: var(--radius-full);
   background: var(--brand-tint);
   border: 0.5px solid rgba(37, 99, 235, 0.24);
-  color: var(--brand);
+  color: var(--brand-text);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   margin-bottom: var(--space-6);
@@ -2730,9 +2814,7 @@ html.theme-transitioning *::after {
 
 .landing-hero__title em {
   font-style: normal;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--brand-text);
 }
 
 .landing-hero__sub {
@@ -2848,7 +2930,7 @@ html.theme-transitioning *::after {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--brand);
+  color: var(--brand-text);
   margin-bottom: var(--space-3);
 }
 
@@ -2914,14 +2996,14 @@ html.theme-transitioning *::after {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.1em;
-  color: var(--brand);
+  color: var(--brand-text);
 }
 
 .roi-amount {
   font-size: 48px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: var(--brand);
+  color: var(--brand-text);
   margin-top: 8px;
 }
 
@@ -4072,8 +4154,8 @@ html.theme-transitioning *::after {
 }
 
 .dream-qty-btn {
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   border: none;
   background: transparent;
   display: flex;
@@ -4083,6 +4165,17 @@ html.theme-transitioning *::after {
   cursor: pointer;
   color: var(--color-text-primary);
   transition: background var(--transition-fast);
+}
+
+@media (pointer: coarse) {
+  .dream-qty-btn { width: 44px; height: 44px; }
+}
+
+.dream-qty-btn:focus-visible,
+.dream-pos-nav-btn:focus-visible,
+.dream-cart-action-btn:focus-visible {
+  outline: 2px solid var(--color-primary, #6835F9);
+  outline-offset: 2px;
 }
 
 .dream-qty-btn:hover {
@@ -4633,3 +4726,469 @@ html.theme-transitioning *::after {
       gap: 16px;
     }
   }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DIRECTION C · ACROSS THE ROOM — action color: Prominentz logo violet
+   Dark-first, like signage: graphite ground, tall condensed numbers, status
+   as solid color blocks with a word. Violet (#6835F9) replaces the board's
+   cyan as the only action color. Light mode is the back-office variant.
+   Loaded last so it overrides the older tokens above.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Dark (default): graphite ── */
+:root,
+[data-theme="dark"] {
+  --brand: #6835F9;
+  --brand-hover: #7a4dfa;
+  --brand-contrast: #FFFFFF;
+  --color-brand-contrast: #FFFFFF;
+  --brand-text: #A98BFF;
+  --brand-light: #A98BFF;
+  --color-brand-500: #A98BFF;
+  --brand-tint: rgba(104, 53, 249, 0.16);
+  --color-brand-tint: rgba(104, 53, 249, 0.16);
+  --brand-glow: rgba(104, 53, 249, 0.35);
+
+  --canvas: #0E1014;
+  --surface: #171A20;
+  --surface-raised: #262A33;
+  --surface-card: #171A20;
+  --surface-card-hover: #1F232B;
+  --surface-border: #262A33;
+  --surface-border-strong: #343945;
+
+  --color-bg: #0E1014;
+  --color-bg-raised: #171A20;
+  --color-bg-card: #171A20;
+  --color-bg-card-hover: #1F232B;
+  --color-bg-input: #13161B;
+  --color-bg-overlay: rgba(14, 16, 20, 0.92);
+  --color-bg-vibrancy: rgba(14, 16, 20, 0.88);
+  --color-bg-sidebar: #0E1014;
+
+  --color-border: #262A33;
+  --color-border-strong: #343945;
+  --color-border-input: #343945;
+  --color-separator: #262A33;
+
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #9BA3AF;
+  --color-text-tertiary: #7D8592;
+  --color-text-quaternary: #5B6270;
+
+  /* Status blocks */
+  --color-success: #34D27B;
+  --color-warning: #FFB020;
+  --color-error: #D92D20;
+  /* Text on solid status blocks */
+  --on-success: #0E1014;
+  --on-warning: #0E1014;
+  --on-error: #FFFFFF;
+
+  --font-sans: 'Barlow', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Barlow Condensed', 'Barlow', 'Inter', sans-serif;
+  --font-display: 'Barlow Condensed', 'Barlow', 'Inter', sans-serif;
+
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+}
+
+/* ── Light: back office ── */
+[data-theme="light"] {
+  --brand: #6835F9;
+  --brand-hover: #5b28ee;
+  --brand-text: #6835F9;
+  --brand-light: #6835F9;
+  --color-brand-500: #6835F9;
+  --brand-tint: rgba(104, 53, 249, 0.10);
+  --color-brand-tint: rgba(104, 53, 249, 0.10);
+
+  --canvas: #F4F5F7;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-card: #FFFFFF;
+  --surface-card-hover: #F9FAFB;
+  --surface-border: #E5E7EB;
+  --surface-border-strong: #D1D5DB;
+
+  --color-bg: #F4F5F7;
+  --color-bg-raised: #FFFFFF;
+  --color-bg-card: #FFFFFF;
+  --color-bg-card-hover: #F9FAFB;
+  --color-bg-input: #FFFFFF;
+  --color-bg-sidebar: #FFFFFF;
+
+  --color-border: #E5E7EB;
+  --color-border-strong: #D1D5DB;
+  --color-border-input: #D1D5DB;
+  --color-separator: #E5E7EB;
+
+  --color-text-primary: #0E1014;
+  --color-text-secondary: #4B5563;
+  --color-text-tertiary: #6B7280;
+  --color-text-quaternary: #9CA3AF;
+
+  --color-success: #15803D;
+  --color-warning: #B45309;
+  --color-error: #D92D20;
+  --on-success: #FFFFFF;
+  --on-warning: #FFFFFF;
+  --on-error: #FFFFFF;
+}
+
+body {
+  letter-spacing: 0;
+}
+
+/* ── Type: condensed headlines, Barlow body ── */
+h1, h2, h3, h4, h5, h6,
+.font-display {
+  font-family: var(--font-serif);
+  letter-spacing: 0;
+}
+
+h1, h2 {
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+
+h3, h4 {
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* ── Buttons: 4px corners, bold Barlow ── */
+.btn {
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.btn--primary,
+[data-theme="light"] .btn--primary {
+  box-shadow: none;
+}
+
+.btn--secondary,
+.btn--outline {
+  background: transparent;
+  color: #F3F4F6;
+  border: 2px solid #F3F4F6;
+  box-shadow: none;
+}
+
+.btn--secondary:hover,
+.btn--outline:hover {
+  background: rgba(243, 244, 246, 0.10);
+  border-color: #F3F4F6;
+  color: #F3F4F6;
+}
+
+[data-theme="light"] .btn--secondary,
+[data-theme="light"] .btn--outline {
+  background: transparent !important;
+  color: #0E1014 !important;
+  border: 2px solid #0E1014 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="light"] .btn--secondary *,
+[data-theme="light"] .btn--secondary span {
+  color: #0E1014 !important;
+  -webkit-text-fill-color: #0E1014 !important;
+}
+
+[data-theme="light"] .btn--secondary:hover,
+[data-theme="light"] .btn--outline:hover {
+  background: rgba(14, 16, 20, 0.06) !important;
+}
+
+/* ── Status blocks: solid color with a word, never a small dot ── */
+.badge {
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge--success {
+  background: #34D27B;
+  color: #0E1014;
+}
+
+.badge--warning {
+  background: #FFB020;
+  color: #0E1014;
+}
+
+.badge--error {
+  background: #D92D20;
+  color: #FFFFFF;
+}
+
+/* ── Inputs ── */
+.input,
+input.input,
+textarea.input,
+select.input {
+  border-radius: 4px;
+}
+
+/* ── Shell: graphite in dark, white in light; violet bar marks where you are ── */
+.top-bar {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-rail,
+.sidebar-panel {
+  background: #0E1014;
+  border-right: 1px solid #262A33;
+}
+
+.sidebar-rail__btn {
+  color: #9BA3AF;
+  border-radius: 4px;
+}
+
+.sidebar-rail__btn:hover,
+.sidebar-rail__btn--open {
+  background: #171A20;
+  color: #F3F4F6;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.sidebar-rail__btn--current,
+.sidebar-rail__btn--current:hover {
+  background: #171A20;
+  color: #F3F4F6;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+[data-theme="light"] .sidebar-rail__btn--current,
+[data-theme="light"] .sidebar-rail__btn--current:hover {
+  background: #F4F5F7;
+  color: #0E1014;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+.sidebar-rail__btn--current::before,
+[data-theme="light"] .sidebar-rail__btn--current::before {
+  width: 4px;
+  background: #6835F9;
+}
+
+.sidebar-panel__section-header {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sidebar-panel__link {
+  color: #9BA3AF;
+  border-radius: 4px;
+}
+
+.sidebar-panel__link:hover {
+  background: #171A20;
+  color: #F3F4F6;
+  border-color: transparent;
+}
+
+.sidebar-panel__link--active,
+.sidebar-panel__link--active:hover {
+  background: #171A20;
+  color: #F3F4F6 !important;
+  border: 1px solid transparent;
+  box-shadow: inset 4px 0 0 #6835F9;
+}
+
+[data-theme="light"] .sidebar-rail,
+[data-theme="light"] .sidebar-panel {
+  background: #FFFFFF;
+  border-right: 1px solid #E5E7EB;
+}
+
+[data-theme="light"] .sidebar-panel__link--active,
+[data-theme="light"] .sidebar-panel__link--active:hover {
+  background: #F4F5F7;
+  color: #0E1014 !important;
+  border: 1px solid transparent;
+  box-shadow: inset 4px 0 0 #6835F9;
+}
+
+
+/* ── Direction C: tokens the KDS, server floor and POS shell read ──
+   These names were dropped in an earlier redesign, which left those screens
+   with no status colour. They alias the Direction C tokens above. */
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+  --primary: var(--brand);
+  --primary-soft: var(--brand-tint);
+  --success: var(--color-success);
+  --success-soft: color-mix(in srgb, var(--color-success) 14%, transparent);
+  --warning: var(--color-warning);
+  --warning-soft: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  --danger: var(--color-error);
+  --danger-soft: color-mix(in srgb, var(--color-error) 14%, transparent);
+  --text: var(--color-text-primary);
+  --text-muted: var(--color-text-secondary);
+  --surface: var(--color-bg-card);
+  --canvas: var(--color-bg);
+  --border: var(--color-border);
+  --color-text-muted: var(--color-text-secondary);
+  --color-border-subtle: var(--color-border);
+  --color-bg-primary: var(--color-bg);
+  --color-bg-secondary: var(--color-bg-raised);
+  --color-brand-600: var(--brand-hover);
+
+  /* Motion */
+  --dc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dc-fast: 140ms;
+  --dc-state: 220ms;
+}
+
+/* ── Signage numerals: timers and totals hold their width while they tick ── */
+.dc-timer {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background-color var(--dc-state) var(--dc-ease-out), color var(--dc-state) var(--dc-ease-out);
+}
+
+/* The old endless red glow is retired: late is a solid block (see .dc-timer). */
+.kds-ticket--overdue {
+  animation: none;
+}
+
+/* ── Status blocks change colour, they don't jump ── */
+.badge,
+.status-badge,
+[class*="badge--"] {
+  transition: background-color var(--dc-state) var(--dc-ease-out), color var(--dc-state) var(--dc-ease-out), border-color var(--dc-state) var(--dc-ease-out);
+}
+
+/* ── Where you are: the violet bar draws in from its centre ── */
+@keyframes dc-bar-in {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.sidebar-rail__btn--current::before {
+  transform-origin: center;
+  animation: dc-bar-in 200ms var(--dc-ease-out) both;
+}
+
+.sidebar-panel__link {
+  transition: background-color var(--dc-fast) var(--dc-ease-out), color var(--dc-fast) var(--dc-ease-out), box-shadow var(--dc-state) var(--dc-ease-out);
+}
+
+/* ── Press feedback: the block gives under your thumb ── */
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* ── Browser surfaces carry the palette too ── */
+::selection {
+  background: color-mix(in srgb, var(--brand) 45%, transparent);
+  color: var(--color-text-primary);
+}
+
+input,
+textarea {
+  caret-color: var(--brand);
+}
+
+/* ── Reduced motion: no travel, keep the meaning ──
+   Spatial movement goes; colour and opacity changes that report state stay. */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-rail__btn--current::before {
+    animation: none;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Late: the timer block blinks twice like a lit sign, then holds solid.
+   Plays once when the block appears (the KDS remounts it on the late flip).
+   Two flashes in 0.72s stays under the three-flashes-per-second limit. */
+@keyframes dc-sign-blink {
+  0%, 22%, 44%, 100% { opacity: 1; }
+  11%, 33% { opacity: 0.18; }
+}
+
+.dc-timer--late {
+  animation: dc-sign-blink 720ms linear 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No blinking: the solid red block and the "Late" label still say it */
+  .dc-timer--late {
+    animation: none;
+  }
+}
+
+/* ── App headers at tablet width ──
+   The top bar's quick links repeat the sidebar; below 1100px they collide with
+   the restaurant switcher, so the sidebar carries navigation alone. */
+@media (max-width: 1100px) {
+  .top-bar__quicknav {
+    display: none;
+  }
+}
+
+/* POS header: labels never wrap; the pill row scrolls instead of pushing the
+   till controls off screen. */
+.dream-pos-header__left {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.dream-pos-header__right {
+  flex-shrink: 0;
+}
+
+.dream-pos-nav-pills {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dream-pos-nav-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.dream-pos-nav-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Where you are: a raised pill with the violet bar, in both themes */
+.dream-pos-nav-btn--active,
+[data-theme="light"] .dream-pos-nav-btn--active {
+  background: var(--color-bg-raised) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow: inset 0 -3px 0 var(--brand) !important;
+}

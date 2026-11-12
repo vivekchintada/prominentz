@@ -1,29 +1,25 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
+import { SuppliersBoardView } from '@/components/bento/pages/SuppliersBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_SUPPLIERS_BOARD, getSuppliersBoard } from '@/lib/bento/suppliers-page'
 
 const InventoryClient = dynamic(() => import('@/components/dashboard/InventoryClient'), {
-  loading: () => (
-    <div className="flex items-center justify-center p-12 text-secondary">
-      <div className="spinner" />
-      <span className="ml-3 text-sm">Loading Suppliers...</span>
-    </div>
-  ),
+  loading: () => <div className="bz-skel" style={{ minHeight: 320 }} aria-busy="true" aria-label="Loading suppliers" />,
 })
 
-export const metadata = { title: 'Supplier Management | Prominentz' }
+export const metadata = { title: 'Suppliers | Prominentz' }
 
 export default async function InventorySuppliersPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
-  if (!['OWNER', 'MANAGER'].includes(session.user.role)) redirect('/dashboard')
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad('suppliers board', () => getSuppliersBoard(ctx.locationId, ctx.todayStart, ctx.timezone), EMPTY_SUPPLIERS_BOARD)
 
   return (
-    <div style={{ padding: '24px 32px' }}>
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>Loading Suppliers...</div>}>
+    <>
+      <SuppliersBoardView data={board} currency={ctx.currency} timezone={ctx.timezone} />
+      <ToolSection title="Suppliers" sub="Add and edit suppliers, contacts and lead times">
         <InventoryClient initialTab="suppliers" />
-      </Suspense>
-    </div>
+      </ToolSection>
+    </>
   )
 }

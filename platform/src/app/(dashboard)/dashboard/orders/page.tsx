@@ -2,14 +2,20 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import OrdersView from '@/components/dashboard/OrdersView'
+import { OrdersBoardView } from '@/components/bento/pages/OrdersBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_ORDERS_BOARD, getOrdersBoard } from '@/lib/bento/orders-page'
 
 export const metadata = { title: 'Orders | Prominentz' }
 
 export default async function OrdersPage() {
   const session = await auth()
-  if (!session?.user) redirect('/auth/signin')
+  if (!session?.user) redirect('/login')
 
   const restaurantId = session.user.restaurantId
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad('orders board', () => getOrdersBoard(ctx.locationId, ctx.todayStart), EMPTY_ORDERS_BOARD)
 
   // Fetch today's orders (last 24h) for initial load
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -68,5 +74,12 @@ export default async function OrdersPage() {
     })),
   }))
 
-  return <OrdersView initialOrders={serialized} />
+  return (
+    <>
+      <OrdersBoardView data={board} currency={ctx.currency} timezone={ctx.timezone} />
+      <ToolSection title="All orders" sub="The last 24 hours, with search, filters and order details">
+        <OrdersView initialOrders={serialized} />
+      </ToolSection>
+    </>
+  )
 }

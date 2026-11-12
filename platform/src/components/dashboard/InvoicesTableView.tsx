@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 /* ── Types ────────────────────────────────────────────────── */
 export interface InvoiceItem {
@@ -43,6 +45,7 @@ interface InvoicesTableViewProps {
 }
 
 export default function InvoicesTableView({ embeddedInReports = false }: InvoicesTableViewProps) {
+  const { money } = useMoney()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>('')
@@ -50,16 +53,10 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
   const [statusFilter, setStatusFilter] = useState<string>('All')
   const [sortBy, setSortBy] = useState<string>('newest')
   const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   // Invoice Details / Print Modal
   const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null)
   const [isPrintMode, setIsPrintMode] = useState<boolean>(false)
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg)
-    setTimeout(() => setToastMessage(null), 3500)
-  }
 
   // Fetch Invoices
   const fetchInvoices = useCallback(async () => {
@@ -78,7 +75,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
       }
     } catch (err) {
       console.error('Error fetching invoices:', err)
-      showToast('Error loading invoices')
+      toast.error('Error loading invoices')
     } finally {
       setLoading(false)
     }
@@ -109,7 +106,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
   // Export to CSV
   const handleExport = () => {
     if (invoices.length === 0) {
-      showToast('No invoices to export')
+      toast.warning('No invoices to export')
       return
     }
 
@@ -133,7 +130,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    showToast('Invoices exported successfully')
+    toast.success('Invoices exported successfully')
   }
 
   // Void Invoice
@@ -147,14 +144,14 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
       })
 
       if (res.ok) {
-        showToast(`Invoice ${inv.invoiceId} voided`)
+        toast.success(`Invoice ${inv.invoiceId} voided`)
         fetchInvoices()
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(err.error || 'Failed to void invoice')
+        toast.error(err.error || 'Failed to void invoice')
       }
     } catch {
-      showToast('Error voiding invoice')
+      toast.error('Error voiding invoice')
     }
   }
 
@@ -169,27 +166,6 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
         fontFamily: 'inherit',
       }}
     >
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            backgroundColor: 'var(--color-text-primary)',
-            color: '#ffffff',
-            padding: '12px 20px',
-            borderRadius: 8,
-            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
-            zIndex: 99999,
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
-          {toastMessage}
-        </div>
-      )}
-
       {/* ── Top Header Row ─────────────────────────────────── */}
       <div
         style={{
@@ -213,7 +189,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#64748b',
+              color: 'var(--color-text-secondary)',
               display: 'flex',
               alignItems: 'center',
               padding: 4,
@@ -238,7 +214,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             gap: 6,
             padding: '8px 16px',
             backgroundColor: 'var(--color-bg-card)',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--color-border)',
             borderRadius: 8,
             fontSize: 13,
             fontWeight: 600,
@@ -329,12 +305,12 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               alignItems: 'center',
               gap: 6,
               padding: '8px 14px',
-              backgroundColor: orderTypeFilter !== 'All' ? '#eff6ff' : '#ffffff',
-              border: orderTypeFilter !== 'All' ? '1px solid var(--brand)' : '1px solid #e2e8f0',
+              backgroundColor: orderTypeFilter !== 'All' ? 'var(--brand-tint)' : 'var(--color-bg-card)',
+              border: orderTypeFilter !== 'All' ? '1px solid var(--brand)' : '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
-              color: orderTypeFilter !== 'All' ? 'var(--brand)' : 'var(--color-text-secondary)',
+              color: orderTypeFilter !== 'All' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
               cursor: 'pointer',
             }}
           >
@@ -353,7 +329,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 top: 42,
                 left: 0,
                 backgroundColor: 'var(--color-bg-card)',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--color-border)',
                 borderRadius: 10,
                 boxShadow: '0 10px 20px rgba(0,0,0,0.12)',
                 padding: 14,
@@ -361,7 +337,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 minWidth: 200,
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-tertiary)', marginBottom: 8 }}>
                 Order Type
               </div>
               {['All', 'Dine In', 'Take Away', 'Delivery'].map((type) => (
@@ -377,8 +353,8 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                     fontSize: 13,
                     cursor: 'pointer',
                     fontWeight: orderTypeFilter === type ? 700 : 500,
-                    backgroundColor: orderTypeFilter === type ? '#eff6ff' : 'transparent',
-                    color: orderTypeFilter === type ? 'var(--brand)' : '#334155',
+                    backgroundColor: orderTypeFilter === type ? 'var(--brand-tint)' : 'transparent',
+                    color: orderTypeFilter === type ? 'var(--brand-text)' : 'var(--color-text-primary)',
                   }}
                 >
                   {type}
@@ -399,7 +375,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               backgroundColor: 'var(--color-bg-card)',
               border: '1px solid var(--color-border)',
               borderRadius: 8,
-              color: '#64748b',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
             }}
           >
@@ -438,22 +414,22 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
       {/* ── Invoices Data Table ───────────────────────────── */}
       <div style={{ overflowX: 'auto' }}>
         {loading ? (
-          <div style={{ padding: '60px 0', textAlign: 'center', color: '#94a3b8' }}>
+          <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
             <div className="spinner" style={{ width: 32, height: 32, margin: '0 auto 10px auto' }} />
             Loading billing invoices...
           </div>
         ) : invoices.length === 0 ? (
-          <div style={{ padding: '50px 0', textAlign: 'center', color: '#94a3b8' }}>
+          <div style={{ padding: '50px 0', textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>🧾</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text-secondary)' }}>No invoices found</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 4 }}>
               Completed POS bills and table orders will dynamically appear here.
             </div>
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--color-border)', color: '#64748b', fontSize: 12, fontWeight: 600 }}>
+              <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 600 }}>
                 <th style={{ padding: '12px 16px' }}>Invoice ID</th>
                 <th style={{ padding: '12px 16px' }}>Customer</th>
                 <th style={{ padding: '12px 16px' }}>Date</th>
@@ -468,7 +444,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 <tr
                   key={inv.id}
                   style={{
-                    borderBottom: '1px solid #f1f5f9',
+                    borderBottom: '1px solid var(--color-border)',
                     transition: 'background-color 0.1s ease',
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
@@ -517,7 +493,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
 
                   {/* Amount */}
                   <td style={{ padding: '14px 16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                    ${inv.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                    {money(inv.amount)}
                   </td>
 
                   {/* Status */}
@@ -530,15 +506,15 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                         fontWeight: 700,
                         backgroundColor:
                           inv.status === 'Paid'
-                            ? '#dcfce7'
+                            ? 'color-mix(in srgb, var(--color-success) 14%, transparent)'
                             : inv.status === 'Voided'
-                            ? '#fee2e2'
+                            ? 'color-mix(in srgb, var(--color-error) 14%, transparent)'
                             : '#fef3c7',
                         color:
                           inv.status === 'Paid'
-                            ? '#16a34a'
+                            ? 'var(--color-success)'
                             : inv.status === 'Voided'
-                            ? '#dc2626'
+                            ? 'var(--color-error)'
                             : '#d97706',
                       }}
                     >
@@ -562,7 +538,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                           borderRadius: '50%',
                           border: '1px solid var(--color-border)',
                           backgroundColor: 'var(--color-bg-card)',
-                          color: '#64748b',
+                          color: 'var(--color-text-secondary)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -600,7 +576,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                           borderRadius: '50%',
                           border: '1px solid var(--color-border)',
                           backgroundColor: 'var(--color-bg-card)',
-                          color: '#64748b',
+                          color: 'var(--color-text-secondary)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -634,7 +610,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                           borderRadius: '50%',
                           border: '1px solid var(--color-border)',
                           backgroundColor: 'var(--color-bg-card)',
-                          color: '#94a3b8',
+                          color: 'var(--color-text-tertiary)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -701,13 +677,13 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   {isPrintMode ? 'Print Tax Invoice' : 'Invoice Details'}
                 </h3>
-                <span style={{ fontSize: 12, color: '#64748b' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   {viewInvoice.invoiceId} · {viewInvoice.date}
                 </span>
               </div>
               <button
                 onClick={() => setViewInvoice(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -734,7 +710,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
               <div><strong>Payment:</strong> {viewInvoice.paymentMethod}</div>
               <div>
                 <strong>Status:</strong>{' '}
-                <span style={{ color: '#16a34a', fontWeight: 700 }}>{viewInvoice.status}</span>
+                <span style={{ color: 'var(--color-success)', fontWeight: 700 }}>{viewInvoice.status}</span>
               </div>
             </div>
 
@@ -742,9 +718,9 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
             <h4 style={{ margin: '0 0 8px 0', fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
               Order Items
             </h4>
-            <div style={{ border: '1px solid #f1f5f9', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, textAlign: 'left' }}>
-                <thead style={{ backgroundColor: 'var(--color-bg-card-hover)', color: '#64748b' }}>
+                <thead style={{ backgroundColor: 'var(--color-bg-card-hover)', color: 'var(--color-text-secondary)' }}>
                   <tr>
                     <th style={{ padding: '8px 12px' }}>Item</th>
                     <th style={{ padding: '8px 12px', textAlign: 'center' }}>Qty</th>
@@ -755,18 +731,18 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 <tbody>
                   {viewInvoice.items.length === 0 ? (
                     <tr>
-                      <td colSpan={4} style={{ padding: '12px', textAlign: 'center', color: '#94a3b8' }}>
-                        Dining Check Total: ${viewInvoice.amount.toFixed(2)}
+                      <td colSpan={4} style={{ padding: '12px', textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
+                        Dining Check Total: {money(viewInvoice.amount)}
                       </td>
                     </tr>
                   ) : (
                     viewInvoice.items.map((item) => (
-                      <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <tr key={item.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                         <td style={{ padding: '8px 12px', fontWeight: 600 }}>{item.name}</td>
                         <td style={{ padding: '8px 12px', textAlign: 'center' }}>{item.quantity}</td>
-                        <td style={{ padding: '8px 12px', textAlign: 'right' }}>${item.price.toFixed(2)}</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right' }}>{money(item.price)}</td>
                         <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600 }}>
-                          ${item.total.toFixed(2)}
+                          {money(item.total)}
                         </td>
                       </tr>
                     ))
@@ -777,18 +753,18 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
 
             {/* Subtotals & Final Total */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, borderTop: '1px solid var(--color-border)', paddingTop: 12, marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
                 <span>Subtotal:</span>
-                <span>${viewInvoice.subtotal.toFixed(2)}</span>
+                <span>{money(viewInvoice.subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
                 <span>Tax:</span>
-                <span>${viewInvoice.tax.toFixed(2)}</span>
+                <span>{money(viewInvoice.tax)}</span>
               </div>
               {viewInvoice.tip > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
                   <span>Tip:</span>
-                  <span>${viewInvoice.tip.toFixed(2)}</span>
+                  <span>{money(viewInvoice.tip)}</span>
                 </div>
               )}
               <div
@@ -804,7 +780,7 @@ export default function InvoicesTableView({ embeddedInReports = false }: Invoice
                 }}
               >
                 <span>Total Amount Paid:</span>
-                <span style={{ color: '#16a34a' }}>${viewInvoice.amount.toFixed(2)}</span>
+                <span style={{ color: 'var(--color-success)' }}>{money(viewInvoice.amount)}</span>
               </div>
             </div>
 

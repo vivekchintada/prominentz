@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import CustomerProfileModal from './CustomerProfileModal'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface Tier {
   id: string
@@ -47,6 +48,7 @@ interface Campaign {
 }
 
 export function CrmClient() {
+  const { money } = useMoney()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [segments, setSegments] = useState<SegmentSummary[]>([])
   const [activeSegment, setActiveSegment] = useState<string>('ALL')
@@ -325,7 +327,7 @@ export function CrmClient() {
               {count !== undefined && (
                 <span style={{
                   fontSize: '11px', padding: '1px 6px', borderRadius: '10px',
-                  background: isActive ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)',
+                  background: isActive ? 'color-mix(in srgb, var(--color-text-primary) 25%, transparent)' : 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
                 }}>
                   {count}
                 </span>
@@ -377,7 +379,7 @@ export function CrmClient() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.02)', color: 'var(--color-text-secondary)' }}>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)', color: 'var(--color-text-secondary)' }}>
                   <th style={{ padding: '12px 16px', fontWeight: 600 }}>Guest Name & Tier</th>
                   <th style={{ padding: '12px 16px', fontWeight: 600 }}>Contact</th>
                   <th style={{ padding: '12px 16px', fontWeight: 600 }}>Loyalty Balance</th>
@@ -426,14 +428,14 @@ export function CrmClient() {
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
                         padding: '3px 8px', borderRadius: '6px', fontWeight: 700,
-                        background: 'rgba(99,102,241,0.12)', color: '#818cf8',
+                        background: 'rgba(99,102,241,0.12)', color: 'var(--brand-text)',
                         fontFamily: 'var(--font-mono)',
                       }}>
                         ⭐ {c.pointsBalance} pts
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontWeight: 700, color: '#22c55e', fontFamily: 'var(--font-mono)' }}>
-                      ${Number(c.lifetimeSpend).toFixed(2)}
+                    <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--color-success)', fontFamily: 'var(--font-mono)' }}>
+                      {money(Number(c.lifetimeSpend))}
                     </td>
                     <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>
                       {c.totalVisits} visits
@@ -443,7 +445,7 @@ export function CrmClient() {
                         {Array.isArray(c.allergyTags) && c.allergyTags.map((t, idx) => (
                           <span key={idx} style={{
                             fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
-                            background: 'rgba(239,68,68,0.12)', color: '#ef4444',
+                            background: 'rgba(239,68,68,0.12)', color: 'var(--color-error)',
                           }}>
                             🚫 {t}
                           </span>
@@ -451,7 +453,7 @@ export function CrmClient() {
                         {Array.isArray(c.tags) && c.tags.map((t, idx) => (
                           <span key={idx} style={{
                             fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
-                            background: 'rgba(99,102,241,0.12)', color: '#818cf8',
+                            background: 'rgba(99,102,241,0.12)', color: 'var(--brand-text)',
                           }}>
                             🏷️ {t}
                           </span>
@@ -567,7 +569,7 @@ export function CrmClient() {
             <div style={{ padding: '20px 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Campaign Composer */}
               <form onSubmit={handleCreateCampaign} style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-md)',
                 padding: '16px',
@@ -672,7 +674,7 @@ export function CrmClient() {
                           borderRadius: 'var(--radius-md)',
                           padding: '12px 16px',
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                          background: 'rgba(255,255,255,0.02)',
+                          background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
                         }}
                       >
                         <div>
@@ -681,7 +683,7 @@ export function CrmClient() {
                             <span style={{
                               fontSize: '11px', padding: '2px 6px', borderRadius: '4px',
                               background: camp.status === 'SENT' ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
-                              color: camp.status === 'SENT' ? '#22c55e' : '#818cf8',
+                              color: camp.status === 'SENT' ? 'var(--color-success)' : 'var(--brand-text)',
                               fontWeight: 600,
                             }}>
                               {camp.status}

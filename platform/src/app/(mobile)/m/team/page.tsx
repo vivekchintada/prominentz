@@ -55,23 +55,23 @@ export default async function MobileTeamPage() {
 
   return (
     <div style={{ padding: '20px 16px' }}>
-      <h1 style={{ margin: '0 0 16px', fontSize: 20, fontWeight: 700, color: '#E5E5EA' }}>Team</h1>
+      <h1 style={{ margin: '0 0 16px', fontSize: 20, fontWeight: 700, color: 'var(--color-text-tertiary)' }}>Team</h1>
 
       {/* Pending approvals */}
       {pendingTrades.length > 0 && (
         <div style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: 14, padding: '12px 16px', marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand)', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-text)', marginBottom: 8 }}>
             🔔 {pendingTrades.length} Shift Trade{pendingTrades.length > 1 ? 's' : ''} Need Approval
           </div>
           {pendingTrades.map((trade) => (
-            <div key={trade.id} style={{ fontSize: 12, color: '#E5E5EA', marginBottom: 4 }}>
+            <div key={trade.id} style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
               <strong>{trade.requester.user.name}</strong> → {trade.targetEmployee?.user.name ?? 'Open Pool'} ·{' '}
               {trade.shift.scheduledStart
                 ? new Date(trade.shift.scheduledStart).toLocaleDateString([], { month: 'short', day: 'numeric' })
                 : 'Date TBD'}
             </div>
           ))}
-          <a href="/dashboard/team" style={{ fontSize: 11, color: 'var(--brand)', textDecoration: 'none', fontWeight: 600, marginTop: 6, display: 'block' }}>
+          <a href="/dashboard/team" style={{ fontSize: 11, color: 'var(--brand-text)', textDecoration: 'none', fontWeight: 600, marginTop: 6, display: 'block' }}>
             Review in Dashboard →
           </a>
         </div>
@@ -86,13 +86,13 @@ export default async function MobileTeamPage() {
             : null
 
           return (
-            <div key={emp.id} style={{ background: '#1C1C1E', borderRadius: 14, padding: '14px 16px', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={emp.id} style={{ background: 'var(--color-bg-card)', borderRadius: 14, padding: '14px 16px', border: '1px solid color-mix(in srgb, var(--color-text-primary) 7%, transparent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#E5E5EA', marginBottom: 3 }}>{emp.user.name}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>{emp.user.name}</div>
                 <span style={{
                   fontSize: 10, fontWeight: 700,
-                  color: ROLE_COLOR[emp.user.role] ?? '#8E8E93',
-                  background: `${ROLE_COLOR[emp.user.role] ?? '#8E8E93'}18`,
+                  color: ROLE_COLOR[emp.user.role] ?? 'var(--color-text-secondary)',
+                  background: `${ROLE_COLOR[emp.user.role] ?? 'var(--color-text-tertiary)'}18`,
                   padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.3px',
                 }}>
                   {emp.user.role}
@@ -101,8 +101,8 @@ export default async function MobileTeamPage() {
               <div style={{ textAlign: 'right' }}>
                 {activeShift ? (
                   <>
-                    <div style={{ fontSize: 12, color: '#30D158', fontWeight: 600 }}>● Clocked In</div>
-                    <div style={{ fontSize: 11, color: '#8E8E93', marginTop: 2 }}>{minsClocked}m on shift</div>
+                    <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600 }}>● Clocked In</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>{minsClocked}m on shift</div>
                   </>
                 ) : (
                   <div style={{ fontSize: 12, color: '#48484A' }}>Off Shift</div>
@@ -114,7 +114,7 @@ export default async function MobileTeamPage() {
       </div>
 
       {employees.length === 0 && (
-        <p style={{ color: '#8E8E93', fontSize: 14, textAlign: 'center', marginTop: 40 }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'center', marginTop: 40 }}>
           No team members found for this location.
         </p>
       )}

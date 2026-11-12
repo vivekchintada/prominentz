@@ -345,7 +345,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           maxWidth: '560px',
           backgroundColor: 'var(--surface, #181715)',
           borderRadius: '16px',
-          border: '1px solid var(--surface-border-strong, rgba(255, 255, 255, 0.15))',
+          border: '1px solid var(--surface-border-strong, color-mix(in srgb, var(--color-text-primary) 15%, transparent))',
           boxShadow: '0 24px 64px rgba(0, 0, 0, 0.75)',
           overflow: 'hidden',
           display: 'flex',
@@ -360,7 +360,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             display: 'flex',
             alignItems: 'center',
             padding: '14px 18px',
-            borderBottom: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            borderBottom: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             gap: '12px',
           }}
         >
@@ -399,11 +399,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             style={{
               padding: '2px 7px',
               borderRadius: '6px',
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
               fontSize: '11px',
               fontWeight: 600,
-              color: 'var(--color-text-tertiary, rgba(255, 255, 255, 0.5))',
+              color: 'var(--color-text-tertiary, var(--color-text-tertiary))',
             }}
           >
             ESC
@@ -424,7 +424,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               style={{
                 padding: '36px 16px',
                 textAlign: 'center',
-                color: 'var(--color-text-tertiary, rgba(255, 255, 255, 0.5))',
+                color: 'var(--color-text-tertiary, var(--color-text-tertiary))',
                 fontSize: '14px',
               }}
             >
@@ -453,7 +453,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div
                       style={{
-                        color: isSelected ? 'var(--brand-emerald, #059669)' : 'var(--color-text-secondary, rgba(255, 255, 255, 0.7))',
+                        color: isSelected ? 'var(--brand-emerald, #059669)' : 'var(--color-text-secondary, var(--color-text-secondary))',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -465,7 +465,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       style={{
                         fontSize: '14px',
                         fontWeight: isSelected ? 600 : 400,
-                        color: isSelected ? 'var(--color-text-primary, #ffffff)' : 'var(--color-text-secondary, rgba(255, 255, 255, 0.85))',
+                        color: isSelected ? 'var(--color-text-primary, #ffffff)' : 'var(--color-text-secondary, var(--color-text-primary))',
                       }}
                     >
                       {item.label}
@@ -477,7 +477,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       textTransform: 'uppercase',
                       letterSpacing: '0.04em',
                       fontWeight: 600,
-                      color: 'var(--color-text-quaternary, rgba(255, 255, 255, 0.4))',
+                      color: 'var(--color-text-quaternary, var(--color-text-tertiary))',
                     }}
                   >
                     {item.category}
@@ -495,15 +495,15 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '10px 16px',
-            borderTop: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            borderTop: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             backgroundColor: 'rgba(0, 0, 0, 0.25)',
             fontSize: '12px',
-            color: 'var(--color-text-tertiary, rgba(255, 255, 255, 0.5))',
+            color: 'var(--color-text-tertiary, var(--color-text-tertiary))',
           }}
         >
           <div style={{ display: 'flex', gap: '12px' }}>
-            <span><kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)' }}>↑</kbd> <kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)' }}>↓</kbd> Navigate</span>
-            <span><kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)' }}>↵</kbd> Select</span>
+            <span><kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)' }}>↑</kbd> <kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)' }}>↓</kbd> Navigate</span>
+            <span><kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)' }}>↵</kbd> Select</span>
           </div>
           <span>Antigravity Quick Command</span>
         </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import InvoicesTableView from './InvoicesTableView'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface PaymentItem {
   id: string
@@ -91,6 +92,7 @@ interface ZReportData {
 }
 
 export default function ReportsClient() {
+  const { money } = useMoney()
   const [activeTab, setActiveTab] = useState<'analytics' | 'invoices' | 'zreport'>('analytics')
   const [preset, setPreset] = useState<'7d' | '30d' | 'today' | 'custom'>('7d')
 
@@ -313,7 +315,7 @@ export default function ReportsClient() {
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700, textTransform: 'uppercase' }}>Gross Sales</div>
                   <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--color-text-primary)', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${zData.financials.grossSales.toFixed(2)}
+                    {money(zData.financials.grossSales)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>Before Tax &amp; Tips</div>
                 </div>
@@ -321,23 +323,23 @@ export default function ReportsClient() {
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700, textTransform: 'uppercase' }}>Tax Collected</div>
                   <div style={{ fontSize: '26px', fontWeight: 900, color: '#38bdf8', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${zData.financials.taxCollected.toFixed(2)}
+                    {money(zData.financials.taxCollected)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>State / City Tax</div>
                 </div>
 
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700, textTransform: 'uppercase' }}>Tips Collected</div>
-                  <div style={{ fontSize: '26px', fontWeight: 900, color: '#a855f7', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${zData.financials.tipsCollected.toFixed(2)}
+                  <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--brand-text)', fontFamily: 'monospace', marginTop: '6px' }}>
+                    {money(zData.financials.tipsCollected)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>Staff Tip Pool</div>
                 </div>
 
                 <div className="card" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(16,185,129,0.35)' }}>
-                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>Net Revenue Settled</div>
-                  <div style={{ fontSize: '26px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${zData.financials.netRevenue.toFixed(2)}
+                  <div style={{ fontSize: '12px', color: 'var(--color-success)', fontWeight: 800, textTransform: 'uppercase' }}>Net Revenue Settled</div>
+                  <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--color-success)', fontFamily: 'monospace', marginTop: '6px' }}>
+                    {money(zData.financials.netRevenue)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>Total Settled Today</div>
                 </div>
@@ -354,23 +356,23 @@ export default function ReportsClient() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: 'var(--color-bg-raised)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                       <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>💵 Cash Sales</span>
-                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>${zData.tenders.cash.toFixed(2)}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{money(zData.tenders.cash)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: 'var(--color-bg-raised)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                       <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>💳 Card Payments (Stripe/Terminal)</span>
-                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>${zData.tenders.card.toFixed(2)}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{money(zData.tenders.card)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: 'var(--color-bg-raised)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                       <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>📱 Apple Pay / Google Pay / UPI</span>
-                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>${zData.tenders.applePay.toFixed(2)}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{money(zData.tenders.applePay)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: 'var(--color-bg-raised)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                       <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>🎁 Gift Card / Vouchers</span>
-                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>${zData.tenders.other.toFixed(2)}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{money(zData.tenders.other)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 14px', backgroundColor: 'rgba(37,99,235,0.1)', borderRadius: '8px', border: '1px solid rgba(37,99,235,0.25)' }}>
                       <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>Total Settled Tenders</span>
-                      <span style={{ fontSize: '16px', fontWeight: 900, color: 'var(--brand)', fontFamily: 'monospace' }}>${zData.tenders.totalTenders.toFixed(2)}</span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: 'var(--brand-text)', fontFamily: 'monospace' }}>{money(zData.tenders.totalTenders)}</span>
                     </div>
                   </div>
                 </div>
@@ -399,12 +401,12 @@ export default function ReportsClient() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: 'var(--color-bg-raised)', borderRadius: '8px', fontSize: '13px', border: '1px solid var(--color-border)' }}>
                       <span style={{ color: 'var(--color-text-secondary)' }}>+ Net Cash Sales:</span>
-                      <span style={{ fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>${zData.tenders.cash.toFixed(2)}</span>
+                      <span style={{ fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{money(zData.tenders.cash)}</span>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: 'var(--color-bg-raised)', borderRadius: '8px', fontSize: '13px', border: '1px solid var(--color-border)' }}>
                       <span style={{ color: 'var(--color-text-secondary)' }}>= Expected Cash in Drawer:</span>
-                      <span style={{ fontWeight: 800, color: '#38bdf8', fontFamily: 'monospace' }}>${expectedDrawerCash.toFixed(2)}</span>
+                      <span style={{ fontWeight: 800, color: '#38bdf8', fontFamily: 'monospace' }}>{money(expectedDrawerCash)}</span>
                     </div>
 
                     <div>
@@ -431,11 +433,11 @@ export default function ReportsClient() {
                         alignItems: 'center',
                       }}
                     >
-                      <span style={{ fontSize: '13px', fontWeight: 800, color: Math.abs(cashVariance) < 0.01 ? '#10b981' : cashVariance < 0 ? '#ef4444' : '#f59e0b' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: Math.abs(cashVariance) < 0.01 ? 'var(--color-success)' : cashVariance < 0 ? 'var(--color-error)' : 'var(--color-warning)' }}>
                         {Math.abs(cashVariance) < 0.01 ? '✅ Drawer Balanced (Exact Match)' : cashVariance < 0 ? '⚠️ Drawer SHORT (Deficit)' : 'ℹ️ Drawer OVER (Surplus)'}
                       </span>
-                      <span style={{ fontSize: '16px', fontWeight: 900, fontFamily: 'monospace', color: Math.abs(cashVariance) < 0.01 ? '#10b981' : cashVariance < 0 ? '#ef4444' : '#f59e0b' }}>
-                        {cashVariance >= 0 ? `+$${cashVariance.toFixed(2)}` : `-$${Math.abs(cashVariance).toFixed(2)}`}
+                      <span style={{ fontSize: '16px', fontWeight: 900, fontFamily: 'monospace', color: Math.abs(cashVariance) < 0.01 ? 'var(--color-success)' : cashVariance < 0 ? 'var(--color-error)' : 'var(--color-warning)' }}>
+                        {cashVariance >= 0 ? `+${money(cashVariance)}` : `-${money(Math.abs(cashVariance))}`}
                       </span>
                     </div>
                   </div>
@@ -550,7 +552,7 @@ export default function ReportsClient() {
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700 }}>TOTAL REVENUE</div>
                   <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--color-text-primary)', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${s.total.toFixed(2)}
+                    {money(s.total)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>{s.count} orders closed</div>
                 </div>
@@ -558,14 +560,14 @@ export default function ReportsClient() {
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700 }}>AVG CHECK SIZE</div>
                   <div style={{ fontSize: '26px', fontWeight: 900, color: '#38bdf8', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${s.averageCheckSize.toFixed(2)}
+                    {money(s.averageCheckSize)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>Per order table check</div>
                 </div>
 
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700 }}>LABOR COST %</div>
-                  <div style={{ fontSize: '26px', fontWeight: 900, color: '#a855f7', fontFamily: 'monospace', marginTop: '6px' }}>
+                  <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--brand-text)', fontFamily: 'monospace', marginTop: '6px' }}>
                     {s.laborPercentage ? `${s.laborPercentage.toFixed(1)}%` : '28.4%'}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>Prime Cost Target: &lt;30%</div>
@@ -573,8 +575,8 @@ export default function ReportsClient() {
 
                 <div className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 700 }}>TOTAL TIPS</div>
-                  <div style={{ fontSize: '26px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', marginTop: '6px' }}>
-                    ${s.tip.toFixed(2)}
+                  <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--color-success)', fontFamily: 'monospace', marginTop: '6px' }}>
+                    {money(s.tip)}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>Staff gratuity pool</div>
                 </div>
@@ -601,7 +603,7 @@ export default function ReportsClient() {
                               borderRadius: '4px 4px 0 0',
                               transition: 'height 0.3s ease',
                             }}
-                            title={`${h}:00 — $${val.toFixed(2)}`}
+                            title={`${h}:00 — ${money(val)}`}
                           />
                           <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', marginTop: '6px' }}>
                             {h % 12 === 0 ? 12 : h % 12}{h >= 12 ? 'p' : 'a'}
@@ -622,7 +624,7 @@ export default function ReportsClient() {
                       <div key={st.station}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>
                           <span style={{ color: 'var(--color-text-primary)' }}>{STATION_LABELS[st.station] || st.station}</span>
-                          <span style={{ color: st.avgMinutes > 12 ? '#ef4444' : '#10b981', fontFamily: 'monospace' }}>
+                          <span style={{ color: st.avgMinutes > 12 ? 'var(--color-error)' : 'var(--color-success)', fontFamily: 'monospace' }}>
                             ⏱ {st.avgMinutes.toFixed(1)} mins ({st.count} orders)
                           </span>
                         </div>
@@ -631,7 +633,7 @@ export default function ReportsClient() {
                             style={{
                               width: `${Math.min((st.avgMinutes / 20) * 100, 100)}%`,
                               height: '100%',
-                              backgroundColor: st.avgMinutes > 12 ? '#ef4444' : '#10b981',
+                              backgroundColor: st.avgMinutes > 12 ? 'var(--color-error)' : 'var(--color-success)',
                               borderRadius: '4px',
                             }}
                           />
@@ -672,7 +674,7 @@ export default function ReportsClient() {
                             </span>
                           </div>
                           <div style={{ fontSize: '18px', fontWeight: 900, fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>
-                            ${pm.total.toFixed(2)}
+                            {money(pm.total)}
                           </div>
                           <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>
                             {pm.count} transactions settled
@@ -728,13 +730,13 @@ export default function ReportsClient() {
                               {sp.ordersClosed}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, fontFamily: 'monospace', color: 'var(--brand-emerald, #059669)' }}>
-                              ${sp.totalRevenue.toFixed(2)}
+                              {money(sp.totalRevenue)}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600, fontFamily: 'monospace' }}>
-                              ${sp.averageCheck.toFixed(2)}
+                              {money(sp.averageCheck)}
                             </td>
-                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, fontFamily: 'monospace', color: '#10b981' }}>
-                              ${sp.totalTips.toFixed(2)}
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, fontFamily: 'monospace', color: 'var(--color-success)' }}>
+                              {money(sp.totalTips)}
                             </td>
                           </tr>
                         ))}

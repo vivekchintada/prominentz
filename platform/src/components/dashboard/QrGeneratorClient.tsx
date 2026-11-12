@@ -82,7 +82,7 @@ function MasterMenuQrCard({
           <span style={{ fontSize: '11px', fontWeight: 900, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--brand)', color: 'var(--brand-contrast)', letterSpacing: '0.04em' }}>
             🌟 MASTER DINE-IN &amp; TAKEOUT QR
           </span>
-          <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>● Universal Single Scan</span>
+          <span style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 700 }}>● Universal Single Scan</span>
         </div>
         <h3 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--color-text-primary)', margin: '0 0 6px 0' }}>
           Universal Restaurant Food Menu QR
@@ -111,7 +111,7 @@ function MasterMenuQrCard({
         ) : (
           <div className="spinner" style={{ width: '32px', height: '32px', margin: '64px' }} />
         )}
-        <div style={{ fontSize: '10px', color: '#111827', fontWeight: 800, marginTop: '6px' }}>SCAN FOR FULL MENU</div>
+        <div style={{ fontSize: '10px', color: 'var(--color-text-primary)', fontWeight: 800, marginTop: '6px' }}>SCAN FOR FULL MENU</div>
       </div>
     </div>
   )
@@ -156,7 +156,7 @@ function TableQrCard({
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '8px' }}>
         <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{table.name}</div>
-        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: table.status === 'ACTIVE' ? 'var(--brand-tint)' : 'rgba(16,185,129,0.2)', color: table.status === 'ACTIVE' ? 'var(--brand)' : '#10b981' }}>
+        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', backgroundColor: table.status === 'ACTIVE' ? 'var(--brand-tint)' : 'rgba(16,185,129,0.2)', color: table.status === 'ACTIVE' ? 'var(--brand-text)' : 'var(--color-success)' }}>
           {table.status}
         </span>
       </div>
@@ -389,7 +389,7 @@ function MasterQrMenuChanger({
                           borderRadius: '8px',
                           border: config.mode === m ? '2px solid var(--brand)' : '1px solid var(--color-border)',
                           backgroundColor: config.mode === m ? 'var(--brand-tint)' : 'var(--color-bg-card)',
-                          color: config.mode === m ? 'var(--brand)' : 'var(--color-text-secondary)',
+                          color: config.mode === m ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                           fontSize: '11px',
                           fontWeight: 700,
                           cursor: 'pointer',
@@ -448,7 +448,7 @@ function MasterQrMenuChanger({
                   <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                     📋 Menu Categories — QR Visibility
                   </label>
-                  <span style={{ fontSize: '11px', color: visibleCount === categories.length ? '#10b981' : '#f59e0b', fontWeight: 700 }}>
+                  <span style={{ fontSize: '11px', color: visibleCount === categories.length ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 700 }}>
                     {visibleCount}/{categories.length} visible on QR menu
                   </span>
                 </div>
@@ -497,7 +497,7 @@ function MasterQrMenuChanger({
                             gap: '5px',
                             fontSize: '11px',
                             fontWeight: 800,
-                            color: isHidden ? '#ef4444' : '#10b981',
+                            color: isHidden ? 'var(--color-error)' : 'var(--color-success)',
                           }}>
                             <span style={{
                               width: '32px',
@@ -515,7 +515,7 @@ function MasterQrMenuChanger({
                                 width: '14px',
                                 height: '14px',
                                 borderRadius: '50%',
-                                backgroundColor: isHidden ? '#ef4444' : '#10b981',
+                                backgroundColor: isHidden ? 'var(--color-error)' : 'var(--color-success)',
                                 transition: 'left 0.2s',
                               }} />
                             </span>
@@ -549,7 +549,7 @@ function MasterQrMenuChanger({
               {/* ── Save Button ───────────────────────────────────────── */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', alignItems: 'center' }}>
                 {saved && (
-                  <span style={{ fontSize: '13px', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--color-success)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     ✅ Saved! Customers see changes instantly.
                   </span>
                 )}
@@ -686,7 +686,7 @@ export function QrGeneratorClient() {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
             {categories.map((c) => (
-              <span key={c.id} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--brand-tint)', color: 'var(--brand)', border: '1px solid rgba(37,99,235,0.25)' }}>
+              <span key={c.id} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: 'var(--brand-tint)', color: 'var(--brand-text)', border: '1px solid rgba(37,99,235,0.25)' }}>
                 {c.name} ({c.items?.length || 0} dishes)
               </span>
             ))}
@@ -694,7 +694,7 @@ export function QrGeneratorClient() {
         </div>
         <div style={{ textAlign: 'right' }}>
           <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Live Menu Total: </span>
-          <span style={{ fontSize: '14px', fontWeight: 800, color: '#10b981', fontFamily: 'monospace' }}>{totalDishes} Dishes Ready</span>
+          <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-success)', fontFamily: 'monospace' }}>{totalDishes} Dishes Ready</span>
         </div>
       </div>
 
@@ -771,7 +771,7 @@ export function QrGeneratorClient() {
                 </span>
               </div>
               {previewUrl && (
-                <button onClick={() => window.open(previewUrl, '_blank')} style={{ fontSize: '11px', color: 'var(--brand)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                <button onClick={() => window.open(previewUrl, '_blank')} style={{ fontSize: '11px', color: 'var(--brand-text)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
                   Full Tab ↗
                 </button>
               )}
@@ -786,7 +786,7 @@ export function QrGeneratorClient() {
               </div>
 
               {/* Screen */}
-              <div style={{ width: '100%', height: '580px', borderRadius: '18px', overflow: 'hidden', backgroundColor: '#000' }}>
+              <div style={{ width: '100%', height: '580px', borderRadius: '18px', overflow: 'hidden', backgroundColor: 'var(--color-bg)' }}>
                 {previewUrl ? (
                   <iframe
                     key={`${previewUrl}-${previewKey}`}
@@ -795,7 +795,7 @@ export function QrGeneratorClient() {
                     title="Guest Mobile Diner Simulator"
                   />
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', padding: '20px', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-tertiary)', fontSize: '13px', textAlign: 'center', padding: '20px', flexDirection: 'column', gap: '12px' }}>
                     <span style={{ fontSize: '36px' }}>📱</span>
                     Select any table on the left to preview its live mobile menu.
                   </div>
@@ -818,7 +818,7 @@ export function QrGeneratorClient() {
       {/* ── Add Table Modal ────────────────────────────────────────────────── */}
       {showAddModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.75)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center', backdropFilter: 'blur(4px)' }}>
-          <div className="card card--elevated animate-fade-in" style={{ backgroundColor: '#18181d', borderRadius: '16px', padding: '24px', width: '400px', maxWidth: '90vw', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <div className="card card--elevated animate-fade-in" style={{ backgroundColor: '#18181d', borderRadius: '16px', padding: '24px', width: '400px', maxWidth: '90vw', border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>➕ Add New Dining Table</h3>
               <button onClick={() => setShowAddModal(false)} className="btn btn--ghost btn--sm">✕</button>
@@ -826,11 +826,11 @@ export function QrGeneratorClient() {
 
             <form onSubmit={handleCreateTable} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Table Name / Number *</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Table Name / Number *</label>
                 <input type="text" required placeholder="e.g. Table 1, Booth 4, Patio Bar" value={newTableName} onChange={(e) => setNewTableName(e.target.value)} className="input" style={{ width: '100%', marginTop: '6px', backgroundColor: '#101014' }} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Seating Capacity *</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Seating Capacity *</label>
                 <input type="number" required min="1" placeholder="4" value={newTableCapacity} onChange={(e) => setNewTableCapacity(e.target.value)} className="input" style={{ width: '100%', marginTop: '6px', backgroundColor: '#101014' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>

@@ -256,7 +256,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                 <button
                   onClick={() => setShowAdjustModal(true)}
                   className="btn btn--sm"
-                  style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' }}
+                  style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--brand-text)', border: '1px solid rgba(99,102,241,0.3)' }}
                 >
                   ⚡ Adjust Points
                 </button>
@@ -365,7 +365,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                   </div>
 
                   {/* Consent Preferences */}
-                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                  <div style={{ background: 'color-mix(in srgb, var(--color-text-primary) 3%, transparent)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                     <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                       Marketing Communication Consent
                     </div>
@@ -410,13 +410,13 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                   {/* Communication Consent Badges */}
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px' }}>
                     <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Consent:</span>
-                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: customer.marketingConsentEmail ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)', color: customer.marketingConsentEmail ? '#22c55e' : '#9ca3af' }}>
+                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: customer.marketingConsentEmail ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)', color: customer.marketingConsentEmail ? 'var(--color-success)' : 'var(--color-text-tertiary)' }}>
                       Email: {customer.marketingConsentEmail ? 'Opted In' : 'No'}
                     </span>
-                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: customer.marketingConsentSms ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)', color: customer.marketingConsentSms ? '#22c55e' : '#9ca3af' }}>
+                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: customer.marketingConsentSms ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)', color: customer.marketingConsentSms ? 'var(--color-success)' : 'var(--color-text-tertiary)' }}>
                       SMS: {customer.marketingConsentSms ? 'Opted In' : 'No'}
                     </span>
-                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: customer.marketingConsentWhatsApp ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)', color: customer.marketingConsentWhatsApp ? '#22c55e' : '#9ca3af' }}>
+                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: customer.marketingConsentWhatsApp ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)', color: customer.marketingConsentWhatsApp ? 'var(--color-success)' : 'var(--color-text-tertiary)' }}>
                       WA: {customer.marketingConsentWhatsApp ? 'Opted In' : 'No'}
                     </span>
                   </div>
@@ -426,7 +426,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px', alignItems: 'center' }}>
                       <span style={{ fontSize: '12px' }}>⚠️</span>
                       {customer.allergyTags.map(t => (
-                        <span key={t} style={{ fontSize: '11px', padding: '2px 8px', background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '999px' }}>{t}</span>
+                        <span key={t} style={{ fontSize: '11px', padding: '2px 8px', background: 'rgba(239,68,68,0.12)', color: 'var(--color-error)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '999px' }}>{t}</span>
                       ))}
                     </div>
                   )}
@@ -435,7 +435,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                   {customer.tags && customer.tags.length > 0 && (
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
                       {customer.tags.map(t => (
-                        <span key={t} style={{ fontSize: '11px', padding: '2px 8px', background: 'rgba(99,102,241,0.12)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '999px' }}>🏷️ {t}</span>
+                        <span key={t} style={{ fontSize: '11px', padding: '2px 8px', background: 'rgba(99,102,241,0.12)', color: 'var(--brand-text)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '999px' }}>🏷️ {t}</span>
                       ))}
                     </div>
                   )}
@@ -485,7 +485,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                           border: '1px solid var(--color-border)',
                           borderRadius: 'var(--radius-md)',
                           padding: '12px 14px',
-                          background: 'rgba(255,255,255,0.02)',
+                          background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
                         }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -522,8 +522,8 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <span style={{
                           fontSize: '11px', padding: '2px 7px', borderRadius: '4px',
-                          background: (STATUS_COLOR[o.status] || '#6b7280') + '22',
-                          color: STATUS_COLOR[o.status] || '#6b7280', fontWeight: 600,
+                          background: (STATUS_COLOR[o.status] || 'var(--color-text-tertiary)') + '22',
+                          color: STATUS_COLOR[o.status] || 'var(--color-text-secondary)', fontWeight: 600,
                         }}>
                           {o.status}
                         </span>
@@ -549,7 +549,7 @@ export default function CustomerProfileModal({ customerId, onClose, onCustomerUp
                       <div style={{ textAlign: 'right' }}>
                         <div style={{
                           fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700,
-                          color: l.pointsChange >= 0 ? '#22c55e' : '#ef4444',
+                          color: l.pointsChange >= 0 ? 'var(--color-success)' : 'var(--color-error)',
                         }}>
                           {l.pointsChange >= 0 ? `+${l.pointsChange}` : l.pointsChange} pts
                         </div>

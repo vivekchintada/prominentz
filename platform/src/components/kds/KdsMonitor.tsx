@@ -1,7 +1,12 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
+
+// Direction C motion: signage you read from across the room.
+// Confident arrivals decelerate; exits are quicker than entrances.
+const DC_EASE_OUT = [0.16, 1, 0.3, 1] as const
 
 /* ── Types ────────────────────────────────────────────────── */
 export interface KdsTicketItem {
@@ -120,6 +125,7 @@ const STATION_CONFIG = {
 } as const
 
 export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMonitorProps) {
+  const reduceMotion = useReducedMotion()
   const [tickets, setTickets] = useState<KdsTicket[]>([])
   const [loading, setLoading] = useState(true)
   const [activeNav, setActiveNav] = useState<string>('dashboard')
@@ -501,7 +507,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
               padding: '6px 12px',
               borderRadius: 'var(--radius-lg)',
               backgroundColor: clockStatus.isClockedIn ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-              color: clockStatus.isClockedIn ? '#22c55e' : '#ef4444',
+              color: clockStatus.isClockedIn ? 'var(--color-success)' : 'var(--color-error)',
               border: clockStatus.isClockedIn ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
               fontSize: '12px',
               fontWeight: 700,
@@ -512,7 +518,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 width: '7px',
                 height: '7px',
                 borderRadius: '50%',
-                backgroundColor: clockStatus.isClockedIn ? '#22c55e' : '#ef4444',
+                backgroundColor: clockStatus.isClockedIn ? 'var(--color-success)' : 'var(--color-error)',
               }}
             />
             {clockStatus.isClockedIn ? 'Clocked In' : 'Clocked Out'}
@@ -671,7 +677,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                     padding: '4px 12px',
                     borderRadius: '20px',
                     backgroundColor: 'rgba(34, 197, 94, 0.12)',
-                    color: '#16a34a',
+                    color: 'var(--color-success)',
                     border: '1px solid rgba(34, 197, 94, 0.25)',
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -684,7 +690,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                       width: 8,
                       height: 8,
                       borderRadius: '50%',
-                      backgroundColor: '#16a34a',
+                      backgroundColor: 'var(--color-success)',
                       display: 'inline-block',
                       boxShadow: '0 0 8px rgba(34, 197, 94, 0.8)',
                     }}
@@ -781,17 +787,21 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 },
                 {
                   label: 'Avg Ticket Time',
+                  // Real average only; "—" until a ticket has been completed today.
                   value: kpiData && kpiData.avgTicketTimeMins > 0
-                    ? `${String(Math.floor(kpiData.avgTicketTimeMins)).padStart(2, '0')}:${String(Math.round((kpiData.avgTicketTimeMins % 1) * 60)).padStart(2, '0')}`
-                    : '11:24',
-                  subtitle: 'Target: < 15:00 min',
+                    ? (() => {
+                        const totalSecs = Math.round(kpiData.avgTicketTimeMins * 60)
+                        return `${String(Math.floor(totalSecs / 60)).padStart(2, '0')}:${String(totalSecs % 60).padStart(2, '0')}`
+                      })()
+                    : '—',
+                  subtitle: kpiData && kpiData.avgTicketTimeMins > 0 ? 'Target: < 15:00 min' : 'No completed tickets yet',
                   icon: '⏱️',
                   color: 'var(--color-text-primary)',
                   bg: 'rgba(34, 197, 94, 0.1)',
                 },
                 {
                   label: 'Hourly Velocity',
-                  value: `${kpiData?.ordersPerHour || 18}`,
+                  value: kpiData ? `${Math.round(kpiData.ordersPerHour)}` : '—',
                   subtitle: 'Tickets fired / hr',
                   icon: '📦',
                   color: '#f59e0b',
@@ -799,7 +809,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                 },
                 {
                   label: 'Line Staff Active',
-                  value: `${kpiData?.activeKitchenStaff || 2}`,
+                  value: kpiData ? `${kpiData.activeKitchenStaff}` : '—',
                   subtitle: 'Clocked-in culinary team',
                   icon: '👨‍🍳',
                   color: '#10b981',
@@ -827,7 +837,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   </div>
                   <div style={{ marginTop: '12px' }}>
                     <div style={{ fontSize: '26px', fontWeight: 800, color: item.color, letterSpacing: '-0.02em' }}>
-                      {item.value}
+                      {/^\d+$/.test(item.value) ? <AnimatedNumber value={Number(item.value)} /> : item.value}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', fontWeight: 500 }}>
                       {item.subtitle}
@@ -914,7 +924,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                         {/* Station Queue Count */}
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '16px' }}>
                           <span style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text)' }}>
-                            {stTickets.length}
+                            <AnimatedNumber value={stTickets.length} />
                           </span>
                           <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
                             ticket{stTickets.length === 1 ? '' : 's'} in queue
@@ -1241,7 +1251,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                               borderRadius: '6px',
                               border: 'none',
                               backgroundColor: 'var(--success)',
-                              color: '#ffffff',
+                              color: 'var(--on-success)',
                               fontSize: '11px',
                               fontWeight: 700,
                               cursor: 'pointer',
@@ -1346,9 +1356,9 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                     gap: '6px',
                     padding: '7px 14px',
                     borderRadius: '10px',
-                    backgroundColor: '#FEF3C7',
-                    border: '1.5px solid #F59E0B',
-                    color: '#B45309',
+                    backgroundColor: 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                    border: '1.5px solid var(--color-warning)',
+                    color: 'var(--color-warning)',
                     fontSize: '12px',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -1548,6 +1558,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   alignItems: 'start',
                 }}
               >
+                <AnimatePresence mode="popLayout" initial={false}>
                 {filteredTickets.map((ticket) => {
                   const timer = getElapsedTimer(ticket.createdAt)
                   const isDelayed = timer.isDelayed
@@ -1575,7 +1586,11 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                   return (
                     <motion.div
                       key={ticket.id}
-                      layout
+                      layout={!reduceMotion}
+                      // New tickets drop onto the rail; a bumped ticket slides toward the pass.
+                      initial={{ opacity: 0, y: reduceMotion ? 0 : -14 }}
+                      animate={{ opacity: 1, y: 0, x: 0, transition: { duration: 0.28, ease: DC_EASE_OUT } }}
+                      exit={{ opacity: 0, x: reduceMotion ? 0 : 48, transition: { duration: 0.16, ease: 'easeIn' } }}
                       style={{
                         backgroundColor: 'var(--surface)',
                         border: cardBorder,
@@ -1628,16 +1643,17 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                             </div>
                           </div>
 
-                          {/* Elapsed Timer: 18-22px bold */}
+                          {/* Elapsed timer: a signage block. When the ticket goes late it
+                              blinks twice like a lit sign, then holds solid red. Keyed on the
+                              late state so the blink plays once per transition, never loops. */}
                           <div
+                            key={isDelayed ? 'late' : 'on-time'}
+                            className={isDelayed ? 'dc-timer dc-timer--late' : 'dc-timer'}
+                            role="timer"
+                            aria-label={isDelayed ? `Late, ${timer.formatted} elapsed` : `${timer.formatted} elapsed`}
                             style={{
-                              fontSize: '20px',
-                              fontWeight: 800,
-                              fontFamily: 'monospace',
-                              color: isDelayed ? 'var(--danger)' : isPreparing ? 'var(--warning)' : 'var(--text)',
-                              backgroundColor: isDelayed ? 'var(--danger-soft)' : 'var(--canvas)',
-                              padding: '4px 10px',
-                              borderRadius: '8px',
+                              color: isDelayed ? 'var(--on-error)' : isPreparing ? 'var(--warning)' : 'var(--text)',
+                              backgroundColor: isDelayed ? 'var(--danger)' : 'var(--canvas)',
                             }}
                           >
                             {timer.formatted}
@@ -1745,7 +1761,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                               height: '56px',
                               borderRadius: '12px',
                               backgroundColor: 'var(--success)',
-                              color: '#ffffff',
+                              color: 'var(--on-success)',
                               border: 'none',
                               fontSize: '17px',
                               fontWeight: 800,
@@ -1773,8 +1789,8 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                                 flex: 1,
                                 height: '56px',
                                 borderRadius: '12px',
-                                backgroundColor: runnerPagedId === ticket.id ? '#16B364' : '#F59E0B',
-                                color: '#ffffff',
+                                backgroundColor: runnerPagedId === ticket.id ? 'var(--color-success)' : 'var(--color-warning)',
+                                color: 'var(--on-success)',
                                 border: 'none',
                                 fontSize: '15px',
                                 fontWeight: 800,
@@ -1821,6 +1837,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                     </motion.div>
                   )
                 })}
+                </AnimatePresence>
               </div>
             )}
           </div>
@@ -1956,7 +1973,7 @@ export default function KdsMonitor({ currentUser, locationId, onSignOut }: KdsMo
                           borderRadius: '8px',
                           border: 'none',
                           backgroundColor: is86 ? 'var(--success)' : 'var(--danger)',
-                          color: '#ffffff',
+                          color: is86 ? 'var(--on-success)' : 'var(--on-error)',
                           fontSize: '12px',
                           fontWeight: 700,
                           cursor: 'pointer',

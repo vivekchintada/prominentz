@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface LoyaltyReward {
   id: string
@@ -43,6 +44,7 @@ interface LoyaltyConfig {
 }
 
 export function LoyaltyClient() {
+  const { money } = useMoney()
   const [activeTab, setActiveTab] = useState<'tiers' | 'rewards' | 'settings'>('tiers')
   const [liability, setLiability] = useState<LoyaltyLiability | null>(null)
   const [tiers, setTiers] = useState<LoyaltyTier[]>([])
@@ -269,7 +271,7 @@ export function LoyaltyClient() {
           <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
             💳 Estimated Dollar Liability
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 800, marginTop: '6px', color: '#f59e0b', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '26px', fontWeight: 800, marginTop: '6px', color: 'var(--color-warning)', fontFamily: 'var(--font-mono)' }}>
             ${liability?.estimatedDollarLiability.toFixed(2) || '0.00'}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -286,7 +288,7 @@ export function LoyaltyClient() {
           <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
             🔥 Monthly Redemptions
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 800, marginTop: '6px', color: '#22c55e', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '26px', fontWeight: 800, marginTop: '6px', color: 'var(--color-success)', fontFamily: 'var(--font-mono)' }}>
             {liability?.pointsRedeemedThisMonth.toLocaleString() || '0'} <span style={{ fontSize: '16px' }}>pts</span>
           </div>
           <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -386,7 +388,7 @@ export function LoyaltyClient() {
                   </div>
 
                   <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
-                    Spend Threshold: <strong style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono)' }}>${Number(t.minimumSpend).toFixed(2)}</strong>
+                    Spend Threshold: <strong style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono)' }}>{money(Number(t.minimumSpend))}</strong>
                   </div>
 
                   <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '14px' }}>
@@ -447,7 +449,7 @@ export function LoyaltyClient() {
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.02)', color: 'var(--color-text-secondary)' }}>
+                  <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)', color: 'var(--color-text-secondary)' }}>
                     <th style={{ padding: '12px 16px' }}>Reward Name</th>
                     <th style={{ padding: '12px 16px' }}>Points Required</th>
                     <th style={{ padding: '12px 16px' }}>Benefit</th>
@@ -463,20 +465,20 @@ export function LoyaltyClient() {
                       <td style={{ padding: '12px 16px' }}>
                         <span style={{
                           padding: '3px 8px', borderRadius: '6px', fontWeight: 700,
-                          background: 'rgba(99,102,241,0.12)', color: '#818cf8',
+                          background: 'rgba(99,102,241,0.12)', color: 'var(--brand-text)',
                           fontFamily: 'var(--font-mono)',
                         }}>
                           {r.pointsRequired} pts
                         </span>
                       </td>
-                      <td style={{ padding: '12px 16px', fontWeight: 600, color: '#22c55e', fontFamily: 'var(--font-mono)' }}>
-                        {r.discountType === 'PERCENTAGE' ? `${r.discountAmount}% Off` : `$${Number(r.discountAmount).toFixed(2)} Off`}
+                      <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-success)', fontFamily: 'var(--font-mono)' }}>
+                        {r.discountType === 'PERCENTAGE' ? `${r.discountAmount}% Off` : `${money(Number(r.discountAmount))} Off`}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <span style={{
                           fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                           background: r.isActive ? 'rgba(34,197,94,0.15)' : 'rgba(107,114,128,0.2)',
-                          color: r.isActive ? '#22c55e' : '#9ca3af', fontWeight: 600,
+                          color: r.isActive ? 'var(--color-success)' : 'var(--color-text-tertiary)', fontWeight: 600,
                         }}>
                           {r.isActive ? 'Active' : 'Disabled'}
                         </span>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { signOut } from 'next-auth/react'
 import { UrbanPiperIntegration } from './Integrations/UrbanPiperIntegration'
 
@@ -95,7 +96,6 @@ export function SettingsClient() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('store')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [savedMsg, setSavedMsg] = useState('')
 
   // Settings State
   const [store, setStore] = useState<StoreSettingsData>({
@@ -206,11 +206,6 @@ export function SettingsClient() {
     loadSettings()
   }, [])
 
-  const showToast = (msg = 'Changes saved successfully!') => {
-    setSavedMsg(msg)
-    setTimeout(() => setSavedMsg(''), 3000)
-  }
-
   // Save current section or entire settings
   const handleSave = async (section?: string) => {
     setSaving(true)
@@ -249,7 +244,7 @@ export function SettingsClient() {
       })
 
       if (res.ok) {
-        showToast('Settings saved successfully!')
+        toast.success('Settings saved successfully!')
       } else {
         const err = await res.json()
         alert(err.error || 'Failed to save settings')
@@ -306,7 +301,7 @@ export function SettingsClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ section: 'taxes', sectionData: updatedTaxes }),
       })
-      showToast(editingTax ? 'Tax updated successfully!' : 'Tax added successfully!')
+      toast.success(editingTax ? 'Tax updated successfully!' : 'Tax added successfully!')
     } catch (err) {
       console.error('Failed to update tax', err)
     }
@@ -322,7 +317,7 @@ export function SettingsClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ section: 'taxes', sectionData: updated }),
       })
-      showToast('Tax deleted')
+      toast.success('Tax deleted')
     } catch (err) {
       console.error('Failed to delete tax', err)
     }
@@ -355,7 +350,7 @@ export function SettingsClient() {
       } else {
         const data = await res.json()
         setStore((prev) => ({ ...prev, logoUrl: data.logoUrl }))
-        showToast('Logo uploaded successfully!')
+        toast.success('Logo uploaded successfully!')
       }
     } catch {
       alert('Failed to connect to server for logo upload')
@@ -445,7 +440,7 @@ export function SettingsClient() {
 
   if (loading) {
     return (
-      <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+      <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
         <div style={{ width: '28px', height: '28px', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: 'var(--brand)', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
         Loading Prominentz settings...
       </div>
@@ -454,29 +449,6 @@ export function SettingsClient() {
 
   return (
     <div style={{ width: '100%', minHeight: '80vh' }}>
-      {/* Toast Banner */}
-      {savedMsg && (
-        <div style={{
-          position: 'fixed',
-          top: '24px',
-          right: '24px',
-          zIndex: 9999,
-          backgroundColor: '#10b981',
-          color: '#ffffff',
-          padding: '12px 20px',
-          borderRadius: '10px',
-          boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)',
-          fontSize: '14px',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          animation: 'fadeIn 0.2s ease',
-        }}>
-          <span>✓</span> {savedMsg}
-        </div>
-      )}
-
       {/* Main Flex Layout: Left Sidebar + Right Content Panel */}
       <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
 
@@ -494,7 +466,7 @@ export function SettingsClient() {
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
-            color: '#64748b',
+            color: 'var(--color-text-secondary)',
             padding: '4px 12px 8px',
           }}>
             SETTINGS
@@ -523,7 +495,7 @@ export function SettingsClient() {
                   transition: 'all 150ms ease',
                 }}
               >
-                <span style={{ color: isActive ? 'var(--brand)' : 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: isActive ? 'var(--brand-text)' : 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center' }}>
                   {tab.icon}
                 </span>
                 {tab.label}
@@ -548,7 +520,7 @@ export function SettingsClient() {
               marginTop: '4px',
             }}
           >
-            <span style={{ color: 'var(--brand)', display: 'flex', alignItems: 'center', fontSize: '15px' }}>
+            <span style={{ color: 'var(--brand-text)', display: 'flex', alignItems: 'center', fontSize: '15px' }}>
               🛍️
             </span>
           </a>
@@ -565,7 +537,7 @@ export function SettingsClient() {
                 borderRadius: '10px',
                 border: '1px solid rgba(239, 68, 68, 0.25)',
                 backgroundColor: 'rgba(239, 68, 68, 0.06)',
-                color: '#ef4444',
+                color: 'var(--color-error)',
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -608,7 +580,7 @@ export function SettingsClient() {
                   width: '90px',
                   height: '90px',
                   borderRadius: '12px',
-                  border: '1px dashed #cbd5e1',
+                  border: '1px dashed var(--color-border)',
                   backgroundColor: 'var(--color-bg-card-hover)',
                   display: 'flex',
                   alignItems: 'center',
@@ -635,7 +607,7 @@ export function SettingsClient() {
                       borderRadius: '8px',
                       border: '1px solid var(--color-border)',
                       backgroundColor: 'var(--color-bg-card)',
-                      color: 'var(--brand)',
+                      color: 'var(--brand-text)',
                       fontSize: '13px',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -660,9 +632,9 @@ export function SettingsClient() {
                         style={{
                           padding: '7px 10px',
                           borderRadius: '8px',
-                          border: '1px solid #fecaca',
-                          backgroundColor: '#fef2f2',
-                          color: '#ef4444',
+                          border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
+                          backgroundColor: 'color-mix(in srgb, var(--color-error) 14%, transparent)',
+                          color: 'var(--color-error)',
                           cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -675,7 +647,7 @@ export function SettingsClient() {
                       </button>
                     )}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>Image should be with in 5 MB</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Image should be with in 5 MB</div>
                 </div>
               </div>
 
@@ -811,7 +783,7 @@ export function SettingsClient() {
                   gap: '20px 48px',
                   marginTop: '16px',
                   paddingTop: '20px',
-                  borderTop: '1px solid #f1f5f9',
+                  borderTop: '1px solid var(--color-border)',
                 }}>
                   {/* Left Column */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
@@ -890,7 +862,7 @@ export function SettingsClient() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       cursor: 'pointer',
-                      color: '#64748b',
+                      color: 'var(--color-text-secondary)',
                     }}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -924,13 +896,13 @@ export function SettingsClient() {
               {/* Tax Table */}
               <div style={{
                 borderRadius: '12px',
-                border: '1px solid #f1f5f9',
+                border: '1px solid var(--color-border)',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                 overflow: 'hidden',
               }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: 'var(--color-text-primary)', fontWeight: 700 }}>
+                    <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontWeight: 700 }}>
                       <th style={{ padding: '16px 20px', width: '60px' }}>#</th>
                       <th style={{ padding: '16px 20px' }}>Tax Name</th>
                       <th style={{ padding: '16px 20px' }}>Rate</th>
@@ -940,11 +912,11 @@ export function SettingsClient() {
                   </thead>
                   <tbody>
                     {taxes.map((tax, idx) => (
-                      <tr key={tax.id} style={{ borderBottom: '1px solid #f8fafc', color: 'var(--color-text-secondary)' }}>
-                        <td style={{ padding: '16px 20px', color: '#64748b' }}>{idx + 1}</td>
+                      <tr key={tax.id} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
+                        <td style={{ padding: '16px 20px', color: 'var(--color-text-secondary)' }}>{idx + 1}</td>
                         <td style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{tax.name}</td>
                         <td style={{ padding: '16px 20px', color: 'var(--color-text-secondary)' }}>{tax.rate}%</td>
-                        <td style={{ padding: '16px 20px', color: '#64748b' }}>{tax.type}</td>
+                        <td style={{ padding: '16px 20px', color: 'var(--color-text-secondary)' }}>{tax.type}</td>
                         <td style={{ padding: '16px 20px', textAlign: 'right' }}>
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
                             {/* Edit Pencil */}
@@ -958,7 +930,7 @@ export function SettingsClient() {
                                 borderRadius: '6px',
                                 border: '1px solid var(--color-border)',
                                 backgroundColor: 'var(--color-bg-card)',
-                                color: '#64748b',
+                                color: 'var(--color-text-secondary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -979,9 +951,9 @@ export function SettingsClient() {
                                 width: '30px',
                                 height: '30px',
                                 borderRadius: '6px',
-                                border: '1px solid #fee2e2',
+                                border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
                                 backgroundColor: '#fff5f5',
-                                color: '#ef4444',
+                                color: 'var(--color-error)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1025,7 +997,7 @@ export function SettingsClient() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1037,7 +1009,7 @@ export function SettingsClient() {
               {/* Card Container */}
               <div style={{
                 borderRadius: '12px',
-                border: '1px solid #f1f5f9',
+                border: '1px solid var(--color-border)',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                 padding: '24px',
                 display: 'flex',
@@ -1143,7 +1115,7 @@ export function SettingsClient() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1289,7 +1261,7 @@ export function SettingsClient() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1302,7 +1274,7 @@ export function SettingsClient() {
                 {/* Card 1: Free Delivery */}
                 <div style={{
                   borderRadius: '12px',
-                  border: '1px solid #f1f5f9',
+                  border: '1px solid var(--color-border)',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                   padding: '22px',
                 }}>
@@ -1338,7 +1310,7 @@ export function SettingsClient() {
                 {/* Card 2: Fixed Delivery Charges */}
                 <div style={{
                   borderRadius: '12px',
-                  border: '1px solid #f1f5f9',
+                  border: '1px solid var(--color-border)',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                   padding: '22px',
                 }}>
@@ -1374,7 +1346,7 @@ export function SettingsClient() {
                 {/* Card 3: Kilometer Based Delivery Charges */}
                 <div style={{
                   borderRadius: '12px',
-                  border: '1px solid #f1f5f9',
+                  border: '1px solid var(--color-border)',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                   padding: '22px',
                   display: 'flex',
@@ -1474,7 +1446,7 @@ export function SettingsClient() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1485,7 +1457,7 @@ export function SettingsClient() {
 
               <div style={{
                 borderRadius: '12px',
-                border: '1px solid #f1f5f9',
+                border: '1px solid var(--color-border)',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                 padding: '24px',
                 display: 'flex',
@@ -1560,7 +1532,7 @@ export function SettingsClient() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1607,7 +1579,7 @@ export function SettingsClient() {
                     style={{
                       padding: '16px 20px',
                       borderRadius: '12px',
-                      border: '1px solid #f1f5f9',
+                      border: '1px solid var(--color-border)',
                       backgroundColor: 'var(--color-bg-card)',
                       display: 'flex',
                       alignItems: 'center',
@@ -1618,7 +1590,7 @@ export function SettingsClient() {
                       <span style={{ fontSize: '24px' }}>{item.icon}</span>
                       <div>
                         <div style={{ fontSize: '14px', fontWeight: 650, color: 'var(--color-text-primary)' }}>{item.name}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{item.desc}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{item.desc}</div>
                       </div>
                     </div>
                     <span style={{
@@ -1626,8 +1598,8 @@ export function SettingsClient() {
                       borderRadius: '6px',
                       fontSize: '11px',
                       fontWeight: 700,
-                      backgroundColor: '#ecfdf5',
-                      color: '#059669',
+                      backgroundColor: 'color-mix(in srgb, var(--color-success) 14%, transparent)',
+                      color: 'var(--color-success)',
                       border: '1px solid #a7f3d0',
                     }}>
                       {item.status}
@@ -1680,7 +1652,7 @@ export function SettingsClient() {
                   background: 'none',
                   border: 'none',
                   fontSize: '20px',
-                  color: '#64748b',
+                  color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
                   lineHeight: 1,
                 }}
@@ -1734,7 +1706,7 @@ export function SettingsClient() {
                     borderRadius: '8px',
                     border: '1px solid var(--color-border)',
                     backgroundColor: 'var(--color-bg-card)',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                     fontWeight: 600,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -1786,7 +1758,7 @@ function DreamField({ label, required, children }: { label: string; required?: b
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <label style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        {label} {required && <span style={{ color: 'var(--color-error)' }}>*</span>}
       </label>
       {children}
     </div>

@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 import Link from 'next/link'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 /* ── Types ────────────────────────────────────────────────── */
 interface MenuItem {
@@ -136,13 +138,13 @@ function VegBadge() {
         justifyContent: 'center',
         width: 14,
         height: 14,
-        border: '1.5px solid #16a34a',
+        border: '1.5px solid var(--color-success)',
         borderRadius: 3,
         flexShrink: 0,
         marginRight: 8,
       }}
     >
-      <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16a34a' }} />
+      <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--color-success)' }} />
     </span>
   )
 }
@@ -156,18 +158,19 @@ function NonVegBadge() {
         justifyContent: 'center',
         width: 14,
         height: 14,
-        border: '1.5px solid #ef4444',
+        border: '1.5px solid var(--color-error)',
         borderRadius: 3,
         flexShrink: 0,
         marginRight: 8,
       }}
     >
-      <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#ef4444' }} />
+      <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--color-error)' }} />
     </span>
   )
 }
 
 export default function OrdersView({ initialOrders }: Props) {
+  const { money } = useMoney()
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'>('ALL')
   const [search, setSearch] = useState('')
@@ -175,7 +178,6 @@ export default function OrdersView({ initialOrders }: Props) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [dateRange] = useState('7 Aug 26 - 5 Sep 26')
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   // Quick Order creation form state
   const [newOrderType, setNewOrderType] = useState<'Dine In' | 'Take Away' | 'Delivery'>('Dine In')
@@ -183,11 +185,6 @@ export default function OrdersView({ initialOrders }: Props) {
   const [newGuestCount, setNewGuestCount] = useState(2)
   const [newOrderNotes, setNewOrderNotes] = useState('Extra Spicy')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg)
-    setTimeout(() => setToastMessage(null), 3500)
-  }
 
   /* ── Live SSE refresh from /api/events ──────────────────── */
   const fetchOrders = useCallback(async () => {
@@ -229,16 +226,16 @@ export default function OrdersView({ initialOrders }: Props) {
         body: JSON.stringify({ status: newStatus }),
       })
       if (res.ok) {
-        showToast(`Order status updated to ${newStatus}`)
+        toast.success(`Order status updated to ${newStatus}`)
         setOrders((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
         )
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(`Update failed: ${err.error || res.statusText}`)
+        toast.error(`Update failed: ${err.error || res.statusText}`)
       }
     } catch {
-      showToast('Failed to update status')
+      toast.error('Failed to update status')
     }
   }
 
@@ -256,7 +253,7 @@ export default function OrdersView({ initialOrders }: Props) {
       }
 
       if (!tableId) {
-        showToast('Table not found. Please create tables first.')
+        toast.error('Table not found. Please create tables first.')
         setIsSubmitting(false)
         return
       }
@@ -272,15 +269,15 @@ export default function OrdersView({ initialOrders }: Props) {
       })
 
       if (res.ok) {
-        showToast(`Order created successfully for ${newOrderType}!`)
+        toast.success(`Order created successfully for ${newOrderType}!`)
         setIsAddModalOpen(false)
         fetchOrders()
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(`Error: ${err.error || res.statusText}`)
+        toast.error(`Error: ${err.error || res.statusText}`)
       }
     } catch {
-      showToast('Error creating order')
+      toast.error('Error creating order')
     } finally {
       setIsSubmitting(false)
     }
@@ -328,28 +325,7 @@ export default function OrdersView({ initialOrders }: Props) {
   })
 
   return (
-    <div style={{ backgroundColor: 'var(--color-bg-card-hover)', minHeight: '100vh', padding: '24px 32px' }}>
-      {/* ── Toast Notification ─────────────────────────────── */}
-      {toastMessage && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            backgroundColor: 'var(--color-text-primary)',
-            color: '#ffffff',
-            padding: '12px 20px',
-            borderRadius: 8,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            zIndex: 9999,
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
-          {toastMessage}
-        </div>
-      )}
-
+    <div style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh', padding: '24px 32px' }}>
       {/* ── TOP HEADER ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -361,7 +337,7 @@ export default function OrdersView({ initialOrders }: Props) {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#64748b',
+              color: 'var(--color-text-secondary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -435,8 +411,8 @@ export default function OrdersView({ initialOrders }: Props) {
         {/* 1. Confirmed */}
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Confirmed</span>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Confirmed</span>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--color-warning) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
               </svg>
@@ -448,7 +424,7 @@ export default function OrdersView({ initialOrders }: Props) {
         {/* 2. Pending */}
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Pending</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Pending</span>
             <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'var(--brand-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
@@ -462,8 +438,8 @@ export default function OrdersView({ initialOrders }: Props) {
         {/* 3. Processing */}
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Processing</span>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Processing</span>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--color-warning) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="4" />
                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
@@ -476,7 +452,7 @@ export default function OrdersView({ initialOrders }: Props) {
         {/* 4. Out For Delivery */}
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Out For Delivery</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Out For Delivery</span>
             <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#faf5ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9333ea" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18.5" cy="17.5" r="3.5" />
@@ -491,8 +467,8 @@ export default function OrdersView({ initialOrders }: Props) {
         {/* 5. Delivered */}
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Delivered</span>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Delivered</span>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--color-success) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -505,8 +481,8 @@ export default function OrdersView({ initialOrders }: Props) {
         {/* 6. Cancelled */}
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 12, border: '1px solid var(--color-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Cancelled</span>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Cancelled</span>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--color-error) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                 <circle cx="9" cy="7" r="4" />
@@ -565,7 +541,7 @@ export default function OrdersView({ initialOrders }: Props) {
               title="Grid View"
               style={{
                 backgroundColor: viewMode === 'grid' ? 'var(--brand)' : 'transparent',
-                color: viewMode === 'grid' ? '#ffffff' : '#64748b',
+                color: viewMode === 'grid' ? '#ffffff' : 'var(--color-text-secondary)',
                 border: 'none',
                 borderRadius: 6,
                 padding: '6px 8px',
@@ -586,7 +562,7 @@ export default function OrdersView({ initialOrders }: Props) {
               title="List View"
               style={{
                 backgroundColor: viewMode === 'list' ? 'var(--brand)' : 'transparent',
-                color: viewMode === 'list' ? '#ffffff' : '#64748b',
+                color: viewMode === 'list' ? '#ffffff' : 'var(--color-text-secondary)',
                 border: 'none',
                 borderRadius: 6,
                 padding: '6px 8px',
@@ -704,7 +680,7 @@ export default function OrdersView({ initialOrders }: Props) {
                     {/* Order ID & Type/Table */}
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-primary)' }}>{orderNum}</div>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>{label}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)' }}>{label}</div>
                     </div>
                   </div>
 
@@ -716,7 +692,7 @@ export default function OrdersView({ initialOrders }: Props) {
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#94a3b8',
+                      color: 'var(--color-text-tertiary)',
                       padding: 4,
                       fontSize: 18,
                       lineHeight: 1,
@@ -739,7 +715,7 @@ export default function OrdersView({ initialOrders }: Props) {
                   }}
                 >
                   <span style={{ fontWeight: 600 }}>Token No : {token}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#64748b', fontSize: 12 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-text-secondary)', fontSize: 12 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
@@ -761,10 +737,10 @@ export default function OrdersView({ initialOrders }: Props) {
                               {isVeg ? <VegBadge /> : <NonVegBadge />}
                               <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{itemName}</span>
                             </div>
-                            <span style={{ fontWeight: 600, color: '#64748b' }}>×{item.quantity}</span>
+                            <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>×{item.quantity}</span>
                           </div>
                           {item.specialNote && (
-                            <div style={{ fontSize: 11, color: '#64748b', paddingLeft: 22 }}>
+                            <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', paddingLeft: 22 }}>
                               ⓘ Notes : {item.specialNote}
                             </div>
                           )}
@@ -772,7 +748,7 @@ export default function OrdersView({ initialOrders }: Props) {
                       )
                     })
                   ) : (
-                    <div style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>
+                    <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
                       No dishes added yet
                     </div>
                   )}
@@ -788,7 +764,7 @@ export default function OrdersView({ initialOrders }: Props) {
                         textAlign: 'left',
                         fontSize: 12,
                         fontWeight: 700,
-                        color: 'var(--brand)',
+                        color: 'var(--brand-text)',
                         cursor: 'pointer',
                         marginTop: 4,
                       }}
@@ -804,7 +780,7 @@ export default function OrdersView({ initialOrders }: Props) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    borderTop: '1px solid #f1f5f9',
+                    borderTop: '1px solid var(--color-border)',
                     paddingTop: 12,
                     marginTop: 'auto',
                   }}
@@ -817,8 +793,8 @@ export default function OrdersView({ initialOrders }: Props) {
                       borderRadius: 12,
                       fontSize: 11,
                       fontWeight: 700,
-                      backgroundColor: isBilled ? '#dcfce7' : '#fef3c7',
-                      color: isBilled ? '#15803d' : '#b45309',
+                      backgroundColor: isBilled ? 'color-mix(in srgb, var(--color-success) 14%, transparent)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                      color: isBilled ? 'var(--color-success)' : 'var(--color-warning)',
                     }}
                   >
                     {isBilled ? 'Billed' : 'Unbilled'}
@@ -878,7 +854,7 @@ export default function OrdersView({ initialOrders }: Props) {
         <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 14, border: '1px solid var(--color-border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
+              <tr style={{ backgroundColor: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Order</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Type / Table</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Items</th>
@@ -893,7 +869,7 @@ export default function OrdersView({ initialOrders }: Props) {
                 const { label } = resolveOrderType(order)
                 const isBilled = order.status === 'PAID'
                 return (
-                  <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={order.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                       #{order.id.slice(-5).toUpperCase()}
                     </td>
@@ -901,7 +877,7 @@ export default function OrdersView({ initialOrders }: Props) {
                     <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>
                       {order.items.length} items
                     </td>
-                    <td style={{ padding: '12px 16px', color: '#64748b' }}>
+                    <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>
                       {formatOrderTime(order.createdAt)}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
@@ -911,8 +887,8 @@ export default function OrdersView({ initialOrders }: Props) {
                           borderRadius: 10,
                           fontSize: 11,
                           fontWeight: 700,
-                          backgroundColor: isBilled ? '#dcfce7' : '#fef3c7',
-                          color: isBilled ? '#15803d' : '#b45309',
+                          backgroundColor: isBilled ? 'color-mix(in srgb, var(--color-success) 14%, transparent)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                          color: isBilled ? 'var(--color-success)' : 'var(--color-warning)',
                         }}
                       >
                         {isBilled ? 'Billed' : 'Unbilled'}
@@ -938,7 +914,7 @@ export default function OrdersView({ initialOrders }: Props) {
                       </select>
                     </td>
                     <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                      ${Number(order.total || 0).toFixed(2)}
+                      {money(Number(order.total || 0))}
                     </td>
                   </tr>
                 )
@@ -975,7 +951,7 @@ export default function OrdersView({ initialOrders }: Props) {
               <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>Create New Order</h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -998,9 +974,9 @@ export default function OrdersView({ initialOrders }: Props) {
                         borderRadius: 8,
                         fontSize: 13,
                         fontWeight: 700,
-                        border: newOrderType === t ? '2px solid var(--brand)' : '1px solid #e2e8f0',
-                        backgroundColor: newOrderType === t ? '#eff6ff' : '#ffffff',
-                        color: newOrderType === t ? 'var(--brand)' : '#475569',
+                        border: newOrderType === t ? '2px solid var(--brand)' : '1px solid var(--color-border)',
+                        backgroundColor: newOrderType === t ? 'var(--brand-tint)' : 'var(--color-bg-card)',
+                        color: newOrderType === t ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                         cursor: 'pointer',
                       }}
                     >
@@ -1086,7 +1062,7 @@ export default function OrdersView({ initialOrders }: Props) {
                     fontWeight: 700,
                     fontSize: 13,
                     cursor: 'pointer',
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   Cancel

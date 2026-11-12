@@ -222,12 +222,12 @@ function InviteContent() {
                 </label>
                 <input
                   type="password"
-                  placeholder="At least 6 characters"
+                  placeholder="At least 8 characters"
                   className="input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={8}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: 10 }}
                 />
               </div>

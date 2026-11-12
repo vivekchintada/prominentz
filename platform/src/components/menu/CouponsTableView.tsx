@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 export interface CouponItem {
   id: string
@@ -19,6 +20,7 @@ export interface CouponItem {
 }
 
 export default function CouponsTableView() {
+  const { money } = useMoney()
   const [coupons, setCoupons] = useState<CouponItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -451,7 +453,7 @@ export default function CouponsTableView() {
                   <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     {coupon.discountType === 'PERCENTAGE'
                       ? `${Number(coupon.discountAmount).toFixed(0)}%`
-                      : `$${Number(coupon.discountAmount).toFixed(0)}`}
+                      : `${money(Number(coupon.discountAmount), 0)}`}
                   </td>
 
                   {/* Duration */}

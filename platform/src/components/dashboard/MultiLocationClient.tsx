@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface StoreBenchmark {
   locationId: string
@@ -28,6 +29,7 @@ interface MultiLocationData {
 }
 
 export function MultiLocationClient() {
+  const { money } = useMoney()
   const [data, setData] = useState<MultiLocationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -131,7 +133,7 @@ export function MultiLocationClient() {
 
   if (loading) {
     return (
-      <div style={{ padding: '24px', color: '#6b7280', fontSize: '14px' }}>
+      <div style={{ padding: '24px', color: 'var(--color-text-secondary)', fontSize: '14px' }}>
         Loading enterprise multi-location analytics...
       </div>
     )
@@ -142,10 +144,10 @@ export function MultiLocationClient() {
       {/* Header & Controls */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#111827' }}>
+          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
             🏢 Enterprise Multi-Location Command Center
           </h1>
-          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--color-text-secondary)' }}>
             Franchise benchmarking, store performance, and central HQ master menu push engine
           </p>
         </div>
@@ -157,7 +159,7 @@ export function MultiLocationClient() {
             }}
             style={{
               padding: '10px 16px',
-              backgroundColor: '#4f46e5',
+              backgroundColor: 'var(--brand)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
@@ -172,8 +174,8 @@ export function MultiLocationClient() {
             onClick={() => setShowAddModal(true)}
             style={{
               padding: '10px 16px',
-              backgroundColor: '#059669',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-success)',
+              color: 'var(--on-success)',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 600,
@@ -187,7 +189,7 @@ export function MultiLocationClient() {
       </div>
 
       {error && (
-        <div style={{ padding: '12px', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '8px', marginBottom: '20px' }}>
+        <div style={{ padding: '12px', backgroundColor: 'color-mix(in srgb, var(--color-error) 14%, transparent)', color: 'var(--color-error)', borderRadius: '8px', marginBottom: '20px' }}>
           ⚠️ {error}
         </div>
       )}
@@ -195,23 +197,23 @@ export function MultiLocationClient() {
       {/* Summary KPI Cards */}
       {data?.summary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Active Store Outlets</span>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#111827', marginTop: '4px' }}>{data.summary.totalLocations} Outlets</div>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>Active Store Outlets</span>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-text-primary)', marginTop: '4px' }}>{data.summary.totalLocations} Outlets</div>
           </div>
-          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Grand Total Revenue</span>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#4f46e5', marginTop: '4px' }}>
-              ${data.summary.grandTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>Grand Total Revenue</span>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--brand-text)', marginTop: '4px' }}>
+              {money(data.summary.grandTotalRevenue)}
             </div>
           </div>
-          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Enterprise Orders</span>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#111827', marginTop: '4px' }}>{data.summary.grandTotalOrders} Orders</div>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>Enterprise Orders</span>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-text-primary)', marginTop: '4px' }}>{data.summary.grandTotalOrders} Orders</div>
           </div>
-          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>Overall Labor Cost %</span>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: data.summary.overallLaborPct > 30 ? '#dc2626' : '#059669', marginTop: '4px' }}>
+          <div style={{ padding: '16px', backgroundColor: 'var(--color-bg-card)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>Overall Labor Cost %</span>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: data.summary.overallLaborPct > 30 ? 'var(--color-error)' : 'var(--color-success)', marginTop: '4px' }}>
               {data.summary.overallLaborPct}%
             </div>
           </div>
@@ -255,19 +257,19 @@ export function MultiLocationClient() {
                     )}
                   </td>
                   <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                    ${store.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {money(store.totalRevenue)}
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>{store.orderCount}</td>
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>${store.averageCheck.toFixed(2)}</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 600, color: store.laborPercentage > 30 ? '#dc2626' : '#059669' }}>
+                  <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>{money(store.averageCheck)}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600, color: store.laborPercentage > 30 ? 'var(--color-error)' : 'var(--color-success)' }}>
                     {store.laborPercentage}%
                   </td>
                   <td style={{ padding: '12px 16px' }}>{store.activeStaffCount} staff</td>
                   <td style={{ padding: '12px 16px' }}>
                     {store.lowStockCount > 0 ? (
-                      <span style={{ color: '#dc2626', fontWeight: 600 }}>⚠️ {store.lowStockCount} items</span>
+                      <span style={{ color: 'var(--color-error)', fontWeight: 600 }}>⚠️ {store.lowStockCount} items</span>
                     ) : (
-                      <span style={{ color: '#059669' }}>OK</span>
+                      <span style={{ color: 'var(--color-success)' }}>OK</span>
                     )}
                   </td>
                 </tr>
@@ -284,44 +286,44 @@ export function MultiLocationClient() {
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 700 }}>➕ Add New Franchise Store Location</h3>
             <form onSubmit={handleCreateLocation} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Store Name *</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Store Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Downtown Outlet"
                   value={newLocName}
                   onChange={(e) => setNewLocName(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--color-border)', marginTop: '4px' }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Region / Tag</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Region / Tag</label>
                 <input
                   type="text"
                   placeholder="e.g. West Coast, Airport Terminal"
                   value={newLocRegion}
                   onChange={(e) => setNewLocRegion(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--color-border)', marginTop: '4px' }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Address</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Address</label>
                 <input
                   type="text"
                   placeholder="123 Main St, Suite 4"
                   value={newLocAddress}
                   onChange={(e) => setNewLocAddress(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--color-border)', marginTop: '4px' }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>Phone</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Phone</label>
                 <input
                   type="text"
                   placeholder="+1 (555) 019-2831"
                   value={newLocPhone}
                   onChange={(e) => setNewLocPhone(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--color-border)', marginTop: '4px' }}
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -331,7 +333,7 @@ export function MultiLocationClient() {
                   checked={isHq}
                   onChange={(e) => setIsHq(e.target.checked)}
                 />
-                <label htmlFor="isHqCheck" style={{ fontSize: '13px', color: '#374151' }}>Set as Enterprise Headquarters (HQ Master)</label>
+                <label htmlFor="isHqCheck" style={{ fontSize: '13px', color: 'var(--color-text-primary)' }}>Set as Enterprise Headquarters (HQ Master)</label>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
@@ -345,7 +347,7 @@ export function MultiLocationClient() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  style={{ padding: '8px 16px', backgroundColor: '#059669', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                  style={{ padding: '8px 16px', backgroundColor: 'var(--color-success)', color: 'var(--on-success)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
                 >
                   {submitting ? 'Creating...' : 'Create Location'}
                 </button>
@@ -385,7 +387,7 @@ export function MultiLocationClient() {
             </div>
 
             {pushResult && (
-              <div style={{ padding: '10px', backgroundColor: pushResult.startsWith('Error') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)', color: pushResult.startsWith('Error') ? '#ef4444' : '#22c55e', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+              <div style={{ padding: '10px', backgroundColor: pushResult.startsWith('Error') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)', color: pushResult.startsWith('Error') ? 'var(--color-error)' : 'var(--color-success)', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
                 {pushResult}
               </div>
             )}
@@ -402,7 +404,7 @@ export function MultiLocationClient() {
                 type="button"
                 onClick={handleMasterMenuPush}
                 disabled={pushingMenu}
-                style={{ padding: '8px 16px', backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                style={{ padding: '8px 16px', backgroundColor: 'var(--brand)', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
               >
                 {pushingMenu ? 'Synchronizing...' : 'Push Menu Now'}
               </button>

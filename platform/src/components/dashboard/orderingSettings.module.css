@@ -36,7 +36,7 @@
   height: 40px;
   border-radius: var(--radius-lg);
   background: var(--brand-tint);
-  color: var(--brand);
+  color: var(--brand-text);
   display: flex;
   align-items: center;
   justify-content: center;

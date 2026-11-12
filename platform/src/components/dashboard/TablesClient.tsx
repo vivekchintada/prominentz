@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { toast } from 'sonner'
 import Link from 'next/link'
 import QRCode from 'qrcode'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 /* ── Types ────────────────────────────────────────────────── */
 export interface TableData {
@@ -139,11 +141,11 @@ function TableIllustration({ capacity, shape, status }: TableIllustrationProps) 
 }
 
 export default function TablesClient() {
+  const { money, taxRate: restaurantTaxRate } = useMoney()
   const [tables, setTables] = useState<TableData[]>([])
   const [floors, setFloors] = useState<string[]>(['All Floors', '1st Floor', '2nd Floor', '3rd Floor'])
   const [selectedFloor, setSelectedFloor] = useState<string>('All Floors')
   const [loading, setLoading] = useState<boolean>(true)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   // Modals
   const [isBookModalOpen, setIsBookModalOpen] = useState(false)
@@ -217,11 +219,6 @@ export default function TablesClient() {
   const [newFloorName, setNewFloorName] = useState('')
   const [submittingNewFloor, setSubmittingNewFloor] = useState(false)
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg)
-    setTimeout(() => setToastMessage(null), 3500)
-  }
-
   // Fetch Tables & Floors
   const fetchData = useCallback(async () => {
     try {
@@ -243,7 +240,7 @@ export default function TablesClient() {
       }
     } catch (err) {
       console.error('Error fetching tables data:', err)
-      showToast('Error loading table data')
+      toast.error('Error loading table data')
     } finally {
       setLoading(false)
     }
@@ -263,7 +260,7 @@ export default function TablesClient() {
   const handleBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!bookTableId || !bookGuestName || !bookGuestPhone) {
-      showToast('Please select a table and provide guest name & phone')
+      toast.warning('Please select a table and provide guest name & phone')
       return
     }
 
@@ -297,7 +294,7 @@ export default function TablesClient() {
         body: JSON.stringify({ status: 'RESERVED' }),
       })
 
-      showToast(`✅ Table booked successfully for ${bookGuestName}!`)
+      toast.success(`Table booked successfully for ${bookGuestName}!`)
       setIsBookModalOpen(false)
       setBookGuestName('')
       setBookGuestPhone('')
@@ -305,7 +302,7 @@ export default function TablesClient() {
       setBookNotes('')
       fetchData()
     } catch (err: any) {
-      showToast(err.message || 'Error booking table')
+      toast.error(err.message || 'Error booking table')
     } finally {
       setSubmittingBook(false)
     }
@@ -325,11 +322,11 @@ export default function TablesClient() {
         throw new Error(err.error || 'Failed to update table status')
       }
 
-      showToast(`Status updated to ${status === 'EMPTY' ? 'Available' : status === 'ACTIVE' ? 'Occupied' : 'Booked'}`)
+      toast.success(`Status updated to ${status === 'EMPTY' ? 'Available' : status === 'ACTIVE' ? 'Occupied' : 'Booked'}`)
       setSelectedTable(null)
       fetchData()
     } catch (err: any) {
-      showToast(err.message || 'Error updating status')
+      toast.error(err.message || 'Error updating status')
     }
   }
 
@@ -337,7 +334,7 @@ export default function TablesClient() {
   const handleAddTableSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTableName.trim()) {
-      showToast('Please enter table name')
+      toast.warning('Please enter table name')
       return
     }
 
@@ -360,11 +357,11 @@ export default function TablesClient() {
         throw new Error(err.error || 'Failed to create table')
       }
 
-      showToast(`✅ Table "${newTableName}" created on ${newTableFloor}!`)
+      toast.success(`Table "${newTableName}" created on ${newTableFloor}!`)
       setNewTableName('')
       fetchData()
     } catch (err: any) {
-      showToast(err.message || 'Error creating table')
+      toast.error(err.message || 'Error creating table')
     } finally {
       setSubmittingNewTable(false)
     }
@@ -374,7 +371,7 @@ export default function TablesClient() {
   const handleAddFloorSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newFloorName.trim()) {
-      showToast('Please enter floor name')
+      toast.warning('Please enter floor name')
       return
     }
 
@@ -391,12 +388,12 @@ export default function TablesClient() {
         throw new Error(err.error || 'Failed to add floor')
       }
 
-      showToast(`✅ Floor "${newFloorName.trim()}" added successfully!`)
+      toast.success(`Floor "${newFloorName.trim()}" added successfully!`)
       setSelectedFloor(newFloorName.trim())
       setNewFloorName('')
       fetchData()
     } catch (err: any) {
-      showToast(err.message || 'Error adding floor')
+      toast.error(err.message || 'Error adding floor')
     } finally {
       setSubmittingNewFloor(false)
     }
@@ -415,40 +412,16 @@ export default function TablesClient() {
         throw new Error(err.error || 'Failed to delete table')
       }
 
-      showToast(`Table "${tableName}" deleted`)
+      toast.success(`Table "${tableName}" deleted`)
       setSelectedTable(null)
       fetchData()
     } catch (err: any) {
-      showToast(err.message || 'Error deleting table')
+      toast.error(err.message || 'Error deleting table')
     }
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--color-bg-card-hover)', minHeight: '100vh', padding: '24px 32px', fontFamily: 'inherit' }}>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            backgroundColor: 'var(--color-text-primary)',
-            color: '#ffffff',
-            padding: '12px 20px',
-            borderRadius: 8,
-            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
-            zIndex: 99999,
-            fontWeight: 600,
-            fontSize: 14,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          {toastMessage}
-        </div>
-      )}
-
+    <div style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh', padding: '24px 32px', fontFamily: 'inherit' }}>
       {/* ── Top Header Row ─────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
@@ -536,7 +509,7 @@ export default function TablesClient() {
               padding: '0 14px',
               height: 40,
               backgroundColor: 'var(--color-bg-card-hover)',
-              border: '1px solid #cbd5e1',
+              border: '1px solid var(--color-border)',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 700,
@@ -623,25 +596,25 @@ export default function TablesClient() {
         </div>
 
         {/* Legend */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, fontWeight: 500, color: '#64748b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, fontWeight: 500, color: 'var(--color-text-secondary)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#22c55e' }} />
-            <span style={{ color: '#16a34a' }}>Available</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-success)' }} />
+            <span style={{ color: 'var(--color-success)' }}>Available</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#f97316' }} />
-            <span style={{ color: '#ea580c' }}>Booked</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-warning)' }} />
+            <span style={{ color: 'var(--color-warning)' }}>Booked</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#ef4444' }} />
-            <span style={{ color: '#dc2626' }}>Occupied</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-error)' }} />
+            <span style={{ color: 'var(--color-error)' }}>Occupied</span>
           </div>
         </div>
       </div>
 
       {/* ── Table Cards Grid ───────────────────────────────── */}
       {loading ? (
-        <div style={{ padding: '80px 0', textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
           <div className="spinner" style={{ width: 36, height: 36, margin: '0 auto 12px auto' }} />
           Loading floor tables...
         </div>
@@ -649,7 +622,7 @@ export default function TablesClient() {
         <div style={{ backgroundColor: 'var(--color-bg-card)', padding: '60px 24px', borderRadius: 16, border: '1px solid var(--color-border)', textAlign: 'center' }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🪑</div>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>No tables found on {selectedFloor}</h3>
-          <p style={{ margin: '6px 0 16px 0', fontSize: 13, color: '#64748b' }}>
+          <p style={{ margin: '6px 0 16px 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
             Click the settings gear icon to add tables to this floor or manage your floor plan.
           </p>
           <button
@@ -691,7 +664,7 @@ export default function TablesClient() {
                 style={{
                   backgroundColor: 'var(--color-bg-card)',
                   borderRadius: 14,
-                  border: '1px solid #f1f5f9',
+                  border: '1px solid var(--color-border)',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                   padding: '16px 14px',
                   display: 'flex',
@@ -725,7 +698,7 @@ export default function TablesClient() {
                 </div>
 
                 {/* Seats Count */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--brand)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--brand-text)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 11 }}>👥</span> {table.capacity} seats
                 </div>
 
@@ -737,24 +710,24 @@ export default function TablesClient() {
                     padding: '3px 10px',
                     borderRadius: 9999,
                     backgroundColor: isBooked
-                      ? '#ffedd5'
+                      ? 'color-mix(in srgb, var(--color-warning) 14%, transparent)'
                       : isOccupied
                       ? '#ffe4e6'
                       : isPaying
                       ? '#fef9c3'
                       : '#dcfce7',
                     color: isBooked
-                      ? '#ea580c'
+                      ? 'var(--color-warning)'
                       : isOccupied
-                      ? '#e11d48'
+                      ? 'var(--color-error)'
                       : isPaying
                       ? '#ca8a04'
                       : '#16a34a',
                     border: `1px solid ${
                       isBooked
-                        ? '#fed7aa'
+                        ? 'color-mix(in srgb, var(--color-warning) 35%, transparent)'
                         : isOccupied
-                        ? '#fecdd3'
+                        ? 'color-mix(in srgb, var(--color-error) 35%, transparent)'
                         : isPaying
                         ? '#fef08a'
                         : '#bbf7d0'
@@ -770,7 +743,7 @@ export default function TablesClient() {
                   <div
                     style={{
                       width: '100%',
-                      borderTop: '1px solid #f1f5f9',
+                      borderTop: '1px solid var(--color-border)',
                       paddingTop: 8,
                       marginTop: 4,
                     }}
@@ -778,7 +751,7 @@ export default function TablesClient() {
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {table.activeBooking.guestName}
                     </div>
-                    <div style={{ fontSize: 10, color: '#f59e0b', fontWeight: 600, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: 10, color: 'var(--color-warning)', fontWeight: 600, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {table.activeBooking.bookingTime}
                     </div>
                   </div>
@@ -822,13 +795,13 @@ export default function TablesClient() {
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   {selectedTable.name}
                 </h3>
-                <span style={{ fontSize: 12, color: '#64748b' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   {selectedTable.floor} · {selectedTable.capacity} Seats · {selectedTable.shape}
                 </span>
               </div>
               <button
                 onClick={() => setSelectedTable(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -855,9 +828,9 @@ export default function TablesClient() {
                   style={{
                     color:
                       selectedTable.status === 'RESERVED'
-                        ? '#ea580c'
+                        ? 'var(--color-warning)'
                         : selectedTable.status === 'ACTIVE'
-                        ? '#e11d48'
+                        ? 'var(--color-error)'
                         : '#16a34a',
                   }}
                 >
@@ -872,7 +845,7 @@ export default function TablesClient() {
               {selectedTable.activeBooking && (
                 <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-bg-card)', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)' }}>
                   <strong>Guest:</strong> {selectedTable.activeBooking.guestName} ({selectedTable.activeBooking.partySize} guests)<br />
-                  <span style={{ color: '#d97706', fontSize: 11 }}>{selectedTable.activeBooking.bookingTime}</span>
+                  <span style={{ color: 'var(--color-warning)', fontSize: 11 }}>{selectedTable.activeBooking.bookingTime}</span>
                 </div>
               )}
 
@@ -889,29 +862,29 @@ export default function TablesClient() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
                       Active Order Check
                     </span>
-                    <span style={{ fontSize: 11, color: '#64748b' }}>
+                    <span style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>
                       {selectedTable.activeOrder.guestCount} Guests
                     </span>
                   </div>
 
                   {selectedTable.activeOrder.items && selectedTable.activeOrder.items.length > 0 ? (
-                    <div style={{ maxHeight: 110, overflowY: 'auto', border: '1px solid #f1f5f9', borderRadius: 6, padding: '4px 8px', backgroundColor: 'var(--color-bg-card-hover)', marginBottom: 6 }}>
+                    <div style={{ maxHeight: 110, overflowY: 'auto', border: '1px solid var(--color-border)', borderRadius: 6, padding: '4px 8px', backgroundColor: 'var(--color-bg-card-hover)', marginBottom: 6 }}>
                       {selectedTable.activeOrder.items.map((it, idx) => (
                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '2px 0' }}>
                           <span style={{ color: 'var(--color-text-secondary)' }}>{it.quantity}× {it.name}</span>
-                          <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>${(it.price * it.quantity).toFixed(2)}</span>
+                          <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{money((it.price * it.quantity))}</span>
                         </div>
                       ))}
                     </div>
                   ) : null}
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 6 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)' }}>Total Bill:</span>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#16a34a' }}>
-                      ${selectedTable.activeOrder.total.toFixed(2)}
+                    <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-success)' }}>
+                      {money(selectedTable.activeOrder.total)}
                     </span>
                   </div>
                 </div>
@@ -950,7 +923,7 @@ export default function TablesClient() {
                       padding: '10px',
                       backgroundColor: 'var(--color-bg-card)',
                       color: 'var(--color-text-secondary)',
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       borderRadius: 8,
                       fontSize: 13,
                       fontWeight: 600,
@@ -964,8 +937,8 @@ export default function TablesClient() {
                     style={{
                       padding: '9px',
                       backgroundColor: 'var(--color-bg-card)',
-                      color: '#e11d48',
-                      border: '1px solid #fecdd3',
+                      color: 'var(--color-error)',
+                      border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
                       borderRadius: 8,
                       fontSize: 12,
                       fontWeight: 600,
@@ -983,8 +956,8 @@ export default function TablesClient() {
                     onClick={() => handleTableStatusChange(selectedTable.id, 'ACTIVE')}
                     style={{
                       padding: '10px',
-                      backgroundColor: '#22c55e',
-                      color: '#ffffff',
+                      backgroundColor: 'var(--color-success)',
+                      color: 'var(--on-success)',
                       border: 'none',
                       borderRadius: 8,
                       fontSize: 13,
@@ -999,8 +972,8 @@ export default function TablesClient() {
                     style={{
                       padding: '10px',
                       backgroundColor: 'var(--color-bg-card)',
-                      color: '#64748b',
-                      border: '1px solid #cbd5e1',
+                      color: 'var(--color-text-secondary)',
+                      border: '1px solid var(--color-border)',
                       borderRadius: 8,
                       fontSize: 13,
                       fontWeight: 600,
@@ -1036,8 +1009,8 @@ export default function TablesClient() {
                     onClick={() => handleTableStatusChange(selectedTable.id, 'EMPTY')}
                     style={{
                       padding: '10px',
-                      backgroundColor: '#16a34a',
-                      color: '#ffffff',
+                      backgroundColor: 'var(--color-success)',
+                      color: 'var(--on-success)',
                       border: 'none',
                       borderRadius: 8,
                       fontSize: 13,
@@ -1085,7 +1058,7 @@ export default function TablesClient() {
                 style={{
                   padding: '8px',
                   backgroundColor: 'transparent',
-                  color: '#dc2626',
+                  color: 'var(--color-error)',
                   border: 'none',
                   fontSize: 12,
                   fontWeight: 600,
@@ -1133,7 +1106,7 @@ export default function TablesClient() {
               </h3>
               <button
                 onClick={() => setIsBookModalOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -1153,7 +1126,7 @@ export default function TablesClient() {
                     width: '100%',
                     padding: '8px 12px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     fontSize: 13,
                     outline: 'none',
                   }}
@@ -1183,7 +1156,7 @@ export default function TablesClient() {
                       width: '100%',
                       padding: '8px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       outline: 'none',
                     }}
@@ -1203,7 +1176,7 @@ export default function TablesClient() {
                       width: '100%',
                       padding: '8px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       outline: 'none',
                     }}
@@ -1227,7 +1200,7 @@ export default function TablesClient() {
                       width: '100%',
                       padding: '8px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       outline: 'none',
                     }}
@@ -1246,7 +1219,7 @@ export default function TablesClient() {
                       width: '100%',
                       padding: '8px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       outline: 'none',
                     }}
@@ -1269,7 +1242,7 @@ export default function TablesClient() {
                       width: '100%',
                       padding: '8px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       outline: 'none',
                     }}
@@ -1288,7 +1261,7 @@ export default function TablesClient() {
                       width: '100%',
                       padding: '8px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       outline: 'none',
                     }}
@@ -1310,7 +1283,7 @@ export default function TablesClient() {
                     width: '100%',
                     padding: '8px 12px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     fontSize: 13,
                     outline: 'none',
                   }}
@@ -1390,13 +1363,13 @@ export default function TablesClient() {
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   ⚙️ Table Plan &amp; Floor Settings
                 </h3>
-                <span style={{ fontSize: 12, color: '#64748b' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   Manage dining floors, add tables, and customize seating capacity
                 </span>
               </div>
               <button
                 onClick={() => setIsSettingsModalOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -1413,7 +1386,7 @@ export default function TablesClient() {
                   borderBottom: settingsTab === 'tables' ? '2px solid var(--brand)' : '2px solid transparent',
                   fontWeight: 700,
                   fontSize: 13,
-                  color: settingsTab === 'tables' ? 'var(--brand)' : '#64748b',
+                  color: settingsTab === 'tables' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >
@@ -1428,7 +1401,7 @@ export default function TablesClient() {
                   borderBottom: settingsTab === 'floors' ? '2px solid var(--brand)' : '2px solid transparent',
                   fontWeight: 700,
                   fontSize: 13,
-                  color: settingsTab === 'floors' ? 'var(--brand)' : '#64748b',
+                  color: settingsTab === 'floors' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                   cursor: 'pointer',
                 }}
               >
@@ -1455,7 +1428,7 @@ export default function TablesClient() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10, marginBottom: 10 }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4 }}>
+                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                         Table Name *
                       </label>
                       <input
@@ -1468,13 +1441,13 @@ export default function TablesClient() {
                           width: '100%',
                           padding: '7px 10px',
                           borderRadius: 6,
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--color-border)',
                           fontSize: 12,
                         }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4 }}>
+                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                         Floor *
                       </label>
                       <select
@@ -1484,7 +1457,7 @@ export default function TablesClient() {
                           width: '100%',
                           padding: '7px 10px',
                           borderRadius: 6,
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--color-border)',
                           fontSize: 12,
                         }}
                       >
@@ -1499,7 +1472,7 @@ export default function TablesClient() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4 }}>
+                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                         Capacity (Seats) *
                       </label>
                       <input
@@ -1512,13 +1485,13 @@ export default function TablesClient() {
                           width: '100%',
                           padding: '7px 10px',
                           borderRadius: 6,
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--color-border)',
                           fontSize: 12,
                         }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4 }}>
+                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                         Table Shape
                       </label>
                       <select
@@ -1528,7 +1501,7 @@ export default function TablesClient() {
                           width: '100%',
                           padding: '7px 10px',
                           borderRadius: 6,
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--color-border)',
                           fontSize: 12,
                         }}
                       >
@@ -1576,8 +1549,8 @@ export default function TablesClient() {
                       }}
                     >
                       <div>
-                        <strong>{t.name}</strong> · <span style={{ color: '#64748b' }}>{t.floor}</span> ·{' '}
-                        <span style={{ color: '#d97706' }}>{t.capacity} seats</span>
+                        <strong>{t.name}</strong> · <span style={{ color: 'var(--color-text-secondary)' }}>{t.floor}</span> ·{' '}
+                        <span style={{ color: 'var(--color-warning)' }}>{t.capacity} seats</span>
                       </div>
                       <button
                         onClick={() => handleDeleteTable(t.id, t.name)}
@@ -1586,7 +1559,7 @@ export default function TablesClient() {
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#dc2626',
+                          color: 'var(--color-error)',
                           fontSize: 13,
                         }}
                       >
@@ -1623,7 +1596,7 @@ export default function TablesClient() {
                         flex: 1,
                         padding: '7px 10px',
                         borderRadius: 6,
-                        border: '1px solid #cbd5e1',
+                        border: '1px solid var(--color-border)',
                         fontSize: 12,
                       }}
                     />
@@ -1670,7 +1643,7 @@ export default function TablesClient() {
                         <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
                           🏢 {floor}
                         </div>
-                        <span style={{ fontSize: 12, color: '#64748b' }}>
+                        <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                           {count} table{count === 1 ? '' : 's'} assigned
                         </span>
                       </div>
@@ -1719,13 +1692,13 @@ export default function TablesClient() {
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Table QR &amp; Ordering Studio
                 </h3>
-                <span style={{ fontSize: 12, color: '#64748b' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   {qrModalTable.name} · {qrModalTable.floor} · {qrModalTable.capacity} Seats
                 </span>
               </div>
               <button
                 onClick={() => setQrModalTable(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -1736,7 +1709,7 @@ export default function TablesClient() {
               id="resto-table-qr-tent"
               style={{
                 backgroundColor: 'var(--color-bg-card)',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--color-border)',
                 borderRadius: 16,
                 padding: '24px 20px',
                 textAlign: 'center',
@@ -1746,13 +1719,13 @@ export default function TablesClient() {
                 marginBottom: 20,
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand)', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-text)', marginBottom: 4 }}>
                 Dine-In Contactless Ordering
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--color-text-primary)', marginBottom: 4 }}>
                 {qrModalTable.name}
               </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 16 }}>
                 Scan to browse menu, customize dishes &amp; pay
               </div>
 
@@ -1770,7 +1743,7 @@ export default function TablesClient() {
                 )}
               </div>
 
-              <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#64748b', wordBreak: 'break-all', backgroundColor: 'var(--color-bg-input)', padding: '6px 8px', borderRadius: 6 }}>
+              <div style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--color-text-secondary)', wordBreak: 'break-all', backgroundColor: 'var(--color-bg-input)', padding: '6px 8px', borderRadius: 6 }}>
                 {typeof window !== 'undefined' ? `${window.location.origin}/table/${qrModalTable.locationId || 'default'}/${qrModalTable.id}` : ''}
               </div>
             </div>
@@ -1810,7 +1783,7 @@ export default function TablesClient() {
                     padding: '12px 14px',
                     backgroundColor: 'var(--color-bg-input)',
                     color: 'var(--color-text-secondary)',
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     borderRadius: 10,
                     fontSize: 13,
                     fontWeight: 700,
@@ -1826,7 +1799,7 @@ export default function TablesClient() {
                   const url = `${window.location.origin}/table/${qrModalTable.locationId || 'default'}/${qrModalTable.id}`
                   navigator.clipboard.writeText(url)
                   setCopiedLink(true)
-                  showToast('✅ Table ordering link copied to clipboard!')
+                  toast.success('Table ordering link copied to clipboard!')
                   setTimeout(() => setCopiedLink(false), 2500)
                 }}
                 style={{
@@ -1886,7 +1859,7 @@ export default function TablesClient() {
               </div>
               <button
                 onClick={() => setThermalModalTable(null)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 20, cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', fontSize: 20, cursor: 'pointer' }}
               >
                 ×
               </button>
@@ -1934,8 +1907,8 @@ export default function TablesClient() {
                 id="resto-table-thermal-ticket"
                 style={{
                   width: thermalPageSize === '80mm' ? '300px' : '230px',
-                  backgroundColor: '#ffffff',
-                  color: '#000000',
+                  backgroundColor: 'var(--color-bg-card)',
+                  color: 'var(--color-text-primary)',
                   fontFamily: '"Courier New", Courier, monospace',
                   fontSize: '12px',
                   lineHeight: '1.4',
@@ -1950,7 +1923,7 @@ export default function TablesClient() {
                 <div style={{ textAlign: 'center', fontSize: '10px', color: '#444', marginBottom: 6 }}>
                   Dine-In Hospitality &amp; Bar
                 </div>
-                <div style={{ textAlign: 'center', fontSize: '11px', borderTop: '1px dashed #000', borderBottom: '1px dashed #000', padding: '4px 0', margin: '6px 0', fontWeight: 'bold' }}>
+                <div style={{ textAlign: 'center', fontSize: '11px', borderTop: '1px dashed var(--color-text-primary)', borderBottom: '1px dashed var(--color-text-primary)', padding: '4px 0', margin: '6px 0', fontWeight: 'bold' }}>
                   *** GUEST CHECK / RECEIPT ***
                 </div>
 
@@ -1961,7 +1934,7 @@ export default function TablesClient() {
                   <div>Order Ref: #{thermalModalTable.activeOrder.id.substring(0, 8).toUpperCase()}</div>
                 </div>
 
-                <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+                <div style={{ borderTop: '1px dashed var(--color-text-primary)', margin: '6px 0' }} />
 
                 {/* Items */}
                 <div style={{ fontSize: '11px' }}>
@@ -1975,32 +1948,45 @@ export default function TablesClient() {
                         {item.quantity}× {item.name}
                       </span>
                       <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {money((item.price * item.quantity))}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div style={{ borderTop: '1px dashed #000', margin: '8px 0' }} />
+                <div style={{ borderTop: '1px dashed var(--color-text-primary)', margin: '8px 0' }} />
 
                 {/* Totals */}
                 <div style={{ fontSize: '11px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
-                    <span>Subtotal:</span>
-                    <span>${(thermalModalTable.activeOrder.subtotal ?? (thermalModalTable.activeOrder.total * 0.92)).toFixed(2)}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
-                    <span>Tax (8%):</span>
-                    <span>${(thermalModalTable.activeOrder.tax ?? (thermalModalTable.activeOrder.total * 0.08)).toFixed(2)}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '14px', fontWeight: 'bold', borderTop: '1px solid #000', marginTop: 4 }}>
-                    <span>TOTAL:</span>
-                    <span>${thermalModalTable.activeOrder.total.toFixed(2)}</span>
-                  </div>
+                  {(() => {
+                    // Saved order figures; if an older order lacks the split, derive it
+                    // from the total using the restaurant's configured rate (not a guess).
+                    const o = thermalModalTable.activeOrder
+                    const total = Number(o.total || 0)
+                    const subtotal = o.subtotal != null ? Number(o.subtotal) : total / (1 + restaurantTaxRate)
+                    const tax = o.tax != null ? Number(o.tax) : total - subtotal
+                    const rateLabel = subtotal > 0 ? `${Number(((tax / subtotal) * 100).toFixed(2))}%` : '0%'
+                    return (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
+                          <span>Subtotal:</span>
+                          <span>{money(subtotal)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
+                          <span>Tax ({rateLabel}):</span>
+                          <span>{money(tax)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '14px', fontWeight: 'bold', borderTop: '1px solid var(--color-text-primary)', marginTop: 4 }}>
+                          <span>TOTAL:</span>
+                          <span>{money(total)}</span>
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
 
-                <div style={{ borderTop: '1px dashed #000', margin: '10px 0 6px 0' }} />
-                <div style={{ textAlign: 'center', fontSize: '10px', color: '#555' }}>
+                <div style={{ borderTop: '1px dashed var(--color-text-primary)', margin: '10px 0 6px 0' }} />
+                <div style={{ textAlign: 'center', fontSize: '10px', color: 'var(--color-text-secondary)' }}>
                   Thank you for dining with us!<br />
                   Please present to cashier.
                 </div>
@@ -2014,8 +2000,8 @@ export default function TablesClient() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  backgroundColor: '#22c55e',
-                  color: '#ffffff',
+                  backgroundColor: 'var(--color-success)',
+                  color: 'var(--on-success)',
                   border: 'none',
                   borderRadius: 10,
                   fontSize: 13,
@@ -2034,7 +2020,7 @@ export default function TablesClient() {
                 style={{
                   padding: '12px 18px',
                   backgroundColor: 'var(--color-text-secondary)',
-                  color: '#cbd5e1',
+                  color: 'var(--color-text-tertiary)',
                   border: 'none',
                   borderRadius: 10,
                   fontSize: 13,
@@ -2085,7 +2071,7 @@ export default function TablesClient() {
                 <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   🖨️ Batch Table QR Tent Generator
                 </h3>
-                <span style={{ fontSize: 13, color: '#64748b' }}>
+                <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                   Ready to print scannable table tent cards for all {tables.length} tables
                 </span>
               </div>
@@ -2110,7 +2096,7 @@ export default function TablesClient() {
                 </button>
                 <button
                   onClick={() => setIsBatchQrModalOpen(false)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#94a3b8' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: 'var(--color-text-tertiary)' }}
                 >
                   ✕
                 </button>
@@ -2134,7 +2120,7 @@ export default function TablesClient() {
                   key={t.id}
                   style={{
                     backgroundColor: 'var(--color-bg-card)',
-                    border: '2px solid #e2e8f0',
+                    border: '2px solid var(--color-border)',
                     borderRadius: 14,
                     padding: 16,
                     textAlign: 'center',
@@ -2145,13 +2131,13 @@ export default function TablesClient() {
                     pageBreakInside: 'avoid',
                   }}
                 >
-                  <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', color: 'var(--brand)', letterSpacing: '0.04em' }}>
+                  <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', color: 'var(--brand-text)', letterSpacing: '0.04em' }}>
                     PROMINENTZ DINING
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--color-text-primary)', margin: '4px 0 2px 0' }}>
                     {t.name}
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 10 }}>
                     {t.floor} · {t.capacity} Seats
                   </div>
 
@@ -2159,7 +2145,7 @@ export default function TablesClient() {
                     {allTableQrs[t.id] ? (
                       <img src={allTableQrs[t.id]} alt={t.name} style={{ width: 140, height: 140, borderRadius: 6 }} />
                     ) : (
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>Generating…</div>
+                      <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>Generating…</div>
                     )}
                   </div>
 

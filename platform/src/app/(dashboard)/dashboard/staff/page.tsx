@@ -1,7 +1,8 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { PageHeader } from '@/components/ui/PageHeader'
+import { StaffBoardView } from '@/components/bento/pages/StaffBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_STAFF_BOARD, getStaffBoard } from '@/lib/bento/staff-page'
 
 const StaffManagementClient = dynamic(
   () => import('@/components/dashboard/StaffManagementClient').then((mod) => mod.StaffManagementClient),
@@ -20,19 +21,15 @@ export const metadata = {
 }
 
 export default async function StaffManagementPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad('staff board', () => getStaffBoard(ctx.locationId, ctx.todayStart, ctx.timezone), EMPTY_STAFF_BOARD)
 
   return (
     <>
-      <PageHeader
-        title="Staff & Access Control"
-        showRefresh
-        subtitle="Manage delegated team roles, multi-location assignments, and single-use staff invitations"
-      />
-      <div className="page-body">
+      <StaffBoardView data={board} currency={ctx.currency} timezone={ctx.timezone} />
+      <ToolSection title="Team and access" sub="Roles, outlets and staff invitations">
         <StaffManagementClient />
-      </div>
+      </ToolSection>
     </>
   )
 }

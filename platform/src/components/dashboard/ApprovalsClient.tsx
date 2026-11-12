@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { useToast, ToastContainer } from '../ui/Toast'
+import { toast } from 'sonner'
 
 interface ShiftTrade {
   id: string
@@ -49,7 +49,6 @@ export default function ApprovalsClient() {
   const [leaves, setLeaves] = useState<LeaveRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
-  const { toasts, showToast, dismissToast } = useToast()
 
   const fetchData = useCallback(async () => {
     try {
@@ -61,11 +60,11 @@ export default function ApprovalsClient() {
       if (tradeRes.ok) setTrades(await tradeRes.json())
       if (leaveRes.ok) setLeaves(await leaveRes.json())
     } catch {
-      showToast('Error loading approvals queue', 'error')
+      toast.error('Error loading approvals queue')
     } finally {
       setLoading(false)
     }
-  }, [showToast])
+  }, [])
 
   useEffect(() => {
     fetchData()
@@ -86,14 +85,14 @@ export default function ApprovalsClient() {
         body: JSON.stringify({ action }),
       })
       if (res.ok) {
-        showToast(action === 'APPROVE' ? 'Shift swap approved and roster updated' : 'Shift swap denied', 'success')
+        toast.success(action === 'APPROVE' ? 'Shift swap approved and roster updated' : 'Shift swap denied')
         fetchData()
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(err.error || 'Failed to update swap', 'error')
+        toast.error(err.error || 'Failed to update swap')
       }
     } catch {
-      showToast('Connection error', 'error')
+      toast.error('Connection error')
     } finally {
       setProcessingId(null)
     }
@@ -108,13 +107,13 @@ export default function ApprovalsClient() {
         body: JSON.stringify({ status }),
       })
       if (res.ok) {
-        showToast(`Leave request marked as ${status}`, 'success')
+        toast.success(`Leave request marked as ${status}`)
         fetchData()
       } else {
-        showToast('Failed to update leave', 'error')
+        toast.error('Failed to update leave')
       }
     } catch {
-      showToast('Connection error', 'error')
+      toast.error('Connection error')
     } finally {
       setProcessingId(null)
     }
@@ -125,13 +124,11 @@ export default function ApprovalsClient() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-
       {/* ── KPI Strip ────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
         {[
           { label: 'Pending Swap Approvals', value: `${pendingSwaps.length}`, icon: '🔄', color: pendingSwaps.length > 0 ? '#f59e0b' : '#16a34a' },
-          { label: 'Pending Time-Off Requests', value: `${pendingLeaves.length}`, icon: '🏖️', color: pendingLeaves.length > 0 ? 'var(--brand)' : '#16a34a' },
+          { label: 'Pending Time-Off Requests', value: `${pendingLeaves.length}`, icon: '🏖️', color: pendingLeaves.length > 0 ? 'var(--brand-text)' : '#16a34a' },
           { label: 'All Historic Requests', value: `${trades.length + leaves.length}`, icon: '📜', color: 'var(--color-text-secondary)' },
         ].map((kpi) => (
           <div
@@ -175,8 +172,8 @@ export default function ApprovalsClient() {
                 borderRadius: '10px',
                 fontSize: '10px',
                 fontWeight: 800,
-                background: activeTab === 'swaps' ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-raised)',
-                color: activeTab === 'swaps' ? '#fff' : 'var(--color-text-secondary)',
+                background: activeTab === 'swaps' ? 'color-mix(in srgb, var(--color-text-primary) 25%, transparent)' : 'var(--color-bg-raised)',
+                color: activeTab === 'swaps' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
               }}
             >
               {pendingSwaps.length}
@@ -195,8 +192,8 @@ export default function ApprovalsClient() {
                 borderRadius: '10px',
                 fontSize: '10px',
                 fontWeight: 800,
-                background: activeTab === 'leave' ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-raised)',
-                color: activeTab === 'leave' ? '#fff' : 'var(--color-text-secondary)',
+                background: activeTab === 'leave' ? 'color-mix(in srgb, var(--color-text-primary) 25%, transparent)' : 'var(--color-bg-raised)',
+                color: activeTab === 'leave' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
               }}
             >
               {pendingLeaves.length}
@@ -286,9 +283,9 @@ export default function ApprovalsClient() {
                               : 'rgba(245,158,11,0.14)',
                           color:
                             trade.status === 'APPROVED'
-                              ? '#16a34a'
+                              ? 'var(--color-success)'
                               : trade.status === 'DENIED'
-                              ? '#ef4444'
+                              ? 'var(--color-error)'
                               : '#d97706',
                         }}
                       >
@@ -325,7 +322,7 @@ export default function ApprovalsClient() {
                           borderRadius: '8px',
                           border: '1px solid var(--color-border)',
                           background: 'transparent',
-                          color: '#ef4444',
+                          color: 'var(--color-error)',
                           fontWeight: 700,
                           fontSize: '12px',
                           cursor: 'pointer',
@@ -340,8 +337,8 @@ export default function ApprovalsClient() {
                           padding: '8px 16px',
                           borderRadius: '8px',
                           border: 'none',
-                          background: '#16a34a',
-                          color: '#fff',
+                          background: 'var(--color-success)',
+                          color: 'var(--on-success)',
                           fontWeight: 800,
                           fontSize: '12px',
                           cursor: 'pointer',
@@ -416,9 +413,9 @@ export default function ApprovalsClient() {
                               : 'var(--brand-tint)',
                           color:
                             leave.status === 'APPROVED'
-                              ? '#16a34a'
+                              ? 'var(--color-success)'
                               : leave.status === 'DENIED'
-                              ? '#ef4444'
+                              ? 'var(--color-error)'
                               : 'var(--brand)',
                         }}
                       >
@@ -454,7 +451,7 @@ export default function ApprovalsClient() {
                           borderRadius: '8px',
                           border: '1px solid var(--color-border)',
                           background: 'transparent',
-                          color: '#ef4444',
+                          color: 'var(--color-error)',
                           fontWeight: 700,
                           fontSize: '12px',
                           cursor: 'pointer',
@@ -469,8 +466,8 @@ export default function ApprovalsClient() {
                           padding: '8px 16px',
                           borderRadius: '8px',
                           border: 'none',
-                          background: '#16a34a',
-                          color: '#fff',
+                          background: 'var(--color-success)',
+                          color: 'var(--on-success)',
                           fontWeight: 800,
                           fontSize: '12px',
                           cursor: 'pointer',

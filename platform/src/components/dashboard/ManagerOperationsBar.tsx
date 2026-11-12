@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
 
 interface LowStockItem {
   id: string
@@ -28,13 +29,30 @@ interface ManagerOperationsBarProps {
   occupiedTables?: number
   totalOrdersCount?: number
   totalSales?: number
+  /** Today's average dine-in turn time in minutes; null when no orders completed yet. */
+  avgTurnTimeMinutes?: number | null
+  /** Today's labor cost as % of sales; null when there are no sales or no hourly rates. */
+  laborCostPct?: number | null
 }
 
+type Tone = 'good' | 'warn' | 'none'
+
+const TONE_STYLE: Record<Tone, React.CSSProperties> = {
+  good: { backgroundColor: 'var(--success-soft)', color: 'var(--color-success)', border: '1px solid color-mix(in srgb, var(--color-success) 35%, transparent)' },
+  warn: { backgroundColor: 'var(--warning-soft)', color: 'var(--color-warning)', border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)' },
+  none: { backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' },
+}
+
+const TURN_TARGET_MIN = 45
+const LABOR_TARGET_MAX = 30
+
 export function ManagerOperationsBar({
-  totalTables = 12,
-  occupiedTables = 8,
-  totalOrdersCount = 42,
-  totalSales = 2480.50,
+  totalTables = 0,
+  occupiedTables = 0,
+  totalOrdersCount = 0,
+  totalSales = 0,
+  avgTurnTimeMinutes = null,
+  laborCostPct = null,
 }: ManagerOperationsBarProps) {
   const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([])
   const [activeOrders, setActiveOrders] = useState<ActiveOrderSummary[]>([])
@@ -129,8 +147,10 @@ export function ManagerOperationsBar({
 
   // Derived shift calculations
   const occupancyPct = totalTables > 0 ? Math.round((occupiedTables / totalTables) * 100) : 0
-  const avgTurnTimeMinutes = 43
-  const laborPct = 28.2
+  const turnTone: Tone = avgTurnTimeMinutes == null ? 'none' : avgTurnTimeMinutes <= TURN_TARGET_MIN ? 'good' : 'warn'
+  const turnBadge = avgTurnTimeMinutes == null ? 'No tables closed yet' : turnTone === 'good' ? `On pace (≤${TURN_TARGET_MIN}m)` : `Slow (>${TURN_TARGET_MIN}m)`
+  const laborTone: Tone = laborCostPct == null ? 'none' : laborCostPct <= LABOR_TARGET_MAX ? 'good' : 'warn'
+  const laborBadge = laborCostPct == null ? 'Target 25–30%' : laborTone === 'good' ? 'Within target' : 'Over 30% target'
   const delayedTicketsCount = activeOrders.filter((o) => o.elapsedMinutes > 20).length
 
   return (
@@ -147,7 +167,7 @@ export function ManagerOperationsBar({
         <div
           style={{
             backgroundColor: 'var(--surface, #181715)',
-            border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             borderRadius: '12px',
             padding: '14px 16px',
             display: 'flex',
@@ -160,21 +180,18 @@ export function ManagerOperationsBar({
               Avg Turn Time
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-              {avgTurnTimeMinutes} <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-tertiary)' }}>min/table</span>
+              {avgTurnTimeMinutes == null ? (
+                '—'
+              ) : (
+                <>
+                  <AnimatedNumber value={avgTurnTimeMinutes} />{' '}
+                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-tertiary)' }}>min/table</span>
+                </>
+              )}
             </div>
           </div>
-          <span
-            style={{
-              padding: '3px 8px',
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 700,
-              backgroundColor: 'rgba(5, 150, 105, 0.15)',
-              color: 'var(--brand-emerald, #059669)',
-              border: '1px solid rgba(5, 150, 105, 0.3)',
-            }}
-          >
-            Optimal (&lt;45m)
+          <span style={{ padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700, ...TONE_STYLE[turnTone] }}>
+            {turnBadge}
           </span>
         </div>
 
@@ -182,7 +199,7 @@ export function ManagerOperationsBar({
         <div
           style={{
             backgroundColor: 'var(--surface, #181715)',
-            border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             borderRadius: '12px',
             padding: '14px 16px',
             display: 'flex',
@@ -195,21 +212,11 @@ export function ManagerOperationsBar({
               Labor Cost Rate
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-              {laborPct}%
+              {laborCostPct == null ? '—' : <AnimatedNumber value={laborCostPct} format={{ maximumFractionDigits: 1 }} suffix="%" />}
             </div>
           </div>
-          <span
-            style={{
-              padding: '3px 8px',
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 700,
-              backgroundColor: 'rgba(217, 119, 6, 0.15)',
-              color: 'var(--brand-amber, #d97706)',
-              border: '1px solid rgba(217, 119, 6, 0.3)',
-            }}
-          >
-            Target 25-30%
+          <span style={{ padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700, ...TONE_STYLE[laborTone] }}>
+            {laborBadge}
           </span>
         </div>
 
@@ -217,7 +224,7 @@ export function ManagerOperationsBar({
         <div
           style={{
             backgroundColor: 'var(--surface, #181715)',
-            border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             borderRadius: '12px',
             padding: '14px 16px',
             display: 'flex',
@@ -230,7 +237,10 @@ export function ManagerOperationsBar({
               Dining Floor Occupancy
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-              {occupiedTables}/{totalTables} <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-tertiary)' }}>tables ({occupancyPct}%)</span>
+              <AnimatedNumber value={occupiedTables} />/<AnimatedNumber value={totalTables} />{' '}
+              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-tertiary)' }}>
+                tables (<AnimatedNumber value={occupancyPct} suffix="%" />)
+              </span>
             </div>
           </div>
           <Link
@@ -240,7 +250,7 @@ export function ManagerOperationsBar({
               borderRadius: '6px',
               fontSize: '11px',
               fontWeight: 700,
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
               color: 'var(--color-text-primary)',
               textDecoration: 'none',
               border: '1px solid var(--surface-border)',
@@ -254,7 +264,7 @@ export function ManagerOperationsBar({
         <div
           style={{
             backgroundColor: 'var(--surface, #181715)',
-            border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             borderRadius: '12px',
             padding: '14px 16px',
             display: 'flex',
@@ -267,7 +277,7 @@ export function ManagerOperationsBar({
               Live Kitchen Tickets
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-              {activeOrders.length} active
+              <AnimatedNumber value={activeOrders.length} /> active
             </div>
           </div>
           <span
@@ -277,7 +287,7 @@ export function ManagerOperationsBar({
               fontSize: '11px',
               fontWeight: 700,
               backgroundColor: delayedTicketsCount > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(5, 150, 105, 0.15)',
-              color: delayedTicketsCount > 0 ? '#ef4444' : 'var(--brand-emerald, #059669)',
+              color: delayedTicketsCount > 0 ? 'var(--color-error)' : 'var(--brand-emerald, #059669)',
               border: `1px solid ${delayedTicketsCount > 0 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(5, 150, 105, 0.3)'}`,
             }}
           >
@@ -315,7 +325,7 @@ export function ManagerOperationsBar({
         <div
           style={{
             backgroundColor: 'var(--surface, #181715)',
-            border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             borderRadius: '12px',
             padding: '16px',
           }}
@@ -350,7 +360,7 @@ export function ManagerOperationsBar({
                     justifyContent: 'space-between',
                     padding: '8px 10px',
                     borderRadius: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                    backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
                     border: '1px solid var(--surface-border)',
                   }}
                 >
@@ -358,7 +368,7 @@ export function ManagerOperationsBar({
                     <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
                       {item.name}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#ef4444', marginLeft: '8px', fontWeight: 600 }}>
+                    <span style={{ fontSize: '11px', color: 'var(--color-error)', marginLeft: '8px', fontWeight: 600 }}>
                       {item.currentStock} {item.unit} left
                     </span>
                   </div>
@@ -370,7 +380,7 @@ export function ManagerOperationsBar({
                       fontSize: '11px',
                       fontWeight: 700,
                       backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                      color: '#ef4444',
+                      color: 'var(--color-error)',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
@@ -389,7 +399,7 @@ export function ManagerOperationsBar({
         <div
           style={{
             backgroundColor: 'var(--surface, #181715)',
-            border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             borderRadius: '12px',
             padding: '16px',
           }}
@@ -421,7 +431,7 @@ export function ManagerOperationsBar({
                     justifyContent: 'space-between',
                     padding: '8px 10px',
                     borderRadius: '8px',
-                    backgroundColor: isUrgent ? 'rgba(239, 68, 68, 0.06)' : 'rgba(255, 255, 255, 0.02)',
+                    backgroundColor: isUrgent ? 'rgba(239, 68, 68, 0.06)' : 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
                     border: `1px solid ${isUrgent ? 'rgba(239, 68, 68, 0.25)' : 'var(--surface-border)'}`,
                   }}
                 >
@@ -445,7 +455,7 @@ export function ManagerOperationsBar({
                         padding: '2px 6px',
                         borderRadius: '4px',
                         backgroundColor: isUrgent ? 'rgba(239, 68, 68, 0.15)' : 'rgba(5, 150, 105, 0.15)',
-                        color: isUrgent ? '#ef4444' : 'var(--brand-emerald, #059669)',
+                        color: isUrgent ? 'var(--color-error)' : 'var(--brand-emerald, #059669)',
                       }}
                     >
                       ⏱️ {ord.elapsedMinutes}m

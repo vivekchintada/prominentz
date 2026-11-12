@@ -2,6 +2,8 @@
 
 import React, { useState, useMemo } from 'react'
 import { Button } from '../ui/Button'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface OrderItemData {
   id:           string
@@ -37,6 +39,7 @@ export default function SplitCheckModal({
   showToast,
   onSeatChanged,
 }: SplitCheckModalProps) {
+  const { money } = useMoney()
   const [saving, setSaving] = useState(false)
   const [printingSeat, setPrintingSeat] = useState<number | null>(null)
   const [customSeatCount, setCustomSeatCount] = useState(Math.max(initialGuestCount, 1))
@@ -145,14 +148,14 @@ export default function SplitCheckModal({
           gap:       'var(--space-4)',
           overflow:  'hidden',
           backgroundColor: '#121215',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
         }}
       >
         {/* Header with Seat Adder */}
-        <div className="flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 'var(--space-3)' }}>
+        <div className="flex justify-between items-center" style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)', paddingBottom: 'var(--space-3)' }}>
           <div>
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <span>🪑</span> Item &amp; Seat Bill Splitter
+              <span><PosIcon name="armchair" /></span> Item &amp; Seat Bill Splitter
             </h3>
             <p className="text-xs text-secondary mt-1">Assign items to distinct guest seats for separate payments or individual check printing.</p>
           </div>
@@ -185,7 +188,7 @@ export default function SplitCheckModal({
               <div
                 key={seat}
                 style={{
-                  border:       '1px solid rgba(255,255,255,0.08)',
+                  border:       '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                   borderRadius: '12px',
                   padding:      '14px 16px',
                   background:   '#18181d',
@@ -194,12 +197,12 @@ export default function SplitCheckModal({
                 {/* Seat Header */}
                 <div className="flex justify-between items-center" style={{ marginBottom: '10px' }}>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-brand">🪑 Seat {seat}</span>
+                    <span className="font-bold text-sm text-brand"><PosIcon name="armchair" />Seat {seat}</span>
                     <span className="text-xs text-secondary">({seatItems.length} items)</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-sm font-bold text-success">
-                      ${totals.total.toFixed(2)}
+                      {money(totals.total)}
                     </span>
                     <button
                       onClick={() => handlePrintSeatSlip(seat)}
@@ -233,7 +236,7 @@ export default function SplitCheckModal({
                             )}
                           </div>
                           <span className="font-mono font-bold text-white mr-2">
-                            ${lineTotal.toFixed(2)}
+                            {money(lineTotal)}
                           </span>
                           {/* Seat Reassign Dropdown */}
                           <select
@@ -242,8 +245,8 @@ export default function SplitCheckModal({
                             disabled={saving}
                             style={{
                               background: '#27272a',
-                              border: '1px solid rgba(255,255,255,0.15)',
-                              color: '#ffffff',
+                              border: '1px solid color-mix(in srgb, var(--color-text-primary) 15%, transparent)',
+                              color: 'var(--color-text-primary)',
                               borderRadius: '6px',
                               padding: '3px 6px',
                               fontSize: '11px',
@@ -263,7 +266,7 @@ export default function SplitCheckModal({
                 {seatItems.length > 0 && (
                   <div
                     style={{
-                      borderTop:  '1px dashed rgba(255,255,255,0.08)',
+                      borderTop:  '1px dashed color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                       marginTop:  '10px',
                       paddingTop: '6px',
                       display:    'flex',
@@ -272,10 +275,10 @@ export default function SplitCheckModal({
                     }}
                     className="text-secondary"
                   >
-                    <span>Subtotal: ${totals.subtotal.toFixed(2)}</span>
-                    <span>Tax: ${totals.tax.toFixed(2)}</span>
+                    <span>Subtotal: {money(totals.subtotal)}</span>
+                    <span>Tax: {money(totals.tax)}</span>
                     <span className="font-bold text-white">
-                      Seat Total: ${totals.total.toFixed(2)}
+                      Seat Total: {money(totals.total)}
                     </span>
                   </div>
                 )}
@@ -287,7 +290,7 @@ export default function SplitCheckModal({
         {/* Footer */}
         <div
           style={{
-            borderTop:   '1px solid rgba(255,255,255,0.08)',
+            borderTop:   '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
             paddingTop:  'var(--space-3)',
             display:     'flex',
             justifyContent: 'space-between',
@@ -295,7 +298,7 @@ export default function SplitCheckModal({
           }}
         >
           <div className="font-bold text-base text-white">
-            Grand Table Total: <span className="text-brand font-mono">${grandTotal.toFixed(2)}</span>
+            Grand Table Total: <span className="text-brand font-mono">{money(grandTotal)}</span>
           </div>
           <div className="flex gap-2">
             <Button onClick={onClose} className="btn btn--primary">Done</Button>

@@ -161,7 +161,7 @@ export default function LaborClient() {
           <div className={styles.kpiIcon}>💰</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Actual Labor</span>
-            <span className={styles.kpiValue} style={{ color: '#30D158' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--color-success)' }}>
               {loading ? '—' : money(summary?.actualCost ?? 0)}
             </span>
             <span className={styles.kpiSubtext}>{(summary?.actualHours ?? 0).toFixed(1)} clocked hours</span>
@@ -172,7 +172,7 @@ export default function LaborClient() {
           <div className={styles.kpiIcon}>📊</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Labor / Sales %</span>
-            <span className={styles.kpiValue} style={{ color: 'var(--brand)' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--brand-text)' }}>
               {loading ? '—' : `${(summary?.laborPercent ?? 0).toFixed(1)}%`}
             </span>
             <span className={styles.kpiSubtext}>{money(summary?.sales ?? 0)} net sales</span>
@@ -314,7 +314,7 @@ export default function LaborClient() {
                   <tr key={e.id}>
                     <td>
                       <div className={styles.empCell}>
-                        <div className={styles.avatar} style={{ background: isApproved ? 'var(--brand)' : '#f59e0b' }}>
+                        <div className={styles.avatar} style={{ background: isApproved ? 'var(--brand)' : 'var(--color-warning)' }}>
                           {(e.employee.user.name ?? e.employee.user.email).charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -335,7 +335,7 @@ export default function LaborClient() {
                       {e.clockOut ? (
                         new Date(e.clockOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                       ) : (
-                        <span style={{ color: '#30D158', fontWeight: 700 }}>🟢 On Floor</span>
+                        <span style={{ color: 'var(--color-success)', fontWeight: 700 }}>🟢 On Floor</span>
                       )}
                     </td>
                     <td>{e.breakMinutes}m</td>

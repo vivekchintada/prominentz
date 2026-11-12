@@ -1,26 +1,27 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import { SettingsClient } from '@/components/dashboard/SettingsClient'
-import { PageHeader } from '@/components/ui/PageHeader'
+import { SettingsBoardView } from '@/components/bento/pages/SettingsBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_SETTINGS_BOARD, getSettingsBoard } from '@/lib/bento/settings-page'
 
 export const metadata = {
   title: 'Settings | Prominentz',
 }
 
 export default async function SettingsPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad(
+    'settings board',
+    () => getSettingsBoard(ctx.restaurantId, ctx.locationId, ctx.currency, ctx.timezone),
+    EMPTY_SETTINGS_BOARD,
+  )
 
   return (
     <>
-      <PageHeader
-        title="General Settings"
-        showRefresh
-        subtitle="Manage store details, tax rates, thermal receipt printers, payment types, and delivery preferences"
-      />
-      <div className="page-body">
+      <SettingsBoardView data={board} outletName={ctx.locationName} />
+      <ToolSection title="All settings" sub="Store details, taxes, printers, payment types and delivery">
         <SettingsClient />
-      </div>
+      </ToolSection>
     </>
   )
 }

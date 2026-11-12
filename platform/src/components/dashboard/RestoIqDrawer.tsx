@@ -154,9 +154,9 @@ I am continuously monitoring and managing **every operational domain** across li
           alignItems: 'center',
           gap: 8,
           padding: '10px 18px',
-          background: '#18181B',
-          color: '#ffffff',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          background: 'var(--color-bg-card)',
+          color: 'var(--color-text-primary)',
+          border: '1px solid color-mix(in srgb, var(--color-text-primary) 20%, transparent)',
           borderRadius: 8,
           fontWeight: 600,
           fontSize: 13,
@@ -174,7 +174,7 @@ I am continuously monitoring and managing **every operational domain** across li
             width: 8,
             height: 8,
             borderRadius: '50%',
-            background: '#22c55e',
+            background: 'var(--color-success)',
             boxShadow: '0 0 8px #22c55e',
             marginLeft: 2,
           }}
@@ -221,7 +221,7 @@ I am continuously monitoring and managing **every operational domain** across li
                   height: 32,
                   borderRadius: 10,
                   background: 'var(--brand-tint)',
-                  color: 'var(--brand)',
+                  color: 'var(--brand-text)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -234,8 +234,8 @@ I am continuously monitoring and managing **every operational domain** across li
                 <h4 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Resto IQ Operations Co-Pilot
                 </h4>
-                <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
+                <span style={{ fontSize: 11, color: 'var(--color-success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-success)' }} />
                   Connected to Live PostgreSQL Telemetry
                 </span>
               </div>
@@ -351,7 +351,7 @@ I am continuously monitoring and managing **every operational domain** across li
                               fontSize: 10,
                               fontWeight: 800,
                               background: 'var(--brand-tint)',
-                              color: 'var(--brand)',
+                              color: 'var(--brand-text)',
                               padding: '2px 6px',
                               borderRadius: 4,
                             }}
@@ -368,7 +368,7 @@ I am continuously monitoring and managing **every operational domain** across li
 
                     {/* Action Execution Confirmation Badge */}
                     {m.actionType && (
-                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(48, 209, 88, 0.15)', border: '1px solid rgba(48, 209, 88, 0.35)', color: '#30D158', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(48, 209, 88, 0.15)', border: '1px solid rgba(48, 209, 88, 0.35)', color: 'var(--color-success)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span>⚡</span> Action Executed: <strong>{m.actionType}</strong>
                       </div>
                     )}
@@ -394,7 +394,7 @@ I am continuously monitoring and managing **every operational domain** across li
                                 padding: '6px 12px',
                                 borderRadius: 8,
                                 backgroundColor: act.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : act.severity === 'WARNING' ? 'rgba(245, 158, 11, 0.15)' : 'var(--brand-tint)',
-                                color: act.severity === 'CRITICAL' ? '#ef4444' : act.severity === 'WARNING' ? '#f59e0b' : 'var(--color-text-primary)',
+                                color: act.severity === 'CRITICAL' ? 'var(--color-error)' : act.severity === 'WARNING' ? 'var(--color-warning)' : 'var(--color-text-primary)',
                                 border: act.severity === 'CRITICAL' ? '1px solid rgba(239, 68, 68, 0.35)' : act.severity === 'WARNING' ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(37, 99, 235, 0.35)',
                                 cursor: isThinking ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.15s ease',
@@ -412,7 +412,7 @@ I am continuously monitoring and managing **every operational domain** across li
                       <div
                         style={{
                           fontSize: 10,
-                          color: isAgent ? 'var(--color-text-tertiary)' : 'rgba(255, 255, 255, 0.7)',
+                          color: isAgent ? 'var(--color-text-tertiary)' : 'var(--color-text-secondary)',
                           marginTop: 6,
                           textAlign: 'right',
                         }}

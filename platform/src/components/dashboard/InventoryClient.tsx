@@ -6,6 +6,7 @@ import ReceivePOModal from './inventory/ReceivePOModal'
 import StockCountsTab from './inventory/StockCountsTab'
 import RecipesTab from './inventory/RecipesTab'
 import WasteTab from './inventory/WasteTab'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface MenuItemRef {
   id: string
@@ -82,6 +83,7 @@ interface PurchaseOrder {
 type MainTab = 'stock' | 'counts' | 'pos' | 'recipes' | 'waste' | 'suppliers'
 
 export default function InventoryClient({ initialTab = 'stock' }: { initialTab?: MainTab } = {}) {
+  const { money } = useMoney()
   const [activeTab, setActiveTab] = useState<MainTab>(initialTab)
   const [receivingPO, setReceivingPO] = useState<PurchaseOrder | null>(null)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -533,7 +535,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#64748b',
+              color: 'var(--color-text-secondary)',
               transition: 'all 0.15s ease',
             }}
           >
@@ -627,13 +629,13 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 display: 'flex',
                 alignItems: 'center',
                 gap: 7,
-                background: '#ea580c',
+                background: 'var(--color-warning)',
                 border: 'none',
                 borderRadius: 8,
                 padding: '9px 18px',
                 fontSize: 13,
                 fontWeight: 700,
-                color: '#ffffff',
+                color: 'var(--on-warning)',
                 cursor: 'pointer',
                 boxShadow: '0 2px 6px rgba(234,88,12,0.3)',
                 transition: 'all 0.15s ease',
@@ -686,17 +688,17 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Total Stock Items
             </span>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--brand-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--brand-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-text)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
               </svg>
             </div>
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-text-primary)' }}>{totalItems}</div>
-          <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, marginTop: 4 }}>
             ✓ Active Catalog Tracked
           </div>
         </div>
@@ -712,17 +714,17 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Sufficient Stock
             </span>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'color-mix(in srgb, var(--color-success) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-success)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#16a34a' }}>{inStockCount}</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-success)' }}>{inStockCount}</div>
+          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
             Above safety thresholds
           </div>
         </div>
@@ -736,7 +738,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
           style={{
             background: 'var(--color-bg-card)',
             borderRadius: 12,
-            border: shortageItems.length > 0 ? '1px solid #fed7aa' : '1px solid #e2e8f0',
+            border: shortageItems.length > 0 ? '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)' : '1px solid var(--color-border)',
             padding: '16px 20px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
@@ -744,10 +746,10 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-warning)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Shortage / Low Stock
             </span>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'color-mix(in srgb, var(--color-warning) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-warning)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                 <line x1="12" y1="9" x2="12" y2="13" />
@@ -755,10 +757,10 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               </svg>
             </div>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: shortageItems.length > 0 ? '#ea580c' : '#0f172a' }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: shortageItems.length > 0 ? 'var(--color-warning)' : 'var(--color-text-primary)' }}>
             {shortageItems.length}
           </div>
-          <div style={{ fontSize: 12, color: shortageItems.length > 0 ? '#ea580c' : '#64748b', fontWeight: 600, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: shortageItems.length > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)', fontWeight: 600, marginTop: 4 }}>
             {shortageItems.length > 0 ? '⚡ Needs Immediate Restock' : 'All levels healthy'}
           </div>
         </div>
@@ -772,7 +774,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
           style={{
             background: 'var(--color-bg-card)',
             borderRadius: 12,
-            border: outOfStockCount > 0 ? '1px solid #fecaca' : '1px solid #e2e8f0',
+            border: outOfStockCount > 0 ? '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)' : '1px solid var(--color-border)',
             padding: '16px 20px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
@@ -780,19 +782,19 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Out of Stock (86'd)
             </span>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
               </svg>
             </div>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: outOfStockCount > 0 ? '#dc2626' : '#0f172a' }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: outOfStockCount > 0 ? 'var(--color-error)' : 'var(--color-text-primary)' }}>
             {outOfStockCount}
           </div>
-          <div style={{ fontSize: 12, color: outOfStockCount > 0 ? '#dc2626' : '#64748b', fontWeight: 600, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: outOfStockCount > 0 ? 'var(--color-error)' : 'var(--color-text-secondary)', fontWeight: 600, marginTop: 4 }}>
             {outOfStockCount > 0 ? 'Dishes disabled on POS' : 'Zero items at 0 stock'}
           </div>
         </div>
@@ -822,7 +824,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             border: 'none',
             borderBottom: activeTab === 'stock' ? '2.5px solid var(--brand)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'stock' ? 'var(--brand)' : '#64748b',
+            color: activeTab === 'stock' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'stock' ? 700 : 600,
             cursor: 'pointer',
@@ -848,9 +850,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             padding: '10px 18px',
             borderRadius: '8px 8px 0 0',
             border: 'none',
-            borderBottom: activeTab === 'stock' && statusFilter === 'SHORTAGE' ? '2.5px solid #ea580c' : '2.5px solid transparent',
+            borderBottom: activeTab === 'stock' && statusFilter === 'SHORTAGE' ? '2.5px solid var(--color-warning)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'stock' && statusFilter === 'SHORTAGE' ? '#ea580c' : '#64748b',
+            color: activeTab === 'stock' && statusFilter === 'SHORTAGE' ? 'var(--color-warning)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'stock' && statusFilter === 'SHORTAGE' ? 700 : 600,
             cursor: 'pointer',
@@ -868,9 +870,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 fontWeight: 800,
                 padding: '2px 8px',
                 borderRadius: 9999,
-                background: '#ffedd5',
+                background: 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
                 color: '#c2410c',
-                border: '1px solid #fed7aa',
+                border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)',
               }}
             >
               {shortageItems.length} short
@@ -889,7 +891,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             border: 'none',
             borderBottom: activeTab === 'suppliers' ? '2.5px solid var(--brand)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'suppliers' ? 'var(--brand)' : '#64748b',
+            color: activeTab === 'suppliers' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'suppliers' ? 700 : 600,
             cursor: 'pointer',
@@ -913,7 +915,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             border: 'none',
             borderBottom: activeTab === 'counts' ? '2.5px solid var(--brand)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'counts' ? 'var(--brand)' : '#64748b',
+            color: activeTab === 'counts' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'counts' ? 700 : 600,
             cursor: 'pointer',
@@ -938,7 +940,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             border: 'none',
             borderBottom: activeTab === 'pos' ? '2.5px solid var(--brand)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'pos' ? 'var(--brand)' : '#64748b',
+            color: activeTab === 'pos' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'pos' ? 700 : 600,
             cursor: 'pointer',
@@ -962,7 +964,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             border: 'none',
             borderBottom: activeTab === 'recipes' ? '2.5px solid var(--brand)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'recipes' ? 'var(--brand)' : '#64748b',
+            color: activeTab === 'recipes' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'recipes' ? 700 : 600,
             cursor: 'pointer',
@@ -984,9 +986,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
             padding: '10px 18px',
             borderRadius: '8px 8px 0 0',
             border: 'none',
-            borderBottom: activeTab === 'waste' ? '2.5px solid #dc2626' : '2.5px solid transparent',
+            borderBottom: activeTab === 'waste' ? '2.5px solid var(--color-error)' : '2.5px solid transparent',
             background: 'transparent',
-            color: activeTab === 'waste' ? '#dc2626' : '#64748b',
+            color: activeTab === 'waste' ? 'var(--color-error)' : 'var(--color-text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === 'waste' ? 700 : 600,
             cursor: 'pointer',
@@ -1114,7 +1116,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                       color:
                         statusFilter === s.key
                           ? s.key === 'SHORTAGE'
-                            ? '#ea580c'
+                            ? 'var(--color-warning)'
                             : 'var(--brand-contrast)'
                           : 'var(--color-text-secondary)',
                       boxShadow: statusFilter === s.key ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
@@ -1193,13 +1195,13 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+                    <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 14 }}>
                       Loading inventory data...
                     </td>
                   </tr>
                 ) : filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+                    <td colSpan={8} style={{ padding: 48, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 14 }}>
                       No inventory items found matching your filters.
                     </td>
                   </tr>
@@ -1216,7 +1218,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                       <tr
                         key={item.id}
                         style={{
-                          borderBottom: '1px solid #f1f5f9',
+                          borderBottom: '1px solid var(--color-border)',
                           background: isZero
                             ? 'rgba(254, 242, 242, 0.35)'
                             : isShort
@@ -1238,8 +1240,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 width: 38,
                                 height: 38,
                                 borderRadius: 8,
-                                background: isZero ? '#fee2e2' : isShort ? '#ffedd5' : '#eff6ff',
-                                color: isZero ? '#dc2626' : isShort ? '#ea580c' : 'var(--brand)',
+                                background: isZero ? 'color-mix(in srgb, var(--color-error) 14%, transparent)' : isShort ? 'color-mix(in srgb, var(--color-warning) 14%, transparent)' : 'var(--brand-tint)',
+                                color: isZero ? 'var(--color-error)' : isShort ? 'var(--color-warning)' : 'var(--brand-text)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1254,7 +1256,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                                 {item.name}
                               </div>
-                              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
                                 Unit: <strong style={{ color: 'var(--color-text-secondary)' }}>{item.unit}</strong>
                               </div>
                             </div>
@@ -1268,12 +1270,12 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                               style={{
                                 fontSize: 14,
                                 fontWeight: 800,
-                                color: isZero ? '#dc2626' : isShort ? '#ea580c' : '#0f172a',
+                                color: isZero ? 'var(--color-error)' : isShort ? 'var(--color-warning)' : 'var(--color-text-primary)',
                               }}
                             >
                               {current} {item.unit}
                             </span>
-                            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>
+                            <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', fontWeight: 600 }}>
                               ({pct}%)
                             </span>
                           </div>
@@ -1282,7 +1284,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                               width: 100,
                               height: 5,
                               borderRadius: 9999,
-                              background: '#e2e8f0',
+                              background: 'var(--color-bg-raised)',
                               marginTop: 6,
                               overflow: 'hidden',
                             }}
@@ -1291,7 +1293,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                               style={{
                                 width: `${pct}%`,
                                 height: '100%',
-                                background: isZero ? '#ef4444' : isShort ? '#f97316' : '#22c55e',
+                                background: isZero ? 'var(--color-error)' : isShort ? 'var(--color-warning)' : 'var(--color-success)',
                                 borderRadius: 9999,
                               }}
                             />
@@ -1315,8 +1317,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 borderRadius: 6,
                                 fontSize: 12,
                                 fontWeight: 700,
-                                background: '#fee2e2',
-                                color: '#dc2626',
+                                background: 'color-mix(in srgb, var(--color-error) 14%, transparent)',
+                                color: 'var(--color-error)',
                                 border: '1px solid rgba(220, 38, 38, 0.2)',
                               }}
                             >
@@ -1332,8 +1334,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 borderRadius: 6,
                                 fontSize: 12,
                                 fontWeight: 600,
-                                background: '#f0fdf4',
-                                color: '#16a34a',
+                                background: 'color-mix(in srgb, var(--color-success) 14%, transparent)',
+                                color: 'var(--color-success)',
                               }}
                             >
                               ✓ Sufficient
@@ -1350,8 +1352,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                               borderRadius: 20,
                               fontSize: 12,
                               fontWeight: 700,
-                              background: isZero ? '#fee2e2' : isShort ? '#fef3c7' : '#dcfce7',
-                              color: isZero ? '#dc2626' : isShort ? '#b45309' : '#16a34a',
+                              background: isZero ? 'color-mix(in srgb, var(--color-error) 14%, transparent)' : isShort ? 'color-mix(in srgb, var(--color-warning) 14%, transparent)' : 'color-mix(in srgb, var(--color-success) 14%, transparent)',
+                              color: isZero ? 'var(--color-error)' : isShort ? 'var(--color-warning)' : 'var(--color-success)',
                               border: isZero
                                 ? '1px solid rgba(220, 38, 38, 0.2)'
                                 : isShort
@@ -1386,8 +1388,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                               onClick={() => handleOpenRecipe(item)}
                               style={{
                                 background: 'var(--color-bg-card-hover)',
-                                border: '1px dashed #cbd5e1',
-                                color: '#64748b',
+                                border: '1px dashed var(--color-border)',
+                                color: 'var(--color-text-secondary)',
                                 borderRadius: 6,
                                 padding: '3px 8px',
                                 fontSize: 11,
@@ -1410,9 +1412,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 width: 32,
                                 height: 32,
                                 borderRadius: '50%',
-                                border: isShort ? '1px solid #fed7aa' : '1px solid #e2e8f0',
-                                background: isShort ? '#fff7ed' : '#ffffff',
-                                color: isShort ? '#ea580c' : 'var(--brand)',
+                                border: isShort ? '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)' : '1px solid var(--color-border)',
+                                background: isShort ? 'color-mix(in srgb, var(--color-warning) 14%, transparent)' : 'var(--color-bg-card)',
+                                color: isShort ? 'var(--color-warning)' : 'var(--brand-text)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1435,7 +1437,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 borderRadius: '50%',
                                 border: '1px solid var(--color-border)',
                                 background: 'var(--color-bg-card)',
-                                color: '#64748b',
+                                color: 'var(--color-text-secondary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1458,7 +1460,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 borderRadius: '50%',
                                 border: '1px solid var(--color-border)',
                                 background: 'var(--color-bg-card)',
-                                color: '#64748b',
+                                color: 'var(--color-text-secondary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1479,9 +1481,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                                 width: 32,
                                 height: 32,
                                 borderRadius: '50%',
-                                border: '1px solid #fee2e2',
+                                border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
                                 background: 'var(--color-bg-card)',
-                                color: '#ef4444',
+                                color: 'var(--color-error)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1558,7 +1560,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               <tbody>
                 {suppliers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+                    <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                       No suppliers registered yet.
                     </td>
                   </tr>
@@ -1570,11 +1572,11 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                       <td style={{ padding: '14px 20px', color: 'var(--color-text-secondary)' }}>{sup.email || '—'}</td>
                       <td style={{ padding: '14px 20px', color: 'var(--color-text-secondary)' }}>{sup.phone || '—'}</td>
                       <td style={{ padding: '14px 20px' }}>
-                        <span style={{ background: 'var(--brand-tint)', color: 'var(--brand)', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
+                        <span style={{ background: 'var(--brand-tint)', color: 'var(--brand-text)', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
                           {sup.leadTimeDays} days
                         </span>
                       </td>
-                      <td style={{ padding: '14px 20px', textAlign: 'right', color: '#64748b' }}>
+                      <td style={{ padding: '14px 20px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>
                         {sup._count?.purchaseOrders || 0} POs
                       </td>
                     </tr>
@@ -1619,13 +1621,13 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               <tbody>
                 {pos.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+                    <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                       No purchase orders recorded.
                     </td>
                   </tr>
                 ) : (
                   pos.map((po) => (
-                    <tr key={po.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={po.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                       <td style={{ padding: '14px 20px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{po.poNumber}</td>
                       <td style={{ padding: '14px 20px', color: 'var(--color-text-secondary)' }}>{po.supplier?.name}</td>
                       <td style={{ padding: '14px 20px' }}>
@@ -1635,8 +1637,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                             borderRadius: 20,
                             fontSize: 12,
                             fontWeight: 700,
-                            background: po.status === 'RECEIVED' ? '#dcfce7' : po.status === 'PARTIALLY_RECEIVED' ? '#e0e7ff' : '#fef3c7',
-                            color: po.status === 'RECEIVED' ? '#16a34a' : po.status === 'PARTIALLY_RECEIVED' ? '#4338ca' : '#b45309',
+                            background: po.status === 'RECEIVED' ? 'color-mix(in srgb, var(--color-success) 14%, transparent)' : po.status === 'PARTIALLY_RECEIVED' ? 'var(--brand-tint)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                            color: po.status === 'RECEIVED' ? 'var(--color-success)' : po.status === 'PARTIALLY_RECEIVED' ? '#4338ca' : 'var(--color-warning)',
                           }}
                         >
                           {po.status}
@@ -1644,9 +1646,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                       </td>
                       <td style={{ padding: '14px 20px', color: 'var(--color-text-secondary)' }}>{po.items?.length || 0} line items</td>
                       <td style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                        ${Number(po.totalCost).toFixed(2)}
+                        {money(Number(po.totalCost))}
                       </td>
-                      <td style={{ padding: '14px 20px', color: '#64748b' }}>
+                      <td style={{ padding: '14px 20px', color: 'var(--color-text-secondary)' }}>
                         {new Date(po.createdAt).toLocaleDateString()}
                       </td>
                       <td style={{ padding: '14px 20px', textAlign: 'right' }}>
@@ -1668,11 +1670,11 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                             Receive PO
                           </button>
                         ) : po.status === 'RECEIVED' ? (
-                          <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 600 }}>
+                          <span style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600 }}>
                             ✓ Received
                           </span>
                         ) : (
-                          <span style={{ fontSize: 12, color: '#94a3b8' }}>—</span>
+                          <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -1738,7 +1740,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   ⚡ Restock Ingredient
                 </h3>
-                <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b' }}>
+                <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
                   Adding stock replenishes recipes and automatically un-86s menu items
                 </p>
               </div>
@@ -1748,7 +1750,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                   background: 'none',
                   border: 'none',
                   fontSize: 22,
-                  color: '#94a3b8',
+                  color: 'var(--color-text-tertiary)',
                   cursor: 'pointer',
                   padding: 4,
                 }}
@@ -1762,8 +1764,8 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               {/* Shortage Deficit Highlight Card */}
               <div
                 style={{
-                  background: '#fff7ed',
-                  border: '1px solid #fed7aa',
+                  background: 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)',
                   borderRadius: 10,
                   padding: '14px 18px',
                 }}
@@ -1772,26 +1774,26 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                   <span style={{ fontSize: 13, fontWeight: 800, color: '#9a3412' }}>
                     {restockItem.name}
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#ea580c' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-warning)' }}>
                     Unit: {restockItem.unit}
                   </span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, textAlign: 'center', marginTop: 10 }}>
-                  <div style={{ background: 'var(--color-bg-card)', borderRadius: 8, padding: '8px 4px', border: '1px solid #ffedd5' }}>
-                    <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Current Level</div>
+                  <div style={{ background: 'var(--color-bg-card)', borderRadius: 8, padding: '8px 4px', border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Current Level</div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                       {restockItem.currentStock} {restockItem.unit}
                     </div>
                   </div>
-                  <div style={{ background: 'var(--color-bg-card)', borderRadius: 8, padding: '8px 4px', border: '1px solid #ffedd5' }}>
-                    <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Min Limit</div>
+                  <div style={{ background: 'var(--color-bg-card)', borderRadius: 8, padding: '8px 4px', border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Min Limit</div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-text-secondary)' }}>
                       {restockItem.minStock} {restockItem.unit}
                     </div>
                   </div>
-                  <div style={{ background: '#fee2e2', borderRadius: 8, padding: '8px 4px', border: '1px solid #fecaca' }}>
-                    <div style={{ fontSize: 11, color: '#dc2626', fontWeight: 700 }}>Shortage Deficit</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#dc2626' }}>
+                  <div style={{ background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', borderRadius: 8, padding: '8px 4px', border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--color-error)', fontWeight: 700 }}>Shortage Deficit</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-error)' }}>
                       {Math.max(0, Number(restockItem.minStock) - Number(restockItem.currentStock))} {restockItem.unit}
                     </div>
                   </div>
@@ -1816,16 +1818,16 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                       style={{
                         padding: '10px 8px',
                         borderRadius: 8,
-                        border: restockType === t.key ? '2px solid var(--brand)' : '1px solid #e2e8f0',
-                        background: restockType === t.key ? '#eff6ff' : '#ffffff',
-                        color: restockType === t.key ? 'var(--brand)' : '#475569',
+                        border: restockType === t.key ? '2px solid var(--brand)' : '1px solid var(--color-border)',
+                        background: restockType === t.key ? 'var(--brand-tint)' : 'var(--color-bg-card)',
+                        color: restockType === t.key ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                         cursor: 'pointer',
                         textAlign: 'center',
                         transition: 'all 0.15s ease',
                       }}
                     >
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{t.label}</div>
-                      <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>{t.desc}</div>
+                      <div style={{ fontSize: 10, color: 'var(--color-text-secondary)', marginTop: 2 }}>{t.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -1856,7 +1858,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                     background: 'var(--color-bg-card-hover)',
                   }}
                 />
-                <span style={{ fontSize: 11, color: '#64748b', marginTop: 4, display: 'block' }}>
+                <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 4, display: 'block' }}>
                   💡 Defaults to the calculated deficit ({Math.max(0, Number(restockItem.minStock) - Number(restockItem.currentStock))} {restockItem.unit}) to reach safe levels.
                 </span>
               </div>
@@ -1891,7 +1893,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                   style={{
                     padding: '10px 18px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,
@@ -1963,7 +1965,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               </h3>
               <button
                 onClick={() => setIsAddOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -2070,7 +2072,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                   style={{
                     padding: '9px 16px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,
@@ -2141,7 +2143,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               </h3>
               <button
                 onClick={() => setIsEditOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -2214,7 +2216,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                   style={{
                     padding: '9px 16px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,
@@ -2284,13 +2286,13 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Link Recipe — {recipeItem.name}
                 </h3>
-                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748b' }}>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   Dishes will automatically 86 if this ingredient runs out, and un-86 when restocked.
                 </p>
               </div>
               <button
                 onClick={() => setIsRecipeOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -2322,13 +2324,13 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                     ))}
                   </div>
                 ) : (
-                  <div style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
                     No menu dishes currently linked to this ingredient.
                   </div>
                 )}
               </div>
 
-              <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '4px 0' }} />
+              <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', margin: '4px 0' }} />
 
               {/* Add New Link */}
               <form onSubmit={handleLinkRecipe} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -2386,7 +2388,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                     style={{
                       padding: '9px 16px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       background: 'var(--color-bg-card)',
                       fontSize: 13,
                       fontWeight: 600,
@@ -2460,13 +2462,13 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Stock Log History — {txItem.name}
                 </h3>
-                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748b' }}>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   Audit trail of restocks, usage deductions, and adjustments
                 </p>
               </div>
               <button
                 onClick={() => setIsTxOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -2474,9 +2476,9 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
 
             <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
               {loadingTx ? (
-                <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8' }}>Loading log records...</div>
+                <div style={{ textAlign: 'center', padding: 30, color: 'var(--color-text-tertiary)' }}>Loading log records...</div>
               ) : txLogs.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8' }}>
+                <div style={{ textAlign: 'center', padding: 30, color: 'var(--color-text-tertiary)' }}>
                   No transaction logs recorded yet for this item.
                 </div>
               ) : (
@@ -2504,7 +2506,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                             ? '🍽️ Order Recipe Deduction'
                             : '⚙️ Count Adjustment'}
                         </div>
-                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>
                           {tx.notes || 'Routine inventory update'} • {new Date(tx.createdAt).toLocaleString()}
                         </div>
                       </div>
@@ -2512,7 +2514,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                         style={{
                           fontSize: 14,
                           fontWeight: 800,
-                          color: tx.quantityChange >= 0 ? '#16a34a' : '#dc2626',
+                          color: tx.quantityChange >= 0 ? 'var(--color-success)' : 'var(--color-error)',
                         }}
                       >
                         {tx.quantityChange >= 0 ? `+${tx.quantityChange}` : tx.quantityChange} {txItem.unit}
@@ -2529,7 +2531,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                 style={{
                   padding: '9px 18px',
                   borderRadius: 8,
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-card)',
                   fontSize: 13,
                   fontWeight: 600,
@@ -2583,7 +2585,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
               </h3>
               <button
                 onClick={() => setIsSupplierOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -2694,7 +2696,7 @@ export default function InventoryClient({ initialTab = 'stock' }: { initialTab?:
                   style={{
                     padding: '9px 16px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,

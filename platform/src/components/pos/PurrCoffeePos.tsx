@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface Product {
   id: string
@@ -71,6 +73,7 @@ interface CartItem {
 }
 
 export default function PurrCoffeePos() {
+  const { money } = useMoney()
   const [activeCategory, setActiveCategory] = useState<string>('Coffee')
   const [search, setSearch] = useState<string>('')
   const [selectedSizes, setSelectedSizes] = useState<Record<string, 'Small' | 'Large'>>({})
@@ -137,7 +140,7 @@ export default function PurrCoffeePos() {
       style={{
         minHeight: '100vh',
         background: '#FAF0E6', // Warm cream background matching screenshot
-        color: '#2B231D',
+        color: 'var(--color-text-primary)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         display: 'flex',
         padding: '24px',
@@ -177,7 +180,7 @@ export default function PurrCoffeePos() {
             >
               ☕
             </div>
-            <span style={{ fontSize: '20px', fontWeight: 800, color: '#2B231D', letterSpacing: '-0.02em' }}>
+            <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
               Purr&apos;Coffee
             </span>
           </div>
@@ -202,7 +205,7 @@ export default function PurrCoffeePos() {
                   borderRadius: '16px',
                   border: 'none',
                   background: link.active ? '#F8ECE0' : 'transparent',
-                  color: link.active ? '#D97745' : '#7A6E65',
+                  color: link.active ? '#D97745' : 'var(--color-text-secondary)',
                   fontSize: '14px',
                   fontWeight: link.active ? 700 : 500,
                   cursor: 'pointer',
@@ -243,7 +246,7 @@ export default function PurrCoffeePos() {
               borderRadius: '14px',
               border: 'none',
               background: 'transparent',
-              color: '#7A6E65',
+              color: 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -261,7 +264,7 @@ export default function PurrCoffeePos() {
               borderRadius: '14px',
               border: 'none',
               background: 'transparent',
-              color: '#7A6E65',
+              color: 'var(--color-text-secondary)',
               fontSize: '13px',
               fontWeight: 600,
               textDecoration: 'none',
@@ -289,7 +292,7 @@ export default function PurrCoffeePos() {
               boxShadow: '0 4px 20px rgba(180, 140, 110, 0.05)',
             }}
           >
-            <span style={{ color: '#A0948A', fontSize: '16px' }}>🔍</span>
+            <span style={{ color: '#A0948A', fontSize: '16px' }}><PosIcon name="search" /></span>
             <input
               type="text"
               placeholder="Search coffee, dessert, snacks..."
@@ -301,7 +304,7 @@ export default function PurrCoffeePos() {
                 width: '100%',
                 background: 'transparent',
                 fontSize: '14px',
-                color: '#2B231D',
+                color: 'var(--color-text-primary)',
               }}
             />
           </div>
@@ -328,7 +331,7 @@ export default function PurrCoffeePos() {
         </div>
 
         {/* Section Heading */}
-        <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#2B231D', margin: 0, letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
           Coffee menu
         </h1>
 
@@ -344,7 +347,7 @@ export default function PurrCoffeePos() {
                   padding: '10px 24px',
                   borderRadius: '20px',
                   border: isSelected ? 'none' : '1px solid #E8DDD2',
-                  background: isSelected ? '#E87A5D' : '#FFFFFF',
+                  background: isSelected ? '#E87A5D' : 'var(--color-bg-card)',
                   color: isSelected ? '#FFFFFF' : '#6E6259',
                   fontSize: '14px',
                   fontWeight: isSelected ? 700 : 500,
@@ -394,7 +397,7 @@ export default function PurrCoffeePos() {
                     height: '160px',
                     borderRadius: '16px',
                     overflow: 'hidden',
-                    background: '#F5EBE1',
+                    background: 'var(--color-bg-raised)',
                   }}
                 >
                   <img
@@ -406,11 +409,11 @@ export default function PurrCoffeePos() {
 
                 {/* Title & Price Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#2B231D', margin: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
                     {product.name}
                   </h3>
-                  <span style={{ fontSize: '16px', fontWeight: 800, color: '#2B231D' }}>
-                    ${product.price.toFixed(2)}
+                  <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+                    {money(product.price)}
                   </span>
                 </div>
 
@@ -430,7 +433,7 @@ export default function PurrCoffeePos() {
 
                 {/* Size Selector */}
                 <div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#7A6E65', display: 'block', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
                     Size
                   </span>
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -445,8 +448,8 @@ export default function PurrCoffeePos() {
                             padding: '6px 0',
                             borderRadius: '12px',
                             border: 'none',
-                            background: active ? '#F5DDCB' : '#F5EBE1',
-                            color: active ? '#D97745' : '#7A6E65',
+                            background: active ? '#F5DDCB' : 'var(--color-bg-raised)',
+                            color: active ? '#D97745' : 'var(--color-text-secondary)',
                             fontSize: '12px',
                             fontWeight: active ? 700 : 500,
                             cursor: 'pointer',
@@ -466,7 +469,7 @@ export default function PurrCoffeePos() {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      background: '#F5EBE1',
+                      background: 'var(--color-bg-raised)',
                       borderRadius: '14px',
                       padding: '0 8px',
                       gap: '8px',
@@ -474,7 +477,7 @@ export default function PurrCoffeePos() {
                   >
                     <Button
                       onClick={() => handleQtyChange(product.id, -1)}
-                      style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#7A6E65' }}
+                      style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: 'var(--color-text-secondary)' }}
                     >
                       –
                     </Button>
@@ -483,7 +486,7 @@ export default function PurrCoffeePos() {
                     </span>
                     <Button
                       onClick={() => handleQtyChange(product.id, 1)}
-                      style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#7A6E65' }}
+                      style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: 'var(--color-text-secondary)' }}
                     >
                       +
                     </Button>
@@ -530,7 +533,7 @@ export default function PurrCoffeePos() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Header */}
-          <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#2B231D', margin: 0 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
             Cart summary
           </h2>
 
@@ -538,7 +541,7 @@ export default function PurrCoffeePos() {
           <div
             style={{
               display: 'flex',
-              background: '#F5EBE1',
+              background: 'var(--color-bg-raised)',
               borderRadius: '16px',
               padding: '4px',
               gap: '4px',
@@ -563,8 +566,8 @@ export default function PurrCoffeePos() {
                     padding: '8px 4px',
                     borderRadius: '12px',
                     border: 'none',
-                    background: active ? '#FFFFFF' : 'transparent',
-                    color: active ? '#2B231D' : '#7A6E65',
+                    background: active ? 'var(--color-bg-card)' : 'transparent',
+                    color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                     fontSize: '11px',
                     fontWeight: active ? 700 : 500,
                     cursor: 'pointer',
@@ -596,11 +599,11 @@ export default function PurrCoffeePos() {
 
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#2B231D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.product.name} ({item.size})
                     </div>
-                    <div style={{ fontSize: '12px', color: '#7A6E65', fontWeight: 600 }}>
-                      ${item.product.price.toFixed(2)}
+                    <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                      {money(item.product.price)}
                     </div>
                   </div>
 
@@ -609,7 +612,7 @@ export default function PurrCoffeePos() {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      background: '#F5EBE1',
+                      background: 'var(--color-bg-raised)',
                       borderRadius: '12px',
                       padding: '2px 6px',
                       gap: '6px',
@@ -636,21 +639,21 @@ export default function PurrCoffeePos() {
         </div>
 
         {/* Bottom Price Breakdown & Place Order CTA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '16px', borderTop: '1px solid #F5EBE1' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#7A6E65' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
             <span>Price</span>
-            <span style={{ fontWeight: 700, color: '#2B231D' }}>${subtotal.toFixed(2)}</span>
+            <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>{money(subtotal)}</span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#7A6E65' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
             <span>Discount applied</span>
-            <span style={{ fontWeight: 700, color: '#E87A5D' }}>-${discount.toFixed(2)}</span>
+            <span style={{ fontWeight: 700, color: '#E87A5D' }}>-{money(discount)}</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-            <span style={{ fontSize: '15px', fontWeight: 800, color: '#2B231D' }}>Grand total</span>
-            <span style={{ fontSize: '20px', fontWeight: 900, color: '#2B231D' }}>
-              ${grandTotal.toFixed(2)}
+            <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-text-primary)' }}>Grand total</span>
+            <span style={{ fontSize: '20px', fontWeight: 900, color: 'var(--color-text-primary)' }}>
+              {money(grandTotal)}
             </span>
           </div>
 

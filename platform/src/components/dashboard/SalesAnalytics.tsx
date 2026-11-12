@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import type { SalesHour } from '@/types/dashboard'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 const CHART_H = 140
 const CHART_W = 500
@@ -22,6 +23,7 @@ function buildBars(data: SalesHour[]) {
 }
 
 export default function SalesAnalytics() {
+  const { money } = useMoney()
   const [data, setData] = useState<SalesHour[]>([])
   const [loading, setLoading] = useState(true)
   const [hovered, setHovered] = useState<SalesHour | null>(null)
@@ -81,7 +83,7 @@ export default function SalesAnalytics() {
           }}
         >
           {[
-            { label: "Revenue", value: `$${totalRevenue.toFixed(2)}`, color: 'var(--color-success)' },
+            { label: "Revenue", value: `${money(totalRevenue)}`, color: 'var(--color-success)' },
             { label: "Orders", value: totalOrders.toString(), color: 'var(--color-info)' },
             { label: "Peak Hour", value: `${String(peakHour.hour).padStart(2,'0')}:00`, color: 'var(--color-brand-500)' },
           ].map((m) => (
@@ -175,7 +177,7 @@ export default function SalesAnalytics() {
               <div style={{ color: 'var(--color-text-primary)' }}>
                 {String(hovered.hour).padStart(2, '0')}:00 – {String(hovered.hour + 1).padStart(2, '0')}:00
               </div>
-              <div style={{ color: 'var(--color-success)' }}>Revenue: ${hovered.revenue.toFixed(2)}</div>
+              <div style={{ color: 'var(--color-success)' }}>Revenue: {money(hovered.revenue)}</div>
               <div style={{ color: 'var(--color-info)' }}>Orders: {hovered.orders}</div>
             </div>
           )}

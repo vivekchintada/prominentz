@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Item86Badge from './Item86Badge'
 import ItemFormModal from './ItemFormModal'
 import { useToast, ToastContainer } from '../ui/Toast'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface Category {
   id:           string
@@ -28,6 +29,7 @@ interface MenuItem {
 }
 
 export default function MenuEditor() {
+  const { money } = useMoney()
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
   const [items, setItems] = useState<MenuItem[]>([])
@@ -501,7 +503,7 @@ export default function MenuEditor() {
                         {item.name}
                       </h4>
                       <span className="font-semibold text-brand" style={{ fontFamily: 'var(--font-mono)' }}>
-                        ${Number(item.price).toFixed(2)}
+                        {money(Number(item.price))}
                       </span>
                     </div>
 

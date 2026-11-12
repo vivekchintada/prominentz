@@ -116,10 +116,12 @@ export default function KpiCard({
         {/* Value — use AnimatedNumber for numeric values */}
         <div style={{
           fontSize: 'var(--text-3xl)',
+          fontFamily: 'var(--font-serif)',
           fontWeight: 800,
           color: 'var(--color-text-primary)',
-          letterSpacing: '-0.04em',
+          letterSpacing: '-0.03em',
           lineHeight: 1,
+          textTransform: 'uppercase',
         }}>
           {numericValue !== undefined ? (
             <AnimatedNumber

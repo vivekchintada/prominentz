@@ -1,29 +1,32 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
+import { InventoryOverviewView } from '@/components/bento/inventory/InventoryOverviewView'
+import { getInventoryOverview } from '@/lib/bento/inventory-overview'
+import { resolveLocationId } from '@/lib/bento/owner-overview'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
-const InventoryClient = dynamic(() => import('@/components/dashboard/InventoryClient'), {
-  loading: () => (
-    <div className="flex items-center justify-center p-12 text-secondary">
-      <div className="spinner" />
-      <span className="ml-3 text-sm">Loading Inventory Management...</span>
-    </div>
-  ),
-})
-
-export const metadata = { title: 'Inventory Management | Prominentz' }
+export const metadata = { title: 'Inventory' }
 
 export default async function InventoryPage() {
   const session = await auth()
   if (!session?.user) redirect('/login')
   if (!['OWNER', 'MANAGER'].includes(session.user.role)) redirect('/dashboard')
 
+  const user = session.user
+  const [locationId, money] = await Promise.all([
+    resolveLocationId(user.id!, user.restaurantId).catch(() => null),
+    getRestaurantMoneySettings(user.restaurantId),
+  ])
+  const data = await getInventoryOverview(locationId).catch((err) => {
+    console.error('Failed to load inventory overview', err)
+    return getInventoryOverview(null)
+  })
+
   return (
-    <div style={{ padding: '24px 32px' }}>
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>Loading Inventory Management...</div>}>
-        <InventoryClient />
-      </Suspense>
-    </div>
+    <InventoryOverviewView
+      data={data}
+      currency={money.currency}
+      roleLabel={user.role === 'OWNER' ? 'Owner · Stock' : 'Manager · Stock'}
+    />
   )
 }

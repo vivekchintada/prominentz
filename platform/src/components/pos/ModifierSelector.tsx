@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface Option {
   id:              string
@@ -39,6 +40,7 @@ export default function ModifierSelector({
   menuItem,
   onConfirm,
 }: ModifierSelectorProps) {
+  const { money } = useMoney()
   // Map of modifierId -> Array of selected option IDs
   const [selections, setSelections] = useState<Record<string, Option[]>>({})
 
@@ -170,7 +172,7 @@ export default function ModifierSelector({
             <span className="text-xs text-secondary">Configure choices below</span>
           </div>
           <span className="text-brand font-bold text-lg" style={{ fontFamily: 'var(--font-mono)' }}>
-            ${calculateLivePrice().toFixed(2)}
+            {money(calculateLivePrice())}
           </span>
         </div>
 
@@ -258,7 +260,7 @@ export default function ModifierSelector({
 
                         {Number(opt.priceAdjustment) !== 0 && (
                           <span className="text-brand font-semibold text-xs" style={{ fontFamily: 'var(--font-mono)' }}>
-                            {Number(opt.priceAdjustment) > 0 ? `+$${Number(opt.priceAdjustment).toFixed(2)}` : `-$${Math.abs(Number(opt.priceAdjustment)).toFixed(2)}`}
+                            {Number(opt.priceAdjustment) > 0 ? `+${money(Number(opt.priceAdjustment))}` : `-${money(Math.abs(Number(opt.priceAdjustment)))}`}
                           </span>
                         )}
                       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface KdsKpiData {
   ordersPerHour: number
@@ -13,6 +14,7 @@ interface KdsKpiData {
 }
 
 export default function KdsKpiBar() {
+  const { money } = useMoney()
   const [data, setData] = useState<KdsKpiData | null>(null)
 
   const fetchKpi = async () => {
@@ -68,7 +70,7 @@ export default function KdsKpiBar() {
     },
     {
       label: "Today's Revenue",
-      value: `$${data.todayRevenue.toFixed(0)}`,
+      value: `${money(data.todayRevenue, 0)}`,
       icon: '💰',
       color: 'var(--color-success)',
     },

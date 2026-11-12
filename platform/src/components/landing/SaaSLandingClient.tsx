@@ -625,8 +625,8 @@ export default function SaaSLandingClient() {
                         </div>
                       </div>
                       <div className={styles.previewFooter}>
-                        <button type="button" className={styles.btnSecondary} style={{ width: '48%', fontSize: '12px' }}>Split by Seat</button>
-                        <button type="button" className={styles.btnPrimary} style={{ width: '48%', fontSize: '12px' }}>Fire to Kitchen</button>
+                        <button type="button" className={styles.btnSecondary}>Split by Seat</button>
+                        <button type="button" className={styles.btnPrimary}>Fire to Kitchen</button>
                       </div>
                     </div>
                   </div>
@@ -666,8 +666,8 @@ export default function SaaSLandingClient() {
                         </div>
                       </div>
                       <div className={styles.previewFooter}>
-                        <button type="button" className={styles.btnSecondary} style={{ width: '48%', fontSize: '12px' }}>86 Item</button>
-                        <button type="button" className={styles.btnPrimary} style={{ width: '48%', fontSize: '12px' }}>Bump Chit</button>
+                        <button type="button" className={styles.btnSecondary}>86 Item</button>
+                        <button type="button" className={styles.btnPrimary}>Bump Chit</button>
                       </div>
                     </div>
                   </div>
@@ -715,7 +715,7 @@ export default function SaaSLandingClient() {
                         </div>
                       </div>
                       <div className={styles.previewFooter}>
-                        <button type="button" className={styles.btnSecondary} style={{ width: '100%', fontSize: '12px' }}>Generate Shift Z-Report</button>
+                        <button type="button" className={styles.btnSecondary}>Generate Shift Z-Report</button>
                       </div>
                     </div>
                   </div>

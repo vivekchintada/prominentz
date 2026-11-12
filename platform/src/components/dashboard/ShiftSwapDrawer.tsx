@@ -107,7 +107,7 @@ export function ShiftSwapDrawer({ isOpen, onClose, onSuccess }: ShiftSwapDrawerP
           maxWidth: '460px',
           height: '100%',
           backgroundColor: 'var(--surface, #181715)',
-          borderLeft: '1px solid var(--surface-border, rgba(255, 255, 255, 0.12))',
+          borderLeft: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 12%, transparent))',
           boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.6)',
           display: 'flex',
           flexDirection: 'column',
@@ -118,7 +118,7 @@ export function ShiftSwapDrawer({ isOpen, onClose, onSuccess }: ShiftSwapDrawerP
         <div
           style={{
             padding: '20px 24px',
-            borderBottom: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+            borderBottom: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -193,7 +193,7 @@ export function ShiftSwapDrawer({ isOpen, onClose, onSuccess }: ShiftSwapDrawerP
                   key={trade.id}
                   style={{
                     backgroundColor: 'var(--color-bg-card, #201f1c)',
-                    border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.08))',
+                    border: '1px solid var(--surface-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))',
                     borderRadius: '12px',
                     padding: '16px',
                     display: 'flex',
@@ -263,7 +263,7 @@ export function ShiftSwapDrawer({ isOpen, onClose, onSuccess }: ShiftSwapDrawerP
                         padding: '8px 0',
                         borderRadius: '8px',
                         backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                        color: '#ef4444',
+                        color: 'var(--color-error)',
                         border: '1px solid rgba(239, 68, 68, 0.25)',
                         fontSize: '12px',
                         fontWeight: 700,

@@ -1,8 +1,9 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import OnlineOrdersClient from '@/components/dashboard/OnlineOrdersClient'
-import { PageHeader } from '@/components/ui/PageHeader'
+import { DeliveryBoardView } from '@/components/bento/pages/DeliveryBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_DELIVERY_BOARD, getDeliveryBoard } from '@/lib/bento/delivery-page'
 
 export const metadata: Metadata = {
   title: 'Online Orders Dispatch | Prominentz',
@@ -10,19 +11,15 @@ export const metadata: Metadata = {
 }
 
 export default async function OnlineOrdersPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
-  if (!['OWNER', 'MANAGER', 'KITCHEN'].includes(session.user.role)) redirect('/dashboard')
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad('delivery board', () => getDeliveryBoard(ctx.restaurantId, ctx.locationId, ctx.todayStart), EMPTY_DELIVERY_BOARD)
 
   return (
     <>
-      <PageHeader
-        title="Online Orders"
-        subtitle="Accept incoming orders, monitor preparation milestones, and dispatch pickup and delivery orders."
-      />
-      <div className="page-body">
+      <DeliveryBoardView data={board} currency={ctx.currency} />
+      <ToolSection title="Dispatch board" sub="Accept, prepare and hand over pickup and delivery orders">
         <OnlineOrdersClient />
-      </div>
+      </ToolSection>
     </>
   )
 }

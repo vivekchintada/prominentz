@@ -1,4 +1,4 @@
-import { UnifiedAppShell } from '@/components/layout/UnifiedAppShell'
+import { RestaurantCurrency } from '@/components/providers/RestaurantCurrency'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -11,5 +11,6 @@ export default async function ServerDashboardLayout({ children }: { children: Re
   const allowed = ['SERVER', 'MANAGER', 'OWNER', 'HOST']
   if (!allowed.includes(session.user.role)) redirect('/dashboard')
 
-  return <UnifiedAppShell>{children}</UnifiedAppShell>
+  // Full screen phone layout with its own tab bar, no app shell.
+  return <RestaurantCurrency restaurantId={session.user.restaurantId}>{children}</RestaurantCurrency>
 }

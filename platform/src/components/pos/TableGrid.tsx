@@ -2,6 +2,8 @@
 
 import React from 'react'
 import { Button } from '../ui/Button'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 export interface TableOrder {
   id:         string
@@ -30,6 +32,7 @@ interface TableGridProps {
 }
 
 export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: TableGridProps) {
+  const { money } = useMoney()
   // Sort tables: positioned tables go to the grid map, unpositioned tables go to the flex list
   const mappedTables = tables.filter((t) => t.posX !== null && t.posY !== null)
   const flexTables = tables.filter((t) => t.posX === null || t.posY === null)
@@ -84,7 +87,7 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
               {table.name}
               {table.note && (
                 <span title={`Table Note: ${table.note}`} style={{ fontSize: '14px' }}>
-                  📝
+                  <PosIcon name="note" />
                 </span>
               )}
             </span>
@@ -113,7 +116,7 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
                     fontWeight: 600,
                   }}
                 >
-                  📝 {table.note ? 'Note' : '+ Note'}
+                  <PosIcon name="note" />{table.note ? 'Note' : '+ Note'}
                 </Button>
               )}
               <span
@@ -132,7 +135,7 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
           <div className="flex justify-between items-center text-xs text-secondary mb-2">
             <span>Cap: {table.capacity} guests</span>
             {table.status === 'PAYING' && (
-              <span className="badge badge--warning" style={{ fontSize: '10px' }}>💵 Check Printed</span>
+              <span className="badge badge--warning" style={{ fontSize: '10px' }}><PosIcon name="banknote" />Check Printed</span>
             )}
             {table.status === 'ACTIVE' && (
               <span className="badge badge--brand" style={{ fontSize: '10px' }}>⏱️ Active Order</span>
@@ -162,12 +165,12 @@ export default function TableGrid({ tables, onSelectTable, onOpenNoteModal }: Ta
         {activeOrder ? (
           <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-2)' }}>
             <div className="flex justify-between text-xs font-semibold mb-1">
-              <span className="truncate" style={{ maxWidth: '100px' }}>👤 {activeOrder.server.name}</span>
+              <span className="truncate" style={{ maxWidth: '100px' }}><PosIcon name="user" />{activeOrder.server.name}</span>
               <span>👥 {activeOrder.guestCount}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-bold text-brand" style={{ fontFamily: 'var(--font-mono)' }}>
-                ${Number(activeOrder.total).toFixed(2)}
+                {money(Number(activeOrder.total))}
               </span>
             </div>
           </div>

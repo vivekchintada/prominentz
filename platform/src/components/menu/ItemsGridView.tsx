@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import ItemFormModal, { MenuItemData } from './ItemFormModal'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface ItemsGridViewProps {
   categories: { id: string; name: string }[]
@@ -9,6 +10,7 @@ interface ItemsGridViewProps {
 }
 
 export default function ItemsGridView({ categories, onRefreshCategories }: ItemsGridViewProps) {
+  const { money } = useMoney()
   const [items, setItems] = useState<MenuItemData[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -259,7 +261,7 @@ export default function ItemsGridView({ categories, onRefreshCategories }: Items
                 {/* Price and Dietary Badge Row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
                   <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-secondary)' }}>
-                    ${Number(item.price).toFixed(0)}
+                    {money(Number(item.price), 0)}
                   </span>
 
                   {/* Veg / Non-Veg Indicator */}

@@ -182,13 +182,13 @@
   font-size: var(--text-xs);
   font-weight: 700;
   background: var(--brand-tint);
-  color: var(--brand);
+  color: var(--brand-text);
   border: 0.5px solid rgba(37, 99, 235, 0.25);
 }
 
 .badgeWarning {
   background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  color: var(--color-warning);
   border: 0.5px solid rgba(245, 158, 11, 0.25);
 }
 
@@ -279,7 +279,7 @@
   font-size: var(--text-xs);
   font-weight: 700;
   background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  color: var(--color-error);
 }
 
 .underPill {
@@ -329,7 +329,7 @@
 .errorBanner {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #ef4444;
+  color: var(--color-error);
   padding: 14px 18px;
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);

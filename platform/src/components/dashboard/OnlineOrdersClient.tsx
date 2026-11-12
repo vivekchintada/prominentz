@@ -117,7 +117,7 @@ export default function OnlineOrdersClient() {
           </div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Needs Action</span>
-            <span className={styles.kpiValue} style={{ color: pendingOrders.length > 0 ? '#ef4444' : 'inherit' }}>
+            <span className={styles.kpiValue} style={{ color: pendingOrders.length > 0 ? 'var(--color-error)' : 'inherit' }}>
               {pendingOrders.length}
             </span>
             <span className={styles.kpiSubtext}>Pending staff confirmation</span>
@@ -128,7 +128,7 @@ export default function OnlineOrdersClient() {
           <div className={styles.kpiIcon}>🍳</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>In Preparation</span>
-            <span className={styles.kpiValue} style={{ color: 'var(--brand)' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--brand-text)' }}>
               {inKitchenOrders.length}
             </span>
             <span className={styles.kpiSubtext}>Active on kitchen line</span>
@@ -139,7 +139,7 @@ export default function OnlineOrdersClient() {
           <div className={styles.kpiIcon}>🔔</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Ready for Pickup</span>
-            <span className={styles.kpiValue} style={{ color: '#30D158' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--color-success)' }}>
               {readyOrders.length}
             </span>
             <span className={styles.kpiSubtext}>Awaiting customer / courier</span>
@@ -150,7 +150,7 @@ export default function OnlineOrdersClient() {
           <div className={styles.kpiIcon}>💵</div>
           <div className={styles.kpiContent}>
             <span className={styles.kpiLabel}>Today's Online Sales</span>
-            <span className={styles.kpiValue} style={{ color: '#a855f7' }}>
+            <span className={styles.kpiValue} style={{ color: 'var(--brand-text)' }}>
               {money(todayRevenue)}
             </span>
             <span className={styles.kpiSubtext}>{orders.length} total direct orders</span>
@@ -253,7 +253,7 @@ export default function OnlineOrdersClient() {
                       {isPreparing && (
                         <button
                           className={`${styles.btnAction} ${styles.btnPrimary} ${styles.btnFull}`}
-                          style={{ background: '#30D158', borderColor: '#30D158' }}
+                          style={{ background: 'var(--color-success)', borderColor: 'var(--color-success)' }}
                           onClick={() => setStatus(o.id, 'READY')}
                           disabled={actionLoading === o.id}
                         >

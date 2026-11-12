@@ -196,7 +196,7 @@ export default function SystemStatusModal({ isOpen, onClose }: SystemStatusModal
           style={{
             padding: 'var(--space-4) var(--space-6)',
             borderTop: '0.5px solid var(--color-border)',
-            background: 'rgba(255,255,255,0.02)',
+            background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -210,7 +210,7 @@ export default function SystemStatusModal({ isOpen, onClose }: SystemStatusModal
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'var(--brand)',
+              color: 'var(--brand-text)',
               fontWeight: 700,
               cursor: 'pointer',
               fontSize: '11px',

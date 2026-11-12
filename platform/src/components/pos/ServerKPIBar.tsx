@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface ServerKPIData {
   openChecksCount: number
@@ -18,6 +20,7 @@ interface ServerKPIBarProps {
 }
 
 export default function ServerKPIBar({ currentUser }: ServerKPIBarProps) {
+  const { money } = useMoney()
   const [isExpanded, setIsExpanded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [kpi, setKpi] = useState<ServerKPIData>({
@@ -129,13 +132,13 @@ export default function ServerKPIBar({ currentUser }: ServerKPIBarProps) {
           <div className="grid grid-cols-2 gap-3">
             <div style={{ background: 'var(--color-bg-raised)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)' }}>
               <span className="text-xs text-secondary font-semibold block mb-1">Receipts & Sales</span>
-              <span className="text-lg font-bold text-brand">${kpi.salesToday.toFixed(2)}</span>
+              <span className="text-lg font-bold text-brand">{money(kpi.salesToday)}</span>
               <span className="text-xs text-secondary block mt-0.5">{kpi.paidChecksCount} paid checks</span>
             </div>
 
             <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)' }}>
               <span className="text-xs text-success font-semibold block mb-1">Est. Shift Tips (18%)</span>
-              <span className="text-lg font-bold text-success">${kpi.tipsAccrued.toFixed(2)}</span>
+              <span className="text-lg font-bold text-success">{money(kpi.tipsAccrued)}</span>
               <span className="text-xs text-success block mt-0.5">Accrued today</span>
             </div>
 
@@ -197,14 +200,14 @@ export default function ServerKPIBar({ currentUser }: ServerKPIBarProps) {
         }}
       >
         <span className="flex items-center gap-1.5 font-bold text-xs">
-          <span>📊</span>
+          <span><PosIcon name="chart" /></span>
           <span>Shift:</span>
-          <span className="text-brand">${kpi.salesToday.toFixed(2)}</span>
+          <span className="text-brand">{money(kpi.salesToday)}</span>
         </span>
         <span style={{ height: '14px', width: '1px', background: 'var(--color-border)' }} />
         <span className="flex items-center gap-1 text-xs text-success font-semibold">
-          <span>💵</span>
-          <span>${kpi.tipsAccrued.toFixed(2)}</span>
+          <span><PosIcon name="banknote" /></span>
+          <span>{money(kpi.tipsAccrued)}</span>
         </span>
         <span style={{ height: '14px', width: '1px', background: 'var(--color-border)' }} />
         <span className="badge badge--brand" style={{ fontSize: '10px', padding: '2px 6px' }}>

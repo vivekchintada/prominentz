@@ -327,7 +327,7 @@ export default function WaitlistClient() {
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                       {t.name}
                     </div>
-                    <div style={{ fontSize: 11, color: '#d97706', fontWeight: 600, margin: '2px 0 8px 0' }}>
+                    <div style={{ fontSize: 11, color: 'var(--color-warning)', fontWeight: 600, margin: '2px 0 8px 0' }}>
                       👥 {t.capacity} seats · {t.floor || '1st Floor'}
                     </div>
 
@@ -338,7 +338,7 @@ export default function WaitlistClient() {
                         padding: '2px 8px',
                         borderRadius: 6,
                         backgroundColor: isAvailable ? 'rgba(34,197,94,0.1)' : isBooked ? 'rgba(249,115,22,0.1)' : 'rgba(239,68,68,0.1)',
-                        color: isAvailable ? '#16a34a' : isBooked ? '#ea580c' : '#dc2626',
+                        color: isAvailable ? 'var(--color-success)' : isBooked ? 'var(--color-warning)' : 'var(--color-error)',
                         border: `1px solid ${isAvailable ? 'rgba(34,197,94,0.3)' : isBooked ? 'rgba(249,115,22,0.3)' : 'rgba(239,68,68,0.3)'}`,
                       }}
                     >
@@ -413,7 +413,7 @@ export default function WaitlistClient() {
                           style={{
                             fontSize: '11px',
                             background: isOverdue ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)',
-                            color: isOverdue ? 'var(--color-error)' : '#22c55e',
+                            color: isOverdue ? 'var(--color-error)' : 'var(--color-success)',
                             fontWeight: 'bold',
                           }}
                         >
@@ -433,14 +433,14 @@ export default function WaitlistClient() {
                           <button
                             onClick={() => handleUpdateStatus(entry.id, 'SEATED')}
                             className="btn btn--secondary btn--sm"
-                            style={{ padding: '2px 8px', fontSize: 'var(--text-xs)', borderColor: '#22c55e', color: '#22c55e' }}
+                            style={{ padding: '2px 8px', fontSize: 'var(--text-xs)', borderColor: 'var(--color-success)', color: 'var(--color-success)' }}
                           >
                             🪑 Seat
                           </button>
                           <button
                             onClick={() => setConvertEntry(entry)}
                             className="btn btn--secondary btn--sm"
-                            style={{ padding: '2px 8px', fontSize: 'var(--text-xs)', borderColor: '#818cf8', color: '#818cf8' }}
+                            style={{ padding: '2px 8px', fontSize: 'var(--text-xs)', borderColor: 'var(--brand-text)', color: 'var(--brand-text)' }}
                           >
                             📅 Convert to Booking
                           </button>

@@ -1,6 +1,9 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { ReservationsBoardView } from '@/components/bento/pages/ReservationsBoardView'
+import LiveRefresh from '@/components/bento/LiveRefresh'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_RESERVATIONS_BOARD, getReservationsBoard } from '@/lib/bento/reservations-page'
 
 const ReservationsClient = dynamic(() => import('@/components/dashboard/ReservationsClient'), {
   loading: () => (
@@ -14,8 +17,20 @@ const ReservationsClient = dynamic(() => import('@/components/dashboard/Reservat
 export const metadata = { title: 'Reservations | Prominentz' }
 
 export default async function ReservationsPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad(
+    'reservations board',
+    () => getReservationsBoard(ctx.locationId, ctx.todayStart, ctx.timezone),
+    EMPTY_RESERVATIONS_BOARD,
+  )
 
-  return <ReservationsClient />
+  return (
+    <>
+      <LiveRefresh events={['reservation.confirmed', 'reservation.updated', 'reservation.no_show', 'waitlist.updated', 'waitlist.converted', 'table.status.changed']} />
+      <ReservationsBoardView data={board} timezone={ctx.timezone} />
+      <ToolSection title="Bookings" sub="Add, confirm, seat and cancel reservations">
+        <ReservationsClient />
+      </ToolSection>
+    </>
+  )
 }

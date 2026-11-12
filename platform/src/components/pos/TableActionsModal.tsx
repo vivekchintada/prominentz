@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from '../ui/Button'
+import PosIcon from './PosIcon'
 import { TableData } from './TableGrid'
 
 interface TableActionsModalProps {
@@ -131,7 +132,7 @@ export default function TableActionsModal({
               fontSize: 'var(--text-base)',
             }}
           >
-            ✨ Start New Order & Guest Count
+            <PosIcon name="sparkles" />Start New Order & Guest Count
           </Button>
 
           {table.status === 'EMPTY' && (
@@ -144,11 +145,11 @@ export default function TableActionsModal({
                 padding: 'var(--space-4)',
                 borderColor: 'var(--color-table-reserved)',
                 color: 'var(--color-table-reserved)',
-                background: 'rgba(255, 255, 255, 0.08)',
+                background: 'color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                 fontSize: 'var(--text-base)',
               }}
             >
-              📅 Reserve Table
+              <PosIcon name="calendar" />Reserve Table
             </Button>
           )}
 

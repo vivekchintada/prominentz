@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 
 /* ── Types ────────────────────────────────────────────────── */
 interface Table {
@@ -63,7 +64,6 @@ export default function ReservationsClient() {
   const [tables, setTables] = useState<Table[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   // Modal States
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -82,11 +82,6 @@ export default function ReservationsClient() {
   const [notes, setNotes] = useState('')
   const [editStatus, setEditStatus] = useState<Reservation['status']>('CONFIRMED')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg)
-    setTimeout(() => setToastMessage(null), 3500)
-  }
 
   /* ── Fetch Data ─────────────────────────────────────────── */
   const fetchReservations = useCallback(async () => {
@@ -129,6 +124,8 @@ export default function ReservationsClient() {
 
     es.addEventListener('reservation.confirmed', handleEvent)
     es.addEventListener('table.status.changed', handleEvent)
+    es.addEventListener('reservation.updated', handleEvent)
+    es.addEventListener('reservation.no_show', handleEvent)
 
     return () => {
       es.close()
@@ -157,16 +154,16 @@ export default function ReservationsClient() {
       })
 
       if (res.ok) {
-        showToast(`Table booked successfully for ${guestName}!`)
+        toast.success(`Table booked successfully for ${guestName}!`)
         setIsAddOpen(false)
         resetForm()
         fetchReservations()
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(`Error: ${err.error || res.statusText}`)
+        toast.error(`Error: ${err.error || res.statusText}`)
       }
     } catch {
-      showToast('Error creating reservation')
+      toast.error('Error creating reservation')
     } finally {
       setIsSubmitting(false)
     }
@@ -211,15 +208,15 @@ export default function ReservationsClient() {
       })
 
       if (res.ok) {
-        showToast(`Reservation updated for ${guestName}`)
+        toast.success(`Reservation updated for ${guestName}`)
         setIsEditOpen(false)
         fetchReservations()
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(`Update failed: ${err.error || res.statusText}`)
+        toast.error(`Update failed: ${err.error || res.statusText}`)
       }
     } catch {
-      showToast('Error updating reservation')
+      toast.error('Error updating reservation')
     } finally {
       setIsSubmitting(false)
     }
@@ -236,14 +233,14 @@ export default function ReservationsClient() {
       })
 
       if (res.ok) {
-        showToast(`Reservation cancelled for ${r.guestName}`)
+        toast.success(`Reservation cancelled for ${r.guestName}`)
         fetchReservations()
       } else {
         const err = await res.json().catch(() => ({}))
-        showToast(`Error: ${err.error || res.statusText}`)
+        toast.error(`Error: ${err.error || res.statusText}`)
       }
     } catch {
-      showToast('Error cancelling reservation')
+      toast.error('Error cancelling reservation')
     }
   }
 
@@ -271,29 +268,7 @@ export default function ReservationsClient() {
   })
 
   return (
-    <div style={{ backgroundColor: 'var(--color-bg-card-hover)', minHeight: '100vh', padding: '24px 32px' }}>
-      {/* ── Toast Notification ─────────────────────────────── */}
-      {toastMessage && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            backgroundColor: '#18181b',
-            color: '#ffffff',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            padding: '12px 20px',
-            borderRadius: 8,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            zIndex: 9999,
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
-          {toastMessage}
-        </div>
-      )}
-
+    <div style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh', padding: '24px 32px' }}>
       {/* ── HEADER ROW ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         {/* Title with refresh button */}
@@ -306,7 +281,7 @@ export default function ReservationsClient() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#64748b',
+              color: 'var(--color-text-secondary)',
               display: 'flex',
               alignItems: 'center',
               padding: 4,
@@ -379,7 +354,7 @@ export default function ReservationsClient() {
 
       {/* ── RESERVATION CARDS GRID (3 COLUMNS) ─────────────── */}
       {filteredReservations.length === 0 ? (
-        <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 14, border: '1px solid var(--color-border)', padding: 48, textAlign: 'center', color: '#64748b' }}>
+        <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 14, border: '1px solid var(--color-border)', padding: 48, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
           <p style={{ margin: 0, fontSize: 14, fontStyle: 'italic' }}>No reservations found. Click &quot;+ Add New&quot; to book a table.</p>
         </div>
       ) : (
@@ -475,7 +450,7 @@ export default function ReservationsClient() {
                       style={{
                         fontSize: 12,
                         fontWeight: 600,
-                        color: '#64748b',
+                        color: 'var(--color-text-secondary)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 6,
@@ -516,7 +491,7 @@ export default function ReservationsClient() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     fontSize: 12,
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                     paddingTop: 4,
                   }}
                 >
@@ -530,7 +505,7 @@ export default function ReservationsClient() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     fontSize: 12,
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <span>Status</span>
@@ -554,7 +529,7 @@ export default function ReservationsClient() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    borderTop: '1px solid #f1f5f9',
+                    borderTop: '1px solid var(--color-border)',
                     paddingTop: 12,
                     marginTop: 'auto',
                   }}
@@ -596,7 +571,7 @@ export default function ReservationsClient() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        color: '#64748b',
+                        color: 'var(--color-text-secondary)',
                         transition: 'all 0.15s ease',
                       }}
                     >
@@ -613,13 +588,13 @@ export default function ReservationsClient() {
                         width: 32,
                         height: 32,
                         borderRadius: 8,
-                        border: '1px solid #fee2e2',
-                        backgroundColor: '#fef2f2',
+                        border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
+                        backgroundColor: 'color-mix(in srgb, var(--color-error) 14%, transparent)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        color: '#ef4444',
+                        color: 'var(--color-error)',
                         transition: 'all 0.15s ease',
                       }}
                     >
@@ -665,7 +640,7 @@ export default function ReservationsClient() {
               </h3>
               <button
                 onClick={() => setIsNoteOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -677,7 +652,7 @@ export default function ReservationsClient() {
               </p>
             </div>
 
-            <div style={{ fontSize: 12, color: '#64748b', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
               <div><strong>Phone:</strong> {selectedRes.guestPhone}</div>
               {selectedRes.guestEmail && <div><strong>Email:</strong> {selectedRes.guestEmail}</div>}
               <div><strong>Table:</strong> {selectedRes.table?.name || 'Unassigned'} (Party of {selectedRes.partySize})</div>
@@ -730,7 +705,7 @@ export default function ReservationsClient() {
               <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>Book a Reservation</h3>
               <button
                 onClick={() => setIsAddOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -844,7 +819,7 @@ export default function ReservationsClient() {
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#64748b' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: 'var(--color-text-secondary)' }}
                 >
                   Cancel
                 </button>
@@ -888,7 +863,7 @@ export default function ReservationsClient() {
               <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>Edit Reservation</h3>
               <button
                 onClick={() => setIsEditOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94a3b8' }}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--color-text-tertiary)' }}
               >
                 ✕
               </button>
@@ -976,7 +951,7 @@ export default function ReservationsClient() {
                 <button
                   type="button"
                   onClick={() => setIsEditOpen(false)}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#64748b' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: 'var(--color-text-secondary)' }}
                 >
                   Cancel
                 </button>

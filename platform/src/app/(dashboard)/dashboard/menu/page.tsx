@@ -1,45 +1,24 @@
-import { auth } from '@/auth'
-import MenuManagementClient from '@/components/menu/MenuManagementClient'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { PageHeader } from '@/components/ui/PageHeader'
 import { Suspense } from 'react'
+import MenuManagementClient from '@/components/menu/MenuManagementClient'
+import { MenuBoardView } from '@/components/bento/pages/MenuBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_MENU_BOARD, getMenuBoard } from '@/lib/bento/menu-page'
 
 export const metadata = { title: 'Menu Management | Prominentz' }
 
 export default async function DashboardMenuPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/auth/signin')
-
-  const user = session.user
-
-  // Ensure owner/manager role
-  if (!['OWNER', 'MANAGER'].includes(user.role)) {
-    return (
-      <>
-        <PageHeader title="Access Denied" />
-        <div className="page-body">
-          <div className="card card--elevated flex flex-col gap-4" style={{ maxWidth: '500px', margin: '40px auto', alignItems: 'center', textAlign: 'center' }}>
-            <span style={{ fontSize: '3rem' }}>🚫</span>
-            <h2 className="text-xl font-bold">Manager Role Required</h2>
-            <p className="text-secondary">
-              You are logged in as a <strong>{user.role}</strong>. Only owners and managers can access Menu Management.
-            </p>
-            <div className="divider" style={{ width: '100%' }} />
-            <Link href="/dashboard" className="btn btn--primary">
-              Return to Dashboard
-            </Link>
-          </div>
-        </div>
-      </>
-    )
-  }
+  const ctx = await getBentoPageContext()
+  const board = await safeLoad('menu board', () => getMenuBoard(ctx.restaurantId, ctx.locationId, ctx.todayStart), EMPTY_MENU_BOARD)
 
   return (
-    <div style={{ padding: '24px 32px' }}>
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>Loading Menu Management...</div>}>
-        <MenuManagementClient />
-      </Suspense>
-    </div>
+    <>
+      <MenuBoardView data={board} currency={ctx.currency} />
+      <ToolSection title="Menu tools" sub="Items, categories, add-ons and coupons">
+        <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>Loading Menu Management...</div>}>
+          <MenuManagementClient />
+        </Suspense>
+      </ToolSection>
+    </>
   )
 }

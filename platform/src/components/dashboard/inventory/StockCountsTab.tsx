@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface StockCountSessionSummary {
   id: string
@@ -46,6 +47,7 @@ interface StockCountsTabProps {
 }
 
 export default function StockCountsTab({ showToast, onStockUpdated }: StockCountsTabProps) {
+  const { money } = useMoney()
   const [sessions, setSessions] = useState<StockCountSessionSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [startingCount, setStartingCount] = useState(false)
@@ -226,7 +228,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--color-text-primary)' }}>
             Physical Stock Count Sessions
           </h3>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748b' }}>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
             Reconcile physical inventory on hand against POS depletion records. Completing a session posts auditable adjustments.
           </p>
         </div>
@@ -268,7 +270,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
+            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Session #</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Status</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Items Counted</th>
@@ -281,19 +283,19 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+                <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                   Loading stock count sessions...
                 </td>
               </tr>
             ) : sessions.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
+                <td colSpan={7} style={{ padding: 48, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                   No stock count sessions recorded. Click &quot;Start New Physical Count&quot; to perform an audit.
                 </td>
               </tr>
             ) : (
               sessions.map((s) => (
-                <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <tr key={s.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '14px 18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{s.sessionNumber}</td>
                   <td style={{ padding: '14px 18px' }}>
                     <span
@@ -302,8 +304,8 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                         borderRadius: 20,
                         fontSize: 12,
                         fontWeight: 700,
-                        background: s.status === 'COMPLETED' ? '#dcfce7' : s.status === 'CANCELLED' ? '#fee2e2' : '#fef3c7',
-                        color: s.status === 'COMPLETED' ? '#16a34a' : s.status === 'CANCELLED' ? '#b91c1c' : '#b45309',
+                        background: s.status === 'COMPLETED' ? 'color-mix(in srgb, var(--color-success) 14%, transparent)' : s.status === 'CANCELLED' ? 'color-mix(in srgb, var(--color-error) 14%, transparent)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                        color: s.status === 'COMPLETED' ? 'var(--color-success)' : s.status === 'CANCELLED' ? 'var(--color-error)' : 'var(--color-warning)',
                       }}
                     >
                       {s.status}
@@ -312,17 +314,17 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                   <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>{s.totalItemsCounted} items</td>
                   <td style={{ padding: '14px 18px' }}>
                     {s.discrepancyCount > 0 ? (
-                      <span style={{ color: '#ea580c', fontWeight: 700 }}>
+                      <span style={{ color: 'var(--color-warning)', fontWeight: 700 }}>
                         {s.discrepancyCount} discrepancies
                       </span>
                     ) : (
-                      <span style={{ color: '#16a34a', fontWeight: 600 }}>Zero variance</span>
+                      <span style={{ color: 'var(--color-success)', fontWeight: 600 }}>Zero variance</span>
                     )}
                   </td>
-                  <td style={{ padding: '14px 18px', fontWeight: 700, color: s.totalVarianceValue < 0 ? '#dc2626' : s.totalVarianceValue > 0 ? '#16a34a' : '#475569' }}>
-                    {s.totalVarianceValue < 0 ? '-' : s.totalVarianceValue > 0 ? '+' : ''}${Math.abs(s.totalVarianceValue).toFixed(2)}
+                  <td style={{ padding: '14px 18px', fontWeight: 700, color: s.totalVarianceValue < 0 ? 'var(--color-error)' : s.totalVarianceValue > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+                    {s.totalVarianceValue < 0 ? '-' : s.totalVarianceValue > 0 ? '+' : ''}{money(Math.abs(s.totalVarianceValue))}
                   </td>
-                  <td style={{ padding: '14px 18px', color: '#64748b' }}>
+                  <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>
                     {new Date(s.startedAt).toLocaleDateString()}
                   </td>
                   <td style={{ padding: '14px 18px', textAlign: 'right' }}>
@@ -331,9 +333,9 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                       style={{
                         padding: '6px 14px',
                         borderRadius: 6,
-                        border: '1px solid #cbd5e1',
-                        background: s.status === 'DRAFT' ? '#eff6ff' : '#ffffff',
-                        color: s.status === 'DRAFT' ? 'var(--brand)' : '#475569',
+                        border: '1px solid var(--color-border)',
+                        background: s.status === 'DRAFT' ? 'var(--brand-tint)' : 'var(--color-bg-card)',
+                        color: s.status === 'DRAFT' ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                         fontSize: 12,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -399,21 +401,21 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                       borderRadius: 6,
                       fontSize: 12,
                       fontWeight: 700,
-                      background: activeSession.status === 'COMPLETED' ? '#dcfce7' : '#fef3c7',
-                      color: activeSession.status === 'COMPLETED' ? '#16a34a' : '#b45309',
+                      background: activeSession.status === 'COMPLETED' ? 'color-mix(in srgb, var(--color-success) 14%, transparent)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+                      color: activeSession.status === 'COMPLETED' ? 'var(--color-success)' : 'var(--color-warning)',
                     }}
                   >
                     {activeSession.status}
                   </span>
                 </div>
-                <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                   Started: {new Date(activeSession.startedAt).toLocaleString()}
                   {activeSession.completedAt && ` • Completed: ${new Date(activeSession.completedAt).toLocaleString()}`}
                 </div>
               </div>
               <button
                 onClick={() => setActiveSession(null)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -426,7 +428,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '12px 24px',
-                borderBottom: '1px solid #f1f5f9',
+                borderBottom: '1px solid var(--color-border)',
                 background: 'var(--color-bg-card)',
                 gap: 12,
               }}
@@ -438,8 +440,8 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                     padding: '6px 12px',
                     borderRadius: 6,
                     border: 'none',
-                    background: sheetFilter === 'ALL' ? 'var(--brand)' : '#f1f5f9',
-                    color: sheetFilter === 'ALL' ? '#ffffff' : '#475569',
+                    background: sheetFilter === 'ALL' ? 'var(--brand)' : 'var(--color-bg-card-hover)',
+                    color: sheetFilter === 'ALL' ? '#ffffff' : 'var(--color-text-secondary)',
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -453,8 +455,8 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                     padding: '6px 12px',
                     borderRadius: 6,
                     border: 'none',
-                    background: sheetFilter === 'DISCREPANCY' ? '#ea580c' : '#f1f5f9',
-                    color: sheetFilter === 'DISCREPANCY' ? '#ffffff' : '#475569',
+                    background: sheetFilter === 'DISCREPANCY' ? 'var(--color-warning)' : 'var(--color-bg-card-hover)',
+                    color: sheetFilter === 'DISCREPANCY' ? 'var(--on-warning)' : 'var(--color-text-secondary)',
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -473,7 +475,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                   width: 240,
                   padding: '7px 12px',
                   borderRadius: 6,
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--color-border)',
                   fontSize: 12,
                 }}
               />
@@ -483,7 +485,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
             <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
                 <thead style={{ position: 'sticky', top: 0, background: 'var(--color-bg-card)', zIndex: 10 }}>
-                  <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
+                  <tr style={{ borderBottom: '2px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
                     <th style={{ padding: '12px 10px', fontWeight: 700 }}>Ingredient</th>
                     <th style={{ padding: '12px 10px', fontWeight: 700, textAlign: 'center' }}>Expected (System)</th>
                     <th style={{ padding: '12px 10px', fontWeight: 700, width: 140 }}>Physical Count</th>
@@ -493,10 +495,10 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 </thead>
                 <tbody>
                   {filteredItems.map((item) => (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                       <td style={{ padding: '12px 10px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                         {item.inventoryItem.name}
-                        <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
                           Unit: {item.inventoryItem.unit} • {item.inventoryItem.category || 'General'}
                         </div>
                       </td>
@@ -515,7 +517,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                               width: '100%',
                               padding: '7px 10px',
                               borderRadius: 6,
-                              border: '1px solid #cbd5e1',
+                              border: '1px solid var(--color-border)',
                               fontSize: 13,
                               fontWeight: 700,
                               color: 'var(--color-text-primary)',
@@ -535,9 +537,9 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                             fontSize: 12,
                             fontWeight: 700,
                             background:
-                              item.variance === 0 ? '#f0fdf4' : item.variance < 0 ? '#fef2f2' : '#fffbeb',
+                              item.variance === 0 ? 'color-mix(in srgb, var(--color-success) 14%, transparent)' : item.variance < 0 ? 'color-mix(in srgb, var(--color-error) 14%, transparent)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
                             color:
-                              item.variance === 0 ? '#16a34a' : item.variance < 0 ? '#dc2626' : '#d97706',
+                              item.variance === 0 ? 'var(--color-success)' : item.variance < 0 ? 'var(--color-error)' : 'var(--color-warning)',
                           }}
                         >
                           {item.variance > 0 ? `+${item.variance}` : item.variance} {item.inventoryItem.unit}
@@ -548,7 +550,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                           padding: '12px 10px',
                           textAlign: 'right',
                           fontWeight: 700,
-                          color: item.varianceCost < 0 ? '#dc2626' : item.varianceCost > 0 ? '#16a34a' : '#64748b',
+                          color: item.varianceCost < 0 ? 'var(--color-error)' : item.varianceCost > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)',
                         }}
                       >
                         {item.varianceCost < 0 ? '-' : item.varianceCost > 0 ? '+' : ''}$
@@ -571,7 +573,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                 background: 'var(--color-bg-card-hover)',
               }}
             >
-              <div style={{ fontSize: 13, color: '#64748b' }}>
+              <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                 Total Discrepancies:{' '}
                 <strong style={{ color: 'var(--color-text-primary)' }}>
                   {activeSession.items.filter((i) => Math.abs(i.variance) > 0.001).length}
@@ -585,7 +587,7 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                   style={{
                     padding: '9px 18px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,
@@ -605,9 +607,9 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                       style={{
                         padding: '9px 16px',
                         borderRadius: 8,
-                        border: '1px solid #bfdbfe',
-                        background: '#eff6ff',
-                        color: 'var(--brand)',
+                        border: '1px solid color-mix(in srgb, var(--brand) 35%, transparent)',
+                        background: 'var(--brand-tint)',
+                        color: 'var(--brand-text)',
                         fontSize: 13,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -623,8 +625,8 @@ export default function StockCountsTab({ showToast, onStockUpdated }: StockCount
                         padding: '9px 20px',
                         borderRadius: 8,
                         border: 'none',
-                        background: '#16a34a',
-                        color: '#ffffff',
+                        background: 'var(--color-success)',
+                        color: 'var(--on-success)',
                         fontSize: 13,
                         fontWeight: 700,
                         cursor: 'pointer',

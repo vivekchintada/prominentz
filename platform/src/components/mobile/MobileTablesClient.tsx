@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface TableOrder {
   id: string
@@ -50,6 +51,7 @@ const STATUS_BG: Record<string, string> = {
 }
 
 export function MobileTablesClient({ initialTables, locationId }: MobileTablesClientProps) {
+  const { money } = useMoney()
   const router = useRouter()
   const [tables, setTables] = useState<MobileTable[]>(initialTables)
   const [selectedTable, setSelectedTable] = useState<MobileTable | null>(null)
@@ -102,15 +104,15 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
     <div style={{ padding: '20px 16px', paddingBottom: '90px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#E5E5EA' }}>Table Floorplan</h1>
-          <p style={{ margin: '2px 0 0', fontSize: 12, color: '#8E8E93' }}>Tap any table to manage orders</p>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--color-text-tertiary)' }}>Table Floorplan</h1>
+          <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--color-text-secondary)' }}>Tap any table to manage orders</p>
         </div>
         <button
           onClick={() => router.refresh()}
           style={{
-            background: '#2C2C2E',
-            border: '1px solid rgba(255,255,255,0.1)',
-            color: '#E5E5EA',
+            background: 'var(--color-bg-card)',
+            border: '1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
+            color: 'var(--color-text-tertiary)',
             padding: '6px 12px',
             borderRadius: 8,
             fontSize: 12,
@@ -125,8 +127,8 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
       {actionMessage && (
         <div style={{
           background: 'rgba(48,209,88,0.15)',
-          border: '1px solid #30D158',
-          color: '#30D158',
+          border: '1px solid var(--color-success)',
+          color: 'var(--color-success)',
           padding: '10px 14px',
           borderRadius: 10,
           fontSize: 13,
@@ -163,7 +165,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <span style={{ fontSize: 16, fontWeight: 800, color: '#E5E5EA' }}>{table.name}</span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text-tertiary)' }}>{table.name}</span>
                 <span style={{
                   fontSize: 10,
                   fontWeight: 700,
@@ -178,22 +180,22 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                 </span>
               </div>
 
-              <div style={{ fontSize: 12, color: '#8E8E93' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                 🪑 {table.capacity} seats
                 {order && <> · 👤 {order.guestCount}</>}
               </div>
 
               {order ? (
-                <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ color: '#30D158', fontWeight: 800, fontSize: 15 }}>
-                    ${Number(order.total || 0).toFixed(2)}
+                <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 6%, transparent)' }}>
+                  <div style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: 15 }}>
+                    {money(Number(order.total || 0))}
                   </div>
-                  <div style={{ color: '#8E8E93', fontSize: 11, marginTop: 2 }}>
+                  <div style={{ color: 'var(--color-text-secondary)', fontSize: 11, marginTop: 2 }}>
                     ⏱️ {minsActive}m active
                   </div>
                 </div>
               ) : (
-                <div style={{ marginTop: 10, fontSize: 11, color: '#8E8E93', fontStyle: 'italic' }}>
+                <div style={{ marginTop: 10, fontSize: 11, color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
                   + Tap to open table
                 </div>
               )}
@@ -203,9 +205,9 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
       </div>
 
       {tables.length === 0 && (
-        <p style={{ color: '#8E8E93', fontSize: 14, textAlign: 'center', marginTop: 40 }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'center', marginTop: 40 }}>
           No tables found. Set up tables in the{' '}
-          <Link href="/dashboard/tables/qr" style={{ color: '#5b45f5' }}>Dashboard</Link>.
+          <Link href="/dashboard/tables/qr" style={{ color: 'var(--brand-text)' }}>Dashboard</Link>.
         </p>
       )}
 
@@ -223,8 +225,8 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
           zIndex: 100,
         }}>
           <div style={{
-            background: '#1C1C1E',
-            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'var(--color-bg-card)',
+            border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
             borderRadius: 20,
             padding: 24,
             width: '100%',
@@ -232,7 +234,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
             textAlign: 'center',
           }}>
             <h3 style={{ margin: 0, fontSize: 18, color: '#fff' }}>Open {openOrderModal.name}</h3>
-            <p style={{ fontSize: 13, color: '#8E8E93', margin: '6px 0 20px' }}>Select party size</p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '6px 0 20px' }}>Select party size</p>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, margin: '16px 0' }}>
               <button
@@ -240,20 +242,20 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                 onClick={() => setGuestCount((c) => Math.max(1, c - 1))}
                 style={{
                   width: 44, height: 44, borderRadius: '50%',
-                  background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#fff', fontSize: 20, cursor: 'pointer',
+                  background: 'var(--color-bg-card)', border: '1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
+                  color: 'var(--color-text-primary)', fontSize: 20, cursor: 'pointer',
                 }}
               >
                 -
               </button>
-              <span style={{ fontSize: 32, fontWeight: 800, color: '#5b45f5', minWidth: 40 }}>{guestCount}</span>
+              <span style={{ fontSize: 32, fontWeight: 800, color: 'var(--brand-text)', minWidth: 40 }}>{guestCount}</span>
               <button
                 type="button"
                 onClick={() => setGuestCount((c) => c + 1)}
                 style={{
                   width: 44, height: 44, borderRadius: '50%',
-                  background: '#2C2C2E', border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#fff', fontSize: 20, cursor: 'pointer',
+                  background: 'var(--color-bg-card)', border: '1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
+                  color: 'var(--color-text-primary)', fontSize: 20, cursor: 'pointer',
                 }}
               >
                 +
@@ -266,7 +268,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                 onClick={() => setOpenOrderModal(null)}
                 style={{
                   flex: 1, padding: 12, borderRadius: 12,
-                  background: '#2C2C2E', border: 'none', color: '#8E8E93', fontWeight: 600, cursor: 'pointer',
+                  background: 'var(--color-bg-card)', border: 'none', color: 'var(--color-text-secondary)', fontWeight: 600, cursor: 'pointer',
                 }}
               >
                 Cancel
@@ -277,7 +279,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                 disabled={submitting}
                 style={{
                   flex: 1, padding: 12, borderRadius: 12,
-                  background: '#5b45f5', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer',
+                  background: 'var(--brand)', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer',
                 }}
               >
                 {submitting ? 'Opening...' : 'Open Table'}
@@ -299,8 +301,8 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
           zIndex: 100,
         }}>
           <div style={{
-            background: '#1C1C1E',
-            borderTop: '1px solid rgba(255,255,255,0.12)',
+            background: 'var(--color-bg-card)',
+            borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             padding: 24,
@@ -317,7 +319,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
               </div>
               <button
                 onClick={() => setSelectedTable(null)}
-                style={{ background: 'none', border: 'none', color: '#8E8E93', fontSize: 20, cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: 20, cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -325,14 +327,14 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
 
             {selectedTable.orders[0] ? (
               <div>
-                <div style={{ background: '#2C2C2E', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#8E8E93', marginBottom: 4 }}>
+                <div style={{ background: 'var(--color-bg-card)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
                     <span>Guests: {selectedTable.orders[0].guestCount}</span>
                     <span>Order #{selectedTable.orders[0].id.substring(0, 8)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 800, color: '#fff', marginTop: 8 }}>
                     <span>Total Balance</span>
-                    <span style={{ color: '#30D158' }}>${Number(selectedTable.orders[0].total || 0).toFixed(2)}</span>
+                    <span style={{ color: 'var(--color-success)' }}>{money(Number(selectedTable.orders[0].total || 0))}</span>
                   </div>
                 </div>
 
@@ -343,7 +345,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                       flex: 1,
                       padding: 14,
                       borderRadius: 12,
-                      background: '#5b45f5',
+                      background: 'var(--brand)',
                       color: '#fff',
                       textDecoration: 'none',
                       fontWeight: 700,
@@ -361,9 +363,9 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                     style={{
                       padding: '14px 16px',
                       borderRadius: 12,
-                      background: '#2C2C2E',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#fff',
+                      background: 'var(--color-bg-card)',
+                      border: '1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
+                      color: 'var(--color-text-primary)',
                       fontWeight: 600,
                       cursor: 'pointer',
                       fontSize: 14,
@@ -374,7 +376,7 @@ export function MobileTablesClient({ initialTables, locationId }: MobileTablesCl
                 </div>
               </div>
             ) : (
-              <p style={{ color: '#8E8E93', fontSize: 13 }}>No active order found on this table.</p>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>No active order found on this table.</p>
             )}
           </div>
         </div>

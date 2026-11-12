@@ -1,356 +1,179 @@
 'use client'
 
 import React, { useState, Suspense, useEffect } from 'react'
-import { Button } from '@/components/ui/Button'
-
 import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import ProminentzLogo from '@/components/brand/ProminentzLogo'
-import styles from './page.module.css'
+import { BentoLogo } from '@/components/bento/BentoLogo'
 
 type PortalRole = 'OWNER' | 'MANAGER' | 'SERVER' | 'KITCHEN'
+const PORTALS: PortalRole[] = ['OWNER', 'MANAGER', 'SERVER', 'KITCHEN']
+
+const PORTAL: Record<PortalRole, { name: string; opens: string; email: string; usesPin: boolean }> = {
+  OWNER: { name: 'Owner', opens: 'Opens the dashboard: sales, menu, staff and settings.', email: 'Work email', usesPin: false },
+  MANAGER: { name: 'Manager', opens: 'Opens the dashboard: today’s floor, shifts and approvals.', email: 'Work email', usesPin: false },
+  SERVER: { name: 'Server', opens: 'Opens your tables, orders and guest calls on the phone.', email: 'Email', usesPin: true },
+  KITCHEN: { name: 'Kitchen', opens: 'Opens the kitchen display for your station.', email: 'Email', usesPin: true },
+}
 
 function LoginForm() {
   const searchParams = useSearchParams()
   const isRegistered = searchParams.get('registered') === 'true'
-  const initialPortalParam = (searchParams.get('portal') || searchParams.get('role') || 'OWNER').toUpperCase()
+  const initial = (searchParams.get('portal') || searchParams.get('role') || 'OWNER').toUpperCase()
 
-  const [activePortal, setActivePortal] = useState<PortalRole>(
-    ['OWNER', 'MANAGER', 'SERVER', 'KITCHEN'].includes(initialPortalParam)
-      ? (initialPortalParam as PortalRole)
-      : 'OWNER'
-  )
-
-  const [email, setEmail]               = useState(searchParams.get('email') || '')
-  const [password, setPassword]         = useState('')
+  const [portal, setPortal] = useState<PortalRole>(PORTALS.includes(initial as PortalRole) ? (initial as PortalRole) : 'OWNER')
+  const [email, setEmail] = useState(searchParams.get('email') || '')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [showKeypad, setShowKeypad]     = useState(false)
-  const [error, setError]               = useState<string | null>(null)
-  const [loading, setLoading]           = useState(false)
-  const router = useRouter()
+  const [showKeypad, setShowKeypad] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const p = (searchParams.get('portal') || searchParams.get('role'))?.toUpperCase()
-    if (p && ['OWNER', 'MANAGER', 'SERVER', 'KITCHEN'].includes(p)) {
-      setActivePortal(p as PortalRole)
-    }
+    if (p && PORTALS.includes(p as PortalRole)) setPortal(p as PortalRole)
   }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    const cleanEmail = email.trim().toLowerCase()
 
     try {
-      const res = await signIn('credentials', {
-        email: email.trim().toLowerCase(),
-        password,
-        redirect: false,
-      })
-
+      const res = await signIn('credentials', { email: cleanEmail, password, redirect: false })
       if (res?.error) {
-        setError('Invalid credentials. Please verify your email and password or PIN.')
+        setError('That email and password (or PIN) do not match. Check them and try again.')
         setLoading(false)
         return
       }
 
-      // Look up role reliably via dedicated API endpoint to prevent NextAuth cookie race conditions
-      let resolvedRole: string | undefined
+      // Ask for the role directly; the session cookie can lag a moment behind sign-in.
+      let role: string | undefined
       try {
-        const roleRes = await fetch('/api/auth/lookup-role', {
+        const r = await fetch('/api/auth/lookup-role', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim().toLowerCase() }),
+          body: JSON.stringify({ email: cleanEmail }),
         })
-        if (roleRes.ok) {
-          const roleData = await roleRes.json()
-          resolvedRole = roleData.role
-        }
+        if (r.ok) role = (await r.json()).role
       } catch {
-        // Fallback to session
+        // Fall back to the session below.
       }
-
-      if (!resolvedRole) {
+      if (!role) {
         try {
-          const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' })
-          const session = await sessionRes.json()
-          resolvedRole = session?.user?.role
-        } catch {}
+          const s = await fetch('/api/auth/session', { cache: 'no-store' })
+          role = (await s.json())?.user?.role
+        } catch {
+          // Default destination below.
+        }
       }
 
-      // Dynamic workspace routing
-      if (resolvedRole === 'SERVER') {
-        window.location.href = '/server'
-      } else if (resolvedRole === 'KITCHEN') {
-        window.location.href = '/kds'
-      } else {
-        window.location.href = '/dashboard'
-      }
+      window.location.href = role === 'SERVER' ? '/server' : role === 'KITCHEN' ? '/kds' : '/dashboard'
     } catch {
-      setError('An unexpected connection error occurred. Please try again.')
+      setError('Could not reach Prominentz. Check your connection and try again.')
       setLoading(false)
     }
   }
 
-  const demoAccounts: Record<PortalRole, { email: string; pass: string; label: string }> = {
-    OWNER:   { email: 'vivek100902@gmail.com', pass: 'resto123', label: 'Owner' },
-    MANAGER: { email: 'manager.novotel-grand-8413@resto.app', pass: 'resto123', label: 'Manager' },
-    SERVER:  { email: 'server.novotel-grand-8413@resto.app', pass: 'resto123', label: 'Server' },
-    KITCHEN: { email: 'kitchen.novotel-grand-8413@resto.app', pass: 'resto123', label: 'Kitchen' },
-  }
-
-  const portalMeta: Record<PortalRole, { title: string; subtitle: string; destination: string; badge: string; icon: string }> = {
-    OWNER: {
-      title: 'Restaurant Owner Portal',
-      subtitle: 'Complete enterprise command center, financial reports & settings',
-      destination: '/dashboard',
-      badge: 'Executive HQ',
-      icon: '👑',
-    },
-    MANAGER: {
-      title: 'Store Operations Manager',
-      subtitle: 'Shift scheduling, approvals, drawer cash & live floor controls',
-      destination: '/dashboard',
-      badge: 'Operations',
-      icon: '💼',
-    },
-    SERVER: {
-      title: 'Floor Server & POS Terminal',
-      subtitle: 'Handheld table assignments, course fire & instant bill splits',
-      destination: '/server',
-      badge: 'FOH Terminal',
-      icon: '🛎️',
-    },
-    KITCHEN: {
-      title: 'Kitchen Display Bump Terminal',
-      subtitle: 'High-speed line tickets, station routing & auto-86 dish controls',
-      destination: '/kds',
-      badge: 'BOH Display',
-      icon: '🍳',
-    },
-  }
+  const meta = PORTAL[portal]
 
   return (
-    <div className={styles.pageWrapper}>
-      {/* ── Top Header Navigation ── */}
-      <header className={styles.topNav}>
-        <Link href="/" className={styles.brandLink}>
-          <ProminentzLogo variant="app-icon" size={30} />
-          <span className={styles.brandName}>Prominentz</span>
-        </Link>
-        <Link href="/" className={styles.backHomeLink}>
-          <span>&larr;</span>
-          <span>Back to Prominentz</span>
-        </Link>
-      </header>
-
-      <div className={styles.mainContainer}>
-        {/* ── LEFT SHOWCASE: Brand Presentation & Live Metrics ── */}
-        <div className={styles.heroShowcase}>
-          <div className={styles.brandBadge}>
-            <span className={styles.badgeDot} />
-            Prominentz Operating System
+    <div className="bz">
+      <div className="bz-wrap" style={{ maxWidth: 1280 }}>
+        <header className="bz-header">
+          <div className="bz-header__left">
+            <BentoLogo href="/" />
           </div>
-
-          <h1 className={styles.heroTitle}>
-            Unified workspace for{' '}
-            <span className={styles.heroTitleGradient}>high-velocity dining.</span>
-          </h1>
-
-          <p className={styles.heroSubtitle}>
-            Dedicated workspace access for owners, managers, floor servers, and kitchen lines. Powered by real-time event synchronization.
-          </p>
-
-          {/* Active Portal Telemetry Box */}
-          <div className={styles.liveMetricsCard}>
-            <div className={styles.metricsHeader}>
-              <span>{portalMeta[activePortal].title}</span>
-              <span className={styles.liveIndicator}>
-                <span className={styles.liveIndicatorDot} />
-                Live Sync
-              </span>
-            </div>
-
-            <div className={styles.metricsGrid}>
-              <div className={styles.metricBox}>
-                <span className={styles.metricValue}>{portalMeta[activePortal].badge}</span>
-                <span className={styles.metricLabel}>Security Level</span>
-              </div>
-              <div className={styles.metricBox}>
-                <span className={styles.metricValue}>{portalMeta[activePortal].destination}</span>
-                <span className={styles.metricLabel}>Auto-Routed Workspace</span>
-              </div>
-              <div className={styles.metricBox}>
-                <span className={styles.metricValue}>TLS 1.3</span>
-                <span className={styles.metricLabel}>Encrypted Session</span>
-              </div>
-            </div>
+          <div className="bz-header__right">
+            <Link href="/signup" className="bz-link" style={{ fontSize: 14, fontWeight: 700 }}>
+              New restaurant? Start free
+            </Link>
+            <Link href="/pricing" className="bz-btn bz-btn--outline bz-hide-sm">
+              See pricing
+            </Link>
           </div>
+        </header>
 
-          {/* Key Feature Badges */}
-          <div className={styles.featurePills}>
-            <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>✓</span>
-              <span>Real-time station dispatch and kitchen bump bars</span>
-            </div>
-            <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>✓</span>
-              <span>Tableside handheld order capture with offline resilience</span>
-            </div>
-            <div className={styles.featurePill}>
-              <span className={styles.featurePillIcon}>✓</span>
-              <span>Granular role-based access control across all staff tiers</span>
-            </div>
-          </div>
-
-          {/* Hospitality quote */}
-          <div className={styles.testimonialCard}>
-            &ldquo;Prominentz cut our peak dinner rush turn times by 22% in our very first month.&rdquo;
-            <span className={styles.testimonialAuthor}>— Executive Chef Marcus Vance, Osteria Group</span>
+        <div className="bz-head">
+          <div className="bz-head__text">
+            <span className="bz-eyebrow">Sign in · your restaurant</span>
+            <h1 className="bz-h1">Welcome back.</h1>
           </div>
         </div>
 
-        {/* ── RIGHT COLUMN: Role-Tailored Auth Card ── */}
-        <div className={styles.authCardWrapper}>
-          <div className={styles.authCard}>
-            <div className={styles.cardHeader}>
-              <div className={styles.logoRow}>
-                <div className={styles.logoBadge}>
-                  <ProminentzLogo variant="app-icon" size={30} />
-                  <div>
-                    <div className={styles.logoBrandName}>Prominentz</div>
-                  </div>
-                </div>
-                <span className={styles.logoBrandTag}>PORTAL AUTH</span>
-              </div>
-
-              {/* Segmented 4-Role Portal Switcher */}
-              <div className={styles.roleSwitcher} role="tablist" aria-label="Select staff role portal">
-                {(['OWNER', 'MANAGER', 'SERVER', 'KITCHEN'] as PortalRole[]).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    role="tab"
-                    aria-selected={activePortal === r}
-                    onClick={() => { setActivePortal(r); setError(null) }}
-                    className={`${styles.roleBtn} ${activePortal === r ? styles.roleBtnActive : ''}`}
-                  >
-                    <span>{portalMeta[r].icon}</span>
-                    <span>{r.charAt(0) + r.slice(1).toLowerCase()}</span>
-                  </button>
-                ))}
-              </div>
-
-              <h2 className={styles.cardTitle}>{portalMeta[activePortal].title}</h2>
-              <p className={styles.cardSubtitle}>{portalMeta[activePortal].subtitle}</p>
-
-              <div style={{ marginTop: '12px' }}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    const acc = demoAccounts[activePortal];
-                    setEmail(acc.email);
-                    setPassword(acc.pass);
-                    setError(null);
-                  }}
-                >
-                  <span>⚡</span>
-                  <span>Fill {demoAccounts[activePortal].label} credentials ({demoAccounts[activePortal].email})</span>
-                </Button>
-              </div>
+        <section className="bz-grid">
+          {/* Sign in */}
+          <article className="bz-tile bz-c7 bz-r2" style={{ gap: 18 }} aria-labelledby="signin-title">
+            <div className="bz-row">
+              <h2 id="signin-title" className="bz-title bz-title--lg">Sign in as</h2>
+              <span className="bz-meta">one account per person</span>
             </div>
 
+            <div className="bz-seg" role="group" aria-label="Who is signing in" style={{ background: 'var(--bz-soft)', alignSelf: 'flex-start', flexWrap: 'wrap' }}>
+              {PORTALS.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  aria-pressed={portal === r}
+                  className="bz-seg__btn"
+                  onClick={() => {
+                    setPortal(r)
+                    setError(null)
+                  }}
+                >
+                  {PORTAL[r].name}
+                </button>
+              ))}
+            </div>
+            <span className="bz-sub">{meta.opens}</span>
+
             {isRegistered && (
-              <div className={styles.successBanner}>
-                Account created successfully. Please sign in with your credentials.
+              <div className="bz-pillrow bz-pillrow--ink" role="status" style={{ justifyContent: 'flex-start', gap: 10 }}>
+                <span className="bz-dot" aria-hidden="true" />
+                Your account is ready. Sign in with the email and password you just chose.
               </div>
             )}
 
             {error && (
-              <div className={styles.errorBanner}>
-                <span>&bull;</span>
-                <span>{error}</span>
+              <div className="bz-error" role="alert">
+                <span className="bz-error__title">Sign-in failed</span>
+                <span className="bz-error__detail">{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleLogin} className={styles.form}>
-              <div className={styles.inputGroup}>
-                <label className={styles.label} htmlFor="email">
-                  {activePortal === 'OWNER'
-                    ? 'Owner Work Email'
-                    : activePortal === 'MANAGER'
-                    ? 'Manager Email'
-                    : activePortal === 'SERVER'
-                    ? 'Server Email or ID'
-                    : 'Kitchen Team / Cook Email'}
-                </label>
-                <div className={styles.inputContainer}>
-                  <span className={styles.inputIcon}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="4" width="20" height="16" rx="2" />
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                  </span>
-                  <input
-                    id="email"
-                    type="email"
-                    className={styles.customInput}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={
-                      activePortal === 'OWNER'
-                        ? 'owner@restaurant.com'
-                        : activePortal === 'MANAGER'
-                        ? 'manager@restaurant.com'
-                        : activePortal === 'SERVER'
-                        ? 'server@restaurant.com'
-                        : 'kitchen@restaurant.com'
-                    }
-                    autoComplete="email"
-                    required
-                  />
-                </div>
-              </div>
+            <form onSubmit={handleLogin} className="bz-stack bz-stack--lg">
+              <label className="bz-field">
+                {meta.email}
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@restaurant.com"
+                  autoComplete="email"
+                  required
+                />
+              </label>
 
-              <div className={styles.inputGroup}>
-                <div className={styles.labelRow}>
-                  <label className={styles.label} htmlFor="password">
-                    {activePortal === 'SERVER' || activePortal === 'KITCHEN'
-                      ? 'Password or 4-Digit PIN'
-                      : 'Account Password'}
-                  </label>
-                  <span style={{ fontSize: '11px', color: '#a1a1aa' }}>
-                    Need access help?
-                  </span>
-                </div>
-                <div className={styles.inputContainer}>
-                  <span className={styles.inputIcon}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  </span>
+              <div className="bz-field">
+                <label htmlFor="password">{meta.usesPin ? 'Password or 4-digit PIN' : 'Password'}</label>
+                <div style={{ position: 'relative', display: 'flex' }}>
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    className={styles.customInput}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={
-                      activePortal === 'SERVER' || activePortal === 'KITCHEN'
-                        ? '•••• or 4-digit PIN'
-                        : '••••••••••••'
-                    }
                     autoComplete="current-password"
+                    inputMode={meta.usesPin && showKeypad ? 'none' : undefined}
                     required
+                    style={{ flex: 1, paddingRight: 72 }}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className={styles.passwordToggleBtn}
+                    className="bz-btn bz-btn--sm"
+                    style={{ position: 'absolute', right: 6, top: 6, height: 36, background: 'transparent' }}
+                    onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? 'Hide' : 'Show'}
@@ -358,41 +181,24 @@ function LoginForm() {
                 </div>
               </div>
 
-              {/* Touch PIN Keypad for Server and Kitchen */}
-              {(activePortal === 'SERVER' || activePortal === 'KITCHEN') && (
-                <div style={{ marginTop: '-2px', marginBottom: '4px' }}>
-                  <Button
-                    type="button"
-                    onClick={() => setShowKeypad(!showKeypad)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#a1a1aa',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      padding: '4px 0',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                    }}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <span>{showKeypad ? '▼ Hide Touch Keypad' : '▶ Show Touch PIN Keypad (Tablet/POS)'}</span>
-                  </Button>
-
+              {meta.usesPin && (
+                <div className="bz-stack" style={{ gap: 10 }}>
+                  <button type="button" className="bz-link" style={{ alignSelf: 'flex-start', background: 'none', border: 0, padding: 0, cursor: 'pointer', fontSize: 13 }} onClick={() => setShowKeypad((v) => !v)} aria-expanded={showKeypad}>
+                    {showKeypad ? 'Hide the PIN pad' : 'Use the PIN pad (tablet or POS)'}
+                  </button>
                   {showKeypad && (
-                    <div className={styles.keypadGrid}>
-                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'CLR', '0', '⌫'].map((k) => (
+                    <div className="bz-keypad" role="group" aria-label="PIN pad">
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Clear', '0', '⌫'].map((k) => (
                         <button
                           key={k}
                           type="button"
+                          className={`bz-keypad__key${k === 'Clear' || k === '⌫' ? ' bz-keypad__key--util' : ''}`}
+                          aria-label={k === '⌫' ? 'Delete' : k}
                           onClick={() => {
-                            if (k === '⌫') setPassword((prev) => prev.slice(0, -1))
-                            else if (k === 'CLR') setPassword('')
-                            else setPassword((prev) => (prev.length < 8 ? prev + k : prev))
+                            if (k === '⌫') setPassword((p) => p.slice(0, -1))
+                            else if (k === 'Clear') setPassword('')
+                            else setPassword((p) => (p.length < 8 ? p + k : p))
                           }}
-                          className={`${styles.keypadKey} ${k === 'CLR' || k === '⌫' ? styles.keypadKeyUtility : ''}`}
                         >
                           {k}
                         </button>
@@ -402,36 +208,60 @@ function LoginForm() {
                 </div>
               )}
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={loading}
-                >
-                  {loading
-                    ? 'Authenticating...'
-                    : `Sign in to ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()} Portal`}
-                </Button>
+              <button type="submit" className="bz-btn bz-btn--ink bz-btn--lg" disabled={loading}>
+                {loading ? 'Signing in…' : `Sign in as ${meta.name.toLowerCase()}`}
+              </button>
             </form>
 
-            <div className={styles.footerRow}>
-              <div>
-                <span>Need an account? </span>
-                <Link
-                  href={activePortal === 'OWNER' ? '/signup' : `/signup?role=${activePortal.toLowerCase()}`}
-                  className={styles.footerLink}
-                >
-                  {activePortal === 'OWNER'
-                    ? 'Start 14-day free trial'
-                    : `Onboard as ${activePortal.charAt(0) + activePortal.slice(1).toLowerCase()}`}
-                </Link>
-              </div>
+            <span className="bz-sub" style={{ fontSize: 13 }}>
+              Forgot your password? Ask your restaurant owner or manager to reset it from Staff.
+            </span>
+          </article>
 
-              <div className={styles.footerSecurityNotice}>
-                Protected by Prominentz Role-Based Access Control
-              </div>
+          {/* New restaurant */}
+          <article className="bz-tile bz-tile--accent bz-c5" style={{ gap: 14 }} aria-labelledby="new-title">
+            <span aria-hidden="true" className="bz-ghost" style={{ fontSize: 120 }}>START</span>
+            <div className="bz-stack" style={{ gap: 8, position: 'relative' }}>
+              <h2 id="new-title" style={{ fontWeight: 800, fontSize: 30, lineHeight: 1.1, letterSpacing: '-0.03em' }}>Run your whole dining room on one app.</h2>
+              <span style={{ fontSize: 14, color: 'var(--bz-on-accent-muted)' }}>14-day free trial · cancel any time</span>
             </div>
-          </div>
-        </div>
+            <ol className="bz-track" style={{ position: 'relative' }}>
+              {[
+                ['Your restaurant', 'Name, address and time zone'],
+                ['Your menu and tables', 'Type it in or import it'],
+                ['Your team', 'Invite managers, servers and the kitchen'],
+              ].map(([t, s], i) => (
+                <li key={t}>
+                  <span aria-hidden="true" className="bz-track__dot">{i + 1}</span>
+                  <span className="bz-item__body">
+                    <span style={{ fontWeight: 800, fontSize: 16 }}>{t}</span>
+                    <span style={{ fontSize: 14, color: 'var(--bz-on-accent-muted)' }}>{s}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <Link href="/signup" className="bz-btn bz-btn--lime bz-btn--lg" style={{ position: 'relative', alignSelf: 'flex-start' }}>
+              Start the free trial
+            </Link>
+          </article>
+
+          {/* What you get */}
+          <article className="bz-tile bz-tile--ink bz-c5" style={{ gap: 8 }} aria-labelledby="get-title">
+            <div className="bz-row">
+              <h2 id="get-title" className="bz-title">What every plan includes</h2>
+            </div>
+            {[
+              ['POS, kitchen display and captain app', 'on your own devices'],
+              ['QR ordering at the table', 'orders go straight to the kitchen'],
+              ['Reports and day-end close', 'payments, tips and refunds'],
+            ].map(([t, s]) => (
+              <div key={t} className="bz-darkrow bz-darkrow--pad">
+                <span className="bz-darkrow__main" style={{ fontSize: 14 }}>{t}</span>
+                <span style={{ fontSize: 13, color: '#A1A1AA', whiteSpace: 'nowrap' }} className="bz-hide-sm">{s}</span>
+              </div>
+            ))}
+          </article>
+        </section>
       </div>
     </div>
   )
@@ -439,7 +269,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000000' }} />}>
+    <Suspense fallback={<div className="bz" style={{ minHeight: '100vh' }} />}>
       <LoginForm />
     </Suspense>
   )

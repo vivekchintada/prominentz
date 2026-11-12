@@ -75,7 +75,7 @@ export default function DashboardLivePanel() {
               Real-time dish popularity by quantity
             </p>
           </div>
-          <Link href="/dashboard/menu" style={{ fontSize: 'var(--text-xs)', color: 'var(--brand)', fontWeight: 700, textDecoration: 'none' }}>
+          <Link href="/dashboard/menu" style={{ fontSize: 'var(--text-xs)', color: 'var(--brand-text)', fontWeight: 700, textDecoration: 'none' }}>
             Menu Editor ↗
           </Link>
         </div>
@@ -95,14 +95,14 @@ export default function DashboardLivePanel() {
                       {idx + 1}. {item.name}
                     </span>
                     <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
-                      {item.quantity} sold <span style={{ color: 'var(--brand)', marginLeft: 6 }}>(${item.revenue})</span>
+                      {item.quantity} sold <span style={{ color: 'var(--brand-text)', marginLeft: 6 }}>(${item.revenue})</span>
                     </span>
                   </div>
                   <div
                     style={{
                       height: 6,
                       borderRadius: 3,
-                      background: 'rgba(255,255,255,0.06)',
+                      background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
                       overflow: 'hidden',
                     }}
                   >
@@ -112,7 +112,7 @@ export default function DashboardLivePanel() {
                         width: `${pct}%`,
                         background: 'var(--brand-gradient)',
                         borderRadius: 3,
-                        transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        transition: 'width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                       }}
                     />
                   </div>
@@ -162,7 +162,7 @@ export default function DashboardLivePanel() {
             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
               Avg Ticket Prep
             </div>
-            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: (kpi?.avgTicketTimeMins ?? 0) <= 15 ? '#30D158' : '#FF453A', letterSpacing: '-0.03em', marginTop: 2 }}>
+            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: (kpi?.avgTicketTimeMins ?? 0) <= 15 ? 'var(--color-success)' : 'var(--color-error)', letterSpacing: '-0.03em', marginTop: 2 }}>
               {kpi?.avgTicketTimeMins ?? 0}m
             </div>
             <div style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>Target &lt; 15 mins</div>
@@ -179,7 +179,7 @@ export default function DashboardLivePanel() {
             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
               Line Firing Speed
             </div>
-            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--brand)', letterSpacing: '-0.03em', marginTop: 2 }}>
+            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--brand-text)', letterSpacing: '-0.03em', marginTop: 2 }}>
               {kpi?.ordersPerHour ?? 0} <span style={{ fontSize: 13, fontWeight: 600 }}>tkt/hr</span>
             </div>
             <div style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>
@@ -200,7 +200,7 @@ export default function DashboardLivePanel() {
             gap: 'var(--space-2)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 11, fontWeight: 800, color: 'var(--brand)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 11, fontWeight: 800, color: 'var(--brand-text)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             <span>✦</span> RestoIQ Smart Insight
           </div>
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', margin: 0, lineHeight: 1.45 }}>

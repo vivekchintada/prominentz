@@ -104,7 +104,7 @@ export function Breadcrumbs() {
             <Link
               href={crumb.href}
               style={{
-                color: 'var(--color-text-secondary, rgba(255, 255, 255, 0.7))',
+                color: 'var(--color-text-secondary, var(--color-text-secondary))',
                 textDecoration: 'none',
                 transition: 'color 140ms ease',
               }}

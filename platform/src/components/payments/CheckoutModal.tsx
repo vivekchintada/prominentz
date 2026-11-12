@@ -734,7 +734,7 @@ export default function CheckoutModal({
         {paymentSuccess ? (
           /* SUCCESS POPUP SCREEN */
           <div className="flex flex-col items-center gap-4 py-6 text-center animate-fade-in">
-            <div style={{ fontSize: '4.5rem', animation: 'bounce 1s infinite' }}>🎉</div>
+            <div style={{ fontSize: '4.5rem', animation: 'fadeIn 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both' }}>🎉</div>
             <h2 className="text-2xl font-bold text-success">✅ Instant Payment Confirmed!</h2>
             <p className="text-secondary text-sm" style={{ maxWidth: '400px' }}>
               Payment of <strong>${finalTotal.toFixed(2)}</strong> received. Order settled & Table {order.table.name} marked EMPTY.

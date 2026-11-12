@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface RecipeIngredientLine {
   id: string
@@ -39,6 +40,7 @@ interface RecipesTabProps {
 }
 
 export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabProps) {
+  const { money } = useMoney()
   const [recipes, setRecipes] = useState<MenuItemRecipe[]>([])
   const [inventoryOptions, setInventoryOptions] = useState<InventoryItemOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -168,13 +170,13 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
             Menu Items With Recipes
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>
             {itemsWithRecipesCount} / {recipes.length}
           </div>
-          <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, marginTop: 4 }}>
             {((itemsWithRecipesCount / (recipes.length || 1)) * 100).toFixed(0)}% mapped to stock depletion
           </div>
         </div>
@@ -188,20 +190,20 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
             Average Food Cost
           </div>
           <div
             style={{
               fontSize: 26,
               fontWeight: 800,
-              color: Number(averageFoodCostPct) > 35 ? '#ea580c' : '#16a34a',
+              color: Number(averageFoodCostPct) > 35 ? 'var(--color-warning)' : 'var(--color-success)',
               marginTop: 4,
             }}
           >
             {averageFoodCostPct}%
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500, marginTop: 4 }}>
             Industry target: 28% – 32%
           </div>
         </div>
@@ -215,13 +217,13 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
             Live Cost Recalculation
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--brand)', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--brand-text)', marginTop: 4 }}>
             Real-Time
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500, marginTop: 4 }}>
             Updates automatically when PO purchase costs change
           </div>
         </div>
@@ -259,7 +261,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
               width: 240,
               padding: '7px 12px',
               borderRadius: 6,
-              border: '1px solid #cbd5e1',
+              border: '1px solid var(--color-border)',
               fontSize: 12,
             }}
           />
@@ -267,7 +269,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
 
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: 'var(--color-bg-card)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
+            <tr style={{ background: 'var(--color-bg-card)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Menu Dish</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Category</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Retail Price</th>
@@ -281,13 +283,13 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+                <td colSpan={8} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                   Loading recipe food costs...
                 </td>
               </tr>
             ) : filteredRecipes.length === 0 ? (
               <tr>
-                <td colSpan={8} style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+                <td colSpan={8} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                   No menu items found.
                 </td>
               </tr>
@@ -312,7 +314,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                     : '#b91c1c'
 
                 return (
-                  <tr key={item.menuItemId} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={item.menuItemId} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '14px 18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
                       {item.menuItemName}
                       {item.is86d && (
@@ -323,8 +325,8 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                             borderRadius: 4,
                             fontSize: 10,
                             fontWeight: 800,
-                            background: '#fee2e2',
-                            color: '#b91c1c',
+                            background: 'color-mix(in srgb, var(--color-error) 14%, transparent)',
+                            color: 'var(--color-error)',
                           }}
                         >
                           86&apos;d
@@ -333,7 +335,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                     </td>
                     <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>{item.categoryName}</td>
                     <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                      ${item.retailPrice.toFixed(2)}
+                      {money(item.retailPrice)}
                     </td>
                     <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>
                       {item.recipes.length > 0 ? (
@@ -355,13 +357,13 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                           ))}
                         </div>
                       ) : (
-                        <span style={{ fontStyle: 'italic', color: '#94a3b8', fontSize: 12 }}>
+                        <span style={{ fontStyle: 'italic', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
                           No recipe linked
                         </span>
                       )}
                     </td>
                     <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                      ${item.totalFoodCost.toFixed(2)}
+                      {money(item.totalFoodCost)}
                     </td>
                     <td style={{ padding: '14px 18px' }}>
                       <span
@@ -377,8 +379,8 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         {costPct > 0 ? `${costPct.toFixed(1)}%` : '—'}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 18px', fontWeight: 700, color: '#16a34a' }}>
-                      ${item.grossProfit.toFixed(2)}
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--color-success)' }}>
+                      {money(item.grossProfit)}
                     </td>
                     <td style={{ padding: '14px 18px', textAlign: 'right' }}>
                       <button
@@ -386,9 +388,9 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         style={{
                           padding: '6px 14px',
                           borderRadius: 6,
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--color-border)',
                           background: 'var(--color-bg-card)',
-                          color: 'var(--brand)',
+                          color: 'var(--brand-text)',
                           fontSize: 12,
                           fontWeight: 700,
                           cursor: 'pointer',
@@ -448,14 +450,14 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)' }}>
                   Recipe Configuration: {selectedMenuItem.menuItemName}
                 </h3>
-                <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
-                  Retail Price: ${selectedMenuItem.retailPrice.toFixed(2)} • Total Food Cost: $
+                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+                  Retail Price: {money(selectedMenuItem.retailPrice)} • Total Food Cost: $
                   {selectedMenuItem.totalFoodCost.toFixed(2)} ({selectedMenuItem.foodCostPercentage.toFixed(1)}%)
                 </div>
               </div>
               <button
                 onClick={() => setSelectedMenuItem(null)}
-                style={{ background: 'none', border: 'none', fontSize: 22, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -468,14 +470,14 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                   Current Recipe Ingredients
                 </h4>
                 {selectedMenuItem.recipes.length === 0 ? (
-                  <div style={{ padding: '16px', background: 'var(--color-bg-card-hover)', borderRadius: 8, color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>
+                  <div style={{ padding: '16px', background: 'var(--color-bg-card-hover)', borderRadius: 8, color: 'var(--color-text-tertiary)', fontSize: 13, textAlign: 'center' }}>
                     No ingredients mapped. Adding ingredients enables automatic stock depletion upon order firing.
                   </div>
                 ) : (
                   <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                       <thead>
-                        <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
+                        <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
                           <th style={{ padding: '8px 12px', fontWeight: 700 }}>Ingredient</th>
                           <th style={{ padding: '8px 12px', fontWeight: 700, textAlign: 'center' }}>Portion Qty</th>
                           <th style={{ padding: '8px 12px', fontWeight: 700, textAlign: 'right' }}>Unit Cost</th>
@@ -485,18 +487,18 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                       </thead>
                       <tbody>
                         {selectedMenuItem.recipes.map((r) => (
-                          <tr key={r.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <tr key={r.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                             <td style={{ padding: '10px 12px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                               {r.ingredientName}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                               {r.quantityRequired} {r.unit}
                             </td>
-                            <td style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b' }}>
-                              ${r.unitCost.toFixed(2)}/{r.unit}
+                            <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>
+                              {money(r.unitCost)}/{r.unit}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                              ${r.lineCost.toFixed(2)}
+                              {money(r.lineCost)}
                             </td>
                             <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                               <button
@@ -505,7 +507,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                                 style={{
                                   background: 'none',
                                   border: 'none',
-                                  color: '#dc2626',
+                                  color: 'var(--color-error)',
                                   cursor: 'pointer',
                                   fontSize: 14,
                                   padding: 4,
@@ -551,14 +553,14 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         width: '100%',
                         padding: '8px 12px',
                         borderRadius: 6,
-                        border: '1px solid #cbd5e1',
+                        border: '1px solid var(--color-border)',
                         fontSize: 13,
                         background: 'var(--color-bg-card)',
                       }}
                     >
                       {inventoryOptions.map((opt) => (
                         <option key={opt.id} value={opt.id}>
-                          {opt.name} ({opt.unit}) — ${Number(opt.unitCost).toFixed(2)}/unit
+                          {opt.name} ({opt.unit}) — {money(Number(opt.unitCost))}/unit
                         </option>
                       ))}
                     </select>
@@ -579,7 +581,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                         width: '100%',
                         padding: '8px 12px',
                         borderRadius: 6,
-                        border: '1px solid #cbd5e1',
+                        border: '1px solid var(--color-border)',
                         fontSize: 13,
                         fontWeight: 700,
                       }}
@@ -624,7 +626,7 @@ export default function RecipesTab({ showToast, onRecipeChanged }: RecipesTabPro
                 style={{
                   padding: '9px 18px',
                   borderRadius: 8,
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-card)',
                   fontSize: 13,
                   fontWeight: 600,

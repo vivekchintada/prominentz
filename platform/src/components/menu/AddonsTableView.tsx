@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 export interface AddonItem {
   id: string
@@ -12,6 +13,7 @@ export interface AddonItem {
 }
 
 export default function AddonsTableView() {
+  const { money } = useMoney()
   const [addons, setAddons] = useState<AddonItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -140,7 +142,7 @@ export default function AddonsTableView() {
 
   const exportCSV = () => {
     const headers = ['Item', 'Addon', 'Price', 'Status']
-    const rows = filtered.map((a) => [a.parentItem, a.name, `$${Number(a.price).toFixed(2)}`, a.status])
+    const rows = filtered.map((a) => [a.parentItem, a.name, `${money(Number(a.price))}`, a.status])
     const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -370,7 +372,7 @@ export default function AddonsTableView() {
 
                   {/* Price */}
                   <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
-                    ${Number(addon.price).toFixed(0)}
+                    {money(Number(addon.price), 0)}
                   </td>
 
                   {/* Status Badge */}

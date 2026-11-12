@@ -110,8 +110,8 @@ export default function EmployeeSchedule() {
                   fontWeight: 700,
                   padding: '3px 9px',
                   borderRadius: '6px',
-                  background: (STATUS_COLORS[s.status] || '#888') + '1A',
-                  color: STATUS_COLORS[s.status] || '#888',
+                  background: (STATUS_COLORS[s.status] || 'var(--color-text-tertiary)') + '1A',
+                  color: STATUS_COLORS[s.status] || 'var(--color-text-tertiary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
                 }}

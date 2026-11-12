@@ -1,4 +1,5 @@
-import { UnifiedAppShell } from '@/components/layout/UnifiedAppShell'
+import { BentoShell } from '@/components/bento/BentoShell'
+import { RestaurantCurrency } from '@/components/providers/RestaurantCurrency'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 
@@ -20,5 +21,9 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
     redirect('/kds')
   }
 
-  return <UnifiedAppShell>{children}</UnifiedAppShell>
+  return (
+    <RestaurantCurrency restaurantId={session.user.restaurantId}>
+      <BentoShell>{children}</BentoShell>
+    </RestaurantCurrency>
+  )
 }

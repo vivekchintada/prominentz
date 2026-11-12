@@ -246,7 +246,7 @@ export default function TopBar({
                 left: 0,
                 width: 280,
                 backgroundColor: 'var(--color-bg-card, #1c1c1e)',
-                border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+                border: '1px solid var(--color-border, color-mix(in srgb, var(--color-text-primary) 12%, transparent))',
                 borderRadius: '12px',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
                 padding: '8px',
@@ -348,7 +348,7 @@ export default function TopBar({
           onClick={() => signOut({ callbackUrl: '/login' })}
           aria-label="Sign Out"
           title="Sign Out"
-          style={{ color: '#ef4444' }}
+          style={{ color: 'var(--color-error)' }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -381,7 +381,7 @@ export default function TopBar({
                 right: 0,
                 width: 240,
                 backgroundColor: 'var(--color-bg-card, #1c1c1e)',
-                border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+                border: '1px solid var(--color-border, color-mix(in srgb, var(--color-text-primary) 12%, transparent))',
                 borderRadius: '12px',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
                 padding: '12px',
@@ -392,7 +392,7 @@ export default function TopBar({
                 backdropFilter: 'blur(20px)',
               }}
             >
-              <div style={{ padding: '4px 6px 8px', borderBottom: '1px solid var(--color-border, rgba(255,255,255,0.08))' }}>
+              <div style={{ padding: '4px 6px 8px', borderBottom: '1px solid var(--color-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))' }}>
                 <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--color-text-primary, #fff)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {userName || 'User'}
                 </div>
@@ -464,7 +464,7 @@ export default function TopBar({
                 <span>Plan & Billing</span>
               </Link>
 
-              <div style={{ height: '1px', background: 'var(--color-border, rgba(255,255,255,0.08))', margin: '2px 0' }} />
+              <div style={{ height: '1px', background: 'var(--color-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))', margin: '2px 0' }} />
 
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
@@ -476,7 +476,7 @@ export default function TopBar({
                   borderRadius: '8px',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#ef4444',
+                  color: 'var(--color-error)',
                   background: 'rgba(239, 68, 68, 0.08)',
                   border: '1px solid rgba(239, 68, 68, 0.2)',
                   cursor: 'pointer',

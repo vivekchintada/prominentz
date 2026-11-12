@@ -15,7 +15,7 @@ export function MobileHeader() {
         background: 'rgba(18, 18, 20, 0.92)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        borderBottom: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
         padding: '10px 16px',
         display: 'flex',
         alignItems: 'center',
@@ -36,7 +36,7 @@ export function MobileHeader() {
             padding: '2px 6px',
             borderRadius: '4px',
             backgroundColor: 'rgba(91, 69, 245, 0.15)',
-            color: '#7b68f7',
+            color: 'var(--brand-text)',
             border: '1px solid rgba(91, 69, 245, 0.3)',
           }}
         >
@@ -54,7 +54,7 @@ export function MobileHeader() {
           borderRadius: '8px',
           border: '1px solid rgba(239, 68, 68, 0.35)',
           backgroundColor: 'rgba(239, 68, 68, 0.08)',
-          color: '#ef4444',
+          color: 'var(--color-error)',
           fontSize: '11px',
           fontWeight: 700,
           cursor: 'pointer',

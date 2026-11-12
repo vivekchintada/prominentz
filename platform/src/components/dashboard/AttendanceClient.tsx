@@ -130,7 +130,7 @@ export default function AttendanceClient() {
         {[
           { label: 'Live on Floor', value: `${activeEntries.length}`, icon: '🟢', color: '#16a34a' },
           { label: 'GPS / Time Flags', value: `${flaggedEntries.length}`, icon: '⚠️', color: flaggedEntries.length > 0 ? '#ef4444' : '#16a34a' },
-          { label: 'Today Total Punches', value: `${entries.length}`, icon: '⏱️', color: 'var(--brand)' },
+          { label: 'Today Total Punches', value: `${entries.length}`, icon: '⏱️', color: 'var(--brand-text)' },
         ].map((kpi) => (
           <div
             key={kpi.label}
@@ -181,8 +181,8 @@ export default function AttendanceClient() {
                     borderRadius: '10px',
                     fontSize: '10px',
                     fontWeight: 800,
-                    background: active ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-raised)',
-                    color: active ? '#fff' : 'var(--color-text-secondary)',
+                    background: active ? 'color-mix(in srgb, var(--color-text-primary) 25%, transparent)' : 'var(--color-bg-raised)',
+                    color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                   }}
                 >
                   {tab.count}
@@ -261,7 +261,7 @@ export default function AttendanceClient() {
                   justifyContent: 'space-between',
                   padding: '16px 20px',
                   borderBottom: '1px solid var(--color-separator)',
-                  borderLeft: isFlagged ? '4px solid #ef4444' : isLive ? '4px solid #16a34a' : '4px solid transparent',
+                  borderLeft: isFlagged ? '4px solid var(--color-error)' : isLive ? '4px solid var(--color-success)' : '4px solid transparent',
                   background: isFlagged ? 'rgba(239, 68, 68, 0.03)' : 'transparent',
                   flexWrap: 'wrap',
                   gap: '14px',
@@ -275,7 +275,7 @@ export default function AttendanceClient() {
                       height: 38,
                       borderRadius: '50%',
                       background: isFlagged ? 'rgba(239,68,68,0.15)' : 'var(--brand)',
-                      color: isFlagged ? '#ef4444' : 'var(--brand-contrast)',
+                      color: isFlagged ? 'var(--color-error)' : 'var(--brand-contrast)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -320,7 +320,7 @@ export default function AttendanceClient() {
                     <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
                       Time On Shift
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--brand)', fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--brand-text)', fontFamily: 'monospace' }}>
                       {hours}h {mins}m
                     </div>
                   </div>
@@ -335,7 +335,7 @@ export default function AttendanceClient() {
                       borderRadius: '8px',
                       padding: '4px 10px',
                       fontSize: '11px',
-                      color: '#ef4444',
+                      color: 'var(--color-error)',
                       fontWeight: 700,
                       display: 'flex',
                       alignItems: 'center',
@@ -357,8 +357,8 @@ export default function AttendanceClient() {
                         padding: '6px 12px',
                         borderRadius: '8px',
                         border: 'none',
-                        background: '#16a34a',
-                        color: '#fff',
+                        background: 'var(--color-success)',
+                        color: 'var(--on-success)',
                         fontSize: '12px',
                         fontWeight: 800,
                         cursor: 'pointer',
@@ -377,7 +377,7 @@ export default function AttendanceClient() {
                         borderRadius: '8px',
                         border: '1px solid var(--color-border)',
                         background: 'var(--color-bg)',
-                        color: '#ef4444',
+                        color: 'var(--color-error)',
                         fontSize: '12px',
                         fontWeight: 700,
                         cursor: 'pointer',

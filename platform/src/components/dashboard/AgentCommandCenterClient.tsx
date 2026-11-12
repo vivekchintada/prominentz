@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface AgentFinding {
   id: string
@@ -41,6 +42,7 @@ interface AgentTelemetry {
 }
 
 export default function AgentCommandCenterClient() {
+  const { money } = useMoney()
   const [telemetry, setTelemetry] = useState<AgentTelemetry | null>(null)
   const [findings, setFindings] = useState<AgentFinding[]>([])
   const [lastScanAt, setLastScanAt] = useState<string>('')
@@ -237,16 +239,16 @@ I am continuously monitoring and managing **every operational domain** across li
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
           <div className="card" style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: 600 }}>Live Sales Today</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--brand-emerald, #059669)', marginTop: '4px' }}>${telemetry.liveSales.toFixed(2)}</div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--brand-emerald, #059669)', marginTop: '4px' }}>{money(telemetry.liveSales)}</div>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>{telemetry.activeTables} tables active</div>
           </div>
 
           <div className="card" style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: 600 }}>Kitchen Queue</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: telemetry.delayedTickets > 0 ? '#ef4444' : '#60a5fa', marginTop: '4px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: telemetry.delayedTickets > 0 ? 'var(--color-error)' : '#60a5fa', marginTop: '4px' }}>
               {telemetry.kitchenQueue} Tickets
             </div>
-            <div style={{ fontSize: '11px', color: telemetry.delayedTickets > 0 ? '#ef4444' : 'var(--color-text-tertiary)', marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: telemetry.delayedTickets > 0 ? 'var(--color-error)' : 'var(--color-text-tertiary)', marginTop: '2px' }}>
               {telemetry.delayedTickets} delayed &gt; 15m
             </div>
           </div>
@@ -287,12 +289,12 @@ I am continuously monitoring and managing **every operational domain** across li
             <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>🚨</span> Autonomous Agent Findings ({findings.length})
             </h2>
-            <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.4)' }}>Real-time evaluation</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>Real-time evaluation</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '720px', overflowY: 'auto', paddingRight: '4px' }}>
             {findings.length === 0 ? (
-              <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.02)', border: '1px dashed rgba(255, 255, 255, 0.1)', textAlign: 'center', color: 'rgba(255, 255, 255, 0.4)' }}>
+              <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)', border: '1px dashed color-mix(in srgb, var(--color-text-primary) 10%, transparent)', textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                 <span style={{ fontSize: '24px' }}>✅</span>
                 <p style={{ margin: '8px 0 0', fontSize: '13px' }}>All systems operating within optimal thresholds. No anomalies detected.</p>
               </div>
@@ -311,7 +313,7 @@ I am continuously monitoring and managing **every operational domain** across li
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', backgroundColor: style.badge, color: '#000000', textTransform: 'uppercase' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', backgroundColor: style.badge, color: 'var(--color-text-primary)', textTransform: 'uppercase' }}>
                         {f.severity}
                       </span>
                       {f.metric && (
@@ -338,7 +340,7 @@ I am continuously monitoring and managing **every operational domain** across li
                           fontWeight: 700,
                           borderRadius: '8px',
                           backgroundColor: style.badge,
-                          color: '#000000',
+                          color: 'var(--color-text-primary)',
                           border: 'none',
                           cursor: 'pointer',
                           display: 'flex',
@@ -392,7 +394,7 @@ I am continuously monitoring and managing **every operational domain** across li
                   borderRadius: '20px',
                   backgroundColor: 'rgba(99, 102, 241, 0.12)',
                   border: '1px solid rgba(99, 102, 241, 0.3)',
-                  color: '#818cf8',
+                  color: 'var(--brand-text)',
                   cursor: 'pointer',
                   flexShrink: 0,
                 }}
@@ -444,7 +446,7 @@ I am continuously monitoring and managing **every operational domain** across li
                             padding: '3px 8px',
                             borderRadius: '6px',
                             backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                            color: '#818cf8',
+                            color: 'var(--brand-text)',
                             border: '1px solid rgba(99, 102, 241, 0.3)',
                           }}
                         >
@@ -457,7 +459,7 @@ I am continuously monitoring and managing **every operational domain** across li
                   {m.text}
 
                   {m.actionType && (
-                    <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'rgba(48, 209, 88, 0.15)', border: '1px solid rgba(48, 209, 88, 0.4)', color: '#30D158', fontSize: '12px', fontWeight: 600 }}>
+                    <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'rgba(48, 209, 88, 0.15)', border: '1px solid rgba(48, 209, 88, 0.4)', color: 'var(--color-success)', fontSize: '12px', fontWeight: 600 }}>
                       ⚡ Action Executed: <strong>{m.actionType}</strong>
                     </div>
                   )}
@@ -483,7 +485,7 @@ I am continuously monitoring and managing **every operational domain** across li
                               padding: '6px 12px',
                               borderRadius: '8px',
                               backgroundColor: act.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : act.severity === 'WARNING' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(99, 102, 241, 0.15)',
-                              color: act.severity === 'CRITICAL' ? '#ef4444' : act.severity === 'WARNING' ? '#f59e0b' : '#818cf8',
+                              color: act.severity === 'CRITICAL' ? 'var(--color-error)' : act.severity === 'WARNING' ? 'var(--color-warning)' : 'var(--brand-text)',
                               border: act.severity === 'CRITICAL' ? '1px solid rgba(239, 68, 68, 0.35)' : act.severity === 'WARNING' ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(99, 102, 241, 0.35)',
                               cursor: isThinking ? 'not-allowed' : 'pointer',
                               transition: 'all 0.15s ease',
@@ -502,7 +504,7 @@ I am continuously monitoring and managing **every operational domain** across li
             {isThinking && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', borderRadius: '12px', backgroundColor: 'var(--color-bg)', border: '1px solid var(--color-border)', maxWidth: '300px' }}>
                 <span style={{ fontSize: '16px' }}>🧠</span>
-                <span style={{ fontSize: '12px', color: '#a855f7', fontWeight: 600 }}>
+                <span style={{ fontSize: '12px', color: 'var(--brand-text)', fontWeight: 600 }}>
                   Agent reasoning &amp; querying telemetry...
                 </span>
               </div>

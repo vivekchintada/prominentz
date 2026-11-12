@@ -6,6 +6,7 @@ import { ProminentzLogo } from '@/components/ui/ProminentzLogo';
 export default function PublicHeader() {
   return (
     <header className={styles.header}>
+      <div className={styles.container}>
       <div className={styles.navInner}>
         <Link href="/" className={styles.brand}>
           <ProminentzLogo variant="app-icon" size={28} />
@@ -17,8 +18,9 @@ export default function PublicHeader() {
           <Link href="/login" className={styles.navLink}>Login</Link>
         </nav>
         <div className={styles.navActions}>
-          <Link href="/login" className={styles.btnPrimary}>Sign In →</Link>
+          <Link href="/login" className={styles.btnPrimary}>Sign in</Link>
         </div>
+      </div>
       </div>
     </header>
   );

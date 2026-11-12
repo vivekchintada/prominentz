@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useRef } from 'react'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface OrderStatementModalProps {
   isOpen: boolean
@@ -13,6 +15,7 @@ export default function OrderStatementModal({
   onClose,
   order,
 }: OrderStatementModalProps) {
+  const { money } = useMoney()
   const printRef = useRef<HTMLDivElement>(null)
 
   if (!isOpen || !order) return null
@@ -40,6 +43,8 @@ export default function OrderStatementModal({
   const subtotal = Number(order.subtotal || 0)
   const tax = Number(order.tax || 0)
   const total = Number(order.total || 0)
+  // The rate actually charged on this order (items can carry their own rates).
+  const taxRateLabel = subtotal > 0 ? `${Number(((tax / subtotal) * 100).toFixed(2))}%` : '0%'
 
   // Primary payment record if available
   const payment = order.payments && order.payments.length > 0 ? order.payments[0] : null
@@ -96,14 +101,14 @@ export default function OrderStatementModal({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px' }}>📄</span>
+            <span style={{ fontSize: '18px' }}><PosIcon name="file" /></span>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
               Order Statement
             </h3>
             <span
               style={{
                 backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                color: '#16a34a',
+                color: 'var(--color-success)',
                 fontSize: '11px',
                 fontWeight: 800,
                 padding: '2px 8px',
@@ -121,7 +126,7 @@ export default function OrderStatementModal({
               background: 'transparent',
               fontSize: '18px',
               fontWeight: 700,
-              color: '#64748b',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
               padding: '4px 8px',
               borderRadius: '6px',
@@ -145,11 +150,11 @@ export default function OrderStatementModal({
           }}
         >
           {/* Restaurant & Order Anchor */}
-          <div style={{ textAlign: 'center', borderBottom: '1px dashed #cbd5e1', paddingBottom: '16px' }}>
+          <div style={{ textAlign: 'center', borderBottom: '1px dashed var(--color-border)', paddingBottom: '16px' }}>
             <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: 900, letterSpacing: '-0.5px' }}>
               {order.table?.location?.restaurant?.name || 'RESTO AI'}
             </h2>
-            <p style={{ margin: '0 0 2px 0', fontSize: '12px', color: '#64748b' }}>
+            <p style={{ margin: '0 0 2px 0', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
               {order.table?.location?.name || 'Main Dining Hall'}
               {order.table?.location?.phone ? ` · Tel: ${order.table.location.phone}` : ''}
             </p>
@@ -179,23 +184,23 @@ export default function OrderStatementModal({
               backgroundColor: 'var(--color-bg-card-hover)',
               padding: '12px',
               borderRadius: '8px',
-              border: '1px solid #f1f5f9',
+              border: '1px solid var(--color-border)',
             }}
           >
             <div>
-              <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Date & Time</span>
+              <span style={{ color: 'var(--color-text-secondary)', display: 'block', fontSize: '11px' }}>Date & Time</span>
               <strong style={{ color: 'var(--color-text-primary)' }}>{formattedDate}, {formattedTime}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Table / Location</span>
+              <span style={{ color: 'var(--color-text-secondary)', display: 'block', fontSize: '11px' }}>Table / Location</span>
               <strong style={{ color: 'var(--color-text-primary)' }}>{order.table?.name || 'Quick Counter'}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Server / Staff</span>
+              <span style={{ color: 'var(--color-text-secondary)', display: 'block', fontSize: '11px' }}>Server / Staff</span>
               <strong style={{ color: 'var(--color-text-primary)' }}>{order.server?.name || 'Staff'}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Guest / Customer</span>
+              <span style={{ color: 'var(--color-text-secondary)', display: 'block', fontSize: '11px' }}>Guest / Customer</span>
               <strong style={{ color: 'var(--color-text-primary)' }}>{order.customer?.name || 'Walk-in Guest'}</strong>
             </div>
           </div>
@@ -208,7 +213,7 @@ export default function OrderStatementModal({
                 justifyContent: 'space-between',
                 fontSize: '11px',
                 fontWeight: 800,
-                color: '#64748b',
+                color: 'var(--color-text-secondary)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
                 borderBottom: '1px solid var(--color-border)',
@@ -233,18 +238,18 @@ export default function OrderStatementModal({
                         {item.quantity}x {itemName}
                       </div>
                       {item.modifiers && item.modifiers.length > 0 && (
-                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
                           + {item.modifiers.map((m: any) => m.optionName || m.name).join(', ')}
                         </div>
                       )}
                       {item.specialNote && (
-                        <div style={{ fontSize: '11px', color: '#ea580c', fontStyle: 'italic', marginTop: '1px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--color-warning)', fontStyle: 'italic', marginTop: '1px' }}>
                           Note: "{item.specialNote}"
                         </div>
                       )}
                     </div>
                     <div style={{ fontWeight: 700, color: 'var(--color-text-primary)', textAlign: 'right' }}>
-                      ${lineTotal.toFixed(2)}
+                      {money(lineTotal)}
                     </div>
                   </div>
                 )
@@ -255,7 +260,7 @@ export default function OrderStatementModal({
           {/* Subtotal / Tax / Tip Breakdown */}
           <div
             style={{
-              borderTop: '1px dashed #cbd5e1',
+              borderTop: '1px dashed var(--color-border)',
               paddingTop: '12px',
               display: 'flex',
               flexDirection: 'column',
@@ -265,16 +270,16 @@ export default function OrderStatementModal({
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
               <span>Subtotal</span>
-              <span style={{ fontWeight: 600 }}>${subtotal.toFixed(2)}</span>
+              <span style={{ fontWeight: 600 }}>{money(subtotal)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-secondary)' }}>
-              <span>Tax (10%)</span>
-              <span style={{ fontWeight: 600 }}>${tax.toFixed(2)}</span>
+              <span>Tax ({taxRateLabel})</span>
+              <span style={{ fontWeight: 600 }}>{money(tax)}</span>
             </div>
             {tip > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-success)' }}>
                 <span>Tip</span>
-                <span style={{ fontWeight: 600 }}>+${tip.toFixed(2)}</span>
+                <span style={{ fontWeight: 600 }}>+{money(tip)}</span>
               </div>
             )}
             <div
@@ -284,21 +289,21 @@ export default function OrderStatementModal({
                 fontSize: '16px',
                 fontWeight: 900,
                 color: 'var(--color-text-primary)',
-                borderTop: '1.5px solid #0f172a',
+                borderTop: '1.5px solid var(--color-text-primary)',
                 paddingTop: '8px',
                 marginTop: '4px',
               }}
             >
               <span>TOTAL PAID</span>
-              <span style={{ color: '#16a34a' }}>${(total + tip).toFixed(2)}</span>
+              <span style={{ color: 'var(--color-success)' }}>{money((total + tip))}</span>
             </div>
           </div>
 
           {/* Payment Details Pill Card */}
           <div
             style={{
-              backgroundColor: '#f0fdf4',
-              border: '1px solid #bbf7d0',
+              backgroundColor: 'color-mix(in srgb, var(--color-success) 14%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-success) 35%, transparent)',
               borderRadius: '10px',
               padding: '12px 14px',
               fontSize: '12px',
@@ -308,10 +313,10 @@ export default function OrderStatementModal({
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#15803d', fontWeight: 700 }}>
+              <span style={{ color: 'var(--color-success)', fontWeight: 700 }}>
                 Payment Method: {paymentMethod}
               </span>
-              <span style={{ color: '#16a34a', fontWeight: 800, fontSize: '11px' }}>
+              <span style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: '11px' }}>
                 ✓ SETTLED
               </span>
             </div>
@@ -324,13 +329,13 @@ export default function OrderStatementModal({
             {cashReceived !== null && cashReceived > 0 && (
               <div style={{ fontSize: '11px', color: '#166534', display: 'flex', justifyContent: 'space-between' }}>
                 <span>Cash Received / Change:</span>
-                <span>${cashReceived.toFixed(2)} / ${Number(cashChange || 0).toFixed(2)}</span>
+                <span>{money(cashReceived)} / {money(Number(cashChange || 0))}</span>
               </div>
             )}
           </div>
 
           {/* Note to cashier / customer */}
-          <div style={{ textAlign: 'center', fontSize: '11px', color: '#94a3b8' }}>
+          <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
             Thank you for dining with us! This order is completed and paid in full.
           </div>
         </div>
@@ -350,9 +355,9 @@ export default function OrderStatementModal({
             style={{
               flex: 1,
               padding: '10px',
-              backgroundColor: '#18181B',
-              color: '#ffffff',
-              border: '1px solid #18181B',
+              backgroundColor: 'var(--color-bg-card)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border)',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '13px',
@@ -363,13 +368,13 @@ export default function OrderStatementModal({
               gap: '6px',
             }}
           >
-            🖨️ Print Statement / Receipt
+            <PosIcon name="printer" />Print Statement / Receipt
           </button>
           <button
             onClick={onClose}
             style={{
               padding: '10px 18px',
-              backgroundColor: '#e2e8f0',
+              backgroundColor: 'var(--color-bg-raised)',
               color: 'var(--color-text-secondary)',
               border: 'none',
               borderRadius: '8px',

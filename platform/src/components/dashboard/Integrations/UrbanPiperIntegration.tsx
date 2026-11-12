@@ -39,7 +39,7 @@ export function UrbanPiperIntegration() {
         <span style={{ fontSize: '22px' }}>🛵</span>
         <div>
           <div style={{ fontSize: '14px', fontWeight: 600, color: textColor }}>{label}</div>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>
+          <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
             Enables order ingestion from Zomato, Swiggy, DoorDash via UrbanPiper.
           </div>
         </div>

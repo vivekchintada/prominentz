@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getThemeColors } from './UniversalMenuClient'
 import ProminentzLogo from '@/components/brand/ProminentzLogo'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -111,6 +112,7 @@ function HeroItemCard({
 }: {
   item: MenuItem; idx: number; isPopular: boolean; onAdd: (item: MenuItem) => void; accentColor: string; accentTextColor: string; colors: ReturnType<typeof getThemeColors>
 }) {
+  const { money } = useMoney()
   const [imgError, setImgError] = useState(false)
   const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
@@ -167,7 +169,7 @@ function HeroItemCard({
 
         {/* Price on image */}
         <div style={{ position: 'absolute', bottom: '10px', left: '12px', fontSize: '16px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace', textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>
-          ${Number(item.price).toFixed(2)}
+          {money(Number(item.price))}
         </div>
       </div>
 
@@ -201,6 +203,7 @@ function MenuItemCard({
 }: {
   item: MenuItem; idx: number; isPopular: boolean; cartEntry?: CartItem; onOpen: (item: MenuItem) => void; accentColor: string; accentBtnTextColor: string; colors: ReturnType<typeof getThemeColors>
 }) {
+  const { money } = useMoney()
   const [imgError, setImgError] = useState(false)
   const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
@@ -253,7 +256,7 @@ function MenuItemCard({
 
         {/* Floating Price */}
         <div style={{ position: 'absolute', bottom: '12px', right: '14px', fontSize: '18px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace', textShadow: '0 2px 8px rgba(0,0,0,0.9)', backgroundColor: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)' }}>
-          ${Number(item.price).toFixed(2)}
+          {money(Number(item.price))}
         </div>
       </div>
 
@@ -328,6 +331,7 @@ function MenuItemCard({
 // ── Combo Deal Card ───────────────────────────────────────────────────────────
 
 function ComboDealCard({ combo, onAddCombo, accentColor, colors }: { combo: ComboItem; onAddCombo: (combo: ComboItem) => void; accentColor: string; colors: ReturnType<typeof getThemeColors> }) {
+  const { money } = useMoney()
   const savings = (combo.originalPrice - combo.comboPrice).toFixed(2)
   const pctOff = Math.round(((combo.originalPrice - combo.comboPrice) / combo.originalPrice) * 100)
 
@@ -360,8 +364,8 @@ function ComboDealCard({ combo, onAddCombo, accentColor, colors }: { combo: Comb
           {combo.itemNames.join(' + ')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '15px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>${combo.comboPrice.toFixed(2)}</span>
-          <span style={{ fontSize: '12px', color: colors.textTertiary, textDecoration: 'line-through', fontFamily: 'monospace' }}>${combo.originalPrice.toFixed(2)}</span>
+          <span style={{ fontSize: '15px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>{money(combo.comboPrice)}</span>
+          <span style={{ fontSize: '12px', color: colors.textTertiary, textDecoration: 'line-through', fontFamily: 'monospace' }}>{money(combo.originalPrice)}</span>
           <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Save ${savings}</span>
         </div>
       </div>
@@ -376,6 +380,7 @@ function ItemDetailSheet({
 }: {
   item: MenuItem; idx: number; isPopular: boolean; onClose: () => void; onAdd: (item: MenuItem, mods: ModifierOption[], note: string) => void; accentColor: string; accentBtnTextColor: string; colors: ReturnType<typeof getThemeColors>
 }) {
+  const { money } = useMoney()
   const [selectedMods, setSelectedMods] = useState<ModifierOption[]>([])
   const [note, setNote] = useState('')
   const [quantity, setQuantity] = useState(1)
@@ -435,7 +440,7 @@ function ItemDetailSheet({
             {/* Name + price */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
               <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: colors.textPrimary, lineHeight: 1.2, flex: 1, paddingRight: '12px' }}>{item.name}</h2>
-              <span style={{ fontSize: '22px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', flexShrink: 0 }}>${Number(item.price).toFixed(2)}</span>
+              <span style={{ fontSize: '22px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace', flexShrink: 0 }}>{money(Number(item.price))}</span>
             </div>
 
             {/* Dietary badges */}
@@ -482,7 +487,7 @@ function ItemDetailSheet({
                         </div>
                         {Number(opt.priceAdjustment) !== 0 && (
                           <span style={{ fontSize: '13px', fontWeight: 700, color: '#10b981', fontFamily: 'monospace' }}>
-                            +${Number(opt.priceAdjustment).toFixed(2)}
+                            +{money(Number(opt.priceAdjustment))}
                           </span>
                         )}
                       </button>
@@ -522,7 +527,7 @@ function ItemDetailSheet({
             style={{ flex: 1, padding: '14px', backgroundColor: accentColor, border: 'none', borderRadius: '14px', color: accentBtnTextColor, fontSize: '16px', fontWeight: 900, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: `0 6px 20px ${accentColor}55` }}
           >
             <span>Add to Order</span>
-            <span style={{ fontFamily: 'monospace' }}>${lineTotal.toFixed(2)}</span>
+            <span style={{ fontFamily: 'monospace' }}>{money(lineTotal)}</span>
           </button>
         </div>
       </div>
@@ -533,6 +538,7 @@ function ItemDetailSheet({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function TableOrderClient({ locationId, tableId }: TableOrderClientProps) {
+  const { money } = useMoney()
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [activeCategoryId, setActiveCategoryId] = useState<string>('ALL')
   const [cart, setCart] = useState<CartItem[]>([])
@@ -846,7 +852,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: `1px dashed ${colors.borderSubtle}`, paddingTop: '10px', marginTop: '4px' }}>
               <span style={{ fontSize: '15px', fontWeight: 700, color: colors.textPrimary }}>Total</span>
-              <span style={{ fontSize: '17px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>${Number(orderSuccess.total || 0).toFixed(2)}</span>
+              <span style={{ fontSize: '17px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>{money(Number(orderSuccess.total || 0))}</span>
             </div>
           </div>
           <button onClick={() => setOrderSuccess(null)} style={{ width: '100%', padding: '14px', backgroundColor: accentColor, color: accentBtnTextColor, border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: 800, cursor: 'pointer' }}>
@@ -1216,7 +1222,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 <div style={{ fontSize: '15px', fontWeight: 800, color: accentBtnTextColor }}>View Order</div>
               </div>
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 900, color: accentBtnTextColor, fontFamily: 'monospace' }}>${total.toFixed(2)} →</div>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: accentBtnTextColor, fontFamily: 'monospace' }}>{money(total)} →</div>
           </div>
         </div>
       )}
@@ -1250,7 +1256,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                         <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '2px' }}>{item.selectedModifiers.map((m) => m.name).join(', ')}</div>
                       )}
                       <div style={{ fontSize: '13px', color: '#10b981', fontWeight: 700, fontFamily: 'monospace', marginTop: '4px' }}>
-                        ${(Number(item.menuItem.price) * item.quantity).toFixed(2)}
+                        {money((Number(item.menuItem.price) * item.quantity))}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1271,14 +1277,14 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
 
               {/* Totals */}
               <div style={{ backgroundColor: colors.bgElevated, padding: '14px', borderRadius: '12px', fontSize: '13px', border: `1px solid ${colors.borderSubtle}` }}>
-                {[['Subtotal', `$${subtotal.toFixed(2)}`], ['Tax (8%)', `$${tax.toFixed(2)}`]].map(([l, v]) => (
+                {[['Subtotal', `${money(subtotal)}`], ['Tax (8%)', `${money(tax)}`]].map(([l, v]) => (
                   <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: colors.textSecondary }}>
                     <span>{l}</span><span>{v}</span>
                   </div>
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '17px', borderTop: `1px dashed ${colors.border}`, paddingTop: '8px', marginTop: '4px' }}>
                   <span style={{ color: colors.textPrimary }}>Total</span>
-                  <span style={{ color: '#10b981', fontFamily: 'monospace' }}>${total.toFixed(2)}</span>
+                  <span style={{ color: '#10b981', fontFamily: 'monospace' }}>{money(total)}</span>
                 </div>
               </div>
             </div>
@@ -1289,7 +1295,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                 disabled={submittingOrder || cart.length === 0}
                 style={{ width: '100%', padding: '15px', backgroundColor: cart.length === 0 ? colors.bgElevated : accentColor, border: 'none', borderRadius: '14px', color: cart.length === 0 ? colors.textTertiary : accentBtnTextColor, fontSize: '16px', fontWeight: 900, cursor: cart.length === 0 ? 'not-allowed' : 'pointer', opacity: submittingOrder ? 0.7 : 1, boxShadow: cart.length > 0 ? `0 6px 24px ${accentColor}44` : 'none' }}
               >
-                {submittingOrder ? '⏳ Sending to Kitchen...' : `🚀 Fire Order — $${total.toFixed(2)}`}
+                {submittingOrder ? '⏳ Sending to Kitchen...' : `🚀 Fire Order — ${money(total)}`}
               </button>
             </div>
           </div>
@@ -1339,7 +1345,7 @@ export function TableOrderClient({ locationId, tableId }: TableOrderClientProps)
                           <div key={dish.id} style={{ padding: '8px 10px', borderRadius: '10px', backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div>
                               <div style={{ fontSize: '12px', fontWeight: 700, color: colors.textPrimary }}>{dish.name}</div>
-                              <div style={{ fontSize: '11px', color: '#10b981' }}>${dish.price.toFixed(2)}</div>
+                              <div style={{ fontSize: '11px', color: '#10b981' }}>{money(dish.price)}</div>
                             </div>
                             <button onClick={() => handleAddDishFromAi(dish.id)} style={{ padding: '4px 10px', borderRadius: '8px', backgroundColor: accentColor, color: accentBtnTextColor, border: 'none', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
                               + Add

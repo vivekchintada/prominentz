@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 export interface ModifierOptionInput {
   id?: string
@@ -52,6 +53,7 @@ export default function ItemFormModal({
   currentCategoryId,
   showToast,
 }: ItemFormModalProps) {
+  const { money } = useMoney()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState<number | string>('')
@@ -697,7 +699,7 @@ export default function ItemFormModal({
                               />
                               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>{addon.name}</span>
                             </div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)' }}>+${Number(addon.price).toFixed(2)}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)' }}>+{money(Number(addon.price))}</span>
                           </label>
                         )
                       })}

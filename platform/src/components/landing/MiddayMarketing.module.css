@@ -7,21 +7,21 @@
 /* ── Container & Global Tokens (Scoped to .page) ─────────────────────────── */
 .page {
   --bg-page: #FFFFFF;
-  --text-primary: #171717;
-  --text-secondary: #595959;
-  --text-tertiary: #8C8C8C;
-  --border-subtle: #E5E5E5;
-  --border-light: #F0F0EE;
-  --surface-muted: #F7F7F5;
+  --text-primary: #0B0B0C;
+  --text-secondary: rgba(11, 11, 12, 0.68);
+  --text-tertiary: rgba(11, 11, 12, 0.46);
+  --border-subtle: rgba(11, 11, 12, 0.14);
+  --border-light: rgba(11, 11, 12, 0.08);
+  --surface-muted: #F7F8FA;
   --surface-card: #FFFFFF;
-  
-  --btn-charcoal: #171717;
-  --btn-charcoal-hover: #262626;
+
+  --btn-charcoal: #6835F9;
+  --btn-charcoal-hover: #7a4dfa;
   --btn-charcoal-text: #FFFFFF;
-  
-  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  --font-serif: 'Space Grotesk', Georgia, 'Times New Roman', serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   background-color: var(--bg-page);
   color: var(--text-primary);
@@ -1048,6 +1048,15 @@
   border-top: 1px solid var(--border-subtle);
 }
 
+/* Mock app buttons: split the row evenly and keep labels on one line */
+.previewFooter > button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 12px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
 /* Server Role Preview: Handheld POS */
 .serverDevice {
   background-color: #FFFFFF;
@@ -1288,7 +1297,8 @@
 }
 
 @media (max-width: 860px) {
-  .roleGrid {
+  .roleGrid,
+  .rolePanelGrid {
     grid-template-columns: 1fr;
     gap: 32px;
   }
@@ -1605,6 +1615,24 @@
   justify-content: center;
   gap: 16px;
   flex-wrap: wrap;
+}
+
+/* Stacked CTAs on phones: same width as each other, like the hero buttons */
+@media (max-width: 768px) {
+  .finalCtaActions,
+  .ctaActions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .finalCtaActions a,
+  .ctaActions a {
+    width: 100%;
+    padding-inline: 16px;
+  }
+  .ctaBox {
+    padding: 48px 20px;
+  }
 }
 
 .footer {
@@ -2058,7 +2086,7 @@
   font-family: var(--font-mono);
   font-size: 18px;
   font-weight: 700;
-  color: var(--btn-charcoal);
+  color: var(--text-primary);
   background-color: var(--surface-muted);
   padding: 4px 12px;
   border-radius: 4px;
@@ -2361,5 +2389,281 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DIRECTION C · ACROSS THE ROOM — landing page
+   Dark-first graphite, condensed uppercase headlines, violet (#6835F9) as the
+   only action color (replacing the board's cyan), white outline secondary.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.page {
+  --bg-page: #0E1014;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9BA3AF;
+  --text-tertiary: #7D8592;
+  --border-subtle: #262A33;
+  --border-light: #1F232B;
+  --surface-muted: #171A20;
+  --surface-card: #171A20;
+  --font-serif: 'Barlow Condensed', 'Barlow', 'Inter', sans-serif;
+  --font-sans: 'Barlow', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #0E1014;
+  color: #F3F4F6;
+}
+
+/* Header */
+.header {
+  background-color: rgba(19, 22, 27, 0.95);
+  border-bottom: 1px solid #262A33;
+}
+
+.header .brandName {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #F3F4F6;
+}
+
+.header .navLink,
+.header .signInLink {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F3F4F6;
+}
+
+.header .navLink:hover,
+.header .signInLink:hover {
+  color: #A98BFF;
+}
+
+/* Section grounds: graphite, alternating with a slightly lifted panel */
+.showcaseSection,
+.sectionRoles,
+.comparisonSection,
+.footer {
+  background-color: #0E1014;
+}
+
+.pricingSection,
+.sectionCta {
+  background-color: #13161B;
+}
+
+.sectionCta {
+  border-top: 1px solid #262A33;
+}
+
+/* Cards and product previews: panel graphite */
+.mobileMenu,
+.previewBox,
+.serverDevice,
+.seatItem,
+.kdsTicket,
+.managerHud,
+.featureCell,
+.workflowCard,
+.guaranteeCard,
+.calculatorCard,
+.hardwareCard,
+.painCard,
+.ctaBox,
+.finalCtaBox {
+  background-color: #171A20;
+  border-color: #262A33;
+}
+
+/* Headlines read like signage */
+.heroTitle,
+.sectionTitle,
+.ctaTitle,
+.finalCtaTitle {
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+}
+
+.eyebrow {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #9BA3AF;
+}
+
+.kpiValue {
+  font-family: var(--font-serif);
+  font-weight: 800;
+}
+
+/* Buttons: violet to act, white outline for the second choice */
+.btnPrimary,
+.btnSecondary {
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 15px 26px;
+}
+
+.btnPrimary {
+  background-color: #6835F9;
+  border: 2px solid #6835F9;
+  color: #FFFFFF !important;
+}
+
+.btnPrimary:hover {
+  background-color: #7a4dfa;
+  border-color: #7a4dfa;
+}
+
+.btnPrimary:active {
+  background-color: #5b28ee;
+  border-color: #5b28ee;
+}
+
+.btnSecondary {
+  background-color: transparent;
+  border: 2px solid #F3F4F6;
+  color: #F3F4F6 !important;
+}
+
+.btnSecondary:hover,
+.btnSecondary:active {
+  background-color: rgba(243, 244, 246, 0.10);
+  border-color: #F3F4F6;
+  color: #F3F4F6 !important;
+}
+
+.btnPrimary:focus-visible,
+.btnSecondary:focus-visible {
+  outline: 2px solid #A98BFF;
+  outline-offset: 3px;
+}
+
+.header .btnPrimary,
+.header .btnSecondary {
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+/* Tabs, pills and FAQ that hardcoded dark ink */
+.tabBtnActive,
+.roleTabActive {
+  color: #F3F4F6;
+  border-bottom-color: #6835F9;
+}
+
+.tabBtn:hover,
+.roleTab:hover {
+  background: rgba(243, 244, 246, 0.04);
+}
+
+.calcPillBtn {
+  background: #262A33;
+  border-color: #343945;
+  color: #F3F4F6;
+}
+
+.calcPillBtn:hover {
+  background-color: #343945;
+  border-color: #9BA3AF;
+  color: #F3F4F6;
+}
+
+.faqQuestion:hover {
+  color: #A98BFF;
+}
+
+/* Comparison table: graphite header, violet column for Prominentz */
+.comparisonTable th {
+  background-color: #13161B;
+}
+
+.comparisonTable th:nth-child(2) {
+  background-color: #6835F9;
+  color: #FFFFFF;
+}
+
+.comparisonTable td:nth-child(2) {
+  background-color: rgba(104, 53, 249, 0.08);
+}
+
+.tableCheck {
+  color: #34D27B;
+}
+
+.tableCross {
+  color: #F05252;
+}
+
+/* ── Direction C motion: the hero numbers arrive like a departures board ──
+   Each value rises out of its slot (clip + lift), one board cell after the
+   next. Plays once on load; the page's reduced-motion rule makes it instant. */
+@keyframes dcBoardRoll {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(0.38em);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes dcBoardLabel {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hero .kpiValue {
+  font-variant-numeric: tabular-nums;
+  animation: dcBoardRoll 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero .kpiLabel,
+.hero .kpiSub {
+  animation: dcBoardLabel 360ms ease-out both;
+}
+
+.hero .kpiCell:nth-child(1) .kpiValue { animation-delay: 180ms; }
+.hero .kpiCell:nth-child(2) .kpiValue { animation-delay: 260ms; }
+.hero .kpiCell:nth-child(3) .kpiValue { animation-delay: 340ms; }
+.hero .kpiCell:nth-child(4) .kpiValue { animation-delay: 420ms; }
+
+.hero .kpiCell:nth-child(1) :is(.kpiLabel, .kpiSub) { animation-delay: 420ms; }
+.hero .kpiCell:nth-child(2) :is(.kpiLabel, .kpiSub) { animation-delay: 500ms; }
+.hero .kpiCell:nth-child(3) :is(.kpiLabel, .kpiSub) { animation-delay: 580ms; }
+.hero .kpiCell:nth-child(4) :is(.kpiLabel, .kpiSub) { animation-delay: 660ms; }
+
+/* Violet is the action colour: the primary button answers the press */
+.btnPrimary:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero .kpiValue,
+  .hero .kpiLabel,
+  .hero .kpiSub {
+    animation: none;
+  }
+
+  .btnPrimary:active {
+    transform: none;
+  }
+}
+
+/* Footer: four columns can't fit a phone. Brand on top, links two-up. */
+@media (max-width: 860px) {
+  .footerGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+
+  .footerBrandCol {
+    grid-column: 1 / -1;
   }
 }

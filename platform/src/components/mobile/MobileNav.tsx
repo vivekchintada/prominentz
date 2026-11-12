@@ -25,7 +25,7 @@ export function MobileNav() {
       background: 'rgba(18,18,20,0.95)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
+      borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
       display: 'flex',
       zIndex: 1000,
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',

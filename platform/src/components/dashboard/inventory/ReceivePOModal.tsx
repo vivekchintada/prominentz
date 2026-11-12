@@ -171,15 +171,15 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                   borderRadius: 6,
                   fontSize: 12,
                   fontWeight: 700,
-                  background: '#eff6ff',
-                  color: 'var(--brand)',
-                  border: '1px solid #bfdbfe',
+                  background: 'var(--brand-tint)',
+                  color: 'var(--brand-text)',
+                  border: '1px solid color-mix(in srgb, var(--brand) 35%, transparent)',
                 }}
               >
                 {po.poNumber}
               </span>
             </div>
-            <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 4 }}>
               Supplier: <strong style={{ color: 'var(--color-text-secondary)' }}>{po.supplier?.name}</strong> • Ordered on{' '}
               {new Date(po.createdAt).toLocaleDateString()}
             </div>
@@ -190,7 +190,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
               background: 'none',
               border: 'none',
               fontSize: 22,
-              color: '#94a3b8',
+              color: 'var(--color-text-tertiary)',
               cursor: 'pointer',
               padding: 4,
             }}
@@ -204,12 +204,12 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
           <div style={{ padding: 24, overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div
               style={{
-                background: '#f0fdf4',
-                border: '1px solid #bbf7d0',
+                background: 'color-mix(in srgb, var(--color-success) 14%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--color-success) 35%, transparent)',
                 borderRadius: 10,
                 padding: '12px 16px',
                 fontSize: 13,
-                color: '#15803d',
+                color: 'var(--color-success)',
                 lineHeight: 1.5,
               }}
             >
@@ -220,7 +220,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
             <div style={{ border: '1px solid var(--color-border)', borderRadius: 10, overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
+                  <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
                     <th style={{ padding: '10px 14px', fontWeight: 700 }}>Ingredient</th>
                     <th style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>Ordered</th>
                     <th style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>Prior Received</th>
@@ -230,15 +230,15 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                 </thead>
                 <tbody>
                   {lineItems.map((item) => (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                       <td style={{ padding: '12px 14px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                         {item.name}
-                        <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>Unit: {item.unit}</div>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500 }}>Unit: {item.unit}</div>
                       </td>
                       <td style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                         {item.orderedQty}
                       </td>
-                      <td style={{ padding: '12px 14px', textAlign: 'center', color: item.alreadyReceived > 0 ? '#16a34a' : '#64748b', fontWeight: 600 }}>
+                      <td style={{ padding: '12px 14px', textAlign: 'center', color: item.alreadyReceived > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)', fontWeight: 600 }}>
                         {item.alreadyReceived}
                       </td>
                       <td style={{ padding: '10px 14px' }}>
@@ -253,7 +253,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                               width: '100%',
                               padding: '7px 10px',
                               borderRadius: 6,
-                              border: '1px solid #cbd5e1',
+                              border: '1px solid var(--color-border)',
                               fontSize: 13,
                               fontWeight: 700,
                               color: 'var(--color-text-primary)',
@@ -272,7 +272,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                             width: '100%',
                             padding: '7px 10px',
                             borderRadius: 6,
-                            border: '1px solid #cbd5e1',
+                            border: '1px solid var(--color-border)',
                             fontSize: 13,
                             fontWeight: 700,
                             color: 'var(--color-text-primary)',
@@ -304,9 +304,9 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
               style={{
                 padding: '9px 16px',
                 borderRadius: 8,
-                border: '1px solid #bbf7d0',
-                background: '#f0fdf4',
-                color: '#15803d',
+                border: '1px solid color-mix(in srgb, var(--color-success) 35%, transparent)',
+                background: 'color-mix(in srgb, var(--color-success) 14%, transparent)',
+                color: 'var(--color-success)',
                 fontSize: 13,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -323,7 +323,7 @@ export default function ReceivePOModal({ po, onClose, onSuccess, showToast }: Re
                 style={{
                   padding: '9px 18px',
                   borderRadius: 8,
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-card)',
                   fontSize: 13,
                   fontWeight: 600,

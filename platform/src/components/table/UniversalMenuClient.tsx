@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import ProminentzLogo from '@/components/brand/ProminentzLogo'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -140,6 +141,7 @@ function HeroDishCard({
   accentTextColor: string
   colors: ReturnType<typeof getThemeColors>
 }) {
+  const { money } = useMoney()
   const [imgError, setImgError] = useState(false)
   const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
@@ -188,7 +190,7 @@ function HeroDishCard({
 
         {/* Price on image */}
         <div style={{ position: 'absolute', bottom: '10px', left: '12px', fontSize: '16px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace', textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>
-          ${Number(item.price).toFixed(2)}
+          {money(Number(item.price))}
         </div>
       </div>
 
@@ -233,6 +235,7 @@ function LuxuryMenuItemCard({
   accentTextColor: string
   colors: ReturnType<typeof getThemeColors>
 }) {
+  const { money } = useMoney()
   const [imgError, setImgError] = useState(false)
   const imageUrl = resolveDishImage(item)
   const badges = getDietaryBadges(item)
@@ -280,7 +283,7 @@ function LuxuryMenuItemCard({
 
         {/* Floating Price */}
         <div style={{ position: 'absolute', bottom: '12px', right: '14px', fontSize: '18px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace', textShadow: '0 2px 8px rgba(0,0,0,0.9)', backgroundColor: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)' }}>
-          ${Number(item.price).toFixed(2)}
+          {money(Number(item.price))}
         </div>
       </div>
 
@@ -382,6 +385,7 @@ function LuxuryMenuItemCard({
 // ── Main Universal Menu Client ────────────────────────────────────────────────
 
 export function UniversalMenuClient({ locationId }: { locationId: string }) {
+  const { money } = useMoney()
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [tables, setTables] = useState<TableOption[]>([])
   const [qrConfig, setQrConfig] = useState<QrMenuConfig>({})
@@ -586,7 +590,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: `1px dashed ${colors.borderSubtle}`, paddingTop: '8px', marginTop: '8px' }}>
               <span style={{ fontSize: '14px', fontWeight: 700, color: colors.textPrimary }}>Total Check:</span>
               <span style={{ fontSize: '17px', fontWeight: 900, color: '#10b981', fontFamily: 'monospace' }}>
-                ${Number(orderSuccess.total || 0).toFixed(2)}
+                {money(Number(orderSuccess.total || 0))}
               </span>
             </div>
           </div>
@@ -874,7 +878,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
               </div>
             </div>
             <div style={{ fontSize: '17px', fontWeight: 900, color: accentTextColor, fontFamily: 'monospace' }}>
-              ${total.toFixed(2)} →
+              {money(total)} →
             </div>
           </div>
         </div>
@@ -900,7 +904,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: colors.textPrimary }}>{item.menuItem.name}</div>
                     <div style={{ fontSize: '13px', color: '#10b981', fontWeight: 800, fontFamily: 'monospace', marginTop: '2px' }}>
-                      ${(Number(item.menuItem.price) * item.quantity).toFixed(2)}
+                      {money((Number(item.menuItem.price) * item.quantity))}
                     </div>
                   </div>
 
@@ -967,15 +971,15 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
               <div style={{ marginTop: '8px', backgroundColor: colors.bgElevated, padding: '14px', borderRadius: '12px', fontSize: '13px', border: `1px solid ${colors.borderSubtle}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: colors.textSecondary }}>
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{money(subtotal)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: colors.textSecondary }}>
                   <span>State &amp; City Tax (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>{money(tax)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '17px', borderTop: `1px dashed ${colors.border}`, paddingTop: '8px' }}>
                   <span style={{ color: colors.textPrimary }}>Total Check</span>
-                  <span style={{ color: '#10b981', fontFamily: 'monospace' }}>${total.toFixed(2)}</span>
+                  <span style={{ color: '#10b981', fontFamily: 'monospace' }}>{money(total)}</span>
                 </div>
               </div>
             </div>
@@ -1003,7 +1007,7 @@ export function UniversalMenuClient({ locationId }: { locationId: string }) {
                   boxShadow: `0 8px 24px ${accentColor}44`,
                 }}
               >
-                {submittingOrder ? 'Firing Order to Kitchen KDS...' : `🚀 Fire Order to Kitchen ($${total.toFixed(2)})`}
+                {submittingOrder ? 'Firing Order to Kitchen KDS...' : `🚀 Fire Order to Kitchen (${money(total)})`}
               </button>
             </div>
           </div>

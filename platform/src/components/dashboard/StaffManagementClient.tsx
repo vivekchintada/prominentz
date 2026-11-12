@@ -103,10 +103,7 @@ export function StaffManagementClient() {
       setLoading(true)
       setError(null)
 
-      const [staffRes, invRes] = await Promise.all([
-        fetch('/api/staff'),
-        fetch('/api/staff/invitations'),
-      ])
+      const [staffRes, invRes] = await Promise.all([fetch('/api/staff'), fetch('/api/staff/invitations')])
 
       if (!staffRes.ok) {
         const err = await staffRes.json().catch(() => ({}))
@@ -353,8 +350,9 @@ export function StaffManagementClient() {
                     letterSpacing: '0.05em',
                     padding: '2px 8px',
                     borderRadius: '4px',
-                    background: ROLE_COLORS[actor.role]?.bg || 'rgba(255,255,255,0.1)',
-                    color: ROLE_COLORS[actor.role]?.text || '#fff',
+                    background:
+                      ROLE_COLORS[actor.role]?.bg || 'color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
+                    color: ROLE_COLORS[actor.role]?.text || 'var(--color-text-primary)',
                     border: `1px solid ${ROLE_COLORS[actor.role]?.border || 'transparent'}`,
                   }}
                 >
@@ -447,7 +445,7 @@ export function StaffManagementClient() {
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', fontWeight: 500 }}>
             ACTIVE EMPLOYEES
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#34d399', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--color-success)', marginTop: '4px' }}>
             {totalActive}
           </div>
         </div>
@@ -463,7 +461,7 @@ export function StaffManagementClient() {
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', fontWeight: 500 }}>
             PENDING INVITATIONS
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#fbbf24', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--color-warning)', marginTop: '4px' }}>
             {totalInvited}
           </div>
         </div>
@@ -479,7 +477,7 @@ export function StaffManagementClient() {
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', fontWeight: 500 }}>
             SUSPENDED USERS
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#f87171', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--color-error)', marginTop: '4px' }}>
             {totalSuspended}
           </div>
         </div>
@@ -643,7 +641,7 @@ export function StaffManagementClient() {
             border: '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '10px',
             padding: '1rem',
-            color: '#f87171',
+            color: 'var(--color-error)',
             marginBottom: '1rem',
             fontSize: '0.875rem',
           }}
@@ -681,7 +679,7 @@ export function StaffManagementClient() {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fbbf24' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-warning)' }}>
                     ✉️ PENDING INVITATIONS ({filteredInvitations.length})
                   </span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
@@ -692,7 +690,9 @@ export function StaffManagementClient() {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-tertiary)' }}>
+                      <tr
+                        style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-tertiary)' }}
+                      >
                         <th style={{ padding: '10px 16px', fontWeight: 600 }}>Recipient</th>
                         <th style={{ padding: '10px 16px', fontWeight: 600 }}>Invited Role</th>
                         <th style={{ padding: '10px 16px', fontWeight: 600 }}>Assigned Location</th>
@@ -706,7 +706,7 @@ export function StaffManagementClient() {
                           key={inv.id}
                           style={{
                             borderBottom: '1px solid var(--color-separator)',
-                            background: 'rgba(255,255,255,0.01)',
+                            background: 'color-mix(in srgb, var(--color-text-primary) 1%, transparent)',
                           }}
                         >
                           <td style={{ padding: '12px 16px' }}>
@@ -743,7 +743,7 @@ export function StaffManagementClient() {
                               style={{
                                 background: 'transparent',
                                 border: '1px solid rgba(239, 68, 68, 0.4)',
-                                color: '#f87171',
+                                color: 'var(--color-error)',
                                 padding: '4px 10px',
                                 borderRadius: '6px',
                                 fontSize: '0.75rem',
@@ -768,7 +768,7 @@ export function StaffManagementClient() {
                   <thead>
                     <tr
                       style={{
-                        background: 'rgba(255,255,255,0.02)',
+                        background: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
                         borderBottom: '1px solid var(--color-border)',
                         color: 'var(--color-text-tertiary)',
                       }}
@@ -778,7 +778,9 @@ export function StaffManagementClient() {
                       <th style={{ padding: '12px 16px', fontWeight: 600 }}>Status</th>
                       <th style={{ padding: '12px 16px', fontWeight: 600 }}>Location Assignments</th>
                       <th style={{ padding: '12px 16px', fontWeight: 600 }}>Joined</th>
-                      <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Authorization Controls</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>
+                        Authorization Controls
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -901,9 +903,10 @@ export function StaffManagementClient() {
                                         fontSize: '0.7rem',
                                         padding: '2px 6px',
                                         borderRadius: '4px',
-                                        background: 'rgba(255, 255, 255, 0.06)',
+                                        background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
                                         color: 'var(--color-text-secondary)',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                                        border:
+                                          '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                                       }}
                                     >
                                       📍 {loc.name}
@@ -914,7 +917,9 @@ export function StaffManagementClient() {
                             </td>
 
                             {/* Created Date */}
-                            <td style={{ padding: '12px 16px', color: 'var(--color-text-tertiary)', fontSize: '0.8rem' }}>
+                            <td
+                              style={{ padding: '12px 16px', color: 'var(--color-text-tertiary)', fontSize: '0.8rem' }}
+                            >
                               {new Date(member.createdAt).toLocaleDateString()}
                             </td>
 
@@ -926,7 +931,7 @@ export function StaffManagementClient() {
                                   <button
                                     onClick={() => handleOpenEdit(member)}
                                     style={{
-                                      background: 'rgba(255,255,255,0.06)',
+                                      background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
                                       border: '1px solid var(--color-border)',
                                       color: 'var(--color-text-secondary)',
                                       padding: '4px 10px',
@@ -945,7 +950,7 @@ export function StaffManagementClient() {
                                       style={{
                                         background: 'rgba(239, 68, 68, 0.1)',
                                         border: '1px solid rgba(239, 68, 68, 0.3)',
-                                        color: '#f87171',
+                                        color: 'var(--color-error)',
                                         padding: '4px 10px',
                                         borderRadius: '6px',
                                         fontSize: '0.75rem',
@@ -960,7 +965,7 @@ export function StaffManagementClient() {
                                       style={{
                                         background: 'rgba(16, 185, 129, 0.1)',
                                         border: '1px solid rgba(16, 185, 129, 0.3)',
-                                        color: '#34d399',
+                                        color: 'var(--color-success)',
                                         padding: '4px 10px',
                                         borderRadius: '6px',
                                         fontSize: '0.75rem',
@@ -982,10 +987,10 @@ export function StaffManagementClient() {
                                   {isSelf
                                     ? 'Current session'
                                     : isManager
-                                    ? member.role === 'OWNER' || member.role === 'MANAGER'
-                                      ? 'Owner authority required'
-                                      : 'Outside managed location'
-                                    : 'Read-only'}
+                                      ? member.role === 'OWNER' || member.role === 'MANAGER'
+                                        ? 'Owner authority required'
+                                        : 'Outside managed location'
+                                      : 'Read-only'}
                                 </span>
                               )}
                             </td>
@@ -1034,7 +1039,9 @@ export function StaffManagementClient() {
               boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}
+            >
               <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-text-primary)' }}>
                 Invite Staff Member
               </h3>
@@ -1065,7 +1072,7 @@ export function StaffManagementClient() {
                   }}
                 >
                   <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>🎉</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#34d399' }}>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-success)' }}>
                     Invitation Created Successfully!
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
@@ -1074,7 +1081,14 @@ export function StaffManagementClient() {
                 </div>
 
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-text-tertiary)', marginBottom: '4px' }}>
+                  <label
+                    style={{
+                      display: 'block',
+                      fontSize: '0.75rem',
+                      color: 'var(--color-text-tertiary)',
+                      marginBottom: '4px',
+                    }}
+                  >
                     INVITATION ONBOARDING URL
                   </label>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -1127,7 +1141,7 @@ export function StaffManagementClient() {
                       border: '1px solid rgba(239, 68, 68, 0.3)',
                       borderRadius: '8px',
                       padding: '0.75rem',
-                      color: '#f87171',
+                      color: 'var(--color-error)',
                       fontSize: '0.825rem',
                       marginBottom: '1rem',
                     }}
@@ -1137,8 +1151,16 @@ export function StaffManagementClient() {
                 )}
 
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
-                    Employee Email Address <span style={{ color: '#f87171' }}>*</span>
+                  <label
+                    style={{
+                      display: 'block',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: 'var(--color-text-secondary)',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Employee Email Address <span style={{ color: 'var(--color-error)' }}>*</span>
                   </label>
                   <input
                     type="email"
@@ -1159,8 +1181,16 @@ export function StaffManagementClient() {
                 </div>
 
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
-                    Role Assignment <span style={{ color: '#f87171' }}>*</span>
+                  <label
+                    style={{
+                      display: 'block',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: 'var(--color-text-secondary)',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Role Assignment <span style={{ color: 'var(--color-error)' }}>*</span>
                   </label>
                   <select
                     value={inviteRole}
@@ -1188,8 +1218,16 @@ export function StaffManagementClient() {
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
-                    Location Scope {isManager && <span style={{ color: '#f87171' }}>*</span>}
+                  <label
+                    style={{
+                      display: 'block',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: 'var(--color-text-secondary)',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Location Scope {isManager && <span style={{ color: 'var(--color-error)' }}>*</span>}
                   </label>
                   <select
                     value={inviteLocationId}
@@ -1277,7 +1315,9 @@ export function StaffManagementClient() {
               boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}
+            >
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-text-primary)' }}>
                   Edit Staff Role & Access
@@ -1308,7 +1348,7 @@ export function StaffManagementClient() {
                     border: '1px solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '8px',
                     padding: '0.75rem',
-                    color: '#f87171',
+                    color: 'var(--color-error)',
                     fontSize: '0.825rem',
                     marginBottom: '1rem',
                   }}
@@ -1319,7 +1359,15 @@ export function StaffManagementClient() {
 
               {/* Role Selector */}
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: '6px',
+                  }}
+                >
                   Assigned Role
                 </label>
                 <select
@@ -1350,7 +1398,15 @@ export function StaffManagementClient() {
 
               {/* Location Checkboxes */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: '8px',
+                  }}
+                >
                   Assigned Restaurant Locations
                 </label>
                 <div
@@ -1474,7 +1530,14 @@ export function StaffManagementClient() {
               {confirmAction.type === 'revoke' && 'Revoke Pending Invitation'}
             </h3>
 
-            <p style={{ margin: '0 0 1.25rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+            <p
+              style={{
+                margin: '0 0 1.25rem',
+                fontSize: '0.85rem',
+                color: 'var(--color-text-secondary)',
+                lineHeight: 1.5,
+              }}
+            >
               {confirmAction.type === 'suspend' && (
                 <>
                   Are you sure you want to suspend access for{' '}
@@ -1485,8 +1548,8 @@ export function StaffManagementClient() {
               {confirmAction.type === 'reactivate' && (
                 <>
                   Reactivate membership for{' '}
-                  <strong>{confirmAction.member?.user?.name || confirmAction.member?.user?.email}</strong>? They will regain
-                  system access with their current role and location assignments.
+                  <strong>{confirmAction.member?.user?.name || confirmAction.member?.user?.email}</strong>? They will
+                  regain system access with their current role and location assignments.
                 </>
               )}
               {confirmAction.type === 'revoke' && (
@@ -1504,7 +1567,7 @@ export function StaffManagementClient() {
                   border: '1px solid rgba(239, 68, 68, 0.3)',
                   borderRadius: '8px',
                   padding: '0.75rem',
-                  color: '#f87171',
+                  color: 'var(--color-error)',
                   fontSize: '0.825rem',
                   marginBottom: '1rem',
                   textAlign: 'left',
@@ -1533,10 +1596,10 @@ export function StaffManagementClient() {
                 {isActionProcessing
                   ? 'Processing...'
                   : confirmAction.type === 'suspend'
-                  ? 'Suspend User'
-                  : confirmAction.type === 'reactivate'
-                  ? 'Reactivate'
-                  : 'Revoke Invite'}
+                    ? 'Suspend User'
+                    : confirmAction.type === 'reactivate'
+                      ? 'Reactivate'
+                      : 'Revoke Invite'}
               </button>
             </div>
           </div>

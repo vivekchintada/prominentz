@@ -506,16 +506,16 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
                         <td>
                           <span style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{p.matchedCount}</span>
                           {p.unmatchedCount > 0 && (
-                            <span style={{ color: '#ef4444', marginLeft: 4, fontSize: 'var(--text-xs)' }}>
+                            <span style={{ color: 'var(--color-error)', marginLeft: 4, fontSize: 'var(--text-xs)' }}>
                               ({p.unmatchedCount} unmatched)
                             </span>
                           )}
                         </td>
                         <td>
                           {p.exceptionCount > 0 ? (
-                            <span style={{ color: '#f59e0b', fontWeight: 700 }}>⚠️ {p.exceptionCount}</span>
+                            <span style={{ color: 'var(--color-warning)', fontWeight: 700 }}>⚠️ {p.exceptionCount}</span>
                           ) : (
-                            <span style={{ color: '#30D158', fontWeight: 600 }}>✓ None</span>
+                            <span style={{ color: 'var(--color-success)', fontWeight: 600 }}>✓ None</span>
                           )}
                         </td>
                         <td>
@@ -717,19 +717,19 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
                               <div className={styles.barTrack}>
                                 <div className={`${styles.barFill} ${styles.barCommission}`} style={{ width: `${(prov.commission / maxGross) * 100}%` }} />
                               </div>
-                              <span className={styles.barValue} style={{ color: '#ef4444' }}>-{money(prov.commission)}</span>
+                              <span className={styles.barValue} style={{ color: 'var(--color-error)' }}>-{money(prov.commission)}</span>
                             </div>
                             <div className={styles.barRow}>
                               <span className={styles.barLabel}>Net Payout</span>
                               <div className={styles.barTrack}>
                                 <div className={`${styles.barFill} ${styles.barNet}`} style={{ width: `${(prov.net / maxGross) * 100}%` }} />
                               </div>
-                              <span className={styles.barValue} style={{ color: '#30D158' }}>{money(prov.net)}</span>
+                              <span className={styles.barValue} style={{ color: 'var(--color-success)' }}>{money(prov.net)}</span>
                             </div>
                           </div>
                           <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--color-separator)', display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
                             <span>Effective margin</span>
-                            <span style={{ fontWeight: 700, color: prov.gross > 0 && prov.net / prov.gross > 0.7 ? '#30D158' : '#f59e0b' }}>
+                            <span style={{ fontWeight: 700, color: prov.gross > 0 && prov.net / prov.gross > 0.7 ? 'var(--color-success)' : 'var(--color-warning)' }}>
                               {prov.gross > 0 ? `${((prov.net / prov.gross) * 100).toFixed(1)}%` : 'N/A'}
                             </span>
                           </div>
@@ -770,7 +770,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
                               <td className={styles.amountNegative}>-{money(p.totalRefunds)}</td>
                               <td className={styles.amountPositive}>{money(p.totalNet)}</td>
                               <td>
-                                <span style={{ fontWeight: 700, color: p.totalGross > 0 && p.totalNet / p.totalGross > 0.7 ? '#30D158' : '#f59e0b' }}>
+                                <span style={{ fontWeight: 700, color: p.totalGross > 0 && p.totalNet / p.totalGross > 0.7 ? 'var(--color-success)' : 'var(--color-warning)' }}>
                                   {p.totalGross > 0 ? `${((p.totalNet / p.totalGross) * 100).toFixed(1)}%` : '—'}
                                 </span>
                               </td>
@@ -924,7 +924,7 @@ export default function ReconciliationClient({ initialPeriods, providers: initia
                         <td className={styles.mono} style={{ whiteSpace: 'normal', lineHeight: 1.5 }}>{row.aliases}</td>
                         <td>
                           {row.required ? (
-                            <span style={{ color: '#ef4444', fontWeight: 700 }}>Required</span>
+                            <span style={{ color: 'var(--color-error)', fontWeight: 700 }}>Required</span>
                           ) : (
                             <span style={{ color: 'var(--color-text-tertiary)' }}>Optional</span>
                           )}

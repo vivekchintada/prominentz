@@ -1,5 +1,6 @@
 'use client'
 
+import PosIcon from './PosIcon'
 import React, { useState, useEffect } from 'react'
 
 interface QuickNoteModalProps {
@@ -119,7 +120,7 @@ export default function QuickNoteModal({
           style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 'var(--space-3)' }}
         >
           <div className="flex items-center gap-2">
-            <span style={{ fontSize: '1.25rem' }}>📝</span>
+            <span style={{ fontSize: '1.25rem' }}><PosIcon name="note" /></span>
             <h3 className="text-lg font-bold">Quick Table Note &mdash; {table.name}</h3>
           </div>
           <button

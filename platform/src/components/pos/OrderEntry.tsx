@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import ModifierSelector from './ModifierSelector'
 import CheckoutModal from '../payments/CheckoutModal'
 import SplitCheckModal from './SplitCheckModal'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface Modifier {
   modifierName: string
@@ -101,6 +103,9 @@ export default function OrderEntry({
   showToast,
   currentUser,
 }: OrderEntryProps) {
+  const { money } = useMoney()
+  // Restaurant tax rate for offline orders (same fallback the server charges).
+  const { taxRate: restaurantTaxRate } = useMoney()
   const [order, setOrder] = useState<OrderDetails | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
@@ -203,7 +208,7 @@ export default function OrderEntry({
         const offlineOrder = await getOfflineOrder(orderId)
         if (offlineOrder) {
           const subtotal = offlineOrder.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-          const tax = Number((subtotal * 0.08).toFixed(2))
+          const tax = Number((subtotal * restaurantTaxRate).toFixed(2))
           const total = Number((subtotal + tax).toFixed(2))
 
           const syntheticOrder: OrderDetails = {
@@ -240,7 +245,7 @@ export default function OrderEntry({
               menuItem: {
                 id: item.menuItemId,
                 name: item.name,
-                taxRate: 0.08,
+                taxRate: restaurantTaxRate,
               },
             })),
           }
@@ -265,7 +270,7 @@ export default function OrderEntry({
         const offlineOrder = await getOfflineOrder(orderId)
         if (offlineOrder) {
           const subtotal = offlineOrder.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-          const tax = Number((subtotal * 0.08).toFixed(2))
+          const tax = Number((subtotal * restaurantTaxRate).toFixed(2))
           const total = Number((subtotal + tax).toFixed(2))
 
           setOrder({
@@ -286,7 +291,7 @@ export default function OrderEntry({
               modifiers: item.modifiers || [],
               specialNote: item.specialNote || null,
               status: 'PENDING',
-              menuItem: { id: item.menuItemId, name: item.name, taxRate: 0.08 },
+              menuItem: { id: item.menuItemId, name: item.name, taxRate: restaurantTaxRate },
             })),
           })
           return
@@ -362,7 +367,7 @@ export default function OrderEntry({
     const itemsHtml = order.items
       .map((item) => {
         const mods = (item.modifiers as Array<{ modifierName: string; optionName: string; priceDelta: number }>) || []
-        const modText = mods.map((m) => `+ ${m.optionName} (+$${Number(m.priceDelta).toFixed(2)})`).join(', ')
+        const modText = mods.map((m) => `+ ${m.optionName} (+${money(Number(m.priceDelta))})`).join(', ')
         const noteText = item.specialNote ? `<div style="font-size: 11px; color: #555; font-style: italic; padding-left: 20px;">Note: "${item.specialNote}"</div>` : ''
         const itemPrice = Number(item.priceAtOrder)
         const modSum = mods.reduce((sum, m) => sum + Number(m.priceDelta), 0)
@@ -372,7 +377,7 @@ export default function OrderEntry({
           <div style="margin-bottom: 8px; font-size: 13px;">
             <div style="display: flex; justify-content: space-between;">
               <span>${item.quantity}x ${item.menuItem.name}</span>
-              <span style="font-family: monospace;">$${lineTotal.toFixed(2)}</span>
+              <span style="font-family: monospace;">${money(lineTotal)}</span>
             </div>
             ${modText ? `<div style="font-size: 11px; color: #555; padding-left: 20px;">${modText}</div>` : ''}
             ${noteText}
@@ -556,7 +561,7 @@ export default function OrderEntry({
           if (cached.categories.length > 0) {
             setSelectedCategoryId((cached.categories[0] as any).id)
           }
-          showToast('⚡ Loaded offline cached menu catalog', 'success')
+          showToast('Loaded offline cached menu catalog', 'success')
           return
         }
       } catch {}
@@ -651,7 +656,7 @@ export default function OrderEntry({
           }
         })
 
-        showToast(`🔴 Offline: Added ${item.name} to local queue`, 'success')
+        showToast(`Offline: Added ${item.name} to local queue`, 'success')
         fetchOrderDetails()
         return
       } catch (err) {
@@ -789,7 +794,7 @@ export default function OrderEntry({
     // If order was started in offline queue, promote/sync it to the live server first
     if (orderId.startsWith('offline_')) {
       if (!navigator.onLine) {
-        showToast('🔴 Offline: Order saved locally. Will sync to kitchen automatically upon reconnection.', 'success')
+        showToast('Offline: Order saved locally. Will sync to kitchen automatically upon reconnection.', 'success')
         setIsFiring(false)
         return
       }
@@ -820,7 +825,7 @@ export default function OrderEntry({
 
     // If still offline, remain in local queue
     if (!navigator.onLine || targetOrderId.startsWith('offline_')) {
-      showToast('🔴 Offline Mode: Order saved locally. Will sync to kitchen automatically upon reconnection.', 'success')
+      showToast('Offline Mode: Order saved locally. Will sync to kitchen automatically upon reconnection.', 'success')
       setIsFiring(false)
       return
     }
@@ -972,7 +977,7 @@ export default function OrderEntry({
                 transition: 'all 0.15s ease',
               }}
             >
-              🍽️ All Menus ({menuItems.length})
+              <PosIcon name="utensils" />All Menus ({menuItems.length})
             </button>
             {categories.map((cat) => {
               const isSel = selectedCategoryId === cat.id
@@ -1016,15 +1021,15 @@ export default function OrderEntry({
                       fontWeight: 700,
                       border: active ? '1px solid var(--brand)' : '1px solid var(--color-border)',
                       background: active ? 'var(--brand-tint)' : 'var(--color-bg-card)',
-                      color: active ? 'var(--brand)' : 'var(--color-text-secondary)',
+                      color: active ? 'var(--brand-text)' : 'var(--color-text-secondary)',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
                     }}
                   >
-                    {mode === 'veg' && <span style={{ color: '#30D158' }}>🟢</span>}
-                    {mode === 'nonveg' && <span style={{ color: '#FF453A' }}>🔴</span>}
+                    {mode === 'veg' && <span style={{ color: 'var(--color-success)' }}>🟢</span>}
+                    {mode === 'nonveg' && <span style={{ color: 'var(--color-error)' }}><PosIcon name="dot" /></span>}
                     <span>{mode === 'all' ? 'All Dishes' : mode === 'veg' ? 'Veg Only' : 'Non-Veg'}</span>
                   </button>
                 )
@@ -1083,8 +1088,8 @@ export default function OrderEntry({
                           position: 'absolute',
                           top: '16px',
                           left: '16px',
-                          background: '#18181B',
-                          color: '#fff',
+                          background: 'var(--color-bg-card)',
+                          color: 'var(--color-text-primary)',
                           fontSize: '10px',
                           fontWeight: 700,
                           padding: '2px 8px',
@@ -1104,7 +1109,7 @@ export default function OrderEntry({
                         height: '110px',
                         borderRadius: '10px',
                         overflow: 'hidden',
-                        background: 'rgba(255,255,255,0.03)',
+                        background: 'color-mix(in srgb, var(--color-text-primary) 3%, transparent)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -1128,7 +1133,7 @@ export default function OrderEntry({
                         <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
                           {categories.find((c) => c.id === item.categoryId)?.name || 'Dish'}
                         </span>
-                        <span style={{ fontSize: '10px', color: isVeg ? '#30D158' : '#FF453A', fontWeight: 700 }}>
+                        <span style={{ fontSize: '10px', color: isVeg ? 'var(--color-success)' : 'var(--color-error)', fontWeight: 700 }}>
                           {isVeg ? '🟢 Veg' : '🔴 Non-Veg'}
                         </span>
                       </div>
@@ -1144,10 +1149,10 @@ export default function OrderEntry({
                           fontFamily: 'var(--font-mono)',
                           fontWeight: 800,
                           fontSize: '15px',
-                          color: 'var(--brand)',
+                          color: 'var(--brand-text)',
                         }}
                       >
-                        ${Number(item.price).toFixed(2)}
+                        {money(Number(item.price))}
                       </span>
                       <span className="badge badge--brand" style={{ fontSize: '11px', padding: '2px 8px' }}>
                         {item.modifiers.length > 0 ? 'Customize ⚙️' : '+ Add'}
@@ -1312,8 +1317,8 @@ export default function OrderEntry({
             style={{
               padding: '8px 12px',
               borderRadius: '10px',
-              backgroundColor: order.customer ? 'var(--brand-tint)' : 'rgba(255, 255, 255, 0.03)',
-              border: order.customer ? '1px solid var(--brand-tint)' : '1px dashed rgba(255, 255, 255, 0.12)',
+              backgroundColor: order.customer ? 'var(--brand-tint)' : 'color-mix(in srgb, var(--color-text-primary) 3%, transparent)',
+              border: order.customer ? '1px solid var(--brand-tint)' : '1px dashed color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
               flexShrink: 0,
             }}
           >
@@ -1321,19 +1326,19 @@ export default function OrderEntry({
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>👤 {order.customer.name}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}><PosIcon name="user" />{order.customer.name}</span>
                     {Number(order.customer.lifetimeSpend || 0) > 300 && (
-                      <span style={{ fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '4px', backgroundColor: '#f59e0b', color: '#000000' }}>👑 VIP</span>
+                      <span style={{ fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '4px', backgroundColor: 'var(--color-warning)', color: 'var(--color-text-primary)' }}>👑 VIP</span>
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button onClick={handleUnlinkCustomer} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '12px' }} title="Unlink guest">✕</button>
+                    <button onClick={handleUnlinkCustomer} style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: '12px' }} title="Unlink guest">✕</button>
                   </div>
                 </div>
                 {order.customer.allergyTags && order.customer.allergyTags.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
                     {order.customer.allergyTags.map((tag: string, idx: number) => (
-                      <span key={idx} style={{ fontSize: '9px', fontWeight: 700, padding: '1px 6px', borderRadius: '4px', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '0.5px solid rgba(239, 68, 68, 0.4)' }}>
+                      <span key={idx} style={{ fontSize: '9px', fontWeight: 700, padding: '1px 6px', borderRadius: '4px', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--color-error)', border: '0.5px solid rgba(239, 68, 68, 0.4)' }}>
                         ⚠️ {tag}
                       </span>
                     ))}
@@ -1369,12 +1374,12 @@ export default function OrderEntry({
               className="card card--elevated animate-fade-in"
               style={{
                 width: '90%', maxWidth: '420px',
-                backgroundColor: '#18181d', border: '1px solid rgba(255,255,255,0.12)',
+                backgroundColor: '#18181d', border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
                 borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: 0 }}>👤 Attach Guest to Order</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: 0 }}><PosIcon name="user" />Attach Guest to Order</h3>
                 <button onClick={() => setShowCustomerModal(false)} className="btn btn--ghost btn--sm">✕</button>
               </div>
 
@@ -1389,10 +1394,10 @@ export default function OrderEntry({
               />
 
               <div style={{ maxHeight: '240px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {searchingCustomer && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '12px' }}>Searching CRM...</div>}
+                {searchingCustomer && <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', textAlign: 'center', padding: '12px' }}>Searching CRM...</div>}
                 
                 {!searchingCustomer && customerResults.length === 0 && customerQuery && (
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '12px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', textAlign: 'center', padding: '12px' }}>
                     No customer found. <a href="/dashboard/crm" target="_blank" style={{ color: 'var(--color-brand-500)' }}>Add in CRM ↗</a>
                   </div>
                 )}
@@ -1403,7 +1408,7 @@ export default function OrderEntry({
                     onClick={() => handleAttachCustomer(c.id)}
                     style={{
                       padding: '10px 12px', borderRadius: '10px',
-                      backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                      backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 4%, transparent)', border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                       cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--brand-tint)')}
@@ -1411,11 +1416,11 @@ export default function OrderEntry({
                   >
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>{c.name}</div>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)' }}>{c.phone}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>{c.phone}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>⭐ {c.pointsBalance || 0} pts</div>
-                      {Number(c.lifetimeSpend || 0) > 300 && <span style={{ fontSize: '9px', fontWeight: 800, color: '#f59e0b' }}>👑 VIP</span>}
+                      {Number(c.lifetimeSpend || 0) > 300 && <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--color-warning)' }}>👑 VIP</span>}
                     </div>
                   </div>
                 ))}
@@ -1459,7 +1464,7 @@ export default function OrderEntry({
                   minWidth:     'auto',
                 }}
               >
-                🪑 Seat {seat}
+                <PosIcon name="armchair" />Seat {seat}
               </button>
             ))}
           </div>
@@ -1514,7 +1519,7 @@ export default function OrderEntry({
                   </div>
 
                   <span className="font-semibold text-sm" style={{ fontFamily: 'var(--font-mono)' }}>
-                    ${totalLineCost.toFixed(2)}
+                    {money(totalLineCost)}
                   </span>
                 </div>
 
@@ -1522,7 +1527,7 @@ export default function OrderEntry({
                 {mods.length > 0 && (
                   <div className="text-xs text-secondary" style={{ paddingLeft: '14px' }}>
                     {mods.map((m, idx) => (
-                      <div key={idx}>+ {m.optionName} {m.priceDelta > 0 ? `(+$${Number(m.priceDelta).toFixed(2)})` : ''}</div>
+                      <div key={idx}>+ {m.optionName} {m.priceDelta > 0 ? `(+${money(Number(m.priceDelta))})` : ''}</div>
                     ))}
                   </div>
                 )}
@@ -1599,15 +1604,15 @@ export default function OrderEntry({
           >
             <div className="flex justify-between text-secondary">
               <span>Subtotal</span>
-              <span className="font-mono">${Number(order.subtotal).toFixed(2)}</span>
+              <span className="font-mono">{money(Number(order.subtotal))}</span>
             </div>
             <div className="flex justify-between text-secondary">
               <span>Sales Tax</span>
-              <span className="font-mono">${Number(order.tax).toFixed(2)}</span>
+              <span className="font-mono">{money(Number(order.tax))}</span>
             </div>
             <div className="flex justify-between font-bold text-lg text-brand mt-1">
               <span>Check Total</span>
-              <span className="font-mono">${Number(order.total).toFixed(2)}</span>
+              <span className="font-mono">{money(Number(order.total))}</span>
             </div>
           </div>
         )}
@@ -1644,7 +1649,7 @@ export default function OrderEntry({
                       body: JSON.stringify({ orderId: order.id, station: 'ALL' }),
                     })
                     if (!res.ok) throw new Error('KOT print request failed')
-                    showToast('🖨️ KOT Thermal Ticket Generated', 'success')
+                    showToast('KOT Thermal Ticket Generated', 'success')
                   } catch (e: any) {
                     showToast(e.message || 'KOT Print Error', 'error')
                   }
@@ -1653,7 +1658,7 @@ export default function OrderEntry({
                 className="btn btn--secondary btn--sm"
                 style={{ fontSize: '11px', fontWeight: 700 }}
               >
-                🎟️ Print KOT
+                <PosIcon name="ticket" />Print KOT
               </button>
 
               <button
@@ -1662,7 +1667,7 @@ export default function OrderEntry({
                 className="btn btn--secondary btn--sm"
                 style={{ fontSize: '11px', fontWeight: 700 }}
               >
-                🖨️ Print Receipt
+                <PosIcon name="printer" />Print Receipt
               </button>
 
               {order.status === 'HOLD' ? (
@@ -1679,7 +1684,7 @@ export default function OrderEntry({
                   onClick={handleHoldOrder}
                   disabled={holdLoading || ['PAID', 'VOIDED'].includes(order.status)}
                   className="btn btn--secondary btn--sm"
-                  style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand)', borderColor: 'var(--brand)' }}
+                  style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-text)', borderColor: 'var(--brand)' }}
                 >
                   {holdLoading ? '...' : '⏸️ Hold Order'}
                 </button>
@@ -1691,7 +1696,7 @@ export default function OrderEntry({
                 className="btn btn--secondary btn--sm"
                 style={{ fontSize: '11px', fontWeight: 700 }}
               >
-                🪑 Split Check
+                <PosIcon name="armchair" />Split Check
               </button>
             </div>
 
@@ -1704,12 +1709,12 @@ export default function OrderEntry({
                 height: '42px',
                 fontSize: '13px',
                 fontWeight: 700,
-                background: '#18181B',
-                borderColor: '#18181B',
+                background: 'var(--color-bg-card)',
+                borderColor: 'var(--color-border)',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
               }}
             >
-              💵 Settle Check (${Number(order.total).toFixed(2)})
+              <PosIcon name="banknote" />Settle Check ({money(Number(order.total))})
             </button>
           </div>
         )}

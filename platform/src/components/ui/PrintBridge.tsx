@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface PrintBridgeProps {
   orderId: string
@@ -20,6 +21,7 @@ export function PrintBridge({
   buttonText = '🖨️ Print Receipt',
   onPrinted,
 }: PrintBridgeProps) {
+  const { money } = useMoney()
   const [printing, setPrinting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
@@ -108,15 +110,15 @@ export function PrintBridge({
             ${receiptData.items.map((i: any) => `
               <div class="flex">
                 <span>${i.quantity}x ${i.name}</span>
-                <span>$${(i.quantity * i.priceAtOrder).toFixed(2)}</span>
+                <span>${money((i.quantity * i.priceAtOrder))}</span>
               </div>
             `).join('')}
             <div class="line"></div>
-            <div class="flex"><span>Subtotal</span><span>$${receiptData.subtotal.toFixed(2)}</span></div>
-            <div class="flex"><span>Tax</span><span>$${receiptData.tax.toFixed(2)}</span></div>
-            ${receiptData.tip ? `<div class="flex"><span>Tip</span><span>$${receiptData.tip.toFixed(2)}</span></div>` : ''}
+            <div class="flex"><span>Subtotal</span><span>${money(receiptData.subtotal)}</span></div>
+            <div class="flex"><span>Tax</span><span>${money(receiptData.tax)}</span></div>
+            ${receiptData.tip ? `<div class="flex"><span>Tip</span><span>${money(receiptData.tip)}</span></div>` : ''}
             <div class="line"></div>
-            <div class="flex bold total"><span>TOTAL</span><span>$${receiptData.total.toFixed(2)}</span></div>
+            <div class="flex bold total"><span>TOTAL</span><span>${money(receiptData.total)}</span></div>
             <div style="text-align:center;margin-top:20px;font-size:10px;color:#888;">Powered by Prominentz</div>
             <script>
               window.onload = function() { window.print(); window.close(); }

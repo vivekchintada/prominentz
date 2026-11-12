@@ -1,32 +1,36 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { QrGeneratorClient } from '@/components/dashboard/QrGeneratorClient'
-import { PageHeader } from '@/components/ui/PageHeader'
+import { QrBoardView } from '@/components/bento/pages/QrBoardView'
+import { ToolSection } from '@/components/bento/pages/parts'
+import { getBentoPageContext, safeLoad } from '@/lib/bento/page-context'
+import { EMPTY_QR_BOARD, getQrBoard } from '@/lib/bento/qr-page'
 
 export const metadata = {
   title: 'Table QR Code Generator | Prominentz',
 }
 
+/** The site's own address, matching what the QR studio prints (it uses the browser's origin). */
+async function siteOrigin(): Promise<string> {
+  const h = await headers()
+  const host = h.get('x-forwarded-host') ?? h.get('host')
+  if (host) {
+    const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https')
+    return `${proto}://${host}`
+  }
+  return (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')
+}
+
 export default async function TableQrPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const ctx = await getBentoPageContext()
+  const origin = await siteOrigin()
+  const board = await safeLoad('QR board', () => getQrBoard(ctx.restaurantId, ctx.locationId, ctx.todayStart, origin), EMPTY_QR_BOARD)
 
   return (
     <>
-      <PageHeader
-        title="QR Code Ordering Studio"
-        showRefresh
-        subtitle="Generate printable table tent QR codes for contactless ordering and instant digital checkout"
-        actions={
-          <button className="btn btn--secondary btn--sm">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Print All QRs
-          </button>
-        }
-      />
-      <div className="page-body">
+      <QrBoardView data={board} currency={ctx.currency} />
+      <ToolSection title="QR code studio" sub="Design, download and print table codes">
         <QrGeneratorClient />
-      </div>
+      </ToolSection>
     </>
   )
 }

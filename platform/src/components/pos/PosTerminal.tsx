@@ -13,6 +13,8 @@ import QuickNoteModal from './QuickNoteModal'
 import PurrCoffeePos from './PurrCoffeePos'
 import { useToast, ToastContainer } from '../ui/Toast'
 import { Button } from '@/components/ui/Button'
+import PosIcon from './PosIcon'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 interface PosTerminalProps {
   initialTables: TableData[]
   currentUser:   { id: string; name: string; role: string; email: string }
@@ -24,6 +26,7 @@ export default function PosTerminal({
   currentUser,
   locationId,
 }: PosTerminalProps) {
+  const { money } = useMoney()
   const router = useRouter()
   const [tables, setTables] = useState<TableData[]>(initialTables)
   const [view, setView] = useState<'map' | 'cart'>('map')
@@ -56,7 +59,7 @@ export default function PosTerminal({
     setIsOnline(navigator.onLine)
     const handleOnline = async () => {
       setIsOnline(true)
-      showToast('🟢 Network restored! Syncing offline orders...', 'success')
+      showToast('Network restored! Syncing offline orders...', 'success')
       try {
         setSyncingOffline(true)
         const { getUnsyncedOrders, markOrdersSynced } = await import('@/lib/offline-db')
@@ -82,7 +85,7 @@ export default function PosTerminal({
     }
     const handleOffline = () => {
       setIsOnline(false)
-      showToast('🔴 Offline Mode Enabled (Local Cache Active)', 'warning')
+      showToast('Offline Mode Enabled (Local Cache Active)', 'warning')
     }
 
     window.addEventListener('online', handleOnline)
@@ -290,7 +293,7 @@ export default function PosTerminal({
           synced: false,
         })
         setTables((prev) => prev.map((t) => (t.id === selectedTable.id ? { ...t, status: 'ACTIVE' } : t)))
-        showToast(`🔴 Offline Mode: Table ${selectedTable.name} opened locally`, 'warning')
+        showToast(`Offline Mode: Table ${selectedTable.name} opened locally`, 'warning')
         setIsNewOrderOpen(false)
         setActiveOrderId(localOrderId)
         setView('cart')
@@ -344,7 +347,7 @@ export default function PosTerminal({
           synced: false,
         })
         setTables((prev) => prev.map((t) => (t.id === selectedTable.id ? { ...t, status: 'ACTIVE' } : t)))
-        showToast(`⚡ Network issue: Table ${selectedTable.name} opened in offline queue`, 'warning')
+        showToast(`Network issue: Table ${selectedTable.name} opened in offline queue`, 'warning')
         setIsNewOrderOpen(false)
         setActiveOrderId(localOrderId)
         setView('cart')
@@ -410,8 +413,8 @@ export default function PosTerminal({
       >
         {/* Brand & Module Links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, fontSize: '18px', color: 'var(--brand)' }}>
-            <span style={{ fontSize: '22px' }}>🍽️</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, fontSize: '18px', color: 'var(--brand-text)' }}>
+            <span style={{ fontSize: '22px' }}><PosIcon name="utensils" /></span>
             <span>Prominentz</span>
           </div>
 
@@ -433,7 +436,7 @@ export default function PosTerminal({
                 transition: 'all 0.15s ease',
               }}
             >
-              <span>🧾</span> POS
+              <span><PosIcon name="receipt" /></span> POS
             </Button>
 
             <Button
@@ -470,7 +473,7 @@ export default function PosTerminal({
                 textDecoration: 'none',
               }}
             >
-              <span>🍳</span> Kitchen KDS
+              <span><PosIcon name="chef" /></span> Kitchen KDS
             </Link>
 
             <Link
@@ -487,7 +490,7 @@ export default function PosTerminal({
                 textDecoration: 'none',
               }}
             >
-              <span>📅</span> Reservations
+              <span><PosIcon name="calendar" /></span> Reservations
             </Link>
 
             <Link
@@ -504,7 +507,7 @@ export default function PosTerminal({
                 textDecoration: 'none',
               }}
             >
-              <span>📊</span> Reports
+              <span><PosIcon name="chart" /></span> Reports
             </Link>
           </nav>
         </div>
@@ -515,8 +518,8 @@ export default function PosTerminal({
             className="badge"
             style={{
               background: isOnline ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
-              color: isOnline ? '#22c55e' : '#ef4444',
-              borderColor: isOnline ? '#22c55e' : '#ef4444',
+              color: isOnline ? 'var(--color-success)' : 'var(--color-error)',
+              borderColor: isOnline ? 'var(--color-success)' : 'var(--color-error)',
               fontSize: '11px',
               fontWeight: 700,
             }}
@@ -559,11 +562,11 @@ export default function PosTerminal({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-secondary font-semibold">Shift Net Sales:</span>
-            <span className="font-bold text-primary">${totalSalesToday.toFixed(2)}</span>
+            <span className="font-bold text-primary">{money(totalSalesToday)}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-secondary font-semibold">Est. Shift Tips (18%):</span>
-            <span className="font-bold text-success">${estTipsAccrued.toFixed(2)}</span>
+            <span className="font-bold text-success">{money(estTipsAccrued)}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-secondary font-semibold">Shift Status:</span>
@@ -672,7 +675,7 @@ export default function PosTerminal({
           }}
         >
           <div className="card card--elevated" style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            <h3 className="text-lg font-bold">⏰ Shift Clock Control</h3>
+            <h3 className="text-lg font-bold"><PosIcon name="clock" />Shift Clock Control</h3>
             <p className="text-sm text-secondary">
               User: <strong>{currentUser.name}</strong> | Status: <strong>{isClockedIn ? 'Clocked In' : 'Clocked Out'}</strong>
             </p>

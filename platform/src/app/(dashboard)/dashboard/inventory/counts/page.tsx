@@ -20,8 +20,8 @@ export default async function InventoryCountsPage() {
   if (!['OWNER', 'MANAGER'].includes(session.user.role)) redirect('/dashboard')
 
   return (
-    <div style={{ padding: '24px 32px' }}>
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>Loading Stock Counts...</div>}>
+    <div>
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>Loading Stock Counts...</div>}>
         <InventoryClient initialTab="counts" />
       </Suspense>
     </div>

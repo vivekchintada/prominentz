@@ -39,7 +39,7 @@
 }
 
 .brandDot {
-  color: var(--brand);
+  color: var(--brand-text);
   font-size: 18px;
 }
 
@@ -220,7 +220,7 @@
 }
 
 .dotAvailable {
-  background: #30D158;
+  background: var(--color-success);
 }
 
 .dotPreferred {
@@ -228,7 +228,7 @@
 }
 
 .dotUnavailable {
-  background: #ef4444;
+  background: var(--color-error);
 }
 
 .dayRow {

@@ -75,9 +75,9 @@ export default async function MobileDashboardPage() {
       {/* Greeting */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <p style={{ margin: 0, fontSize: 13, color: '#8E8E93' }}>Good day,</p>
-          <h1 style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 700, color: '#E5E5EA' }}>{user.name}</h1>
-          <span style={{ fontSize: 11, color: 'var(--brand)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user.role}</span>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)' }}>Good day,</p>
+          <h1 style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 700, color: 'var(--color-text-tertiary)' }}>{user.name}</h1>
+          <span style={{ fontSize: 11, color: 'var(--brand-text)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user.role}</span>
         </div>
 
         <form action={handleSignOut}>
@@ -91,7 +91,7 @@ export default async function MobileDashboardPage() {
               borderRadius: '8px',
               border: '1px solid rgba(239, 68, 68, 0.35)',
               backgroundColor: 'rgba(239, 68, 68, 0.08)',
-              color: '#ef4444',
+              color: 'var(--color-error)',
               fontSize: '11px',
               fontWeight: 700,
               cursor: 'pointer',
@@ -111,29 +111,29 @@ export default async function MobileDashboardPage() {
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
         {kpis.map((kpi, i) => (
-          <div key={i} style={{ background: '#1C1C1E', borderRadius: 14, padding: '16px 14px', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div key={i} style={{ background: 'var(--color-bg-card)', borderRadius: 14, padding: '16px 14px', border: '1px solid color-mix(in srgb, var(--color-text-primary) 7%, transparent)' }}>
             <div style={{ fontSize: 22, marginBottom: 8 }}>{kpi.icon}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: kpi.color, lineHeight: 1 }}>{kpi.value}</div>
-            <div style={{ fontSize: 11, color: '#8E8E93', marginTop: 4 }}>{kpi.label}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 4 }}>{kpi.label}</div>
           </div>
         ))}
       </div>
 
       {/* Operations feed */}
-      <div style={{ background: '#1C1C1E', borderRadius: 14, padding: '14px 16px', border: '1px solid rgba(255,255,255,0.07)' }}>
-        <h3 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#E5E5EA' }}>Live Operations Feed</h3>
+      <div style={{ background: 'var(--color-bg-card)', borderRadius: 14, padding: '14px 16px', border: '1px solid color-mix(in srgb, var(--color-text-primary) 7%, transparent)' }}>
+        <h3 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: 'var(--color-text-tertiary)' }}>Live Operations Feed</h3>
         {recentEvents.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 12, color: '#8E8E93' }}>No activity yet today.</p>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-secondary)' }}>No activity yet today.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {recentEvents.map((ev) => (
               <div key={ev.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', marginTop: 5, flexShrink: 0 }} />
                 <div>
-                  <div style={{ fontSize: 12, color: '#E5E5EA', lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', lineHeight: 1.4 }}>
                     {ev.eventType.replace(/\./g, ' → ')} · {ev.order.table.name}
                   </div>
-                  <div style={{ fontSize: 11, color: '#8E8E93', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 2 }}>
                     {new Date(ev.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>

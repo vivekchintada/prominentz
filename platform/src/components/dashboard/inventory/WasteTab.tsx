@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useMoney } from '@/components/providers/CurrencyProvider'
 
 interface WasteLogItem {
   id: string
@@ -33,6 +34,7 @@ interface WasteTabProps {
 }
 
 export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
+  const { money } = useMoney()
   const [logs, setLogs] = useState<WasteLogItem[]>([])
   const [totalWasteCost, setTotalWasteCost] = useState(0)
   const [inventoryOptions, setInventoryOptions] = useState<InventoryOption[]>([])
@@ -128,13 +130,13 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#b91c1c', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase' }}>
             Total Waste Loss
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#dc2626', marginTop: 4 }}>
-            ${totalWasteCost.toFixed(2)}
+          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-error)', marginTop: 4 }}>
+            {money(totalWasteCost)}
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500, marginTop: 4 }}>
             Recorded spoilage & prep shrinkage
           </div>
         </div>
@@ -148,13 +150,13 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
             Logged Incidents
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-text-primary)', marginTop: 4 }}>
             {logs.length}
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500, marginTop: 4 }}>
             Tracked with manager audit trail
           </div>
         </div>
@@ -173,7 +175,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
         >
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Shrinkage Control</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>Log kitchen spills, drops & expiration</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>Log kitchen spills, drops & expiration</div>
           </div>
           <button
             onClick={() => setIsLogOpen(true)}
@@ -181,8 +183,8 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
               padding: '9px 16px',
               borderRadius: 8,
               border: 'none',
-              background: '#dc2626',
-              color: '#ffffff',
+              background: 'var(--color-error)',
+              color: 'var(--on-error)',
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -206,7 +208,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: '#64748b' }}>
+            <tr style={{ background: 'var(--color-bg-card-hover)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Date & Time</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Ingredient</th>
               <th style={{ padding: '12px 18px', fontWeight: 700 }}>Quantity Discarded</th>
@@ -219,33 +221,33 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+                <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                   Loading waste logs...
                 </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+                <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
                   No waste or spoilage incidents recorded.
                 </td>
               </tr>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '14px 18px', color: '#64748b' }}>
+                <tr key={log.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>
                     {new Date(log.createdAt).toLocaleString()}
                   </td>
                   <td style={{ padding: '14px 18px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
                     {log.inventoryItem?.name}
                   </td>
-                  <td style={{ padding: '14px 18px', fontWeight: 700, color: '#dc2626' }}>
+                  <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--color-error)' }}>
                     -{log.quantity} {log.inventoryItem?.unit}
                   </td>
                   <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)' }}>
-                    ${Number(log.unitCost).toFixed(2)}
+                    {money(Number(log.unitCost))}
                   </td>
-                  <td style={{ padding: '14px 18px', fontWeight: 800, color: '#dc2626' }}>
-                    ${Number(log.totalCost).toFixed(2)}
+                  <td style={{ padding: '14px 18px', fontWeight: 800, color: 'var(--color-error)' }}>
+                    {money(Number(log.totalCost))}
                   </td>
                   <td style={{ padding: '14px 18px' }}>
                     <span
@@ -254,14 +256,14 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                         borderRadius: 6,
                         fontSize: 11,
                         fontWeight: 700,
-                        background: '#fee2e2',
-                        color: '#b91c1c',
+                        background: 'color-mix(in srgb, var(--color-error) 14%, transparent)',
+                        color: 'var(--color-error)',
                       }}
                     >
                       {log.reason}
                     </span>
                   </td>
-                  <td style={{ padding: '14px 18px', color: '#64748b', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '14px 18px', color: 'var(--color-text-secondary)', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                     {log.notes || '—'}
                   </td>
                 </tr>
@@ -311,7 +313,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
               </h3>
               <button
                 onClick={() => setIsLogOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: 20, color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: 20, color: 'var(--color-text-tertiary)', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -329,14 +331,14 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                     width: '100%',
                     padding: '9px 12px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     fontSize: 13,
                     background: 'var(--color-bg-card)',
                   }}
                 >
                   {inventoryOptions.map((opt) => (
                     <option key={opt.id} value={opt.id}>
-                      {opt.name} (Current: {opt.currentStock} {opt.unit}) — ${Number(opt.unitCost).toFixed(2)}/ea
+                      {opt.name} (Current: {opt.currentStock} {opt.unit}) — {money(Number(opt.unitCost))}/ea
                     </option>
                   ))}
                 </select>
@@ -358,7 +360,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                       width: '100%',
                       padding: '9px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       fontWeight: 700,
                     }}
@@ -376,7 +378,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                       width: '100%',
                       padding: '9px 12px',
                       borderRadius: 8,
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--color-border)',
                       fontSize: 13,
                       background: 'var(--color-bg-card)',
                     }}
@@ -394,16 +396,16 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
               {estimatedCost > 0 && (
                 <div
                   style={{
-                    background: '#fef2f2',
-                    border: '1px solid #fecaca',
+                    background: 'color-mix(in srgb, var(--color-error) 14%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-error) 35%, transparent)',
                     borderRadius: 8,
                     padding: '10px 14px',
                     fontSize: 12,
-                    color: '#b91c1c',
+                    color: 'var(--color-error)',
                     fontWeight: 600,
                   }}
                 >
-                  Estimated Loss: ${estimatedCost.toFixed(2)} will be subtracted from current stock.
+                  Estimated Loss: {money(estimatedCost)} will be subtracted from current stock.
                 </div>
               )}
 
@@ -420,7 +422,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                     width: '100%',
                     padding: '8px 12px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     fontSize: 13,
                   }}
                 />
@@ -433,7 +435,7 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                   style={{
                     padding: '9px 16px',
                     borderRadius: 8,
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--color-border)',
                     background: 'var(--color-bg-card)',
                     fontSize: 13,
                     fontWeight: 600,
@@ -450,8 +452,8 @@ export default function WasteTab({ showToast, onWasteLogged }: WasteTabProps) {
                     padding: '9px 20px',
                     borderRadius: 8,
                     border: 'none',
-                    background: '#dc2626',
-                    color: '#ffffff',
+                    background: 'var(--color-error)',
+                    color: 'var(--on-error)',
                     fontSize: 13,
                     fontWeight: 700,
                     cursor: 'pointer',

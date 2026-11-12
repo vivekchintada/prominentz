@@ -328,7 +328,7 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
           onClick={() => signOut({ callbackUrl: '/login' })}
           title="Sign Out"
           aria-label="Sign Out"
-          style={{ color: '#ef4444' }}
+          style={{ color: 'var(--color-error)' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -346,7 +346,7 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
           <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-text-primary)' }}>
             Prominentz
           </span>
-          <span style={{ marginLeft: 'auto', fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', padding: '2px 5px', borderRadius: '4px', background: 'rgba(104, 53, 249, 0.15)', color: '#8b5cf6', letterSpacing: '0.04em' }}>
+          <span style={{ marginLeft: 'auto', fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', padding: '2px 5px', borderRadius: '4px', background: 'rgba(104, 53, 249, 0.15)', color: 'var(--brand-text)', letterSpacing: '0.04em' }}>
             {planTier}
           </span>
         </div>
@@ -418,7 +418,7 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
                         padding: '2px 6px',
                         borderRadius: '4px',
                         backgroundColor: 'rgba(239,68,68,0.12)',
-                        color: '#ef4444',
+                        color: 'var(--color-error)',
                         border: '1px solid rgba(239,68,68,0.25)',
                         letterSpacing: '0.04em',
                       }}
@@ -446,7 +446,7 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
         </nav>
 
         {/* Panel bottom sign out action */}
-        <div style={{ marginTop: 'auto', padding: '12px 14px', borderTop: '0.5px solid var(--color-border, rgba(255,255,255,0.08))' }}>
+        <div style={{ marginTop: 'auto', padding: '12px 14px', borderTop: '0.5px solid var(--color-border, color-mix(in srgb, var(--color-text-primary) 8%, transparent))' }}>
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             style={{
@@ -456,7 +456,7 @@ export default function SidebarNav({ planTier = 'ENTERPRISE', userRole }: Sideba
               width: '100%',
               background: 'rgba(239, 68, 68, 0.08)',
               border: '1px solid rgba(239, 68, 68, 0.2)',
-              color: '#ef4444',
+              color: 'var(--color-error)',
               cursor: 'pointer',
               padding: '8px 12px',
               borderRadius: '8px',
