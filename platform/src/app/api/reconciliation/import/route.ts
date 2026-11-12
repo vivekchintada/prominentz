@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { importStatement } from '@/lib/delivery-reconciliation'
-import { resolveLocationContext } from '@/lib/location-context'
+import { resolveOwnedLocation } from '@/lib/location-context'
+import { prisma } from '@/lib/prisma'
 
 // POST /api/reconciliation/import
 // Accepts multipart/form-data with fields: file (CSV), providerId, locationId, periodStart, periodEnd
@@ -9,15 +10,15 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     const providerId = formData.get('providerId') as string
-    let locationId = formData.get('locationId') as string
-    if (!locationId) {
-      const loc = await resolveLocationContext(session.user.id, session.user.restaurantId)
-      locationId = loc?.id || ''
-    }
+    const locationId =
+      (await resolveOwnedLocation(session.user.id, session.user.restaurantId, formData.get('locationId') as string | null))?.id || ''
     const periodStart = formData.get('periodStart') as string
     const periodEnd = formData.get('periodEnd') as string
 
@@ -26,6 +27,11 @@ export async function POST(req: NextRequest) {
         { error: 'file, providerId, locationId, periodStart, and periodEnd are required' },
         { status: 400 }
       )
+    }
+
+    const provider = await prisma.deliveryProvider.findFirst({ where: { id: providerId, locationId }, select: { id: true } })
+    if (!provider) {
+      return NextResponse.json({ error: 'Delivery provider not found for this location' }, { status: 404 })
     }
 
     const csvText = await file.text()
@@ -46,6 +52,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result, { status })
   } catch (error: any) {
     console.error('POST /api/reconciliation/import error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Reconciliation request failed' }, { status: 500 })
   }
 }

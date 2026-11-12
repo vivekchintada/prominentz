@@ -38,7 +38,7 @@ export async function PATCH(
     const existing = await prisma.waitlistEntry.findFirst({
       where: {
         id,
-        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+        location: { restaurantId: resolved?.restaurantId || session.user.restaurantId || '' },
       },
       include: {
         location: {

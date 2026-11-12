@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { createPaymentIntent } from '@/lib/stripe'
+import { toMinorUnits } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 import { getRestaurantAccessStatus } from '@/lib/subscription-status'
 import { z } from 'zod'
 
 const createIntentSchema = z.object({
   orderId: z.string().min(1),
-  amount:  z.number().min(0.50, 'Minimum card charge is $0.50'), // Stripe minimum charge is 50 cents
+  amount:  z.number().min(0.50, 'The amount is below the smallest card charge'),
   confirm: z.boolean().optional().default(true),
   paymentMethod: z.string().optional(),
 })
@@ -66,13 +68,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Convert amount to cents for Stripe
-    const amountInCents = Math.round(amount * 100)
+    // Smallest unit of the restaurant's currency (paise, cents…)
+    const { currency } = await getRestaurantMoneySettings(restaurantId)
+    const amountInCents = toMinorUnits(amount, currency)
 
     const { requireConnectedAccount } = await import('@/lib/stripe-connect')
     const stripeAccount = await requireConnectedAccount(restaurantId)
 
     const intent = await createPaymentIntent(amountInCents, orderId, {
+      currency,
       confirm,
       paymentMethod,
       stripeAccount,

@@ -3,6 +3,8 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { isPlatformAdmin } from '@/lib/hq/platform-admin'
 
 // ─── GET /api/invitations/:token ──────────────────────────────────────────────
 // Validates token and returns public invitation context for the signup screen.
@@ -68,7 +70,16 @@ export async function POST(
       return NextResponse.json({ error: 'Token is required' }, { status: 400 })
     }
 
+    // This endpoint checks passwords for existing accounts, so throttle it like a login.
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown-ip'
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+    const [byIp, byToken] = await Promise.all([
+      rateLimit(`invite-accept:${ip}`, 10, 60),
+      rateLimit(`invite-accept:${tokenHash}`, 5, 600),
+    ])
+    if (!byIp.allowed || !byToken.allowed) {
+      return rateLimitResponse(Math.max(byIp.retryAfterSec, byToken.retryAfterSec))
+    }
 
     const invitation = await prisma.staffInvitation.findUnique({
       where: { tokenHash },
@@ -110,8 +121,8 @@ export async function POST(
       const name = body.name?.trim()
       const password = body.password
 
-      if (!password || password.length < 6) {
-        return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 })
+      if (!password || typeof password !== 'string' || password.length < 8) {
+        return NextResponse.json({ error: 'Password must be at least 8 characters long' }, { status: 400 })
       }
 
       // Check if user with this invited email already exists in User table
@@ -130,6 +141,9 @@ export async function POST(
         }
         targetUserId = existingUser.id
       } else {
+        if (isPlatformAdmin(inviteEmail)) {
+          return NextResponse.json({ error: 'This email cannot be used for a staff account' }, { status: 400 })
+        }
         const passwordHash = await bcrypt.hash(password, 10)
         const newUser = await prisma.user.create({
           data: {

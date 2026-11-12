@@ -63,17 +63,28 @@ export async function getAuthContext(sessionUser: {
         : 'SERVER'
     )
 
-    membership = await prisma.organizationMembership.create({
-      data: {
-        organizationId: orgId,
-        userId: user.id,
-        role: initialRole,
-        status: user.isActive ? 'ACTIVE' : 'SUSPENDED',
-      },
-      include: {
-        locationAssignments: { select: { locationId: true } },
-      },
-    })
+    // Upsert, not create: pages load several APIs at once (Staff loads /api/staff and
+    // /api/staff/invitations together), and each one lands here for a user with no
+    // membership yet. A plain create made the second request fail the unique key.
+    const key = { organizationId_userId: { organizationId: orgId, userId: user.id } }
+    const withLocations = { locationAssignments: { select: { locationId: true } } } as const
+    try {
+      membership = await prisma.organizationMembership.upsert({
+        where: key,
+        update: {},
+        create: {
+          organizationId: orgId,
+          userId: user.id,
+          role: initialRole,
+          status: user.isActive ? 'ACTIVE' : 'SUSPENDED',
+        },
+        include: withLocations,
+      })
+    } catch (err) {
+      // Two requests raced past the upsert's own check: the other one created it, so read it back.
+      if ((err as { code?: string })?.code !== 'P2002') throw err
+      membership = await prisma.organizationMembership.findUniqueOrThrow({ where: key, include: withLocations })
+    }
 
     // If owner or manager, assign existing locations automatically
     const locations = await prisma.location.findMany({

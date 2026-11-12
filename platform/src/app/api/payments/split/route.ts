@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { splitPaymentSchema } from '@/lib/validations/payments'
 import { verifyStripeIntent } from '@/lib/payments'
+import { formatMoney } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +27,12 @@ export async function POST(req: NextRequest) {
     const { resolveUserLocation } = await import('@/lib/location-resolver')
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId
+    // Amounts in messages use the restaurant's own currency; looked up only when a message needs one.
+    let currencyCode: string | null = null
+    const amount = async (n: number) => {
+      if (!currencyCode) currencyCode = (await getRestaurantMoneySettings(restaurantId)).currency
+      return formatMoney(n, currencyCode)
+    }
 
     // Verify order exists and strictly belongs to this restaurant
     const order = await prisma.order.findFirst({
@@ -120,7 +128,7 @@ export async function POST(req: NextRequest) {
     if (netPaymentSubmitted < requiredBalanceDue - 0.10) {
       return NextResponse.json(
         {
-          error: `Underpayment rejected: Split payments net sum ($${netPaymentSubmitted.toFixed(2)}) is less than authoritative balance due ($${requiredBalanceDue.toFixed(2)})`,
+          error: `Underpayment rejected: Split payments net sum (${await amount(netPaymentSubmitted)}) is less than authoritative balance due (${await amount(requiredBalanceDue)})`,
         },
         { status: 400 }
       )
@@ -139,7 +147,7 @@ export async function POST(req: NextRequest) {
 
         if (s.stripePaymentIntentId === 'zero_balance_settlement') {
           return NextResponse.json(
-            { error: `Cannot settle positive split balance ($${s.total.toFixed(2)}) with zero balance token` },
+            { error: `Cannot settle positive split balance (${await amount(s.total)}) with zero balance token` },
             { status: 400 }
           )
         }
@@ -147,6 +155,7 @@ export async function POST(req: NextRequest) {
         try {
           const { findConnectedAccount } = await import('@/lib/stripe-connect')
           await verifyStripeIntent({
+          currency: currencyCode ?? (currencyCode = (await getRestaurantMoneySettings(restaurantId)).currency),
             intentId: s.stripePaymentIntentId,
             orderId,
             expectedAmount: s.total,

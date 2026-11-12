@@ -58,7 +58,7 @@ export async function sendStaffInvitationEmail(params: SendStaffInvitationEmailP
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0a0a0b; color: #f5f5f7; margin: 0; padding: 24px; }
     .card { background: #1c1c1e; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; max-width: 520px; margin: 0 auto; padding: 32px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5); }
-    .badge { display: inline-block; background: rgba(91, 69, 245, 0.15); border: 1px solid rgba(91, 69, 245, 0.35); color: var(--brand); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+    .badge { display: inline-block; background: rgba(91, 69, 245, 0.15); border: 1px solid rgba(91, 69, 245, 0.35); color: var(--brand-text); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
     h1 { font-size: 22px; font-weight: 700; margin: 0 0 8px; color: #ffffff; }
     p { font-size: 14px; line-height: 1.6; color: #a1a1aa; margin: 0 0 16px; }
     .info-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px; margin: 20px 0; }

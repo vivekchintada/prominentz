@@ -75,14 +75,24 @@ export async function resolveUserLocation(sessionUser: {
       })
       if (!rest) return null
 
-      location = await prisma.location.create({
-        data: {
-          restaurantId: rest.id,
-          name: 'Main Dining Room',
-          isHeadquarters: true,
-          timezone: 'UTC',
-        },
-        include: { restaurant: { select: { id: true, name: true } } },
+      // Several API calls can arrive here at once for a brand-new restaurant. Lock per
+      // restaurant and re-check, so only one "Main Dining Room" is ever created.
+      location = await prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`location-provision:${rest.id}`}))`
+        const existing = await tx.location.findFirst({
+          where: { restaurantId: rest.id },
+          include: { restaurant: { select: { id: true, name: true } } },
+        })
+        if (existing) return existing
+        return tx.location.create({
+          data: {
+            restaurantId: rest.id,
+            name: 'Main Dining Room',
+            isHeadquarters: true,
+            timezone: 'UTC',
+          },
+          include: { restaurant: { select: { id: true, name: true } } },
+        })
       })
     }
 

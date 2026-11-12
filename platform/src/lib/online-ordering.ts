@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/prisma'
+import { formatMoney } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 import type { FulfilmentType } from '@prisma/client'
 import { validateDeliveryDistance } from './delivery-geocoding'
 
@@ -165,7 +167,8 @@ export async function quoteOnlineOrder(input: {
       : Number(config.minimumPickupAmount)
 
   if (subtotal < minimum) {
-    throw new Error(`Minimum order is $${minimum.toFixed(2)}`)
+    const { currency } = await getRestaurantMoneySettings(location.restaurantId)
+    throw new Error(`Minimum order is ${formatMoney(minimum, currency)}`)
   }
 
   const tip = Math.max(0, Number(input.tip || 0))

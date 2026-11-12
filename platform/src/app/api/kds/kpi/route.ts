@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { startOfDayInTimeZone } from '@/lib/dashboard-metrics'
+import { localParts } from '@/lib/bento/time'
 
 export const dynamic = 'force-dynamic'
+
+/** Tickets older than this many minutes count as late. */
+const TARGET_MINS = 12
 
 export async function GET() {
   try {
@@ -11,74 +16,72 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Every figure below is limited to the signed-in user's own location.
+    const employee = await prisma.employee.findFirst({
+      where: { userId: session.user.id, isActive: true },
+      select: { locationId: true },
+    })
+    const location = employee?.locationId
+      ? await prisma.location.findFirst({
+          where: { id: employee.locationId, restaurantId: session.user.restaurantId },
+          select: { id: true, timezone: true },
+        })
+      : await prisma.location.findFirst({
+          where: { restaurantId: session.user.restaurantId },
+          select: { id: true, timezone: true },
+          orderBy: { createdAt: 'asc' },
+        })
+    if (!location) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+    }
+
+    const locationId = location.id
+    const tz = location.timezone || 'UTC'
     const now = new Date()
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
-    const startOfDay = new Date()
-    startOfDay.setHours(0, 0, 0, 0)
+    const startOfDay = startOfDayInTimeZone(tz, now)
+    const atLocation = { order: { table: { locationId } } }
 
-    const [
-      ordersLastHour,
-      completedTicketsToday,
-      activeTickets,
-      activeKitchenStaff,
-      todayPayments,
-    ] = await Promise.all([
-      // 1. Orders placed in the last hour
+    const [ordersLastHour, completedTicketsToday, activeTickets, overdueTickets, activeKitchenStaff, todayPayments] = await Promise.all([
       prisma.order.count({
-        where: { createdAt: { gte: oneHourAgo } },
+        where: { table: { locationId }, createdAt: { gte: oneHourAgo } },
       }),
-
-      // 2. Completed KDS tickets today (for avg ticket time)
       prisma.kdsTicket.findMany({
-        where: {
-          status: { in: ['READY', 'SERVED'] },
-          readyAt: { not: null },
-          createdAt: { gte: startOfDay },
-        },
+        where: { ...atLocation, status: { in: ['READY', 'SERVED'] }, readyAt: { not: null }, createdAt: { gte: startOfDay } },
         select: { createdAt: true, readyAt: true },
       }),
-
-      // 3. Active (non-served) tickets
       prisma.kdsTicket.count({
-        where: { status: { in: ['NEW', 'IN_PROGRESS'] } },
+        where: { ...atLocation, status: { in: ['NEW', 'IN_PROGRESS'] } },
       }),
-
-      // 4. Kitchen staff currently clocked in
-      prisma.employee.count({
-        where: {
-          isActive: true,
-          shifts: { some: { status: 'ACTIVE' } },
-        },
+      prisma.kdsTicket.count({
+        where: { ...atLocation, status: { in: ['NEW', 'IN_PROGRESS'] }, createdAt: { lt: new Date(now.getTime() - TARGET_MINS * 60 * 1000) } },
       }),
-
-      // 5. Today's revenue from completed payments
+      prisma.timeEntry.count({
+        where: { locationId, clockOut: null },
+      }),
       prisma.payment.aggregate({
         _sum: { total: true },
-        where: {
-          status: 'COMPLETED',
-          createdAt: { gte: startOfDay },
-        },
+        where: { ...atLocation, status: 'COMPLETED', createdAt: { gte: startOfDay } },
       }),
     ])
 
-    // Compute avg ticket time in minutes
-    let avgTicketTimeMins = 0
-    if (completedTicketsToday.length > 0) {
-      const totalMs = completedTicketsToday.reduce((sum, t) => {
-        const end = t.readyAt ? new Date(t.readyAt).getTime() : now.getTime()
-        const start = new Date(t.createdAt).getTime()
-        return sum + Math.max(0, end - start)
-      }, 0)
-      avgTicketTimeMins = Number((totalMs / completedTicketsToday.length / 60000).toFixed(1))
+    // Average ticket time, overall and per local hour (for the pace chart)
+    let totalMs = 0
+    const perHour = new Map<number, { ms: number; n: number }>()
+    for (const t of completedTicketsToday) {
+      const ms = Math.max(0, (t.readyAt ?? now).getTime() - t.createdAt.getTime())
+      totalMs += ms
+      const h = localParts(t.createdAt, tz).hour
+      const slot = perHour.get(h) ?? { ms: 0, n: 0 }
+      slot.ms += ms
+      slot.n += 1
+      perHour.set(h, slot)
     }
-
-    // Count overdue tickets (>12 min old and still active)
-    const overdueTickets = await prisma.kdsTicket.count({
-      where: {
-        status: { in: ['NEW', 'IN_PROGRESS'] },
-        createdAt: { lt: new Date(now.getTime() - 12 * 60 * 1000) },
-      },
-    })
+    const avgTicketTimeMins = completedTicketsToday.length > 0 ? Number((totalMs / completedTicketsToday.length / 60000).toFixed(1)) : 0
+    const pace = [...perHour.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .slice(-6)
+      .map(([hour, s]) => ({ hour, avgMins: Number((s.ms / s.n / 60000).toFixed(1)), tickets: s.n }))
 
     return NextResponse.json({
       ordersPerHour: ordersLastHour,
@@ -88,6 +91,8 @@ export async function GET() {
       activeKitchenStaff,
       todayRevenue: Number(todayPayments._sum.total || 0),
       completedTicketsToday: completedTicketsToday.length,
+      targetMins: TARGET_MINS,
+      pace,
     })
   } catch (error) {
     console.error('[GET /api/kds/kpi]', error)

@@ -1,3 +1,4 @@
+import { printerMoney } from '@/lib/money'
 import net from 'net'
 
 export interface KotPrintData {
@@ -18,6 +19,8 @@ export interface KotPrintData {
 }
 
 export interface ReceiptPrintData {
+  /** ISO code of the restaurant's currency. */
+  currency?: string
   restaurantName: string
   address?: string
   phone?: string
@@ -135,9 +138,9 @@ export function buildReceiptEscposBuffer(data: ReceiptPrintData): Buffer {
 
   // Items table: Qty | Name | Price
   data.items.forEach((item) => {
-    const itemTotal = (item.price * item.quantity).toFixed(2)
+    const itemTotal = printerMoney(item.price * item.quantity, data.currency)
     const namePart = `${item.quantity}x ${item.name}`.padEnd(36).substring(0, 36)
-    const pricePart = `$${itemTotal}`.padStart(10)
+    const pricePart = itemTotal.padStart(12)
     commands += `${namePart}${pricePart}\n`
     if (item.modifiers && item.modifiers.length > 0) {
       commands += `   + ${item.modifiers.join(', ')}\n`
@@ -146,13 +149,13 @@ export function buildReceiptEscposBuffer(data: ReceiptPrintData): Buffer {
 
   commands += ESCPOS.LINE
   commands += ESCPOS.ALIGN_RIGHT
-  commands += `Subtotal:  $${data.subtotal.toFixed(2)}\n`
-  commands += `Tax:  $${data.tax.toFixed(2)}\n`
+  commands += `Subtotal:  ${printerMoney(data.subtotal, data.currency)}\n`
+  commands += `Tax:  ${printerMoney(data.tax, data.currency)}\n`
   if (data.tip && data.tip > 0) {
-    commands += `Tip:  $${data.tip.toFixed(2)}\n`
+    commands += `Tip:  ${printerMoney(data.tip, data.currency)}\n`
   }
   commands += ESCPOS.BOLD_ON + ESCPOS.DOUBLE_HEIGHT
-  commands += `TOTAL:  $${data.total.toFixed(2)}\n`
+  commands += `TOTAL:  ${printerMoney(data.total, data.currency)}\n`
   commands += ESCPOS.DOUBLE_OFF + ESCPOS.BOLD_OFF
   commands += `Paid via: ${data.paymentMethod}\n`
 

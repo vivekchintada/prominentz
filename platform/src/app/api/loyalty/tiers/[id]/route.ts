@@ -11,8 +11,16 @@ export async function PATCH(
     if (!session?.user?.restaurantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const { id } = await params
     const body = await req.json()
+
+    const owned = await prisma.loyaltyTier.findFirst({ where: { id, restaurantId: session.user.restaurantId }, select: { id: true } })
+    if (!owned) {
+      return NextResponse.json({ error: 'Tier not found' }, { status: 404 })
+    }
 
     const updated = await prisma.loyaltyTier.update({
       where: { id },
@@ -41,15 +49,24 @@ export async function DELETE(
     if (!session?.user?.restaurantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const { id } = await params
 
-    // Dissociate customers from tier
-    await prisma.customer.updateMany({
-      where: { tierId: id },
-      data: { tierId: null },
-    })
+    const owned = await prisma.loyaltyTier.findFirst({ where: { id, restaurantId: session.user.restaurantId }, select: { id: true } })
+    if (!owned) {
+      return NextResponse.json({ error: 'Tier not found' }, { status: 404 })
+    }
 
-    await prisma.loyaltyTier.delete({ where: { id } })
+    // Dissociate customers from tier
+    await prisma.$transaction([
+      prisma.customer.updateMany({
+        where: { tierId: id, restaurantId: session.user.restaurantId },
+        data: { tierId: null },
+      }),
+      prisma.loyaltyTier.delete({ where: { id } }),
+    ])
 
     return NextResponse.json({ success: true })
   } catch (err) {

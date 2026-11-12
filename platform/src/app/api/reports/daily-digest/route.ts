@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { auth } from '@/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { isAuthorizedCron } from '@/lib/cron-auth'
 import { prisma } from '@/lib/prisma'
 import { generateDailyDigestHtml } from '@/lib/email-templates/daily-digest'
 
@@ -7,13 +7,11 @@ export const dynamic = 'force-dynamic'
 
 // ─── GET /api/reports/daily-digest ────────────────────────────────────────────
 // Sends yesterday's performance digest to all OWNER + MANAGER users.
-// Can be triggered manually or via a Vercel cron (vercel.json: {"crons": [{"path": "/api/reports/daily-digest","schedule": "0 1 * * *"}]})
-export async function GET() {
+// Cron-only (it emails every restaurant): Vercel Cron sends Authorization: Bearer $CRON_SECRET.
+// vercel.json: {"crons": [{"path": "/api/reports/daily-digest","schedule": "0 1 * * *"}]}
+export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    // Allow unauthenticated for cron triggers; gate on a secret in production
-    const cronSecret = process.env.CRON_SECRET
-    if (!session?.user && cronSecret) {
+    if (!isAuthorizedCron(req)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

@@ -35,7 +35,7 @@ export async function POST(
     const entry = await prisma.waitlistEntry.findFirst({
       where: {
         id,
-        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+        location: { restaurantId: resolved?.restaurantId || session.user.restaurantId || '' },
       },
     })
     if (!entry) {

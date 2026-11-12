@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { formatMoney } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
+    let currencyCode: string | null = null
+    const money = async (n: number) =>
+      formatMoney(n, currencyCode ?? (currencyCode = (await getRestaurantMoneySettings(session?.user?.restaurantId ?? '')).currency))
     if (!session?.user?.restaurantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -54,13 +59,15 @@ export async function POST(req: NextRequest) {
         enteredCode: cleanCode,
         error: `Coupon "${cleanCode}" does not exist`,
         message: `Coupon "${cleanCode}" does not exist`,
-        availableCoupons: available.map((c) => ({
-          code: c.code,
-          discountType: c.discountType,
-          discountAmount: Number(c.discountAmount),
-          discount: c.discountType === 'PERCENTAGE' ? `${c.discountAmount}% off` : `$${c.discountAmount} off`,
-          minOrder: c.minimumOrderAmount ? Number(c.minimumOrderAmount) : 0,
-        })),
+        availableCoupons: await Promise.all(
+          available.map(async (c) => ({
+            code: c.code,
+            discountType: c.discountType,
+            discountAmount: Number(c.discountAmount),
+            discount: c.discountType === 'PERCENTAGE' ? `${c.discountAmount}% off` : `${await money(Number(c.discountAmount))} off`,
+            minOrder: c.minimumOrderAmount ? Number(c.minimumOrderAmount) : 0,
+          })),
+        ),
       }, { status: 404 })
     }
 
@@ -84,7 +91,7 @@ export async function POST(req: NextRequest) {
 
     // Minimum order amount check
     if (coupon.minimumOrderAmount && orderSubtotal < Number(coupon.minimumOrderAmount)) {
-      const msg = `Minimum order amount of $${Number(coupon.minimumOrderAmount).toFixed(2)} required for this coupon.`
+      const msg = `Minimum order amount of ${await money(Number(coupon.minimumOrderAmount))} required for this coupon.`
       return NextResponse.json({ valid: false, error: msg, message: msg }, { status: 400 })
     }
 
@@ -188,7 +195,7 @@ export async function POST(req: NextRequest) {
       calculatedDiscount: discount,
       pointsVerified,
       customerPoints,
-      message: `Coupon ${coupon.code} applied! -$${discount.toFixed(2)}${pointsVerified ? ` (${coupon.pointsCost} loyalty pts redeemed)` : ''}`,
+      message: `Coupon ${coupon.code} applied! -${await money(discount)}${pointsVerified ? ` (${coupon.pointsCost} loyalty pts redeemed)` : ''}`,
     })
   } catch (error) {
     console.error('[POST /api/coupons/validate]', error)

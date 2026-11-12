@@ -7,11 +7,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const session = await auth()
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const { id } = await params
 
-    const period = await prisma.reconciliationPeriod.findUnique({
-      where: { id },
+    const period = await prisma.reconciliationPeriod.findFirst({
+      where: { id, location: { restaurantId: session.user.restaurantId } },
       include: {
         statements: {
           include: {
@@ -52,6 +55,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json(period)
   } catch (error: any) {
     console.error('GET /api/reconciliation/periods/[id] error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to load reconciliation period' }, { status: 500 })
   }
 }

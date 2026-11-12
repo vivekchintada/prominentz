@@ -1,3 +1,4 @@
+import { printerMoney } from '@/lib/money'
 /**
  * ESC/POS Command Generator for 80mm / 58mm Thermal Printers
  */
@@ -102,6 +103,8 @@ export function generateEscPosKOT(data: KOTData, widthChars: number = 42): Uint8
 }
 
 export interface ReceiptData {
+  /** ISO code of the restaurant's currency. */
+  currency?: string
   restaurantName: string
   address?: string | null
   phone?: string | null
@@ -113,7 +116,7 @@ export interface ReceiptData {
     name: string
     quantity: number
     priceAtOrder: number
-    modifiers?: Array<{ optionName?: string; name?: string }>
+    modifiers?: Array<{ optionName?: string; name?: string; priceDelta?: number }>
   }>
   subtotal: number
   tax: number
@@ -162,10 +165,11 @@ export function generateReceiptEscPos(data: ReceiptData, widthChars: number = 42
 
   // Items
   for (const item of data.items) {
-    const itemTotal = (item.quantity * item.priceAtOrder).toFixed(2)
+    const optionPrice = (item.modifiers ?? []).reduce((sum, m) => sum + Number(m.priceDelta ?? 0), 0)
+    const itemTotal = printerMoney(item.quantity * (item.priceAtOrder + optionPrice), data.currency)
     const lineStr = `${item.quantity}x ${item.name}`
     const dotsCount = Math.max(1, widthChars - lineStr.length - itemTotal.length)
-    addLine(`${lineStr}${' '.repeat(dotsCount)}$${itemTotal}`)
+    addLine(`${lineStr}${' '.repeat(dotsCount)}${itemTotal}`)
 
     if (item.modifiers && item.modifiers.length > 0) {
       for (const m of item.modifiers) {
@@ -183,16 +187,16 @@ export function generateReceiptEscPos(data: ReceiptData, widthChars: number = 42
     return `${label}${' '.repeat(space)}${val}`
   }
 
-  addLine(padRight('Subtotal:', `$${data.subtotal.toFixed(2)}`))
-  addLine(padRight('Tax:', `$${data.tax.toFixed(2)}`))
+  addLine(padRight('Subtotal:', `${printerMoney(data.subtotal, data.currency)}`))
+  addLine(padRight('Tax:', `${printerMoney(data.tax, data.currency)}`))
   if (data.tip && data.tip > 0) {
-    addLine(padRight('Tip:', `$${data.tip.toFixed(2)}`))
+    addLine(padRight('Tip:', `${printerMoney(data.tip, data.currency)}`))
   }
   addLine('='.repeat(widthChars))
 
   add(ESC_POS.BOLD_ON)
   add(ESC_POS.DOUBLE_HEIGHT_ON)
-  addLine(padRight('TOTAL:', `$${data.total.toFixed(2)}`))
+  addLine(padRight('TOTAL:', `${printerMoney(data.total, data.currency)}`))
   add(ESC_POS.NORMAL_SIZE)
   add(ESC_POS.BOLD_OFF)
 

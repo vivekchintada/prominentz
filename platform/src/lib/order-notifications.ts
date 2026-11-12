@@ -1,4 +1,6 @@
 import { Resend } from 'resend'
+import { formatMoney } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
 const resendApiKey = process.env.RESEND_API_KEY
 const resend = resendApiKey && !resendApiKey.includes('REPLACE_ME') ? new Resend(resendApiKey) : null
@@ -13,9 +15,13 @@ interface OrderNotificationPayload {
   total: number
   trackingUrl: string
   restaurantName: string
+  /** Used to show amounts in the restaurant's currency. */
+  restaurantId?: string | null
 }
 
 export async function sendOrderConfirmationNotification(payload: OrderNotificationPayload) {
+  const currency = payload.restaurantId ? (await getRestaurantMoneySettings(payload.restaurantId)).currency : undefined
+  const money = (n: number) => formatMoney(n, currency)
   const {
     orderNumber,
     customerName,
@@ -31,7 +37,7 @@ export async function sendOrderConfirmationNotification(payload: OrderNotificati
   if (customerEmail && resend) {
     try {
       const itemsListHtml = items
-        .map((i) => `<tr><td style="padding: 6px 0;">${i.quantity}x ${i.name}</td><td style="text-align: right; padding: 6px 0;">$${i.lineTotal.toFixed(2)}</td></tr>`)
+        .map((i) => `<tr><td style="padding: 6px 0;">${i.quantity}x ${i.name}</td><td style="text-align: right; padding: 6px 0;">${money(i.lineTotal)}</td></tr>`)
         .join('')
 
       await resend.emails.send({
@@ -49,7 +55,7 @@ export async function sendOrderConfirmationNotification(payload: OrderNotificati
                 ${itemsListHtml}
                 <tr style="border-top: 1px solid #cbd5e1; font-weight: 700;">
                   <td style="padding-top: 10px;">Total</td>
-                  <td style="text-align: right; padding-top: 10px;">$${total.toFixed(2)}</td>
+                  <td style="text-align: right; padding-top: 10px;">${money(total)}</td>
                 </tr>
               </table>
             </div>

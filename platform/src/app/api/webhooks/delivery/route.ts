@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
+import { randomBytes } from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { publishEvent } from '@/lib/redis'
 import { parseDoorDashOrder } from '@/lib/delivery-adapters/doordash'
@@ -88,17 +88,74 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       })
     }
 
+    // Idempotency: platforms send several events per order (created, updated, cancelled).
+    // A repeat event must update the existing order, never create a second one.
+    const existing = await prisma.order.findFirst({
+      where: {
+        deliveryPlatformOrderId: normalized.platformOrderId,
+        table: { locationId: location.id },
+      },
+      select: { id: true, onlineStatus: true },
+    })
+
+    if (existing) {
+      const eventText = String(
+        rawBody?.event_type ?? rawBody?.event ?? rawBody?.status ?? rawBody?.order?.status ?? rawBody?.order?.details?.order_state ?? ''
+      ).toLowerCase()
+      const isCancel = /cancel|reject|void/.test(eventText)
+
+      if (isCancel && existing.onlineStatus !== 'CANCELLED') {
+        await prisma.order.update({
+          where: { id: existing.id },
+          data: { onlineStatus: 'CANCELLED', rejectedAt: new Date(), rejectionReason: `Cancelled by ${platform}` },
+        })
+      }
+      await prisma.orderEvent.create({
+        data: {
+          orderId: existing.id,
+          eventType: isCancel ? 'online_order.cancelled' : 'delivery.order.updated',
+          metadata: { platform, platformOrderId: normalized.platformOrderId, event: eventText || null },
+        },
+      })
+      await publishEvent(
+        isCancel ? 'delivery.order.cancelled' : 'delivery.order.updated',
+        { orderId: existing.id, platform, platformOrderId: normalized.platformOrderId },
+        location.id
+      )
+      return NextResponse.json({ received: true, duplicate: true, orderId: existing.id, platform, cancelled: isCancel })
+    }
+
     // Resolve menu items by name (fuzzy best-match)
     const allMenuItems = await prisma.menuItem.findMany({
       where: { category: { restaurantId: location.restaurantId }, isAvailable: true },
       select: { id: true, name: true, price: true, kdsStation: true },
     })
 
+    const unmatched = normalized.items.filter(
+      (li) => !allMenuItems.some((m) => m.name.toLowerCase() === li.name.toLowerCase())
+    )
+    const channelName = platform === 'doordash' ? 'DoorDash' : platform === 'ubereats' ? 'Uber Eats' : platform.charAt(0).toUpperCase() + platform.slice(1)
+    const publicOrderNumber = `${platform.slice(0, 2).toUpperCase()}-${normalized.platformOrderId.slice(-6).toUpperCase()}`
+
+    // When the platform item has no menu match we fall back to another item; make the real name visible to the kitchen.
+    const noteFor = (li: (typeof normalized.items)[number], matchedName: string) =>
+      matchedName.toLowerCase() === li.name.toLowerCase()
+        ? li.specialNote ?? null
+        : `⚠ ORDERED: ${li.name}${li.specialNote ? ` — ${li.specialNote}` : ''}`
+
     // Create the Order
     const order = await prisma.order.create({
       data: {
         tableId: deliveryTable.id,
         status: 'SENT_TO_KITCHEN',
+        // Already sent to the kitchen below, so it enters the tracker as PREPARING
+        // (ACCEPTED would make the manage route fire the kitchen a second time).
+        onlineStatus: 'PREPARING',
+        fulfilmentType: 'DELIVERY',
+        customerName: normalized.guestName,
+        publicOrderNumber,
+        trackingToken: randomBytes(24).toString('hex'),
+        acceptedAt: new Date(),
         orderSource: platform === 'doordash'
           ? 'DELIVERY_DOORDASH'
           : platform === 'ubereats'
@@ -106,7 +163,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           : 'DELIVERY_OTHER',
         deliveryPlatformOrderId: normalized.platformOrderId,
         guestCount: 1,
-        notes: `[${platform.toUpperCase()} ORDER #${normalized.platformOrderId.slice(-8)}] ${normalized.notes ?? ''}`.trim(),
+        notes: `[${channelName.toUpperCase()} ORDER #${normalized.platformOrderId.slice(-8)}] ${normalized.notes ?? ''}${unmatched.length ? ` ⚠ NOT ON MENU: ${unmatched.map((u) => `${u.quantity}x ${u.name}`).join(', ')}` : ''}`.trim(),
         subtotal: normalized.subtotal,
         tax: normalized.tax,
         total: normalized.total,
@@ -128,7 +185,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           quantity: lineItem.quantity,
           priceAtOrder: lineItem.unitPrice || Number(menuItem.price),
           modifiers: lineItem.modifiers ?? [],
-          specialNote: lineItem.specialNote ?? null,
+          specialNote: noteFor(lineItem, menuItem.name),
           status: 'PENDING',
         },
       })
@@ -166,7 +223,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             menuItemId: menuItem.id,
             quantity: lineItem.quantity,
             modifiers: lineItem.modifiers ?? [],
-            specialNote: lineItem.specialNote ?? null,
+            specialNote: noteFor(lineItem, menuItem.name),
             status: 'PENDING',
           },
         })

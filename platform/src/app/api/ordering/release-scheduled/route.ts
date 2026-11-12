@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { fireOnlineOrder } from '@/lib/online-order-orchestration'
+import { isAuthorizedCron } from '@/lib/cron-auth'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  const cronAllowed =
-    process.env.CRON_SECRET &&
-    req.headers.get('authorization') === `Bearer ${process.env.CRON_SECRET}`
+  const cronAllowed = isAuthorizedCron(req)
 
-  if (!cronAllowed && (!session?.user || !['OWNER', 'MANAGER'].includes(session.user.role))) {
+  if (!cronAllowed && (!session?.user?.restaurantId || !['OWNER', 'MANAGER'].includes(session.user.role))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
+
+  // The cron sweeps every restaurant; a signed-in manager only ever touches their own.
+  const tenantScope = cronAllowed ? {} : { table: { location: { restaurantId: session!.user.restaurantId } } }
 
   const now = new Date()
   const lookaheadWindow = new Date(now.getTime() + 45 * 60000) // 45-minute default lead time window
@@ -21,6 +23,7 @@ export async function POST(req: NextRequest) {
   // 1. Release scheduled orders that have reached their kitchen prep lead time
   const scheduledOrders = await prisma.order.findMany({
     where: {
+      ...tenantScope,
       onlineStatus: 'ACCEPTED',
       scheduledFor: { lte: lookaheadWindow },
       tickets: { none: {} }, // Ensure order hasn't already been fired to KDS (idempotent / release once)
@@ -59,6 +62,7 @@ export async function POST(req: NextRequest) {
   const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60000)
   const expiredDrafts = await prisma.order.updateMany({
     where: {
+      ...tenantScope,
       onlineStatus: 'PAYMENT_PENDING',
       createdAt: { lt: twoHoursAgo },
     },

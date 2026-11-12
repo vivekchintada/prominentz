@@ -15,13 +15,13 @@ export async function PATCH(
 
     const { id } = await params
     const body = await req.json()
-    const { action, targetEmployeeId, managerNote } = body // action: 'ACCEPT_PEER' | 'APPROVE' | 'DENY' | 'CANCEL'
+    const { action, managerNote } = body // action: 'ACCEPT_PEER' | 'APPROVE' | 'DENY' | 'CANCEL'
+    const restaurantId = session.user.restaurantId
+    const isManager = session.user.role === 'MANAGER' || session.user.role === 'OWNER'
 
-    const trade = await prisma.shiftTradeRequest.findUnique({
-      where: { id },
-      include: {
-        shift: true,
-      },
+    const trade = await prisma.shiftTradeRequest.findFirst({
+      where: { id, shift: { location: { restaurantId } } },
+      include: { shift: true },
     })
 
     if (!trade) {
@@ -29,55 +29,63 @@ export async function PATCH(
     }
 
     const userEmp = await prisma.employee.findFirst({
-      where: { userId: session.user.id },
+      where: { userId: session.user.id, location: { restaurantId } },
     })
 
     let updatedTrade: any = null
 
     if (action === 'ACCEPT_PEER') {
-      // Coworker accepts open/offered shift trade -> moves to PENDING_MANAGER
-      const acceptorId = targetEmployeeId || userEmp?.id
-      if (!acceptorId) {
+      // The coworker taking the shift accepts it themselves; it then waits for a manager.
+      if (!userEmp) {
         return NextResponse.json({ error: 'Coworker employee record required' }, { status: 400 })
+      }
+      if (trade.status !== 'PENDING_PEER') {
+        return NextResponse.json({ error: 'This trade is no longer open' }, { status: 409 })
+      }
+      if (userEmp.id === trade.requesterId) {
+        return NextResponse.json({ error: 'You cannot accept your own trade' }, { status: 400 })
+      }
+      if (trade.targetEmployeeId && trade.targetEmployeeId !== userEmp.id) {
+        return NextResponse.json({ error: 'This trade was offered to someone else' }, { status: 403 })
       }
 
       updatedTrade = await prisma.shiftTradeRequest.update({
         where: { id },
         data: {
-          targetEmployeeId: acceptorId,
+          targetEmployeeId: userEmp.id,
           status: 'PENDING_MANAGER',
         },
       })
     } else if (action === 'APPROVE') {
-      // Manager approves trade request -> Transfer shift to new worker!
-      if (session.user.role !== 'MANAGER' && session.user.role !== 'OWNER') {
+      if (!isManager) {
         return NextResponse.json({ error: 'Only managers can approve shift trades' }, { status: 403 })
+      }
+      if (!['PENDING_PEER', 'PENDING_MANAGER'].includes(trade.status)) {
+        return NextResponse.json({ error: 'This trade has already been resolved' }, { status: 409 })
       }
 
       const newOwnerEmployeeId = trade.targetEmployeeId || body.assignToEmployeeId
-
       if (!newOwnerEmployeeId) {
         return NextResponse.json({ error: 'No target employee assigned to receive shift' }, { status: 400 })
       }
-
-      // 1. Re-assign shift to new employee
-      await prisma.shift.update({
-        where: { id: trade.shiftId },
-        data: {
-          employeeId: newOwnerEmployeeId,
-        },
+      const newOwner = await prisma.employee.findFirst({
+        where: { id: String(newOwnerEmployeeId), location: { restaurantId } },
+        select: { id: true },
       })
+      if (!newOwner) {
+        return NextResponse.json({ error: 'Target employee not found in this restaurant' }, { status: 400 })
+      }
 
-      // 2. Mark trade request APPROVED
-      updatedTrade = await prisma.shiftTradeRequest.update({
-        where: { id },
-        data: {
-          status: 'APPROVED',
-          managerNote: managerNote || 'Approved by manager',
-        },
-      })
+      const [, approved] = await prisma.$transaction([
+        prisma.shift.update({ where: { id: trade.shiftId }, data: { employeeId: newOwner.id } }),
+        prisma.shiftTradeRequest.update({
+          where: { id },
+          data: { status: 'APPROVED', targetEmployeeId: newOwner.id, managerNote: managerNote || 'Approved by manager' },
+        }),
+      ])
+      updatedTrade = approved
     } else if (action === 'DENY') {
-      if (session.user.role !== 'MANAGER' && session.user.role !== 'OWNER') {
+      if (!isManager) {
         return NextResponse.json({ error: 'Only managers can deny shift trades' }, { status: 403 })
       }
 
@@ -89,6 +97,9 @@ export async function PATCH(
         },
       })
     } else if (action === 'CANCEL') {
+      if (!isManager && userEmp?.id !== trade.requesterId) {
+        return NextResponse.json({ error: 'Only the requester or a manager can cancel this trade' }, { status: 403 })
+      }
       updatedTrade = await prisma.shiftTradeRequest.update({
         where: { id },
         data: {

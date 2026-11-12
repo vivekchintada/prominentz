@@ -28,7 +28,8 @@ export function parseDoorDashOrder(payload: Record<string, unknown>): Normalized
 
   const subtotal = Number(order.subtotal ?? order.order_subtotal ?? 0) / 100
   const tax      = Number(order.tax ?? order.sales_tax ?? 0) / 100
-  const total    = Number(order.total ?? order.order_total ?? subtotal + tax) / 100
+  const rawTotal = order.total ?? order.order_total
+  const total    = rawTotal != null ? Number(rawTotal) / 100 : subtotal + tax
 
   return {
     platformOrderId: String(order.id ?? order.order_id ?? order.external_delivery_id ?? 'unknown'),

@@ -6,6 +6,8 @@ import { stripe, isMockStripe, createPaymentIntent } from '@/lib/stripe'
 import { requireConnectedAccount, findConnectedAccount, paymentErrorStatus } from '@/lib/stripe-connect'
 import { resolveUserLocation } from '@/lib/location-resolver'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { toMinorUnits } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +24,7 @@ export const dynamic = 'force-dynamic'
 
 const startSchema = z.object({
   orderId: z.string().min(1),
-  amount: z.number().min(0.5, 'Minimum card charge is $0.50'),
+  amount: z.number().min(0.5, 'The amount is below the smallest card charge'),
   /** Distinguishes split-check shares so each gets its own PaymentIntent. */
   attempt: z.string().max(40).optional(),
 })
@@ -60,9 +62,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Charge in the restaurant's currency (₹ restaurants were being sent to the reader in dollars).
+    const { currency } = await getRestaurantMoneySettings(ctx.restaurantId)
     if (isMockStripe()) {
       // Local development: behave like an instant approved tap.
-      const intent = await createPaymentIntent(Math.round(amount * 100), orderId)
+      const intent = await createPaymentIntent(toMinorUnits(amount, currency), orderId, { currency })
       return NextResponse.json({ paymentIntentId: intent.id, status: 'succeeded', mock: true })
     }
 
@@ -80,7 +84,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const intent = await createPaymentIntent(Math.round(amount * 100), orderId, {
+    const intent = await createPaymentIntent(toMinorUnits(amount, currency), orderId, {
+      currency,
       stripeAccount,
       paymentMethodTypes: ['card_present'],
       idempotencySuffix: attempt || `${Date.now()}`,
@@ -105,7 +110,7 @@ export async function GET(req: NextRequest) {
   const paymentIntentId = req.nextUrl.searchParams.get('paymentIntentId')
   if (!paymentIntentId) return NextResponse.json({ error: 'paymentIntentId is required' }, { status: 400 })
 
-  if (isMockStripe() || paymentIntentId.startsWith('pi_mock_')) {
+  if (isMockStripe()) {
     return NextResponse.json({ status: 'succeeded' })
   }
 

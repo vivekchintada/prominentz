@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import {
@@ -75,7 +76,9 @@ export async function POST(req: NextRequest) {
       buffer = buildKotEscposBuffer(kotData)
     } else {
       const payment = order.payments[0]
+      const { currency } = await getRestaurantMoneySettings(order.table.location.restaurantId)
       const receiptData: ReceiptPrintData = {
+        currency,
         restaurantName: order.table.location.restaurant.name,
         address: order.table.location.address || undefined,
         phone: order.table.location.phone || undefined,
@@ -88,14 +91,16 @@ export async function POST(req: NextRequest) {
         tip: payment ? Number(payment.tip) : 0,
         total: Number(order.total),
         paymentMethod: payment ? payment.method : 'CASH',
-        items: order.items.map((i) => ({
-          name: i.menuItem.name,
-          quantity: i.quantity,
-          price: Number(i.priceAtOrder),
-          modifiers: Array.isArray(i.modifiers)
-            ? (i.modifiers as any[]).map((m) => m.name || m)
-            : undefined,
-        })),
+        // Voided lines were never charged; option prices sit on top of the base price.
+        items: order.items.filter((i) => i.status !== 'VOIDED').map((i) => {
+          const mods = Array.isArray(i.modifiers) ? (i.modifiers as Array<{ optionName?: string; name?: string; priceDelta?: number }>) : []
+          return {
+            name: i.menuItem.name,
+            quantity: i.quantity,
+            price: Number(i.priceAtOrder) + mods.reduce((sum, m) => sum + Number(m?.priceDelta ?? 0), 0),
+            modifiers: mods.length ? mods.map((m) => String(m?.optionName || m?.name || '')).filter(Boolean) : undefined,
+          }
+        }),
       }
       buffer = buildReceiptEscposBuffer(receiptData)
     }

@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { isPlatformAdmin } from '@/lib/hq/platform-admin'
+
+const onboardingMemberSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email().max(200),
+  role: z.enum(['MANAGER', 'SERVER', 'KITCHEN']).default('SERVER'),
+  password: z.string().min(8).max(100),
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -16,78 +25,6 @@ export async function GET() {
     const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
-    }
-
-    // Ensure core operational staff roles (Manager, Server, Kitchen) exist for this restaurant
-    const location = await prisma.location.findFirst({
-      where: { restaurantId },
-      orderBy: { isHeadquarters: 'desc' },
-    })
-
-    if (location) {
-      const existingStaff = await prisma.user.findMany({
-        where: {
-          restaurantId,
-          role: { in: ['MANAGER', 'SERVER', 'KITCHEN'] },
-        },
-        select: { role: true },
-      })
-      const existingRoles = new Set(existingStaff.map((u) => u.role))
-
-      const r = await prisma.restaurant.findUnique({
-        where: { id: restaurantId },
-        select: { name: true, slug: true },
-      })
-      const rSlug = r?.slug || `store-${restaurantId.slice(-6)}`
-      const rName = r?.name || 'Restaurant'
-
-      const bcrypt = await import('bcryptjs')
-      const defaultHash = await bcrypt.hash('resto123', 10)
-
-      if (!existingRoles.has('MANAGER')) {
-        const u = await prisma.user.create({
-          data: {
-            restaurantId,
-            email: `manager.${rSlug}@resto.app`,
-            name: `${rName} Manager`,
-            passwordHash: defaultHash,
-            role: 'MANAGER',
-          },
-        })
-        await prisma.employee.create({
-          data: { locationId: location.id, userId: u.id, jobTitle: 'Store Operations Manager', isActive: true },
-        })
-      }
-
-      if (!existingRoles.has('SERVER')) {
-        const u = await prisma.user.create({
-          data: {
-            restaurantId,
-            email: `server.${rSlug}@resto.app`,
-            name: `${rName} Server`,
-            passwordHash: defaultHash,
-            role: 'SERVER',
-          },
-        })
-        await prisma.employee.create({
-          data: { locationId: location.id, userId: u.id, jobTitle: 'Floor Server / Waiter', isActive: true },
-        })
-      }
-
-      if (!existingRoles.has('KITCHEN')) {
-        const u = await prisma.user.create({
-          data: {
-            restaurantId,
-            email: `kitchen.${rSlug}@resto.app`,
-            name: `${rName} Kitchen`,
-            passwordHash: defaultHash,
-            role: 'KITCHEN',
-          },
-        })
-        await prisma.employee.create({
-          data: { locationId: location.id, userId: u.id, jobTitle: 'Kitchen Chef / KDS Line', isActive: true },
-        })
-      }
     }
 
     const restaurant = await prisma.restaurant.findUnique({
@@ -125,7 +62,7 @@ export async function POST(req: NextRequest) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    if (!['OWNER', 'MANAGER', 'ADMIN'].includes(session.user.role)) {
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -189,53 +126,59 @@ export async function POST(req: NextRequest) {
         break
       }
       case 3: {
-        // Core staff roles (Manager, Server, Kitchen) customization & additional staff invite
+        // Optional: add one or more staff members. Each must be a new account with its own password.
         const { members, memberName, memberEmail, memberRole, memberPassword } = data as any
-        const bcrypt = await import('bcryptjs')
-
         const memberList: Array<{ name?: string; email?: string; role?: string; password?: string }> = Array.isArray(members)
           ? members
           : memberName && memberEmail
           ? [{ name: memberName, email: memberEmail, role: memberRole, password: memberPassword }]
           : []
 
+        const parsedMembers = z.array(onboardingMemberSchema).max(20).safeParse(memberList)
+        if (!parsedMembers.success) {
+          return NextResponse.json(
+            { error: 'Each staff member needs a name, a valid email, and a password of at least 8 characters.' },
+            { status: 400 }
+          )
+        }
+
+        // Managers may add servers and kitchen staff, not other managers.
+        if (session.user.role !== 'OWNER' && parsedMembers.data.some((m) => m.role === 'MANAGER')) {
+          return NextResponse.json({ error: 'Only the owner can add managers' }, { status: 403 })
+        }
+
         const location = await prisma.location.findFirst({ where: { restaurantId } })
+        const bcrypt = await import('bcryptjs')
 
-        for (const m of memberList) {
-          if (m.name && m.email) {
-            const cleanEmail = m.email.trim().toLowerCase()
-            const role = (['MANAGER', 'SERVER', 'KITCHEN'].includes(m.role || '') ? m.role : 'SERVER') as any
-            const hash = m.password ? await bcrypt.hash(m.password, 10) : await bcrypt.hash('resto123', 10)
+        for (const m of parsedMembers.data) {
+          const cleanEmail = m.email.trim().toLowerCase()
+          if (isPlatformAdmin(cleanEmail)) {
+            return NextResponse.json({ error: `${cleanEmail} cannot be used for a staff account` }, { status: 400 })
+          }
+          const taken = await prisma.user.findUnique({ where: { email: cleanEmail }, select: { id: true } })
+          if (taken) {
+            return NextResponse.json({ error: `An account with ${cleanEmail} already exists` }, { status: 409 })
+          }
 
-            const u = await prisma.user.upsert({
-              where: { email: cleanEmail },
-              create: {
-                restaurantId,
-                name: m.name.trim(),
-                email: cleanEmail,
-                passwordHash: hash,
-                role,
-              },
-              update: {
-                name: m.name.trim(),
-                role,
-                ...(m.password ? { passwordHash: hash } : {}),
+          const u = await prisma.user.create({
+            data: {
+              restaurantId,
+              name: m.name.trim(),
+              email: cleanEmail,
+              passwordHash: await bcrypt.hash(m.password, 10),
+              role: m.role,
+            },
+          })
+
+          if (location) {
+            await prisma.employee.create({
+              data: {
+                locationId: location.id,
+                userId: u.id,
+                jobTitle: m.role === 'MANAGER' ? 'Operations Manager' : m.role === 'KITCHEN' ? 'Kitchen Chef' : 'Floor Server',
+                isActive: true,
               },
             })
-
-            if (location) {
-              const existingEmp = await prisma.employee.findFirst({ where: { userId: u.id } })
-              if (!existingEmp) {
-                await prisma.employee.create({
-                  data: {
-                    locationId: location.id,
-                    userId: u.id,
-                    jobTitle: role === 'MANAGER' ? 'Operations Manager' : role === 'KITCHEN' ? 'Kitchen Chef' : 'Floor Server',
-                    isActive: true,
-                  },
-                })
-              }
-            }
           }
         }
 

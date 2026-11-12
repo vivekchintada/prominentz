@@ -33,6 +33,21 @@ export async function POST(req: NextRequest) {
     // Capture the payment
     const { findConnectedAccount, onAccount } = await import('@/lib/stripe-connect')
     const stripeAccount = await findConnectedAccount(session.user.restaurantId)
+
+    // A card charge belongs to exactly one order: it must have been created for this order
+    // and must not already be recorded against any payment.
+    const pending = await stripe.paymentIntents.retrieve(paymentIntentId, {}, onAccount(stripeAccount))
+    if (pending.metadata?.orderId !== orderId) {
+      return NextResponse.json({ error: 'This card payment was not started for this order' }, { status: 400 })
+    }
+    const alreadyRecorded = await prisma.payment.findFirst({
+      where: { stripePaymentIntentId: paymentIntentId },
+      select: { id: true },
+    })
+    if (alreadyRecorded) {
+      return NextResponse.json({ error: 'This card payment has already been recorded' }, { status: 409 })
+    }
+
     const intent = await stripe.paymentIntents.capture(paymentIntentId, {}, onAccount(stripeAccount))
 
     if (intent.status !== 'succeeded') {

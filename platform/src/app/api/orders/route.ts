@@ -26,8 +26,9 @@ export async function GET(req: NextRequest) {
 
     const orders = await prisma.order.findMany({
       where: {
+        // A table filter is still limited to the caller's own restaurant
         ...(tableId
-          ? { tableId }
+          ? { tableId, table: { location: { restaurantId: restaurantId || '' } } }
           : restaurantId
           ? {
               OR: [
@@ -104,7 +105,7 @@ export async function POST(req: NextRequest) {
     const table = await prisma.table.findFirst({
       where: {
         id: tableId,
-        ...(restaurantId ? { location: { restaurantId } } : {}),
+        location: { restaurantId: restaurantId || '' },
       },
     })
     if (!table) {

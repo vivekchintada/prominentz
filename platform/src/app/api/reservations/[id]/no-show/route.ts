@@ -25,7 +25,7 @@ export async function POST(
     const existing = await prisma.reservation.findFirst({
       where: {
         id,
-        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+        location: { restaurantId: resolved?.restaurantId || session.user.restaurantId || '' },
       },
     })
     if (!existing) {

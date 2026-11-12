@@ -40,7 +40,7 @@ export async function PATCH(
     const existing = await prisma.reservation.findFirst({
       where: {
         id,
-        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+        location: { restaurantId: resolved?.restaurantId || session.user.restaurantId || '' },
       },
     })
     if (!existing) {
@@ -126,6 +126,10 @@ export async function PATCH(
       })
     }
 
+    try {
+      await publishEvent('reservation.updated', { reservationId: id, status: updated.status, locationId: existing.locationId })
+    } catch {}
+
     // If status changed to CONFIRMED, send confirmation message
     if (status === 'CONFIRMED' && existing.status !== 'CONFIRMED' && updated.guestPhone) {
       const location = await prisma.location.findUnique({
@@ -206,7 +210,7 @@ export async function DELETE(
     const existing = await prisma.reservation.findFirst({
       where: {
         id,
-        ...(resolved?.restaurantId ? { location: { restaurantId: resolved.restaurantId } } : {}),
+        location: { restaurantId: resolved?.restaurantId || session.user.restaurantId || '' },
       },
     })
     if (!existing) {
@@ -227,6 +231,10 @@ export async function DELETE(
         actorId: session.user.id,
       })
     }
+
+    try {
+      await publishEvent('reservation.updated', { reservationId: id, deleted: true, locationId: existing.locationId })
+    } catch {}
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -33,3 +33,18 @@ export async function resolveActiveLocation(userId: string, restaurantId: string
   })
   return { employeeId: null, locationId: location?.id ?? null }
 }
+
+/**
+ * The location a request should act on: the one the client asked for, but only if it
+ * belongs to the caller's restaurant; otherwise the caller's default location.
+ * Returns null when a requested location is not theirs, so callers fail closed.
+ */
+export async function resolveOwnedLocation(userId: string, restaurantId: string, requestedId?: string | null) {
+  if (requestedId) {
+    return prisma.location.findFirst({
+      where: { id: requestedId, restaurantId },
+      select: { id: true, name: true, restaurantId: true },
+    })
+  }
+  return resolveLocationContext(userId, restaurantId)
+}

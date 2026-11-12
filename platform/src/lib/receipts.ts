@@ -1,7 +1,6 @@
-import fs from 'fs/promises'
-import path from 'path'
+import { formatMoney, normalizeCurrency } from '@/lib/money'
 
-interface ReceiptItem {
+export interface ReceiptItem {
   name:        string
   quantity:    number
   price:       number
@@ -9,7 +8,9 @@ interface ReceiptItem {
   specialNote: string | null
 }
 
-interface ReceiptData {
+export interface ReceiptData {
+  /** ISO code of the restaurant's currency. */
+  currency?:      string
   restaurantName: string
   locationName:   string
   address:        string
@@ -36,10 +37,17 @@ interface ReceiptData {
 
 /**
  * Receipt Builder Service
- * Compiles order + payment data into a premium HTML layout,
- * saves it to public/receipts/receipt-{paymentId}.html, and returns its public URL path.
+ * Compiles order + payment data into a premium HTML layout and returns it as a string.
+ * Rendered on demand by the /receipts/[paymentId] route — never written to disk, so
+ * there's nothing sitting in a public, unauthenticated static folder.
  */
-export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
+/** Everything printed on a receipt came from staff or guests (notes!), so it is escaped. */
+function esc(v: unknown): string {
+  return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string)
+}
+
+export function generateReceiptHtml(data: ReceiptData): string {
+  const money = (n: number) => formatMoney(n, data.currency)
   const dateStr = new Date(data.createdAt).toLocaleString('en-US', {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -49,15 +57,15 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
   const itemsHtml = data.items
     .map((item) => {
       const mods = (item.modifiers as Array<{ modifierName: string; optionName: string; priceDelta: number }>) ?? []
-      const modText = mods.map((m) => `+ ${m.optionName} (+$${Number(m.priceDelta).toFixed(2)})`).join(', ')
-      const noteText = item.specialNote ? `<div class="receipt-item__note">Note: "${item.specialNote}"</div>` : ''
+      const modText = mods.map((m) => `+ ${esc(m.optionName)} (+${money(Number(m.priceDelta))})`).join(', ')
+      const noteText = item.specialNote ? `<div class="receipt-item__note">Note: "${esc(item.specialNote)}"</div>` : ''
 
       return `
         <div class="receipt-item">
           <div class="receipt-item__main">
-            <span class="receipt-item__qty">${item.quantity}x</span>
-            <span class="receipt-item__name">${item.name}</span>
-            <span class="receipt-item__price">$${(Number(item.price) * item.quantity).toFixed(2)}</span>
+            <span class="receipt-item__qty">${esc(item.quantity)}x</span>
+            <span class="receipt-item__name">${esc(item.name)}</span>
+            <span class="receipt-item__price">${money((Number(item.price) * item.quantity))}</span>
           </div>
           ${modText ? `<div class="receipt-item__mods">${modText}</div>` : ''}
           ${noteText}
@@ -75,8 +83,8 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
           .map(
             (sp) => `
           <div class="receipt-row text-secondary">
-            <span>${sp.guestRef} (${sp.method})</span>
-            <span>$${Number(sp.total).toFixed(2)}</span>
+            <span>${esc(sp.guestRef)} (${esc(sp.method)})</span>
+            <span>${money(Number(sp.total))}</span>
           </div>
         `
           )
@@ -91,18 +99,18 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     methodDetailsHtml = `
       <div class="receipt-row">
         <span>Cash Tendered</span>
-        <span>$${Number(data.cashReceived).toFixed(2)}</span>
+        <span>${money(Number(data.cashReceived))}</span>
       </div>
       <div class="receipt-row">
         <span>Change Returned</span>
-        <span class="text-brand">$${Number(data.cashChange).toFixed(2)}</span>
+        <span class="text-brand">${money(Number(data.cashChange))}</span>
       </div>
     `
   } else if (data.stripeIntent) {
     methodDetailsHtml = `
       <div class="receipt-row text-xs text-tertiary">
         <span>Gateway Transaction</span>
-        <span>${data.stripeIntent}</span>
+        <span>${esc(data.stripeIntent)}</span>
       </div>
     `
   }
@@ -120,9 +128,9 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       --color-card: #1a1a1d;
       --color-text: #f5f5f7;
       --color-text-secondary: #a1a1aa;
-      --color-text-tertiary: #52525b;
+      --color-text-tertiary: #9a9aa3;
       --color-border: #2a2a2e;
-      --color-brand: #5b45f5;
+      --color-brand: #9d90ff;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -162,7 +170,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       line-height: 1.4;
     }
     .receipt-meta {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--color-text-tertiary);
       font-family: monospace;
       border-bottom: 1px dashed var(--color-border);
@@ -181,7 +189,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       margin-bottom: 15px;
     }
     .receipt-section__title {
-      font-size: 11px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--color-text-tertiary);
@@ -208,13 +216,13 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       font-weight: 500;
     }
     .receipt-item__mods {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--color-text-secondary);
       padding-left: 24px;
       margin-top: 2px;
     }
     .receipt-item__note {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--color-text-secondary);
       font-style: italic;
       padding-left: 24px;
@@ -231,38 +239,41 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     .text-secondary { color: var(--color-text-secondary); }
     .text-tertiary { color: var(--color-text-tertiary); }
     .text-brand { color: var(--color-brand); }
-    .text-xs { font-size: 11px; }
+    .text-xs { font-size: 12px; }
     .footer-msg {
       text-align: center;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--color-text-tertiary);
       margin-top: 25px;
       line-height: 1.4;
     }
     @media print {
       body { background-color: white; color: black; padding: 0; }
-      .receipt-card { border: none; box-shadow: none; max-width: 100%; padding: 0; }
+      /* The card must also go light in print — otherwise it keeps its dark
+         background while text inherits body's black, making it unreadable. */
+      .receipt-card { background-color: white; color: black; border: none; box-shadow: none; max-width: 100%; padding: 0; }
+      .receipt-card * { color: black !important; }
     }
   </style>
 </head>
 <body>
   <div class="receipt-card">
     <div class="receipt-header">
-      <div class="receipt-logo">${data.restaurantName}</div>
+      <div class="receipt-logo">${esc(data.restaurantName)}</div>
       <div class="receipt-location">
-        ${data.locationName}<br>
-        ${data.address}<br>
-        Phone: ${data.phone}
+        ${esc(data.locationName)}<br>
+        ${data.address ? `${esc(data.address)}<br>` : ''}
+        ${data.phone ? `Phone: ${esc(data.phone)}` : ''}
       </div>
     </div>
 
     <div class="receipt-meta">
       <div class="receipt-row"><span>Date/Time:</span><span>${dateStr}</span></div>
-      <div class="receipt-row"><span>Receipt ID:</span><span>${data.paymentId}</span></div>
-      <div class="receipt-row"><span>Order ID:</span><span>${data.orderId}</span></div>
-      <div class="receipt-row"><span>Server:</span><span>${data.serverName}</span></div>
-      <div class="receipt-row"><span>Table:</span><span>${data.tableName}</span></div>
-      <div class="receipt-row"><span>Method:</span><span>${data.method}</span></div>
+      <div class="receipt-row"><span>Receipt ID:</span><span>${esc(data.paymentId)}</span></div>
+      <div class="receipt-row"><span>Order ID:</span><span>${esc(data.orderId)}</span></div>
+      <div class="receipt-row"><span>Server:</span><span>${esc(data.serverName)}</span></div>
+      <div class="receipt-row"><span>Table:</span><span>${esc(data.tableName)}</span></div>
+      <div class="receipt-row"><span>Method:</span><span>${esc(data.method)}</span></div>
     </div>
 
     <div class="receipt-section">
@@ -275,29 +286,29 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     <div class="receipt-section" style="border-bottom: none; margin-bottom: 0;">
       <div class="receipt-row text-secondary">
         <span>Items Subtotal</span>
-        <span>$${(data.itemsSubtotal ?? data.items.reduce((s, i) => s + Number(i.price) * i.quantity, 0)).toFixed(2)}</span>
+        <span>${money((data.itemsSubtotal ?? data.items.reduce((s, i) => s + Number(i.price) * i.quantity, 0)))}</span>
       </div>
       ${data.couponDiscount && data.couponDiscount > 0 ? `
       <div class="receipt-row" style="color: #22c55e; font-weight: 600;">
         <span>Coupon Discount (${data.couponCode || 'PROMO'})</span>
-        <span>-$${Number(data.couponDiscount).toFixed(2)}</span>
+        <span>-${money(Number(data.couponDiscount))}</span>
       </div>
       <div class="receipt-row text-secondary">
         <span>Net Subtotal</span>
-        <span>$${Number(data.subtotal).toFixed(2)}</span>
+        <span>${money(Number(data.subtotal))}</span>
       </div>` : ''}
       <div class="receipt-row text-secondary">
         <span>Tax (10%)</span>
-        <span>$${Number(data.tax).toFixed(2)}</span>
+        <span>${money(Number(data.tax))}</span>
       </div>
       ${Number(data.tip) > 0 ? `
       <div class="receipt-row text-secondary">
         <span>Gratuity / Tip</span>
-        <span class="text-brand">+$${Number(data.tip).toFixed(2)}</span>
+        <span class="text-brand">+${money(Number(data.tip))}</span>
       </div>` : ''}
       <div class="receipt-row receipt-total">
         <span>Total Settled</span>
-        <span class="text-brand">$${Number(data.total).toFixed(2)}</span>
+        <span class="text-brand">${money(Number(data.total))}</span>
       </div>
       ${methodDetailsHtml}
     </div>
@@ -311,18 +322,93 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
 </html>
   `
 
-  // Directory path in public
-  const publicDir = path.join(process.cwd(), 'public')
-  const receiptsDir = path.join(publicDir, 'receipts')
-  
-  // Ensure public/receipts folder exists
-  await fs.mkdir(receiptsDir, { recursive: true })
+  return html
+}
 
-  const filename = `receipt-${data.paymentId}.html`
-  const filepath = path.join(receiptsDir, filename)
+/**
+ * Fetches and shapes the data a receipt needs to render, straight from the
+ * live database — never a frozen snapshot. When `restaurantId` is given, the
+ * lookup is tenant-scoped (the staff-triggered "send receipt" flow); when
+ * omitted, it's scoped only by the payment's own id, matching the public
+ * receipt link a diner opens from their email (the cuid is the access
+ * control — unguessable, but not behind a login, since the diner has none).
+ */
+export async function getReceiptData(
+  paymentId: string,
+  restaurantId?: string
+): Promise<ReceiptData | null> {
+  const { prisma } = await import('@/lib/prisma')
 
-  await fs.writeFile(filepath, html, 'utf8')
+  const payment = await prisma.payment.findFirst({
+    where: {
+      id: paymentId,
+      ...(restaurantId ? { order: { table: { location: { restaurantId } } } } : {}),
+    },
+    include: {
+      order: {
+        include: {
+          table: { include: { location: { include: { restaurant: true } } } },
+          server: { select: { name: true } },
+          items: { include: { menuItem: { select: { name: true } } } },
+        },
+      },
+      splits: true,
+    },
+  })
 
-  // Return the relative URL path
-  return `/receipts/${filename}`
+  if (!payment) return null
+
+  // Voided lines were never charged; option prices are stored apart from the base price.
+  const optionTotal = (mods: unknown) =>
+    Array.isArray(mods) ? mods.reduce((sum: number, m: { priceDelta?: number }) => sum + Number(m?.priceDelta ?? 0), 0) : 0
+  const items: ReceiptItem[] = payment.order.items.filter((item) => item.status !== 'VOIDED').map((item) => ({
+    name: item.menuItem.name,
+    quantity: item.quantity,
+    price: Number(item.priceAtOrder) + optionTotal(item.modifiers),
+    modifiers: item.modifiers,
+    specialNote: item.specialNote,
+  }))
+
+  const splits = payment.splits.map((s) => ({
+    guestRef: s.guestRef,
+    total: Number(s.total),
+    method: s.method,
+  }))
+
+  // "Coupon: SAVE10 (-₹50.00)" in any currency
+  const couponMatch = payment.order.notes?.match(/Coupon:\s*([A-Za-z0-9_-]+)(?:\s*\(-?[^\d(]*([\d,.]+)\))?/i)
+  const couponCode = couponMatch ? couponMatch[1] : undefined
+  let couponDiscount = couponMatch && couponMatch[2] ? parseFloat(couponMatch[2].replace(/,/g, '')) : undefined
+
+  const itemsSubtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  if (!couponDiscount && itemsSubtotal > Number(payment.subtotal) + 0.01) {
+    couponDiscount = Number((itemsSubtotal - Number(payment.subtotal)).toFixed(2))
+  }
+
+  const settings = (payment.order.table.location.restaurant.settings as { store?: { currency?: string } } | null) ?? {}
+  return {
+    currency: normalizeCurrency(settings.store?.currency),
+    restaurantName: payment.order.table.location.restaurant.name,
+    locationName: payment.order.table.location.name,
+    address: payment.order.table.location.address || '',
+    phone: payment.order.table.location.phone || '',
+    paymentId: payment.id,
+    orderId: payment.orderId,
+    serverName: payment.order.server?.name || 'QR Self-Order',
+    tableName: payment.order.table.name,
+    createdAt: payment.createdAt,
+    method: payment.method,
+    items,
+    itemsSubtotal,
+    couponCode,
+    couponDiscount,
+    subtotal: Number(payment.subtotal),
+    tax: Number(payment.tax),
+    tip: Number(payment.tip),
+    total: Number(payment.total),
+    cashReceived: payment.cashReceived ? Number(payment.cashReceived) : undefined,
+    cashChange: payment.cashChange ? Number(payment.cashChange) : undefined,
+    stripeIntent: payment.stripePaymentIntentId || undefined,
+    splits,
+  }
 }

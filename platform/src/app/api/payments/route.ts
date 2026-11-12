@@ -6,6 +6,8 @@ import { processPaymentSchema } from '@/lib/validations/payments'
 import { verifyStripeIntent } from '@/lib/payments'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { getAllowedPaymentMethods } from '@/lib/settings-helpers'
+import { formatMoney } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,6 +44,12 @@ export async function POST(req: NextRequest) {
     const { resolveUserLocation } = await import('@/lib/location-resolver')
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId
+    // Amounts in messages use the restaurant's own currency; looked up only when a message needs one.
+    let currencyCode: string | null = null
+    const amount = async (n: number) => {
+      if (!currencyCode) currencyCode = (await getRestaurantMoneySettings(restaurantId)).currency
+      return formatMoney(n, currencyCode)
+    }
 
     if (!restaurantId) {
       return NextResponse.json({ error: 'Tenant context required' }, { status: 403 })
@@ -152,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     if (Math.abs(total - expectedTotal) > 0.10) {
       return NextResponse.json(
-        { error: `Submitted total $${total.toFixed(2)} does not match calculated order total $${expectedTotal.toFixed(2)}` },
+        { error: `Submitted total ${await amount(total)} does not match calculated order total ${await amount(expectedTotal)}` },
         { status: 400 }
       )
     }
@@ -162,7 +170,7 @@ export async function POST(req: NextRequest) {
       const effectiveCash = (cashReceived !== undefined && cashReceived !== null) ? cashReceived : total
       if (effectiveCash < total - 0.05) {
         return NextResponse.json(
-          { error: `Cash tendered ($${effectiveCash.toFixed(2)}) is less than the balance due ($${total.toFixed(2)})` },
+          { error: `Cash tendered (${await amount(effectiveCash)}) is less than the balance due (${await amount(total)})` },
           { status: 400 }
         )
       }
@@ -177,7 +185,7 @@ export async function POST(req: NextRequest) {
         // A client cannot pass 'zero_balance_settlement' or any custom string to bypass gateway verification.
         if (!stripePaymentIntentId || stripePaymentIntentId === 'zero_balance_settlement') {
           return NextResponse.json(
-            { error: `Electronic transaction (${method}) requires a verified gateway transaction. Positive balance ($${expectedTotal.toFixed(2)}) cannot be settled without payment gateway authorization.` },
+            { error: `Electronic transaction (${method}) requires a verified gateway transaction. Positive balance (${await amount(expectedTotal)}) cannot be settled without payment gateway authorization.` },
             { status: 400 }
           )
         }
@@ -185,6 +193,7 @@ export async function POST(req: NextRequest) {
         try {
           const { findConnectedAccount } = await import('@/lib/stripe-connect')
           await verifyStripeIntent({
+          currency: currencyCode ?? (currencyCode = (await getRestaurantMoneySettings(restaurantId)).currency),
             intentId: stripePaymentIntentId,
             orderId,
             expectedAmount: expectedTotal,
@@ -267,7 +276,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Ensure coupon is recorded on order notes
-        const couponNote = `Coupon: ${cleanCode} (-$${Number(couponDiscount || 0).toFixed(2)})`
+        const couponNote = `Coupon: ${cleanCode} (-${await amount(serverCouponDiscount)})`
         if (!order.notes?.includes(cleanCode)) {
           const newNotes = order.notes ? `${order.notes} | ${couponNote}` : couponNote
           await prisma.order.update({

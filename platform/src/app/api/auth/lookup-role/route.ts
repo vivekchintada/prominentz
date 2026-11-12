@@ -27,8 +27,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+    // Owners may look up their own staff only, never accounts in other restaurants.
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' }, restaurantId: session.user.restaurantId },
       select: { role: true },
     })
 

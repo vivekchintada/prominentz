@@ -128,3 +128,27 @@ export async function getDeliverySettings(restaurantId: string) {
     return null
   }
 }
+
+/**
+ * The restaurant's display currency (Settings → Store → Currency) and the
+ * fallback tax rate used when a menu item has no rate of its own — the same
+ * rate recalculateOrderTotals() charges, so screens and saved orders agree.
+ */
+export async function getRestaurantMoneySettings(
+  restaurantId: string,
+): Promise<{ currency: string; taxRate: number }> {
+  const { normalizeCurrency } = await import('@/lib/money')
+  try {
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+      select: { settings: true },
+    })
+    const settings = (restaurant?.settings as Record<string, any>) || {}
+    return {
+      currency: normalizeCurrency(settings?.store?.currency),
+      taxRate: await getEffectiveTaxRate(restaurantId),
+    }
+  } catch {
+    return { currency: normalizeCurrency(undefined), taxRate: DEFAULT_TAX_RATE }
+  }
+}

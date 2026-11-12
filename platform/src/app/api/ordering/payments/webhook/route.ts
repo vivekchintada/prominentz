@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { stripe, isMockStripe } from '@/lib/stripe'
 import { fireOnlineOrder } from '@/lib/online-order-orchestration'
 import { sendOrderConfirmationNotification } from '@/lib/order-notifications'
+import { toMinorUnits } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,7 +84,31 @@ export async function POST(req: NextRequest) {
         : null
 
       // POS/Terminal charges also carry an orderId; only online orders (with a tracking token) are handled here.
+      // The payment must come from this restaurant's own Stripe account, in its currency, for the full total.
+      // Connect webhooks carry events for every connected account, so metadata alone proves nothing.
+      let genuine = false
       if (order && order.trackingToken && order.paymentStatus !== 'PAID') {
+        const rid = order.table?.location?.restaurantId
+        const expectedAccount = order.table?.location?.restaurant?.stripeConnectAccountId ?? null
+        const { currency } = rid ? await getRestaurantMoneySettings(rid) : { currency: 'USD' }
+        const accountOk = isMockStripe() ? true : expectedAccount ? event.account === expectedAccount : !event.account
+        const currencyOk = String(pi.currency ?? '').toLowerCase() === currency.toLowerCase()
+        const amountOk = Number(pi.amount_received ?? pi.amount ?? 0) >= toMinorUnits(Number(order.total), currency) - 1
+        genuine = isMockStripe() && process.env.NODE_ENV !== 'production' ? true : accountOk && currencyOk && amountOk
+        if (!genuine) {
+          console.error('[Online payment webhook] Rejected payment that does not match the order', {
+            orderId: order.id,
+            account: event.account ?? null,
+            accountOk,
+            currencyOk,
+            amountOk,
+          })
+          await prisma.orderEvent.create({
+            data: { orderId: order.id, eventType: 'online_order.payment_rejected', metadata: { paymentIntentId: pi.id, accountOk, currencyOk, amountOk } },
+          })
+        }
+      }
+      if (order && genuine) {
         const auto = order.table?.location?.onlineOrderingConfig?.acceptanceMode === 'AUTOMATIC'
         const restaurantId = order.table?.location?.restaurantId || order.table?.location?.restaurant?.id
 
@@ -120,6 +146,7 @@ export async function POST(req: NextRequest) {
         // Dispatch customer confirmation notification
         const origin = req.nextUrl.origin || 'http://localhost:3000'
         await sendOrderConfirmationNotification({
+          restaurantId: order.table?.location?.restaurantId ?? null,
           orderNumber: order.publicOrderNumber || order.id.slice(-6),
           customerName: order.customerName || 'Customer',
           customerEmail: order.customerEmail,
@@ -128,7 +155,10 @@ export async function POST(req: NextRequest) {
           items: order.items.map((i) => ({
             name: i.menuItem?.name || 'Item',
             quantity: i.quantity,
-            lineTotal: Number(i.priceAtOrder) * i.quantity,
+            lineTotal:
+              (Number(i.priceAtOrder) +
+                (Array.isArray(i.modifiers) ? (i.modifiers as Array<{ priceDelta?: number }>).reduce((sum, m) => sum + Number(m?.priceDelta ?? 0), 0) : 0)) *
+              i.quantity,
           })),
           total: Number(order.total),
           trackingUrl: `${origin}/order/track/${order.trackingToken}`,

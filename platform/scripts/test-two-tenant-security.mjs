@@ -1,92 +1,120 @@
 import assert from 'node:assert/strict'
-import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
 console.log('=== RUNNING TWO-TENANT INTEGRATION & LAUNCH BLOCKER SECURITY SUITE ===')
 
-// ── 1. CASHFREE SIGNATURE VERIFICATION TESTS ──────────────────────────────────
-console.log('\n--- 1. Testing Cashfree Webhook Signature & Replay Controls ---')
+// ── 1. DODO PAYMENTS SIGNATURE VERIFICATION TESTS ─────────────────────────────
+console.log('\n--- 1. Testing Dodo Payments Webhook Signature & Replay Controls ---')
 
-const cashfreeLibSource = readFileSync(new URL('../src/lib/cashfree.ts', import.meta.url), 'utf8')
+const dodoLibSource = readFileSync(new URL('../src/lib/dodo-payments.ts', import.meta.url), 'utf8')
 
-// Assert cashfree.ts strictly rejects missing signature
+// Assert dodo-payments.ts strictly rejects missing signature
 assert.match(
-  cashfreeLibSource,
-  /if\s*\(!signature\s*\|\|\s*typeof signature\s*!==\s*'string'\s*\|\|\s*signature\.trim\(\)\s*===\s*''\)\s*\{\s*return false\s*\}/,
-  'verifyCashfreeWebhookSignature must strictly return false for missing, empty, or non-string signature'
+  dodoLibSource,
+  /if\s*\(!signature\s*\|\|\s*typeof signature\s*!==\s*'string'\s*\|\|\s*signature\.trim\(\)\s*===\s*''\)\s*return false/,
+  'verifyDodoWebhookSignature must strictly return false for missing, empty, or non-string signature'
 )
 
-// Assert cashfree.ts does not have the old bypass
-assert.doesNotMatch(
-  cashfreeLibSource,
-  /if\s*\(isMockCashfree\(\)\s*\|\|\s*!signature\)\s*\{\s*return true\s*\}/,
-  'CRITICAL: Old bypass (return true if !signature) must be completely eliminated'
+// Assert dodo-payments.ts rejects when the webhook secret itself is missing or mock
+assert.match(
+  dodoLibSource,
+  /if\s*\(!rawWebhookKey\s*\|\|\s*rawWebhookKey\.includes\('mock'\)\s*\|\|\s*rawWebhookKey\.includes\('REPLACE_ME'\)\)\s*return false/,
+  'CRITICAL: verifyDodoWebhookSignature must reject when DODO_PAYMENTS_WEBHOOK_KEY is missing or a mock value — no bypass'
 )
 
-// Assert HMAC signature calculation logic works correctly for both Base64 and Hex
-const testSecret = process.env.CASHFREE_SECRET_KEY || 'dummy_hmac_test_secret_key_1234567890'
-const timestamp = Date.now().toString()
+// Verify the real Standard Webhooks signature scheme (same library the app imports) end-to-end
+const { Webhook } = await import('standardwebhooks')
+const testSecret = 'whsec_' + Buffer.from('dummy_webhook_secret_1234567890').toString('base64')
+const webhookId = 'msg_test_123'
+const timestamp = Math.floor(Date.now() / 1000).toString()
 const testPayload = JSON.stringify({
-  type: 'PAYMENT_LINK_EVENT',
-  data: { link_id: 'link123', link_status: 'PAID', link_amount_paid: 4200 },
+  type: 'subscription.active',
+  data: { subscription_id: 'sub_test_123', metadata: { restaurantId: 'rest_test_001', planTier: 'PRO' } },
 })
-const payloadToSign = `${timestamp}${testPayload}`
-const validBase64 = crypto.createHmac('sha256', testSecret).update(payloadToSign).digest('base64')
-const validHex = crypto.createHmac('sha256', testSecret).update(payloadToSign).digest('hex')
+const wh = new Webhook(testSecret)
+const validSignature = wh.sign(webhookId, new Date(Number(timestamp) * 1000), testPayload)
 
-// Verify algorithm matches specification
-function verifySig(rawBody, signature, ts, secret) {
+function verifyDodoSig({ rawBody, webhookId: id, signature, timestamp: ts, secret }) {
   if (!signature || typeof signature !== 'string' || signature.trim() === '') return false
-  if (!secret) return false
-  const toSign = ts ? `${ts}${rawBody}` : rawBody
-  const expBase64 = crypto.createHmac('sha256', secret).update(toSign).digest('base64')
-  if (signature === expBase64) return true
-  const expHex = crypto.createHmac('sha256', secret).update(toSign).digest('hex')
-  return signature.toLowerCase() === expHex.toLowerCase()
+  if (!id || !ts) return false
+  if (signature.includes('mock_') || signature === 'mock_valid_signature') return false
+  if (!secret || secret.includes('mock') || secret.includes('REPLACE_ME')) return false
+  try {
+    new Webhook(secret).verify(rawBody, { 'webhook-id': id, 'webhook-signature': signature, 'webhook-timestamp': ts })
+    return true
+  } catch {
+    return false
+  }
 }
 
-assert.equal(verifySig(testPayload, null, timestamp, testSecret), false, 'Missing signature must return false')
-assert.equal(verifySig(testPayload, '', timestamp, testSecret), false, 'Empty signature must return false')
-assert.equal(verifySig(testPayload, 'forged_sig', timestamp, testSecret), false, 'Forged signature must return false')
-assert.equal(verifySig(testPayload, validBase64, timestamp, testSecret), true, 'Valid base64 HMAC must return true')
-assert.equal(verifySig(testPayload, validHex, timestamp, testSecret), true, 'Valid hex HMAC must return true')
+assert.equal(verifyDodoSig({ rawBody: testPayload, webhookId, signature: null, timestamp, secret: testSecret }), false, 'Missing signature must return false')
+assert.equal(verifyDodoSig({ rawBody: testPayload, webhookId, signature: '', timestamp, secret: testSecret }), false, 'Empty signature must return false')
+assert.equal(verifyDodoSig({ rawBody: testPayload, webhookId, signature: 'v1,forged_sig', timestamp, secret: testSecret }), false, 'Forged signature must return false')
+assert.equal(verifyDodoSig({ rawBody: testPayload, webhookId, signature: validSignature, timestamp, secret: testSecret }), true, 'Valid Standard Webhooks signature must return true')
+assert.equal(verifyDodoSig({ rawBody: testPayload, webhookId, signature: validSignature, timestamp, secret: 'cf_test_mock_secret_key_mock' }), false, 'Mock webhook secret must never validate signatures')
 
-console.log('✓ Cashfree signature security verified: unsigned and forged payloads strictly rejected.')
+console.log('✓ Dodo Payments signature security verified: unsigned and forged payloads strictly rejected.')
 
-// ── 2. CASHFREE WEBHOOK ROUTE LIFECYCLE TESTS ────────────────────────────────
-console.log('\n--- 2. Testing Cashfree Webhook Route Lifecycle Controls ---')
+// ── 2. DODO PAYMENTS WEBHOOK ROUTE LIFECYCLE TESTS ────────────────────────────
+console.log('\n--- 2. Testing Dodo Payments Webhook Route Lifecycle Controls ---')
 
-const webhookRouteSource = readFileSync(new URL('../src/app/api/webhooks/cashfree/route.ts', import.meta.url), 'utf8')
+const webhookRouteSource = readFileSync(new URL('../src/app/api/webhooks/dodo/route.ts', import.meta.url), 'utf8')
 
-// Assert webhook route rejects if !isValidSignature
+// Assert webhook route rejects if the signature does not verify
 assert.match(
   webhookRouteSource,
-  /if\s*\(!isValidSignature\)\s*\{\s*[\s\S]*?return NextResponse\.json\(\{\s*error:\s*'Invalid or missing webhook signature'\s*\}\s*,\s*\{\s*status:\s*401\s*\}\)/,
+  /if\s*\(!verifyDodoWebhookSignature\([\s\S]*?\)\)\s*\{\s*[\s\S]*?return NextResponse\.json\(\{\s*error:\s*'Invalid or missing webhook signature'\s*\}\s*,\s*\{\s*status:\s*401\s*\}\)/,
   'Webhook route must return HTTP 401 when signature is invalid or missing'
 )
 
-// Assert replay protection is implemented
+// Assert replay protection is implemented via the event log table
 assert.match(
   webhookRouteSource,
-  /prisma\.auditLog\.findFirst\(\{\s*where:\s*\{\s*action:\s*'BILLING_PAYMENT_SUCCESS'/,
-  'Persisted replay protection must be implemented using audit log transaction tracking'
+  /prisma\.stripeEventLog\.findUnique\(\{\s*where:\s*\{\s*eventId:\s*eventUniqueId\s*\}\s*\}\)/,
+  'Persisted replay protection must be implemented using the event log table'
 )
 
-// Assert cancellation events are handled before activations
+// The webhook applies every subscription.* snapshot through the shared state applier.
 assert.match(
   webhookRouteSource,
-  /subStatus === 'CANCELLED'[\s\S]*?planTier:\s*'STARTER'/,
-  'Cancellation events must revert tenant plan to STARTER and never upgrade'
+  /applyDodoSubscriptionState\(tx,/,
+  'Webhook must apply subscription state through applyDodoSubscriptionState inside the transaction'
 )
 
-// Assert PAYMENT_LINK_EVENT is handled explicitly
+const dodoSyncSource = readFileSync(new URL('../src/lib/dodo-subscription-sync.ts', import.meta.url), 'utf8')
+
+// Assert cancellation/expiry/failure revert the tenant to STARTER; only live statuses keep the paid tier
 assert.match(
-  webhookRouteSource,
-  /eventType === 'PAYMENT_LINK_EVENT' \|\| linkStatus === 'PAID'/,
-  'PAYMENT_LINK_EVENT with linkStatus === PAID must be explicitly handled'
+  dodoSyncSource,
+  /const PLAN_RETAINING: DodoInternalStatus\[\] = \['ACTIVE', 'BILLING_ISSUE', 'PAUSED'\]/,
+  'Only ACTIVE / BILLING_ISSUE / PAUSED may retain a paid plan tier'
+)
+assert.match(
+  dodoSyncSource,
+  /PLAN_RETAINING\.includes\(status\) \? paidTier : 'STARTER'/,
+  'Cancellation, expiry, or failure events must revert tenant plan to STARTER and never upgrade'
+)
+assert.match(
+  dodoLibSource,
+  /case 'cancelled':\s*return 'CANCELLED'[\s\S]*?case 'expired':\s*return 'EXPIRED'[\s\S]*?case 'failed':\s*return 'FAILED'/,
+  'cancelled / expired / failed Dodo statuses must map to non-retaining internal statuses'
 )
 
-console.log('✓ Cashfree route verified: signature enforcement, replay deduplication, and cancellation handling active.')
+// Assert past-due/on-hold are handled explicitly as a billing issue (soft lock, no downgrade)
+assert.match(
+  dodoLibSource,
+  /case 'past_due':\s*case 'on_hold':\s*return 'BILLING_ISSUE'/,
+  'subscription.past_due / subscription.on_hold must be handled explicitly'
+)
+
+// Assert an old subscription's cancellation can't knock out the restaurant's current one
+assert.match(
+  dodoSyncSource,
+  /reason: 'superseded_subscription'/,
+  'Events for a superseded subscription must not overwrite the current subscription'
+)
+
+console.log('✓ Dodo Payments route verified: signature enforcement, replay deduplication, and cancellation handling active.')
 
 // ── 3. SPLIT PAYMENTS SERVER-SIDE BALANCE DUE ENFORCEMENT ───────────────────
 console.log('\n--- 3. Testing Split Payments Balance Due & Electronic Gateway Controls ---')

@@ -9,14 +9,18 @@ export async function verifyStripeIntent({
   orderId,
   expectedAmount,
   stripeAccount,
+  currency = 'USD',
 }: {
   intentId: string
   orderId: string
   expectedAmount: number
   /** Restaurant's connected Stripe account the charge was made on. */
   stripeAccount?: string
+  /** Restaurant's currency; the card charge must be in the same one. */
+  currency?: string
 }) {
   const { stripe, isMockStripe } = await import('@/lib/stripe')
+  const { formatMoney, fromMinorUnits, toMinorUnits } = await import('@/lib/money')
   // In non‑mock environments we enforce real Stripe verification.
   if (!isMockStripe() || process.env.NODE_ENV === 'production') {
     const intent = await stripe.paymentIntents.retrieve(intentId, {}, stripeAccount ? { stripeAccount } : undefined)
@@ -24,15 +28,15 @@ export async function verifyStripeIntent({
     if (intent.status !== 'succeeded') {
       throw new Error(`PaymentIntent has not succeeded (status: ${intent.status})`)
     }
-    if (intent.currency?.toLowerCase() !== 'usd') {
-      throw new Error(`PaymentIntent currency mismatch (${intent.currency} vs usd)`)
+    if (intent.currency?.toLowerCase() !== currency.toLowerCase()) {
+      throw new Error(`The card was charged in ${intent.currency?.toUpperCase()}, but this restaurant bills in ${currency.toUpperCase()}`)
     }
     if (intent.metadata?.orderId && intent.metadata.orderId !== orderId) {
       throw new Error('PaymentIntent metadata orderId mismatch')
     }
-    const intentDollars = intent.amount / 100
-    if (Math.abs(intentDollars - expectedAmount) > 0.5) {
-      throw new Error(`Authorized Stripe amount ($${intentDollars.toFixed(2)}) does not match expected amount ($${expectedAmount.toFixed(2)})`)
+    // Within one smallest unit (a paisa or a cent) for float rounding; nothing that could hide an underpayment.
+    if (Math.abs(intent.amount - toMinorUnits(expectedAmount, currency)) > 1) {
+      throw new Error(`The card was charged ${formatMoney(fromMinorUnits(intent.amount, currency), currency)}, but ${formatMoney(expectedAmount, currency)} is due`)
     }
   }
 }

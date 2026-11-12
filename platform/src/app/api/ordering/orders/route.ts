@@ -7,6 +7,8 @@ import { requireConnectedAccount, paymentErrorStatus } from '@/lib/stripe-connec
 import { sendOrderConfirmationNotification } from '@/lib/order-notifications'
 import { getRestaurantAccessStatus } from '@/lib/subscription-status'
 import { randomBytes } from 'crypto'
+import { toMinorUnits } from '@/lib/money'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -261,6 +263,7 @@ export async function POST(req: NextRequest) {
         checkoutUrl = `${trackingUrl}?paid=mock`
       } else {
         const stripeAccount = await requireConnectedAccount(order.table.location.restaurantId)
+        const { currency } = await getRestaurantMoneySettings(order.table.location.restaurantId)
         const session = await stripe.checkout.sessions.create(
           {
             mode: 'payment',
@@ -268,8 +271,8 @@ export async function POST(req: NextRequest) {
               {
                 quantity: 1,
                 price_data: {
-                  currency: 'usd',
-                  unit_amount: Math.round(q.total * 100),
+                  currency: currency.toLowerCase(),
+                  unit_amount: toMinorUnits(q.total, currency),
                   product_data: {
                     name: `${order.table.location.restaurant.name} — Order #${num}`,
                   },
@@ -298,6 +301,7 @@ export async function POST(req: NextRequest) {
     if (d.paymentMethod === 'PAY_LATER') {
       const origin = req.nextUrl.origin || 'http://localhost:3000'
       await sendOrderConfirmationNotification({
+        restaurantId: q.location.restaurantId,
         orderNumber: num,
         customerName: d.customer.name,
         customerEmail: d.customer.email,

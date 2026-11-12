@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { generateReceiptEscPos } from '@/lib/escpos'
@@ -64,7 +65,9 @@ export async function POST(req: NextRequest) {
     const location = order.table.location
     const restaurantName = location.restaurant.name
 
+    const { currency } = await getRestaurantMoneySettings(session.user.restaurantId)
     const receiptData = {
+      currency,
       restaurantName: printSettings.showStoreDetails ? restaurantName : '',
       address: printSettings.showStoreDetails ? location.address : undefined,
       phone: printSettings.showStoreDetails ? location.phone : undefined,
@@ -75,11 +78,11 @@ export async function POST(req: NextRequest) {
       tableName: order.table.name,
       serverName: order.server?.name || session.user.name || 'Staff',
       createdAt: order.createdAt.toISOString(),
-      items: order.items.map((i) => ({
+      items: order.items.filter((i) => i.status !== 'VOIDED').map((i) => ({
         name: i.menuItem.name,
         quantity: i.quantity,
         priceAtOrder: Number(i.priceAtOrder),
-        modifiers: (i.modifiers as Array<{ optionName?: string; name?: string }>) || [],
+        modifiers: (i.modifiers as Array<{ optionName?: string; name?: string; priceDelta?: number }>) || [],
       })),
       subtotal: Number(order.subtotal),
       tax: Number(order.tax),

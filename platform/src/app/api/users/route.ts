@@ -4,131 +4,139 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { logAuditEvent } from '@/lib/audit'
+import { isPlatformAdmin } from '@/lib/hq/platform-admin'
 
 const createUserSchema = z.object({
-  name:     z.string().min(2).max(100),
-    email:    z.string().email(),
-      password: z.string().min(12).max(100),
-        role:     z.enum(['OWNER', 'MANAGER', 'SERVER', 'KITCHEN']),
-        })
+  name: z.string().min(2).max(100),
+  email: z.string().email(),
+  password: z.string().min(12).max(100),
+  role: z.enum(['OWNER', 'MANAGER', 'SERVER', 'KITCHEN']),
+})
 
-        // ─── GET /api/users ───────────────────────────────────────────────────────────
-        // Fetches all users for the user's restaurant
-        export async function GET(_req: NextRequest) {
-          try {
-              const session = await auth()
-                  if (!session?.user) {
-                        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-                            }
+// ─── GET /api/users ───────────────────────────────────────────────────────────
+// Fetches all users for the user's restaurant
+export async function GET(_req: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-                                const users = await prisma.user.findMany({
-                                      where: { restaurantId: session.user.restaurantId },
-                                            select: {
-                                                    id:    true,
-                                                            name:  true,
-                                                                    email: true,
-                                                                            role:  true,
-                                                                                  },
-                                                                                        orderBy: { name: 'asc' },
-                                                                                            })
+    const users = await prisma.user.findMany({
+      where: { restaurantId: session.user.restaurantId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+      orderBy: { name: 'asc' },
+    })
 
-                                                                                                return NextResponse.json(users)
-                                                                                                  } catch (error) {
-                                                                                                      console.error('[GET /api/users]', error)
-                                                                                                          return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-                                                                                                            }
-                                                                                                            }
+    return NextResponse.json(users)
+  } catch (error) {
+    console.error('[GET /api/users]', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
 
-                                                                                                            // ─── POST /api/users ──────────────────────────────────────────────────────────
-                                                                                                            // Creates a new user profile under this restaurant
-                                                                                                            export async function POST(req: NextRequest) {
-                                                                                                              try {
-                                                                                                                  const session = await auth()
-                                                                                                                      if (!session?.user) {
-                                                                                                                            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-                                                                                                                                }
-                                                                                                                                    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
-                                                                                                                                          return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-                                                                                                                                              }
+// ─── POST /api/users ──────────────────────────────────────────────────────────
+// Creates a new user profile under this restaurant
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!['OWNER', 'MANAGER'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
-                                                                                                                                                  const body   = await req.json()
-                                                                                                                                                      const parsed = createUserSchema.safeParse(body)
-                                                                                                                                                          if (!parsed.success) {
-                                                                                                                                                                return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
-                                                                                                                                                                    }
+    const body = await req.json()
+    const parsed = createUserSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    }
 
-                                                                                                                                                                        const { name, email, password, role } = parsed.data
+    const { name, password, role } = parsed.data
+    const email = parsed.data.email.trim().toLowerCase()
 
-        // Privilege Escalation Prevention: Managers cannot create Owners or Managers
-        if (session.user.role === 'MANAGER' && ['OWNER', 'MANAGER'].includes(role)) {
-          return NextResponse.json(
-            { error: 'Forbidden: Managers cannot create or assign OWNER or MANAGER accounts. Only Owners can assign administrative roles.' },
-            { status: 403 }
-          )
-        }
+    // Privilege Escalation Prevention: Managers cannot create Owners or Managers
+    if (session.user.role === 'MANAGER' && ['OWNER', 'MANAGER'].includes(role)) {
+      return NextResponse.json(
+        {
+          error:
+            'Forbidden: Managers cannot create or assign OWNER or MANAGER accounts. Only Owners can assign administrative roles.',
+        },
+        { status: 403 }
+      )
+    }
 
-                                                                                                                                                                            // Enforce Starter plan limit (up to 5 staff user accounts)
-                                                                                                                                                                                const restaurant = await prisma.restaurant.findUnique({
-                                                                                                                                                                                      where: { id: session.user.restaurantId },
-                                                                                                                                                                                            select: { planTier: true },
-                                                                                                                                                                                                })
-                                                                                                                                                                                                    const planTier = restaurant?.planTier ?? 'STARTER'
-                                                                                                                                                                                                        if (planTier === 'STARTER') {
-                                                                                                                                                                                                              const userCount = await prisma.user.count({
-                                                                                                                                                                                                                      where: { restaurantId: session.user.restaurantId },
-                                                                                                                                                                                                                            })
-                                                                                                                                                                                                                                  if (userCount >= 5) {
-                                                                                                                                                                                                                                          return NextResponse.json(
-                                                                                                                                                                                                                                                    {
-                                                                                                                                                                                                                                                                error: 'STARTER_LIMIT_REACHED',
-                                                                                                                                                                                                                                                                            message: 'The Starter Plan is limited to 5 staff accounts. Upgrade to Professional for unlimited staff accounts.',
-                                                                                                                                                                                                                                                                                        requiredTier: 'PRO',
-                                                                                                                                                                                                                                                                                                  },
-                                                                                                                                                                                                                                                                                                            { status: 403 }
-                                                                                                                                                                                                                                                                                                                    )
-                                                                                                                                                                                                                                                                                                                          }
-                                                                                                                                                                                                                                                                                                                              }
+    // Enforce Starter plan limit (up to 5 staff user accounts)
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: session.user.restaurantId },
+      select: { planTier: true },
+    })
+    const planTier = restaurant?.planTier ?? 'STARTER'
+    if (planTier === 'STARTER') {
+      const userCount = await prisma.user.count({
+        where: { restaurantId: session.user.restaurantId },
+      })
+      if (userCount >= 5) {
+        return NextResponse.json(
+          {
+            error: 'STARTER_LIMIT_REACHED',
+            message:
+              'The Starter Plan is limited to 5 staff accounts. Upgrade to Professional for unlimited staff accounts.',
+            requiredTier: 'PRO',
+          },
+          { status: 403 }
+        )
+      }
+    }
 
-                                                                                                                                                                                                                                                                                                                                  // Check if email already exists
-                                                                                                                                                                                                                                                                                                                                      const existing = await prisma.user.findFirst({ where: { email } })
-                                                                                                                                                                                                                                                                                                                                          if (existing) {
-                                                                                                                                                                                                                                                                                                                                                return NextResponse.json({ error: 'A user with this email already exists' }, { status: 409 })
-                                                                                                                                                                                                                                                                                                                                                    }
+    // Check if email already exists
+    if (isPlatformAdmin(email)) {
+      return NextResponse.json({ error: 'This email cannot be used for a staff account' }, { status: 400 })
+    }
+    const existing = await prisma.user.findFirst({ where: { email } })
+    if (existing) {
+      return NextResponse.json({ error: 'A user with this email already exists' }, { status: 409 })
+    }
 
-                                                                                                                                                                                                                                                                                                                                                        const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 10)
 
-                                                                                                                                                                                                                                                                                                                                                            const newUser = await prisma.user.create({
-                                                                                                                                                                                                                                                                                                                                                                  data: {
-                                                                                                                                                                                                                                                                                                                                                                          restaurantId: session.user.restaurantId,
-                                                                                                                                                                                                                                                                                                                                                                                  name,
-                                                                                                                                                                                                                                                                                                                                                                                          email,
-                                                                                                                                                                                                                                                                                                                                                                                                  passwordHash,
-                                                                                                                                                                                                                                                                                                                                                                                                          role,
-                                                                                                                                                                                                                                                                                                                                                                                                                  isActive: true,
-                                                                                                                                                                                                                                                                                                                                                                                                                        },
-                                                                                                                                                                                                                                                                                                                                                                                                                              select: {
-                                                                                                                                                                                                                                                                                                                                                                                                                                      id:    true,
-                                                                                                                                                                                                                                                                                                                                                                                                                                              name:  true,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                      email: true,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              role:  true,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        })
+    const newUser = await prisma.user.create({
+      data: {
+        restaurantId: session.user.restaurantId,
+        name,
+        email,
+        passwordHash,
+        role,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    })
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            // Audit log
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                await logAuditEvent({
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      restaurantId: session.user.restaurantId,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            actorId:      session.user.id,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  actorName:    session.user.name ?? 'Unknown',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        action:       'CREATE_USER',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              targetType:   'User',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    targetId:     newUser.id,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          after: { name: newUser.name, email: newUser.email, role: newUser.role },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              })
+    // Audit log
+    await logAuditEvent({
+      restaurantId: session.user.restaurantId,
+      actorId: session.user.id,
+      actorName: session.user.name ?? 'Unknown',
+      action: 'CREATE_USER',
+      targetType: 'User',
+      targetId: newUser.id,
+      after: { name: newUser.name, email: newUser.email, role: newUser.role },
+    })
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  return NextResponse.json(newUser, { status: 201 })
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    } catch (error) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        console.error('[POST /api/users]', error)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+    return NextResponse.json(newUser, { status: 201 })
+  } catch (error) {
+    console.error('[POST /api/users]', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

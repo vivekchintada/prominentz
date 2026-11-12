@@ -1,140 +1,124 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { isPlatformAdmin } from '@/lib/hq/platform-admin'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
 const ownerSignupSchema = z.object({
-  signupType:      z.literal('OWNER').default('OWNER'),
-    restaurantName:  z.string().min(2).max(100),
-      ownerName:       z.string().min(2).max(100),
-        email:           z.string().email(),
-          password:        z.string().min(6).max(100),
-            locationName:    z.string().min(1).max(100).default('Main Outlet'),
-              phone:           z.string().optional().nullable(),
-                managerName:     z.string().optional(),
-                  managerEmail:    z.string().email().optional(),
-                    managerPassword: z.string().min(6).optional(),
-                      serverName:      z.string().optional(),
-                        serverEmail:     z.string().email().optional(),
-                          serverPassword:  z.string().min(6).optional(),
-                            kitchenName:     z.string().optional(),
-                              kitchenEmail:    z.string().email().optional(),
-                                kitchenPassword: z.string().min(6).optional(),
-                                })
+  restaurantName: z.string().trim().min(2).max(100),
+  ownerName: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(200),
+  password: z.string().min(8).max(100),
+  locationName: z.string().trim().min(1).max(100).default('Main Outlet'),
+  phone: z.string().max(30).optional().nullable(),
+})
 
-                                // ─── POST /api/auth/signup ──────────────────────────────────────────────────
-                                // Public registration is limited to new restaurant owners. Existing owners and
-                                // managers create staff through the authenticated /api/users endpoint.
-                                export async function POST(req: NextRequest) {
-                                  try {
-                                      const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown-ip'
-                                          const rl = await rateLimit(`auth:signup:${ip}`, 5, 600)
-                                              if (!rl.allowed) {
-                                                    return rateLimitResponse(rl.retryAfterSec)
-                                                        }
+// ─── POST /api/auth/signup ──────────────────────────────────────────────────
+// Public registration is limited to new restaurant owners. Owners and managers
+// add staff through the authenticated staff endpoints.
+export async function POST(req: NextRequest) {
+  try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown-ip'
+    const rl = await rateLimit(`auth:signup:${ip}`, 5, 600)
+    if (!rl.allowed) {
+      return rateLimitResponse(rl.retryAfterSec)
+    }
 
-                                                            const body = await req.json()
-                                                                const signupType = body.signupType === 'STAFF' ? 'STAFF' : 'OWNER'
+    const body = await req.json()
+    if (body?.signupType === 'STAFF') {
+      return NextResponse.json(
+        { error: 'Staff self-registration is disabled. Ask an owner or manager to create your account.' },
+        { status: 403 }
+      )
+    }
 
-                                                                    // ── Staff Registration (Manager, Server, Kitchen) ────────────────────────
-                                                                        if (signupType === 'STAFF') {
-                                                                              return NextResponse.json(
-                                                                                      {
-                                                                                                error: 'Staff self-registration is disabled. Ask an owner or manager to create your account.',
-                                                                                                        },
-                                                                                                                { status: 403 }
-                                                                                                                      )
-                                                                                                                          }
+    const parsed = ownerSignupSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    }
 
-                                                                                                                              // ── Owner Registration (Tenant & Location Setup) ─────────────────────────
-                                                                                                                                  const parsed = ownerSignupSchema.safeParse(body)
-                                                                                                                                      if (!parsed.success) {
-                                                                                                                                            return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
-                                                                                                                                                }
+    const { restaurantName, ownerName, email, password, locationName, phone } = parsed.data
+    const cleanEmail = email.toLowerCase()
 
-                                                                                                                                                    const { restaurantName, ownerName, email, password, locationName, phone } = parsed.data
-                                                                                                                                                        const cleanEmail = email.trim().toLowerCase()
+    // Platform-admin addresses grant /hq access; nobody can claim one by signing up.
+    if (isPlatformAdmin(cleanEmail)) {
+      return NextResponse.json({ error: 'This email cannot be used to register a restaurant' }, { status: 400 })
+    }
 
-                                                                                                                                                            // Check if user already exists
-                                                                                                                                                                const existingUser = await prisma.user.findUnique({ where: { email: cleanEmail } })
-                                                                                                                                                                    if (existingUser) {
-                                                                                                                                                                          return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
-                                                                                                                                                                              }
+    const existingUser = await prisma.user.findUnique({ where: { email: cleanEmail } })
+    if (existingUser) {
+      return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
+    }
 
-                                                                                                                                                                                  // Generate unique restaurant slug
-                                                                                                                                                                                      const slug = restaurantName
-                                                                                                                                                                                            .toLowerCase()
-                                                                                                                                                                                                  .replace(/[^a-z0-9]+/g, '-')
-                                                                                                                                                                                                        .replace(/(^-|-$)/g, '') + '-' + Math.floor(1000 + Math.random() * 9000)
+    const slug =
+      restaurantName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') +
+      '-' +
+      Math.floor(1000 + Math.random() * 9000)
 
-                                                                                                                                                                                                            const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 10)
 
-                                                                                                                                                                                                                // Execute atomic tenant onboarding transaction
-                                                                                                                                                                                                                    const result = await prisma.$transaction(async (tx) => {
-                                                                                                                                                                                                                          // 1. Create Restaurant tenant
-                                                                                                                                                                                                                                const restaurant = await tx.restaurant.create({
-                                                                                                                                                                                                                                        data: {
-                                                                                                                                                                                                                                                  name: restaurantName,
-                                                                                                                                                                                                                                                            slug,
-                                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                                          })
+    const result = await prisma.$transaction(async (tx) => {
+      const restaurant = await tx.restaurant.create({
+        data: { name: restaurantName, slug },
+      })
 
-                                                                                                                                                                                                                                                                                // 2. Create primary Location
-                                                                                                                                                                                                                                                                                      const location = await tx.location.create({
-                                                                                                                                                                                                                                                                                              data: {
-                                                                                                                                                                                                                                                                                                        restaurantId: restaurant.id,
-                                                                                                                                                                                                                                                                                                                  name:         locationName,
-                                                                                                                                                                                                                                                                                                                            phone:        phone ?? null,
-                                                                                                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                                                                                                          })
+      const location = await tx.location.create({
+        data: {
+          restaurantId: restaurant.id,
+          name: locationName,
+          phone: phone ?? null,
+        },
+      })
 
-                                                                                                                                                                                                                                                                                                                                                // 3. Create Owner user account
-                                                                                                                                                                                                                                                                                                                                                      const user = await tx.user.create({
-                                                                                                                                                                                                                                                                                                                                                              data: {
-                                                                                                                                                                                                                                                                                                                                                                        restaurantId: restaurant.id,
-                                                                                                                                                                                                                                                                                                                                                                                  email:        cleanEmail,
-                                                                                                                                                                                                                                                                                                                                                                                            name:         ownerName,
-                                                                                                                                                                                                                                                                                                                                                                                                      passwordHash,
-                                                                                                                                                                                                                                                                                                                                                                                                                role:         'OWNER',
-                                                                                                                                                                                                                                                                                                                                                                                                                        },
-                                                                                                                                                                                                                                                                                                                                                                                                                              })
+      const user = await tx.user.create({
+        data: {
+          restaurantId: restaurant.id,
+          email: cleanEmail,
+          name: ownerName,
+          passwordHash,
+          role: 'OWNER',
+        },
+      })
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                    // 4. Create Employee record for owner
-                                                                                                                                                                                                                                                                                                                                                                                                                                          await tx.employee.create({
-                                                                                                                                                                                                                                                                                                                                                                                                                                                  data: {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            locationId: location.id,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                      userId:     user.id,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                jobTitle:   'Owner & General Manager',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          phone:      phone ?? null,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    isActive:   true,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  })
+      await tx.employee.create({
+        data: {
+          locationId: location.id,
+          userId: user.id,
+          jobTitle: 'Owner & General Manager',
+          phone: phone ?? null,
+          isActive: true,
+        },
+      })
 
-    // New production tenants start empty. Owners add their own menu and floor layout.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      return { restaurant, location, user }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          })
+      return { restaurant, location, user }
+    })
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              return NextResponse.json(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            success: true,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    message: 'Restaurant SaaS account created successfully.',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            restaurant: {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      id:   result.restaurant.id,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                name: result.restaurant.name,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          slug: result.restaurant.slug,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          user: {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    id:    result.user.id,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              email: result.user.email,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        role:  result.user.role,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            { status: 201 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  } catch (err: any) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      console.error('Registration error:', err)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          return NextResponse.json({ error: err.message || 'Internal server error during registration' }, { status: 500 })
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Restaurant account created.',
+        restaurant: {
+          id: result.restaurant.id,
+          name: result.restaurant.name,
+          slug: result.restaurant.slug,
+        },
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          role: result.user.role,
+        },
+      },
+      { status: 201 }
+    )
+  } catch (err: any) {
+    if (err?.code === 'P2002') {
+      return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
+    }
+    console.error('Registration error:', err)
+    return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 500 })
+  }
+}

@@ -31,8 +31,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Customer ID and Reward ID required' }, { status: 400 })
     }
 
-    const customer = await prisma.customer.findUnique({ where: { id: customerId } })
-    const reward = await prisma.loyaltyReward.findUnique({ where: { id: rewardId } })
+    const restaurantId = session.user.restaurantId
+    const customer = await prisma.customer.findFirst({ where: { id: customerId, restaurantId } })
+    const reward = await prisma.loyaltyReward.findFirst({ where: { id: rewardId, restaurantId } })
 
     if (!customer || !reward) {
       return NextResponse.json({ error: 'Customer or Reward not found' }, { status: 404 })
@@ -45,33 +46,39 @@ export async function POST(req: NextRequest) {
     }
 
     // Transactionally deduct points and record redemption & ledger entry
-    const [updatedCustomer, redemption] = await prisma.$transaction([
-      prisma.customer.update({
-        where: { id: customerId },
-        data: {
-          pointsBalance: { decrement: reward.pointsRequired },
-        },
-      }),
-      prisma.loyaltyRedemption.create({
+    const result = await prisma.$transaction(async (tx) => {
+      const spent = await tx.customer.updateMany({
+        where: { id: customerId, restaurantId, pointsBalance: { gte: reward.pointsRequired } },
+        data: { pointsBalance: { decrement: reward.pointsRequired } },
+      })
+      if (spent.count === 0) return null
+      const updatedCustomer = await tx.customer.findUniqueOrThrow({ where: { id: customerId } })
+      const redemption = await tx.loyaltyRedemption.create({
         data: {
           customerId,
           rewardId,
           orderId: orderId || null,
           pointsRedeemed: reward.pointsRequired,
         },
-      }),
-      prisma.pointsLedger.create({
+      })
+      await tx.pointsLedger.create({
         data: {
           customerId,
           orderId: orderId || null,
           type: 'REDEEMED',
           pointsChange: -reward.pointsRequired,
-          balanceAfter: customer.pointsBalance - reward.pointsRequired,
+          balanceAfter: updatedCustomer.pointsBalance,
           reason: `Redeemed reward: ${reward.name}`,
           actorId: session.user.id,
         },
-      }),
-    ])
+      })
+      return { updatedCustomer, redemption }
+    })
+
+    if (!result) {
+      return NextResponse.json({ error: 'Insufficient points for this reward.' }, { status: 400 })
+    }
+    const { updatedCustomer, redemption } = result
 
     // Send confirmation email if customer has email on file
     if (customer.email) {

@@ -47,6 +47,9 @@ export async function GET(_r: Request, { params }: { params: Promise<{ token: st
   return NextResponse.json({
     orderNumber: order.publicOrderNumber,
     status: order.onlineStatus,
+    /** Kitchen-side status, used by dine-in QR guests who have no online status. */
+    orderStatus: order.status,
+    tableName: order.table?.name ?? null,
     fulfilmentType: order.fulfilmentType,
     customerName: order.customerName,
     scheduledFor: order.scheduledFor,
@@ -69,6 +72,8 @@ export async function GET(_r: Request, { params }: { params: Promise<{ token: st
       price: Number(i.priceAtOrder),
       modifiers: i.modifiers,
       specialNote: i.specialNote,
+      status: i.status,
+      station: i.station,
     })),
     deliveryAddress: order.deliveryAddress,
     events: order.events,
