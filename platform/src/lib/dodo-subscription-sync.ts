@@ -4,6 +4,7 @@ import { PlanTier } from '@/lib/plans'
 import {
   DodoInternalStatus,
   DodoSubscription,
+  dodoMode,
   mapDodoStatus,
   parsePlanTier,
   planTierForProductId,
@@ -88,6 +89,8 @@ export async function applyDodoSubscriptionState(
       settings: {
         ...settings,
         lastBillingGateway: 'DODO',
+        // Remembered so a test-mode subscription stops counting once the site switches to live.
+        dodoEnvironment: dodoMode(),
         dodoSubscriptionId: sub.subscription_id,
         dodoCustomerId: sub.customer?.customer_id || settings.dodoCustomerId,
         dodoSubscriptionStatus: status,

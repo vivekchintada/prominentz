@@ -130,6 +130,7 @@ export function BillingManagerClient() {
   const [showThankYouModal, setShowThankYouModal] = useState(false)
   const [isPaidSubscription, setIsPaidSubscription] = useState(false)
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('INACTIVE')
+  const [testMode, setTestMode] = useState(false)
   const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null)
   const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false)
 
@@ -143,6 +144,7 @@ export function BillingManagerClient() {
         setRestaurantName(data.restaurantName || 'My Restaurant')
         setCurrentPlan((data.planTier || 'STARTER') as PlanTier)
         setSubscriptionStatus(data.status || 'INACTIVE')
+        setTestMode(Boolean(data.testMode))
         setIsPaidSubscription(data.status === 'ACTIVE' || data.status === 'BILLING_ISSUE' || data.status === 'PAUSED')
         setCurrentPeriodEnd(data.currentPeriodEnd || null)
         setCancelAtPeriodEnd(Boolean(data.cancelAtPeriodEnd))
@@ -500,6 +502,17 @@ export function BillingManagerClient() {
           </button>
         </div>
       </div>
+
+      {testMode && (
+        <div
+          role="status"
+          className="bz-tile"
+          style={{ maxWidth: 480, margin: '0 auto 16px', padding: '14px 18px', border: '2px dashed var(--bz-accent)' }}
+        >
+          <strong>Test mode: no real charges.</strong> Checkout uses Dodo&apos;s test cards. Subscriptions made now stop
+          counting when billing switches to live.
+        </div>
+      )}
 
       {/* ── Single Basic Plan Display ───────────────────────────────── */}
       <div style={{ maxWidth: '480px', margin: '0 auto 40px' }}>

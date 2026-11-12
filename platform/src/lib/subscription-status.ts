@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { dodoMode } from '@/lib/dodo-payments'
 
 export type BillingGateway = 'STRIPE' | 'DODO'
 
@@ -25,14 +26,19 @@ function resolveGateway(settings: Record<string, any>): BillingGateway {
   return 'STRIPE'
 }
 
+/** A subscription made in Dodo's test mode is not a real one once the site runs in live mode. */
+function isFromOtherDodoMode(settings: Record<string, any>): boolean {
+  return typeof settings.dodoEnvironment === 'string' && settings.dodoEnvironment !== dodoMode()
+}
+
 function isGatewayActive(gateway: BillingGateway, settings: Record<string, any>): boolean {
-  if (gateway === 'DODO') return settings.dodoSubscriptionStatus === 'ACTIVE'
+  if (gateway === 'DODO') return settings.dodoSubscriptionStatus === 'ACTIVE' && !isFromOtherDodoMode(settings)
   return settings.stripeSubscriptionStatus === 'ACTIVE'
 }
 
 function isGatewayPastDue(gateway: BillingGateway, settings: Record<string, any>): boolean {
   if (gateway === 'STRIPE') return settings.stripeSubscriptionStatus === 'PAST_DUE'
-  if (gateway === 'DODO') return settings.dodoSubscriptionStatus === 'BILLING_ISSUE'
+  if (gateway === 'DODO') return settings.dodoSubscriptionStatus === 'BILLING_ISSUE' && !isFromOtherDodoMode(settings)
   return false
 }
 

@@ -28,6 +28,24 @@ export function isMockDodo(): boolean {
   return isTestOrMockKey
 }
 
+/** Which Dodo environment this deployment talks to. */
+export function dodoMode(): 'test_mode' | 'live_mode' {
+  return dodoEnvironment
+}
+
+/**
+ * Test mode on the production site, for checking the real deployment with Dodo test cards.
+ * Needs DODO_ALLOW_TEST_MODE_IN_PRODUCTION=true as a deliberate, temporary opt-in: test-card
+ * subscriptions are free, so this must be switched off before real customers subscribe.
+ */
+export function isDodoTestModeInProduction(): boolean {
+  return process.env.NODE_ENV === 'production' && dodoEnvironment === 'test_mode'
+}
+
+function testModeAllowedInProduction(): boolean {
+  return process.env.DODO_ALLOW_TEST_MODE_IN_PRODUCTION === 'true'
+}
+
 function getBaseUrl(): string {
   return dodoEnvironment === 'live_mode' ? 'https://live.dodopayments.com' : 'https://test.dodopayments.com'
 }
@@ -69,8 +87,8 @@ export function dodoConfigProblems(): string[] {
   const envValue = process.env.DODO_PAYMENTS_ENVIRONMENT
   if (envValue !== 'live_mode' && envValue !== 'test_mode') {
     problems.push('DODO_PAYMENTS_ENVIRONMENT must be set to live_mode or test_mode')
-  } else if (process.env.NODE_ENV === 'production' && envValue !== 'live_mode') {
-    problems.push('DODO_PAYMENTS_ENVIRONMENT is test_mode in production')
+  } else if (process.env.NODE_ENV === 'production' && envValue !== 'live_mode' && !testModeAllowedInProduction()) {
+    problems.push('DODO_PAYMENTS_ENVIRONMENT is test_mode in production (set DODO_ALLOW_TEST_MODE_IN_PRODUCTION=true to test on purpose)')
   }
   // Basic is the plan the billing page sells, so it must be set. Pro and Enterprise are optional
   // until they're offered; checkout refuses a plan whose product isn't configured.

@@ -59,7 +59,9 @@ export async function GET(req: NextRequest) {
       take: 10,
     })
 
+    const { isDodoTestModeInProduction } = await import('@/lib/dodo-payments')
     return NextResponse.json({
+      testMode: isDodoTestModeInProduction(),
       restaurantId: restaurant.id,
       restaurantName: restaurant.name,
       planTier: restaurant.planTier,

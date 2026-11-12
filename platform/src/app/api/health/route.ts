@@ -87,7 +87,11 @@ export async function GET() {
       status: isConfigured ? 'ok' : 'degraded',
       latencyMs: Date.now() - start,
       detail: isConfigured
-        ? `Configured (${process.env.DODO_PAYMENTS_ENVIRONMENT || 'test_mode'})`
+        ? `Configured (${process.env.DODO_PAYMENTS_ENVIRONMENT || 'test_mode'}${
+            process.env.NODE_ENV === 'production' && process.env.DODO_PAYMENTS_ENVIRONMENT !== 'live_mode'
+              ? ' — TEST MODE ON PRODUCTION, switch to live_mode before real customers subscribe'
+              : ''
+          })`
         : `Not ready: ${problems.join('; ')}`,
     }
   } catch {
