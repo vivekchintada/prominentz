@@ -112,6 +112,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Table not found' }, { status: 404 })
     }
 
+    // Every item must be on this restaurant's menu and orderable, checked before any order is created
+    // so a bad id can't leave an empty order behind.
+    const menuItems = rawItems.length > 0
+      ? await prisma.menuItem.findMany({
+          where: {
+            id: { in: rawItems.map((i) => i.menuItemId) },
+            isAvailable: true,
+            is86d: false,
+            category: { restaurantId: restaurantId || '' },
+          },
+          select: { id: true, name: true, price: true, kdsStation: true },
+        })
+      : []
+    if (menuItems.length !== new Set(rawItems.map((i) => i.menuItemId)).size) {
+      return NextResponse.json({ error: 'One or more menu items are unavailable' }, { status: 400 })
+    }
+
     // Check if table already has an active open order
     let targetOrder = await prisma.order.findFirst({
       where: {
@@ -178,11 +195,6 @@ export async function POST(req: NextRequest) {
 
     // If items are provided in the payload, insert them and dispatch KDS tickets immediately
     if (rawItems.length > 0) {
-      const menuItemIds = rawItems.map((i) => i.menuItemId)
-      const menuItems = await prisma.menuItem.findMany({
-        where: { id: { in: menuItemIds } },
-        select: { id: true, name: true, price: true, kdsStation: true },
-      })
       const itemMap = new Map(menuItems.map((m) => [m.id, m]))
 
       // 1. Create OrderItem rows
@@ -191,8 +203,8 @@ export async function POST(req: NextRequest) {
         return {
           orderId: targetOrder.id,
           menuItemId: item.menuItemId,
-          quantity: item.quantity && item.quantity > 0 ? item.quantity : 1,
-          priceAtOrder: menuItem ? menuItem.price : 0,
+          quantity: Math.min(99, Math.max(1, Math.floor(Number(item.quantity)) || 1)),
+          priceAtOrder: menuItem!.price,
           specialNote: item.specialNote || null,
           status: 'PENDING' as const,
         }

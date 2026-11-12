@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { processPaymentSchema } from '@/lib/validations/payments'
-import { verifyStripeIntent } from '@/lib/payments'
+import { verifyStripeIntent, assertIntentsUnused } from '@/lib/payments'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { getAllowedPaymentMethods } from '@/lib/settings-helpers'
 import { formatMoney } from '@/lib/money'
@@ -77,6 +77,9 @@ export async function POST(req: NextRequest) {
     }
     if (order.status === 'PAID') {
       return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
+    }
+    if (order.status === 'VOIDED') {
+      return NextResponse.json({ error: 'A voided order cannot be paid' }, { status: 409 })
     }
 
     // ── Enforce payment type settings ─────────────────────────────────────
@@ -206,50 +209,64 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           )
         }
+
+        try {
+          await assertIntentsUnused([stripePaymentIntentId])
+        } catch (reuseErr: any) {
+          return NextResponse.json({ error: reuseErr.message }, { status: 409 })
+        }
       } else {
         // Only allow payment without a gateway transaction when the server-calculated balance is exactly zero after authorized discounts
         effectiveStripeIntentId = 'zero_balance_comp'
       }
     }
 
-    // Process checkout transaction
-    const [payment] = await prisma.$transaction([
-      // 1. Create payment record with server-authoritative amounts
-      prisma.payment.create({
-        data: {
-          orderId,
-          processedBy: session.user.id,
-          method,
-          status: 'COMPLETED',
-          subtotal: expectedSubtotal,
-          tax: expectedTax,
-          tip: effectiveTip,
-          total: expectedTotal,
-          cashReceived: cashReceived ?? null,
-          cashChange: serverCashChange ?? cashChange ?? null,
-          stripePaymentIntentId: effectiveStripeIntentId,
-          stripeChargeId: stripeChargeId ?? null,
-        },
-      }),
-      // 2. Update order status and record final authoritative billing amounts
-      prisma.order.update({
-        where: { id: orderId },
-        data: {
-          status: 'PAID',
-          paymentStatus: 'PAID',
-          subtotal: expectedSubtotal,
-          tax: expectedTax,
-          total: expectedTotal,
-          tip: effectiveTip,
-          discount: serverCouponDiscount,
-        },
-      }),
-      // 3. Reset table status
-      prisma.table.update({
-        where: { id: order.tableId },
-        data: { status: 'EMPTY' },
-      }),
-    ])
+    // Process checkout transaction. The order is claimed first with a conditional update, so two
+    // concurrent submits (a double-tapped Pay button) can't both record a payment.
+    let payment
+    try {
+      payment = await prisma.$transaction(async (tx) => {
+        const claimed = await tx.order.updateMany({
+          where: { id: orderId, status: { notIn: ['PAID', 'VOIDED'] } },
+          data: {
+            status: 'PAID',
+            paymentStatus: 'PAID',
+            subtotal: expectedSubtotal,
+            tax: expectedTax,
+            total: expectedTotal,
+            tip: effectiveTip,
+            discount: serverCouponDiscount,
+          },
+        })
+        if (claimed.count === 0) throw new Error('ORDER_ALREADY_SETTLED')
+
+        const created = await tx.payment.create({
+          data: {
+            orderId,
+            processedBy: session.user.id,
+            method,
+            status: 'COMPLETED',
+            subtotal: expectedSubtotal,
+            tax: expectedTax,
+            tip: effectiveTip,
+            total: expectedTotal,
+            cashReceived: cashReceived ?? null,
+            cashChange: serverCashChange ?? cashChange ?? null,
+            stripePaymentIntentId: effectiveStripeIntentId,
+            stripeChargeId: stripeChargeId ?? null,
+          },
+        })
+        if (order.tableId) {
+          await tx.table.update({ where: { id: order.tableId }, data: { status: 'EMPTY' } })
+        }
+        return created
+      })
+    } catch (txErr: any) {
+      if (txErr?.message === 'ORDER_ALREADY_SETTLED') {
+        return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
+      }
+      throw txErr
+    }
 
     // 4. Handle Coupon usage count & loyalty points redemption
     if (couponCode) {
@@ -258,7 +275,7 @@ export async function POST(req: NextRequest) {
         // Increment coupon usage count
         await prisma.coupon.updateMany({
           where: {
-            restaurantId: session.user.restaurantId,
+            restaurantId,
             code: cleanCode,
           },
           data: { usageCount: { increment: 1 } },
@@ -266,7 +283,7 @@ export async function POST(req: NextRequest) {
 
         // If coupon has pointsCost and customer is attached, deduct loyalty points
         const coupon = await prisma.coupon.findFirst({
-          where: { restaurantId: session.user.restaurantId, code: cleanCode },
+          where: { restaurantId, code: cleanCode },
         })
         if (coupon?.pointsCost && coupon.pointsCost > 0 && order.customerId) {
           await prisma.customer.update({

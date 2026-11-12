@@ -93,9 +93,20 @@ export function minorUnitDigits(currency: string = DEFAULT_CURRENCY): number {
   }
 }
 
+/** Three-decimal currencies Stripe only accepts in multiples of 10 minor units (last digit 0). */
+const TEN_MINOR_UNIT_STEP = new Set(['KWD', 'BHD', 'OMR', 'JOD', 'TND'])
+
+/** Rounding slack, in minor units, when comparing a gateway amount with an expected one. */
+export function minorUnitTolerance(currency: string = DEFAULT_CURRENCY): number {
+  return TEN_MINOR_UNIT_STEP.has(normalizeCurrency(currency)) ? 10 : 1
+}
+
 /** 1050.5 INR → 105050 (paise). The integer amount card gateways expect. */
 export function toMinorUnits(amount: number, currency: string = DEFAULT_CURRENCY): number {
-  return Math.round(amount * 10 ** minorUnitDigits(currency))
+  const code = normalizeCurrency(currency)
+  // toPrecision strips float noise first, so 1.005 USD becomes 101 cents rather than 100.
+  const minor = Math.round(Number((amount * 10 ** minorUnitDigits(code)).toPrecision(15)))
+  return TEN_MINOR_UNIT_STEP.has(code) ? Math.round(minor / 10) * 10 : minor
 }
 
 /** 105050 paise → 1050.5 INR. */

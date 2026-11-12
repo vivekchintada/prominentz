@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { publishEvent, EVENTS } from '@/lib/redis'
 import { splitPaymentSchema } from '@/lib/validations/payments'
-import { verifyStripeIntent } from '@/lib/payments'
+import { verifyStripeIntent, assertIntentsUnused } from '@/lib/payments'
 import { formatMoney } from '@/lib/money'
 import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 
@@ -56,6 +56,9 @@ export async function POST(req: NextRequest) {
     }
     if (order.status === 'PAID') {
       return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
+    }
+    if (order.status === 'VOIDED') {
+      return NextResponse.json({ error: 'A voided order cannot be paid' }, { status: 409 })
     }
 
     // ── Server-Side Authoritative Total Calculation ─────────────────────────
@@ -171,13 +174,33 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // One card charge can settle one split only, and never a bill that already used it.
+    try {
+      await assertIntentsUnused(
+        splits
+          .filter((s) => ['CARD', 'APPLE_PAY', 'GOOGLE_PAY'].includes(s.method) && s.total > 0)
+          .map((s) => s.stripePaymentIntentId as string),
+      )
+    } catch (reuseErr: any) {
+      return NextResponse.json({ error: reuseErr.message }, { status: 409 })
+    }
+
     // Derive primary method for parent record
     const uniqueMethods = [...new Set(splits.map((s) => s.method))]
     const primaryMethod = uniqueMethods.length === 1 ? uniqueMethods[0] : 'CARD'
     const authoritativeTotal = Number((netSubtotal + expectedTax + totalTipSubmitted).toFixed(2))
 
     // ── Atomic Settlement Transaction ───────────────────────────────────────
-    const payment = await prisma.$transaction(async (tx) => {
+    let payment
+    try {
+    payment = await prisma.$transaction(async (tx) => {
+      // 0. Claim the order first so a concurrent submit can't also settle it
+      const claimed = await tx.order.updateMany({
+        where: { id: orderId, status: { notIn: ['PAID', 'VOIDED'] } },
+        data: { status: 'PAID' },
+      })
+      if (claimed.count === 0) throw new Error('ORDER_ALREADY_SETTLED')
+
       // 1. Create parent Payment record with authoritative server amounts
       const parentPayment = await tx.payment.create({
         data: {
@@ -229,6 +252,12 @@ export async function POST(req: NextRequest) {
 
       return parentPayment
     })
+    } catch (txErr: any) {
+      if (txErr?.message === 'ORDER_ALREADY_SETTLED') {
+        return NextResponse.json({ error: 'Order is already settled' }, { status: 409 })
+      }
+      throw txErr
+    }
 
     // Coupon increment & loyalty deductions
     if (couponCode) {

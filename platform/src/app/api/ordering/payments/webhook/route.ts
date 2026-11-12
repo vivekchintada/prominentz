@@ -87,7 +87,9 @@ export async function POST(req: NextRequest) {
       // The payment must come from this restaurant's own Stripe account, in its currency, for the full total.
       // Connect webhooks carry events for every connected account, so metadata alone proves nothing.
       let genuine = false
-      if (order && order.trackingToken && order.paymentStatus !== 'PAID') {
+      // A retry of the same intent is let through (the kitchen fire below is idempotent), so a step that
+      // failed after the order was marked paid is not skipped forever.
+      if (order && order.trackingToken && (order.paymentStatus !== 'PAID' || order.stripePaymentIntentId === pi.id)) {
         const rid = order.table?.location?.restaurantId
         const expectedAccount = order.table?.location?.restaurant?.stripeConnectAccountId ?? null
         const { currency } = rid ? await getRestaurantMoneySettings(rid) : { currency: 'USD' }
@@ -112,8 +114,9 @@ export async function POST(req: NextRequest) {
         const auto = order.table?.location?.onlineOrderingConfig?.acceptanceMode === 'AUTOMATIC'
         const restaurantId = order.table?.location?.restaurantId || order.table?.location?.restaurant?.id
 
-        await prisma.order.update({
-          where: { id: order.id },
+        // Claim the payment: only one delivery moves the order from unpaid to paid.
+        const claimed = await prisma.order.updateMany({
+          where: { id: order.id, paymentStatus: { not: 'PAID' } },
           data: {
             paymentStatus: 'PAID',
             stripePaymentIntentId: pi.id,
@@ -121,21 +124,24 @@ export async function POST(req: NextRequest) {
             acceptedAt: auto ? new Date() : undefined,
           },
         })
+        const firstDelivery = claimed.count === 1
 
-        await prisma.orderEvent.create({
-          data: {
-            orderId: order.id,
-            eventType: 'online_order.payment_completed',
-            metadata: { paymentIntentId: pi.id, restaurantId },
-          },
-        })
+        if (firstDelivery) {
+          await prisma.orderEvent.create({
+            data: {
+              orderId: order.id,
+              eventType: 'online_order.payment_completed',
+              metadata: { paymentIntentId: pi.id, restaurantId },
+            },
+          })
 
-        // Award loyalty points to customer
-        try {
-          const { awardOrderPoints } = await import('@/lib/customer-crm')
-          await awardOrderPoints(order.id)
-        } catch (ptsErr) {
-          console.error('[Stripe Webhook] Points award error:', ptsErr)
+          // Award loyalty points to customer
+          try {
+            const { awardOrderPoints } = await import('@/lib/customer-crm')
+            await awardOrderPoints(order.id)
+          } catch (ptsErr) {
+            console.error('[Stripe Webhook] Points award error:', ptsErr)
+          }
         }
 
         // Fire to kitchen if auto-accepted and not scheduled for the future
@@ -143,9 +149,9 @@ export async function POST(req: NextRequest) {
           await fireOnlineOrder(order.id, 'STRIPE_WEBHOOK_AUTO')
         }
 
-        // Dispatch customer confirmation notification
+        // Dispatch customer confirmation notification (once, and never allowed to fail the webhook)
         const origin = req.nextUrl.origin || 'http://localhost:3000'
-        await sendOrderConfirmationNotification({
+        if (firstDelivery) try { await sendOrderConfirmationNotification({
           restaurantId: order.table?.location?.restaurantId ?? null,
           orderNumber: order.publicOrderNumber || order.id.slice(-6),
           customerName: order.customerName || 'Customer',
@@ -163,7 +169,9 @@ export async function POST(req: NextRequest) {
           total: Number(order.total),
           trackingUrl: `${origin}/order/track/${order.trackingToken}`,
           restaurantName: order.table?.location?.restaurant?.name || 'Our Restaurant',
-        })
+        }) } catch (notifyErr) {
+          console.error('[Stripe Webhook] Confirmation notification error:', notifyErr)
+        }
       }
 
       // Record event ID to prevent replay
@@ -182,24 +190,36 @@ export async function POST(req: NextRequest) {
       const orderId = pi.metadata?.orderId
 
       if (orderId && pi.metadata?.channel === 'online') {
-        await prisma.order.update({
+        // Same trust rule as success: the event must come from this restaurant's own Stripe account,
+        // and a failure can never overwrite an order that has already been paid.
+        const target = await prisma.order.findUnique({
           where: { id: orderId },
-          data: {
-            paymentStatus: 'FAILED',
-            onlineStatus: 'PAYMENT_FAILED',
-          },
+          select: { trackingToken: true, table: { select: { location: { select: { restaurant: { select: { stripeConnectAccountId: true } } } } } } },
         })
-
-        await prisma.orderEvent.create({
-          data: {
-            orderId,
-            eventType: 'online_order.payment_failed',
-            metadata: {
-              paymentIntentId: pi.id,
-              lastPaymentError: pi.last_payment_error?.message || 'Payment failed',
+        const expectedAccount = target?.table?.location?.restaurant?.stripeConnectAccountId ?? null
+        const accountOk = isMockStripe() ? true : expectedAccount ? event.account === expectedAccount : !event.account
+        if (target?.trackingToken && accountOk) {
+          const marked = await prisma.order.updateMany({
+            where: { id: orderId, paymentStatus: { not: 'PAID' } },
+            data: {
+              paymentStatus: 'FAILED',
+              onlineStatus: 'PAYMENT_FAILED',
             },
-          },
-        })
+          })
+
+          if (marked.count === 1) {
+            await prisma.orderEvent.create({
+              data: {
+                orderId,
+                eventType: 'online_order.payment_failed',
+                metadata: {
+                  paymentIntentId: pi.id,
+                  lastPaymentError: pi.last_payment_error?.message || 'Payment failed',
+                },
+              },
+            })
+          }
+        }
       }
 
       await prisma.stripeEventLog.create({

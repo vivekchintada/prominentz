@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
         is86d: false,
         category: { restaurantId },
       },
+      include: { modifiers: { include: { options: true } } },
     })
     if (dbMenuItems.length !== new Set(menuItemIds).size) {
       return NextResponse.json({ error: 'One or more menu items are unavailable' }, { status: 400 })
@@ -137,6 +138,34 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Create OrderItems
+    // Guests only say which options they picked. Names and prices come from the menu, never from
+    // the request, because the bill is summed from these stored modifiers.
+    const resolveModifiers = (dbItem: (typeof dbMenuItems)[number], submitted: unknown) => {
+      if (!Array.isArray(submitted)) return []
+      const byName = new Map<string, number>()
+      for (const group of dbItem.modifiers) {
+        for (const option of group.options) {
+          if (!byName.has(option.name)) byName.set(option.name, Number(option.priceAdjustment))
+        }
+      }
+      const resolved: { name: string; priceDelta: number }[] = []
+      for (const pick of submitted.slice(0, 30)) {
+        const name = typeof pick?.name === 'string' ? pick.name : ''
+        if (!byName.has(name)) return null
+        resolved.push({ name, priceDelta: byName.get(name)! })
+      }
+      return resolved
+    }
+    for (const item of items) {
+      const dbItem = menuMap.get(item.menuItemId)
+      if (dbItem && resolveModifiers(dbItem, item.modifiers) === null) {
+        return NextResponse.json(
+          { error: `An option on "${dbItem.name}" is no longer available. Please refresh the menu.` },
+          { status: 400 },
+        )
+      }
+    }
+
     const createdItems = []
     for (const item of items) {
       const dbItem = menuMap.get(item.menuItemId)
@@ -146,10 +175,10 @@ export async function POST(req: NextRequest) {
         data: {
           orderId: order.id,
           menuItemId: item.menuItemId,
-          quantity: Number(item.quantity) || 1,
+          quantity: Math.min(99, Math.max(1, Math.floor(Number(item.quantity)) || 1)),
           priceAtOrder: dbItem.price,
-          seatNumber: Number(item.seatNumber) || 1,
-          modifiers: item.modifiers || [],
+          seatNumber: Math.min(99, Math.max(1, Math.floor(Number(item.seatNumber)) || 1)),
+          modifiers: resolveModifiers(dbItem, item.modifiers) ?? [],
           specialNote: typeof item.specialNote === 'string' ? item.specialNote.slice(0, 300) : null,
           status: 'IN_PROGRESS',
         },

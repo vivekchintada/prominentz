@@ -193,14 +193,23 @@ assert.doesNotMatch(
   'Fabricated PaymentIntent references (pi_settle_...) must be completely removed'
 )
 
-const terminalCaptureSource = readFileSync(new URL('../src/app/api/payments/terminal/capture/route.ts', import.meta.url), 'utf8')
+const paymentsLibSource = readFileSync(new URL('../src/lib/payments.ts', import.meta.url), 'utf8')
+const paymentsRouteSource = readFileSync(new URL('../src/app/api/payments/route.ts', import.meta.url), 'utf8')
 
 assert.match(
-  terminalCaptureSource,
-  /if\s*\(amountDollars\s*<\s*expectedOrderTotal\s*-\s*0\.50\)/,
-  'Terminal capture must strictly verify captured amount covers expected order balance'
+  paymentsLibSource,
+  /!intent\.metadata\?\.orderId\s*\|\|\s*intent\.metadata\.orderId\s*!==\s*orderId/,
+  'A PaymentIntent must be tagged with the order it settles (untagged intents rejected)'
 )
+for (const [name, src] of [['payments', paymentsRouteSource], ['split', splitRouteSource]]) {
+  assert.match(src, /assertIntentsUnused\(/, `${name} route must reject a card charge already applied to a bill`)
+  assert.match(
+    src,
+    /updateMany\(\{\s*where:\s*\{\s*id:\s*orderId,\s*status:\s*\{\s*notIn:\s*\['PAID',\s*'VOIDED'\]/,
+    `${name} route must claim the order atomically so concurrent submits can't both settle it`
+  )
+}
 
-console.log('✓ POS Card & Terminal integrity verified: zero fabricated intents and amount bounds verified.')
+console.log('✓ POS Card integrity verified: zero fabricated intents, one charge per bill, atomic settlement.')
 
 console.log('\n=== ALL TWO-TENANT & LAUNCH BLOCKER INTEGRATION CHECKS PASSED (0 FAILURES) ===\n')
