@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
           <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.7, color: 'rgba(255,255,255,0.85)' }}>
             <li>We process restaurant operator data and diner order information exclusively to facilitate restaurant management, POS, kitchen routing, and payments.</li>
             <li>We do not sell, rent, or monetize your personal or diner data to third-party data brokers or advertisers.</li>
-            <li>All payment transactions are tokenized and processed securely via PCI-DSS Level 1 certified partners (such as Razorpay, Cashfree, or Stripe); Prominentz never stores raw credit card numbers.</li>
+            <li>All payment transactions are tokenized and processed securely via PCI-DSS Level 1 certified partners (Dodo Payments and Stripe); Prominentz never stores raw credit card numbers.</li>
             <li>You possess full rights to request data export, correction, or deletion under GDPR and CCPA/CPRA guidelines.</li>
           </ul>
         </div>
@@ -144,7 +144,7 @@ export default function PrivacyPolicyPage() {
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>Payment Gateways (Razorpay / Cashfree / Stripe)</div>
+              <div style={{ fontWeight: 700, color: '#a594fd', marginBottom: '4px' }}>Payment Gateways (Dodo Payments / Stripe)</div>
               <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Tokenized payment processing &amp; PCI-DSS Level 1 compliance.</div>
             </div>
             <div style={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '16px' }}>

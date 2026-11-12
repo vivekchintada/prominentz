@@ -1,24 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
+import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
-import { cancelCashfreeSubscription } from '@/lib/cashfree'
+import { cancelDodoSubscription, resumeDodoSubscription } from '@/lib/dodo-payments'
 import { stripe, isMockStripe } from '@/lib/stripe'
 import { logAuditEvent } from '@/lib/audit'
-import { getRevenueCatSubscriber, planStateFromSubscriber } from '@/lib/revenuecat'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * POST {}               → cancel at the end of the current paid period (Dodo)
+ * POST { resume: true } → undo a pending end-of-period cancellation (Dodo)
+ */
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const authCtx = await getAuthContext(session.user)
+    if (!authCtx || !canManageBilling(authCtx)) {
+      return NextResponse.json({ error: 'Only the restaurant owner can manage billing' }, { status: 403 })
+    }
 
     const restaurantId = session.user.restaurantId
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant not found for user' }, { status: 404 })
     }
+
+    const body = await req.json().catch(() => ({}))
+    const resume = body?.resume === true
 
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: restaurantId },
@@ -29,29 +40,60 @@ export async function POST(req: NextRequest) {
     }
 
     const currentSettings = (restaurant.settings as Record<string, any>) || {}
+    const dodoSubscriptionId: string | undefined = currentSettings.dodoSubscriptionId
 
-    // RevenueCat subscriptions are cancelled on RevenueCat's hosted page; the plan stays
-    // active until the paid period ends and the webhook then downgrades it.
-    if (currentSettings.lastBillingGateway === 'REVENUECAT') {
-      const { managementUrl } = planStateFromSubscriber(await getRevenueCatSubscriber(restaurant.id))
+    if (dodoSubscriptionId) {
+      try {
+        if (resume) await resumeDodoSubscription(dodoSubscriptionId)
+        else await cancelDodoSubscription(dodoSubscriptionId)
+      } catch (err: any) {
+        console.error('[POST /api/billing/cancel] Dodo request failed:', err.message)
+        return NextResponse.json(
+          { error: 'Could not update your subscription with Dodo Payments. Nothing was changed; please try again.' },
+          { status: 502 }
+        )
+      }
+
+      // Access continues until the period ends; Dodo sends subscription.cancelled then.
+      await prisma.restaurant.update({
+        where: { id: restaurantId },
+        data: { settings: { ...currentSettings, dodoCancelAtPeriodEnd: !resume } },
+      })
+
+      await logAuditEvent({
+        restaurantId,
+        actorId: session.user.id || 'owner',
+        actorName: session.user.name || 'Owner',
+        action: resume ? 'EDIT_SETTINGS' : 'BILLING_SUBSCRIPTION_CANCELLED',
+        targetType: 'Restaurant',
+        targetId: restaurantId,
+        before: { subscriptionId: dodoSubscriptionId, cancelAtPeriodEnd: Boolean(currentSettings.dodoCancelAtPeriodEnd) },
+        after: { cancelAtPeriodEnd: !resume },
+      })
+
       return NextResponse.json({
-        success: false,
-        url: managementUrl,
-        message: 'Open the subscription page to cancel. Your plan stays active until the end of the paid period.',
+        success: true,
+        planTier: restaurant.planTier,
+        cancelAtPeriodEnd: !resume,
+        currentPeriodEnd: currentSettings.dodoNextBillingDate || null,
+        message: resume
+          ? 'Your subscription will keep renewing as normal.'
+          : 'Your subscription is cancelled and will not renew. You keep full access until the end of the current billing period.',
       })
     }
 
-    const subscriptionId = currentSettings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId
+    if (resume) {
+      return NextResponse.json({ error: 'No Dodo subscription to resume' }, { status: 400 })
+    }
 
-    if (subscriptionId) {
+    // Stripe-direct subscriptions (BILLING_PROVIDER=stripe local-testing override only).
+    const subscriptionId = restaurant.stripeSubscriptionId
+    if (subscriptionId && !isMockStripe()) {
       try {
-        if (!currentSettings.cashfreeSubscriptionId && subscriptionId.startsWith('sub_') && !isMockStripe()) {
-          await stripe.subscriptions.cancel(subscriptionId)
-        } else {
-          await cancelCashfreeSubscription(subscriptionId)
-        }
+        await stripe.subscriptions.cancel(subscriptionId)
       } catch (err: any) {
-        console.warn('[POST /api/billing/cancel] Gateway cancellation warning:', err.message)
+        console.error('[POST /api/billing/cancel] Stripe cancellation failed:', err.message)
+        return NextResponse.json({ error: 'Could not cancel the subscription with Stripe' }, { status: 502 })
       }
     }
 
@@ -59,12 +101,7 @@ export async function POST(req: NextRequest) {
       where: { id: restaurantId },
       data: {
         planTier: 'STARTER',
-        settings: {
-          ...currentSettings,
-          cashfreeSubscriptionStatus: 'CANCELLED',
-          cashfreeCancelledAt: new Date().toISOString(),
-          lastCashfreeEventTime: new Date().toISOString(),
-        },
+        settings: { ...currentSettings, stripeSubscriptionStatus: 'CANCELLED' },
       },
     })
 
@@ -82,7 +119,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       planTier: updatedRestaurant.planTier,
-      message: 'Subscription successfully cancelled. Your account has returned to the Basic Plan.',
+      message: 'Subscription cancelled.',
     })
   } catch (error: any) {
     console.error('[POST /api/billing/cancel Error]', error)

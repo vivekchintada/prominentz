@@ -55,6 +55,8 @@ export async function createPaymentIntent(
     stripeAccount?: string
     /** e.g. ['card_present'] for Stripe Terminal readers. */
     paymentMethodTypes?: string[]
+    /** ISO currency of the restaurant (amount is already in its minor units). Defaults to USD. */
+    currency?: string
   }
 ) {
   try {
@@ -84,14 +86,14 @@ export async function createPaymentIntent(
     const createParams: Stripe.PaymentIntentCreateParams = options?.paymentMethodTypes
       ? {
           amount: amountInCents,
-          currency: 'usd',
+          currency: (options?.currency || 'usd').toLowerCase(),
           metadata: { orderId },
           payment_method_types: options.paymentMethodTypes,
           capture_method: 'automatic',
         }
       : {
           amount: amountInCents,
-          currency: 'usd',
+          currency: (options?.currency || 'usd').toLowerCase(),
           metadata: { orderId },
           confirm: shouldConfirm && !!paymentMethod,
           payment_method: shouldConfirm && paymentMethod ? paymentMethod : undefined,
@@ -131,7 +133,7 @@ export async function createPaymentIntent(
  */
 export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInCents?: number, stripeAccount?: string) {
   try {
-    if (isMockStripe() || chargeIdOrPaymentIntentId.startsWith('pi_mock_')) {
+    if (isMockStripe()) {
       return {
         id: `re_mock_${Math.random().toString(36).substr(2, 9)}`,
         amount: amountInCents ?? 0,

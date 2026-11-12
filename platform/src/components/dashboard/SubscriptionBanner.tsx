@@ -27,9 +27,9 @@ export function SubscriptionBanner({ isTrialing, isExpired, isPastDue, daysLeftI
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12,
-        background: tone === 'urgent' ? '#fef2f2' : '#fffbeb',
-        border: `1px solid ${tone === 'urgent' ? '#fecaca' : '#fde68a'}`,
-        color: tone === 'urgent' ? '#991b1b' : '#92400e',
+        background: tone === 'urgent' ? 'color-mix(in srgb, var(--color-error) 14%, transparent)' : 'color-mix(in srgb, var(--color-warning) 14%, transparent)',
+        border: `1px solid ${tone === 'urgent' ? 'color-mix(in srgb, var(--color-error) 35%, transparent)' : '#fde68a'}`,
+        color: tone === 'urgent' ? 'var(--color-error)' : '#92400e',
         fontSize: 14,
       }}
     >

@@ -77,24 +77,21 @@ export async function GET() {
     checks.email = { status: 'down', latencyMs: 0 }
   }
 
-  // 6. Cashfree SaaS Billing Gateway
+  // 6. Dodo Payments SaaS Billing Gateway
   try {
     const start = Date.now()
-    const cfAppId = process.env.CASHFREE_APP_ID
-    const cfSecret = process.env.CASHFREE_SECRET_KEY
-    const isConfigured = Boolean(cfAppId && cfSecret && !cfAppId.includes('mock') && !cfSecret.includes('mock'))
-    const missingKeys: string[] = []
-    if (!cfAppId || cfAppId.includes('mock')) missingKeys.push('CASHFREE_APP_ID')
-    if (!cfSecret || cfSecret.includes('mock')) missingKeys.push('CASHFREE_SECRET_KEY')
-    checks.cashfree = {
+    const { dodoConfigProblems } = await import('@/lib/dodo-payments')
+    const problems = dodoConfigProblems()
+    const isConfigured = problems.length === 0
+    checks.dodo = {
       status: isConfigured ? 'ok' : 'degraded',
       latencyMs: Date.now() - start,
       detail: isConfigured
-        ? `Configured (${process.env.CASHFREE_ENVIRONMENT || 'SANDBOX'}, mode: ${process.env.CASHFREE_BILLING_MODE || 'RECURRING_SUBSCRIPTION'})`
-        : `Missing or mock credentials: ${missingKeys.join(', ')}`,
+        ? `Configured (${process.env.DODO_PAYMENTS_ENVIRONMENT || 'test_mode'})`
+        : `Not ready: ${problems.join('; ')}`,
     }
   } catch {
-    checks.cashfree = { status: 'down', latencyMs: 0 }
+    checks.dodo = { status: 'down', latencyMs: 0 }
   }
 
   // Overall status

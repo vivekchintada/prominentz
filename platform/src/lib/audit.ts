@@ -12,6 +12,7 @@ export type AuditAction =
   | 'EDIT_SETTINGS'
   | 'PLAN_UPGRADED'
   | 'PLAN_DOWNGRADED'
+  | 'PLAN_CHANGED'
   | 'LOGIN_SUCCESS'
   | 'LOGIN_FAILURE'
   | 'LOGOUT'

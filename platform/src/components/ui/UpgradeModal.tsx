@@ -57,7 +57,7 @@ export function UpgradeModal({ requiredTier, featureName, currentPlan = 'STARTER
           boxShadow: 'var(--shadow-xl)',
           border: '1px solid var(--color-border)',
           overflow: 'hidden',
-          animation: 'slideInBottom 220ms cubic-bezier(0.34,1.56,0.64,1) both',
+          animation: 'slideInBottom 220ms cubic-bezier(0.25,0.46,0.45,0.94) both',
         }}
       >
         {/* Header */}

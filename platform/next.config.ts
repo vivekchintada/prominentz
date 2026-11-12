@@ -1,5 +1,8 @@
 import type { NextConfig } from 'next'
 
+// The dev server needs eval (React Refresh) and plain ws:// for HMR; production gets neither.
+const isDev = process.env.NODE_ENV !== 'production'
+
 const securityHeaders = [
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
@@ -14,14 +17,15 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.razorpay.com https://sdk.cashfree.com https://plausible.io",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://js.stripe.com https://checkout.dodopayments.com https://test.checkout.dodopayments.com https://plausible.io`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://plausible.io https://api.stripe.com https://api.razorpay.com https://lumberjack.razorpay.com https://sandbox.cashfree.com https://api.cashfree.com wss: ws:",
-      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://api.razorpay.com https://sdk.cashfree.com",
+      `connect-src 'self' https://plausible.io https://api.stripe.com https://test.dodopayments.com https://live.dodopayments.com wss:${isDev ? ' ws:' : ''}`,
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://checkout.dodopayments.com https://test.checkout.dodopayments.com",
       "object-src 'none'",
       "base-uri 'self'",
+      "frame-ancestors 'self'",
     ].join('; '),
   },
 ]

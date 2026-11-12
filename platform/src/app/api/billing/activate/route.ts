@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const adminSecret = req.headers.get('x-admin-secret')
     if (!adminSecret || adminSecret !== process.env.INTERNAL_ADMIN_SECRET) {
       return NextResponse.json(
-        { error: 'Forbidden: Plan activation must be completed through Cashfree checkout webhook' },
+        { error: 'Forbidden: Plan activation must be completed through the Dodo Payments checkout webhook' },
         { status: 403 }
       )
     }

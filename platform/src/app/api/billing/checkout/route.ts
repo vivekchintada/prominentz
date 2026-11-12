@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
+import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
-import { createSubscriptionCheckoutSession, isMockCashfree } from '@/lib/cashfree'
-import { logAuditEvent } from '@/lib/audit'
+import { changeDodoSubscriptionPlan, createSubscriptionCheckoutSession } from '@/lib/dodo-payments'
 import { PlanTier } from '@/lib/plans'
 import { resolveUserLocation } from '@/lib/location-resolver'
 import { billingProviderForCountry, resolveCountryFromRequest } from '@/lib/billing-provider'
 import { createSubscriptionCheckoutSession as createStripeSubscriptionCheckout } from '@/lib/stripe'
-import { hasRevenueCatWebCheckout, MOBILE_SUBSCRIBE_MESSAGE, revenueCatPurchaseUrl } from '@/lib/revenuecat'
+
+/** Dodo statuses where a live recurring subscription already exists for this restaurant. */
+const LIVE_DODO_STATUSES = new Set(['ACTIVE', 'BILLING_ISSUE', 'PAUSED'])
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const authCtx = await getAuthContext(session.user)
+    if (!authCtx || !canManageBilling(authCtx)) {
+      return NextResponse.json({ error: 'Only the restaurant owner can manage billing' }, { status: 403 })
     }
 
     const { planTier } = await req.json()
@@ -37,51 +43,48 @@ export async function POST(req: NextRequest) {
 
     const origin = req.nextUrl.origin || 'http://localhost:3000'
     const returnUrl = `${origin}/dashboard/settings/billing`
+    const settings = (restaurant.settings as Record<string, any>) || {}
 
-    // Pick the gateway by the customer's own country, not a single global setting — Cashfree
-    // only settles in INR, so a US/international customer must never land on it.
+    // A restaurant must only ever have one recurring subscription. If one is live, change
+    // its plan in place rather than opening a second checkout that would double-bill.
+    if (settings.dodoSubscriptionId && LIVE_DODO_STATUSES.has(settings.dodoSubscriptionStatus)) {
+      if (restaurant.planTier === planTier) {
+        return NextResponse.json({ error: 'You are already subscribed to this plan.' }, { status: 409 })
+      }
+      const change = await changeDodoSubscriptionPlan({
+        subscriptionId: settings.dodoSubscriptionId,
+        planTier: planTier as PlanTier,
+        restaurantId: restaurant.id,
+      })
+      return NextResponse.json({
+        url: change.paymentLink || `${returnUrl}?plan=${planTier}&success=true&gateway=dodo&changed=true`,
+        sessionId: settings.dodoSubscriptionId,
+        planTier,
+        planChanged: true,
+      })
+    }
+
     const countryCode = resolveCountryFromRequest(req)
     const provider = billingProviderForCountry(countryCode)
-    if (provider !== 'revenuecat' && isMockCashfree() && process.env.NODE_ENV !== 'production') {
-      const prevTier = restaurant.planTier
-      await prisma.restaurant.update({
-        where: { id: restaurant.id },
-        data: { planTier: planTier as any },
-      })
 
-      await logAuditEvent({
-        restaurantId: restaurant.id,
-        actorId: session.user.id || 'system',
-        actorName: session.user.name || 'Admin',
-        action: prevTier === 'STARTER' && planTier !== 'STARTER' ? 'PLAN_UPGRADED' : 'PLAN_DOWNGRADED',
-        targetType: 'Restaurant',
-        targetId: restaurant.id,
-        before: { planTier: prevTier },
-        after: { planTier },
-      })
-    }
-
-    // RevenueCat: hosted Web Purchase Link if set up, otherwise subscribe in the mobile app.
-    if (provider === 'revenuecat') {
-      if (!hasRevenueCatWebCheckout(planTier as PlanTier)) {
-        return NextResponse.json({ error: MOBILE_SUBSCRIBE_MESSAGE, mobileOnly: true }, { status: 409 })
-      }
-      return NextResponse.json({
-        url: revenueCatPurchaseUrl(planTier as PlanTier, restaurant.id, session.user.email),
-        sessionId: null,
-        planTier,
-      })
-    }
-
-    const createCheckout =
-      provider === 'stripe' ? createStripeSubscriptionCheckout : createSubscriptionCheckoutSession
-    const checkout = await createCheckout({
-      restaurantId: restaurant.id,
-      restaurantName: restaurant.name,
-      userEmail: session.user.email || '',
-      planTier: planTier as PlanTier,
-      returnUrl,
-    })
+    const checkout =
+      provider === 'stripe'
+        ? await createStripeSubscriptionCheckout({
+            restaurantId: restaurant.id,
+            restaurantName: restaurant.name,
+            userEmail: session.user.email || '',
+            planTier: planTier as PlanTier,
+            returnUrl,
+          })
+        : await createSubscriptionCheckoutSession({
+            restaurantId: restaurant.id,
+            restaurantName: restaurant.name,
+            userEmail: session.user.email || '',
+            planTier: planTier as PlanTier,
+            returnUrl,
+            countryCode,
+            dodoCustomerId: settings.dodoCustomerId || null,
+          })
 
     return NextResponse.json({
       url: checkout.url,

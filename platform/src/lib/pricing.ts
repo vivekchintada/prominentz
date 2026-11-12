@@ -50,6 +50,7 @@ export const PLAN_FEATURES = {
     { icon: '👷', label: 'Staff Shift Management & Clock-In/Clock-Out' },
     { icon: '📅', label: 'Table Reservations & Walk-In Waitlist' },
     { icon: '📈', label: 'End-of-Day Z-Reports & Daily Sales Analytics' },
+    { icon: '🛵', label: 'Delivery Aggregator Sync (Zomato / Swiggy / DoorDash / UberEats)' },
   ],
   NOT_INCLUDED_IN_BASIC: [
     { icon: '🧠', label: 'Prominentz AI Operations Agent & Intelligence' },
@@ -61,7 +62,6 @@ export const PLAN_FEATURES = {
     { icon: '👥', label: 'Guest CRM & VIP Guest Intelligence' },
     { icon: '⭐', label: 'Automatic Loyalty Points & Rewards Engine' },
     { icon: '🏢', label: 'Multi-Location Switching & Outlets' },
-    { icon: '🛵', label: 'UrbanPiper Aggregators (Zomato / Swiggy / DoorDash)' },
     { icon: '⏰', label: 'Deputy HR Shift Scheduling & Labor Cost %' },
   ],
   ENTERPRISE: [

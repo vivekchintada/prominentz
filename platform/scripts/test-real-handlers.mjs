@@ -1,43 +1,31 @@
 import assert from 'node:assert/strict'
-import crypto from 'node:crypto'
 
 console.log('=== RUNNING REAL ROUTE HANDLER FUNCTIONAL INTEGRATION SUITE ===\n')
 
-// ── 1. TEST CASHFREE SIGNATURE VERIFIER EXECUTION ───────────────────────────
-console.log('--- 1. Testing Real Cashfree Signature Verification Function ---')
+// ── 1. TEST REAL DODO PAYMENTS SIGNATURE VERIFIER EXECUTION ─────────────────
+console.log('--- 1. Testing Real Dodo Payments Signature Verification Function ---')
 
-const secret = 'cf_prod_secret_key_99887766554433221100'
+const { Webhook } = await import('standardwebhooks')
+
+const secret = 'whsec_' + Buffer.from('dodo_prod_webhook_secret_99887766554433221100').toString('base64')
 const testBody = JSON.stringify({
-  type: 'SUBSCRIPTION_ACTIVATED',
-  data: {
-    subscription: {
-      subscription_id: 'sub_test_123',
-      status: 'ACTIVE',
-      plan_id: 'plan_pro_tier',
-      notes: { restaurantId: 'rest_test_001', planTier: 'PRO' },
-    },
-  },
+  type: 'subscription.active',
+  data: { subscription_id: 'sub_test_123', metadata: { restaurantId: 'rest_test_001', planTier: 'PRO' } },
 })
-const ts = Date.now().toString()
-const payloadToSign = `${ts}${testBody}`
-const validBase64 = crypto.createHmac('sha256', secret).update(payloadToSign).digest('base64')
-const validHex = crypto.createHmac('sha256', secret).update(payloadToSign).digest('hex')
+const webhookId = 'msg_test_456'
+const ts = Math.floor(Date.now() / 1000).toString()
+const validSignature = new Webhook(secret).sign(webhookId, new Date(Number(ts) * 1000), testBody)
 
-// Pure verification logic mirroring verifyCashfreeWebhookSignature
-function verifyCashfreeWebhookSignatureTest({ rawBody, signature, timestamp, testSecret }) {
+// Pure verification logic mirroring verifyDodoWebhookSignature
+function verifyDodoWebhookSignatureTest({ rawBody, id, signature, timestamp, testSecret }) {
   if (!signature || typeof signature !== 'string' || signature.trim() === '') return false
+  if (!id || !timestamp) return false
   if (signature.includes('mock_') || signature === 'mock_valid_signature') return false
-  if (!testSecret || testSecret === 'cf_test_mock_secret_key') return false
+  if (!testSecret || testSecret.includes('mock') || testSecret.includes('REPLACE_ME')) return false
 
   try {
-    const toSign = timestamp ? `${timestamp}${rawBody}` : rawBody
-    const hmac = crypto.createHmac('sha256', testSecret)
-    hmac.update(toSign)
-    const expectedSig = hmac.digest('base64')
-    if (signature === expectedSig) return true
-
-    const hexSig = crypto.createHmac('sha256', testSecret).update(toSign).digest('hex')
-    return signature.toLowerCase() === hexSig.toLowerCase()
+    new Webhook(testSecret).verify(rawBody, { 'webhook-id': id, 'webhook-signature': signature, 'webhook-timestamp': timestamp })
+    return true
   } catch {
     return false
   }
@@ -45,103 +33,66 @@ function verifyCashfreeWebhookSignatureTest({ rawBody, signature, timestamp, tes
 
 // A. Rejects mock signatures strictly
 assert.equal(
-  verifyCashfreeWebhookSignatureTest({ rawBody: testBody, signature: 'mock_valid_signature', timestamp: ts, testSecret: secret }),
+  verifyDodoWebhookSignatureTest({ rawBody: testBody, id: webhookId, signature: 'mock_valid_signature', timestamp: ts, testSecret: secret }),
   false,
   'MUST reject mock_valid_signature even when provided'
 )
 
 // B. Rejects missing or empty signatures
 assert.equal(
-  verifyCashfreeWebhookSignatureTest({ rawBody: testBody, signature: null, timestamp: ts, testSecret: secret }),
+  verifyDodoWebhookSignatureTest({ rawBody: testBody, id: webhookId, signature: null, timestamp: ts, testSecret: secret }),
   false,
   'MUST reject null signature'
 )
 assert.equal(
-  verifyCashfreeWebhookSignatureTest({ rawBody: testBody, signature: '   ', timestamp: ts, testSecret: secret }),
+  verifyDodoWebhookSignatureTest({ rawBody: testBody, id: webhookId, signature: '   ', timestamp: ts, testSecret: secret }),
   false,
   'MUST reject whitespace signature'
 )
 
 // C. Rejects mock secret or missing credentials
 assert.equal(
-  verifyCashfreeWebhookSignatureTest({ rawBody: testBody, signature: validBase64, timestamp: ts, testSecret: 'cf_test_mock_secret_key' }),
+  verifyDodoWebhookSignatureTest({ rawBody: testBody, id: webhookId, signature: validSignature, timestamp: ts, testSecret: 'whsec_mock_key' }),
   false,
   'MUST reject if secret is mock key'
 )
 
-// D. Accepts valid cryptographic HMAC signatures
+// D. Accepts a genuine Standard Webhooks signature, rejects a forged one
 assert.equal(
-  verifyCashfreeWebhookSignatureTest({ rawBody: testBody, signature: validBase64, timestamp: ts, testSecret: secret }),
+  verifyDodoWebhookSignatureTest({ rawBody: testBody, id: webhookId, signature: validSignature, timestamp: ts, testSecret: secret }),
   true,
-  'MUST accept valid Base64 HMAC signature'
+  'MUST accept a valid Standard Webhooks signature'
 )
 assert.equal(
-  verifyCashfreeWebhookSignatureTest({ rawBody: testBody, signature: validHex, timestamp: ts, testSecret: secret }),
-  true,
-  'MUST accept valid Hex HMAC signature'
+  verifyDodoWebhookSignatureTest({ rawBody: testBody, id: webhookId, signature: 'v1,forged_sig_base64==', timestamp: ts, testSecret: secret }),
+  false,
+  'MUST reject a forged signature'
 )
-console.log('✓ Signature verifier correctly enforces cryptographic HMAC and rejects all mock escapes.\n')
+console.log('✓ Signature verifier correctly enforces Standard Webhooks signing and rejects all mock escapes.\n')
 
 // ── 2. TEST EVENT UNIQUE IDENTITY GENERATOR (DEDUPLICATION STRATEGY) ────────
-console.log('--- 2. Testing Provider Event Identity & Deduplication Generation ---')
+console.log('--- 2. Testing Dodo Event Identity & Deduplication Generation ---')
 
-function generateEventUniqueId(event, rawBody) {
-  const eventType = (event.type || event.event || event.event_type || '').toUpperCase()
-  const data = event.data || {}
-  const eventTime = event.event_time || event.created_at || data.payment?.payment_time || ''
-
-  if (event.event_id) {
-    return `cf_evt_${event.event_id}`
-  } else if (data.payment?.cf_payment_id) {
-    return `cf_pay_${data.payment.cf_payment_id}_${eventType}`
-  } else if (data.order?.cf_order_id) {
-    return `cf_ord_${data.order.cf_order_id}_${eventType}`
-  } else if (data.link_id) {
-    return `cf_link_${data.link_id}_${data.link_status || eventType}_${data.payment_id || eventTime}`
-  } else if (data.subscription?.subscription_id) {
-    const cycle = data.subscription.current_cycle ?? ''
-    const status = data.subscription.status ?? ''
-    return `cf_sub_${data.subscription.subscription_id}_${eventType}_${cycle}_${status}_${eventTime}`
-  } else {
-    return `cf_hash_${crypto.createHash('sha256').update(rawBody).digest('hex').slice(0, 32)}`
-  }
+// Dodo webhooks carry a stable `webhook-id` header per delivery, so dedup is a direct
+// mapping — mirrors `eventUniqueId = \`dodo_${webhookId}\`` in webhooks/dodo/route.ts.
+function generateEventUniqueId(webhookIdHeader) {
+  return `dodo_${webhookIdHeader}`
 }
 
-// A. Deduplication on exact event duplicates
-const eventPayloadA = {
-  event_id: 'evt_1001',
-  type: 'PAYMENT_LINK_EVENT',
-  data: { link_id: 'link_abc', link_status: 'PAID' },
-}
-const id1 = generateEventUniqueId(eventPayloadA, JSON.stringify(eventPayloadA))
-const id2 = generateEventUniqueId(eventPayloadA, JSON.stringify(eventPayloadA))
-assert.equal(id1, id2, 'Identical event payloads must generate the exact same eventUniqueId')
+// A. Deduplication on exact same delivery (retry) yields the same ID
+const id1 = generateEventUniqueId('msg_evt_1001')
+const id2 = generateEventUniqueId('msg_evt_1001')
+assert.equal(id1, id2, 'Identical webhook-id headers must generate the exact same eventUniqueId')
 
 // B. Distinct lifecycle events (activation vs renewal vs cancellation) have distinct IDs
-const activationEvt = {
-  type: 'SUBSCRIPTION_ACTIVATED',
-  event_time: '2026-10-01T10:00:00Z',
-  data: { subscription: { subscription_id: 'sub_999', current_cycle: 1, status: 'ACTIVE' } },
-}
-const renewalEvt = {
-  type: 'SUBSCRIPTION_PAYMENT_SUCCESS',
-  event_time: '2026-11-01T10:00:00Z',
-  data: { subscription: { subscription_id: 'sub_999', current_cycle: 2, status: 'ACTIVE' } },
-}
-const cancelEvt = {
-  type: 'SUBSCRIPTION_CANCELLED',
-  event_time: '2026-11-15T10:00:00Z',
-  data: { subscription: { subscription_id: 'sub_999', current_cycle: 2, status: 'CANCELLED' } },
-}
-
-const actId = generateEventUniqueId(activationEvt, JSON.stringify(activationEvt))
-const renId = generateEventUniqueId(renewalEvt, JSON.stringify(renewalEvt))
-const canId = generateEventUniqueId(cancelEvt, JSON.stringify(cancelEvt))
+const actId = generateEventUniqueId('msg_evt_2001')
+const renId = generateEventUniqueId('msg_evt_2002')
+const canId = generateEventUniqueId('msg_evt_2003')
 
 assert.notEqual(actId, renId, 'Activation and Renewal must have different event IDs')
 assert.notEqual(renId, canId, 'Renewal and Cancellation must have different event IDs')
 assert.notEqual(actId, canId, 'Activation and Cancellation must have different event IDs')
-console.log('✓ Event identity generator produces deterministic, lifecycle-aware unique keys.\n')
+console.log('✓ Event identity generator produces deterministic, delivery-scoped unique keys.\n')
 
 // ── 3. TEST SETTINGS PRESERVATION ON CANCELLATION ────────────────────────────
 console.log('--- 3. Testing Settings Preservation On Cancellation ---')
@@ -152,17 +103,16 @@ const initialSettings = {
   taxRate: 0.05,
   printers: [{ id: 'p1', name: 'Kitchen EscPos', ip: '192.168.1.100' }],
   tableLayout: { zones: ['Patio', 'Dining Room'] },
-  cashfreeSubscriptionStatus: 'ACTIVE',
-  cashfreeSubscriptionId: 'sub_live_123',
+  dodoSubscriptionStatus: 'ACTIVE',
+  dodoSubscriptionId: 'sub_live_123',
 }
 
 // Simulate cancellation update
 const currentSettings = { ...initialSettings }
 const updatedSettings = {
   ...currentSettings,
-  cashfreeSubscriptionStatus: 'CANCELLED',
-  cashfreeCancelledAt: new Date().toISOString(),
-  lastCashfreeEventTime: new Date().toISOString(),
+  dodoSubscriptionStatus: 'CANCELLED',
+  dodoCancelledAt: new Date().toISOString(),
 }
 
 // Verify that non-billing settings are 100% intact
@@ -170,7 +120,7 @@ assert.deepEqual(updatedSettings.store, initialSettings.store, 'Store informatio
 assert.equal(updatedSettings.taxRate, 0.05, 'Tax rate must be preserved')
 assert.deepEqual(updatedSettings.printers, initialSettings.printers, 'Printers configuration must be preserved')
 assert.deepEqual(updatedSettings.tableLayout, initialSettings.tableLayout, 'Table layout must be preserved')
-assert.equal(updatedSettings.cashfreeSubscriptionStatus, 'CANCELLED', 'Subscription status updated to CANCELLED')
+assert.equal(updatedSettings.dodoSubscriptionStatus, 'CANCELLED', 'Subscription status updated to CANCELLED')
 console.log('✓ Restaurant settings preservation verified: all operational config intact after cancellation.\n')
 
 // ── 4. TEST BILLING BALANCE DUE & ZERO-BALANCE BYPASS CLOSURE ────────────────
@@ -305,21 +255,24 @@ assert.equal(tamperingAttack.ok, false, 'Tampering attack must be rejected')
 assert.match(tamperingAttack.error, /Underpayment rejected/)
 console.log('✓ Split payment tampering test passed: unverified client discounts and underpayments rejected.\n')
 
-// ── 6. TEST CASHFREE PLAN CONFIGURATION & NO HARDCODED CONVERSION ───────────
-console.log('--- 6. Testing Cashfree Approved Plan Pricing ---')
+// ── 6. TEST DODO PAYMENTS PLAN CONFIGURATION & NO HARDCODED CONVERSION ──────
+console.log('--- 6. Testing Dodo Payments Approved Plan Pricing ---')
 
+// Dodo is a merchant of record billed in USD regardless of customer country — mirrors
+// DODO_PLAN_PRICING in src/lib/dodo-payments.ts, which reuses PRICING from src/lib/pricing.ts.
 const approvedPricing = {
-  STARTER: { amountINR: 0, currency: 'INR', interval: 'month' },
-  PRO: { amountINR: 3999, currency: 'INR', interval: 'month' },
-  ENTERPRISE: { amountINR: 9999, currency: 'INR', interval: 'month' },
+  STARTER: { amountUSD: 50, currency: 'USD', interval: 'month' },
+  PRO: { amountUSD: 129, currency: 'USD', interval: 'month' },
+  ENTERPRISE: { amountUSD: 299, currency: 'USD', interval: 'month' },
 }
 
-assert.equal(approvedPricing.STARTER.currency, 'INR')
-assert.equal(approvedPricing.PRO.currency, 'INR')
-assert.equal(approvedPricing.ENTERPRISE.currency, 'INR')
-assert.equal(approvedPricing.PRO.amountINR, 3999)
-assert.equal(approvedPricing.ENTERPRISE.amountINR, 9999)
-console.log('✓ Approved plan pricing verified with explicit INR amounts and no currency conversion hack.\n')
+assert.equal(approvedPricing.STARTER.currency, 'USD')
+assert.equal(approvedPricing.PRO.currency, 'USD')
+assert.equal(approvedPricing.ENTERPRISE.currency, 'USD')
+assert.equal(approvedPricing.STARTER.amountUSD, 50)
+assert.equal(approvedPricing.PRO.amountUSD, 129)
+assert.equal(approvedPricing.ENTERPRISE.amountUSD, 299)
+console.log('✓ Approved plan pricing verified with explicit USD amounts and no currency conversion hack.\n')
 
 console.log('======================================================================')
 console.log('=== ALL REAL ROUTE HANDLER FUNCTIONAL INTEGRATION TESTS PASSED (0 FAILURES) ===')

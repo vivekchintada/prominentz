@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 
-export type BillingGateway = 'STRIPE' | 'CASHFREE' | 'REVENUECAT'
+export type BillingGateway = 'STRIPE' | 'DODO'
 
 export interface RestaurantAccessStatus {
   gateway: BillingGateway
@@ -18,28 +18,21 @@ export interface RestaurantAccessStatus {
 export const TRIAL_DAYS = 14
 
 function resolveGateway(settings: Record<string, any>): BillingGateway {
-  if (settings.lastBillingGateway === 'REVENUECAT' || settings.lastBillingGateway === 'CASHFREE' || settings.lastBillingGateway === 'STRIPE') {
+  if (settings.lastBillingGateway === 'DODO' || settings.lastBillingGateway === 'STRIPE') {
     return settings.lastBillingGateway
   }
-  if (settings.cashfreeSubscriptionId) return 'CASHFREE'
-  if (settings.revenuecatProductId) return 'REVENUECAT'
+  if (settings.dodoSubscriptionId) return 'DODO'
   return 'STRIPE'
 }
 
-// RevenueCat's own statuses (see RcStatus in lib/revenuecat.ts): ACTIVE and TRIAL are paid/trialing
-// through the store, and CANCELLING still has access until the current period ends.
-const REVENUECAT_ACTIVE_STATUSES = new Set(['ACTIVE', 'TRIAL', 'CANCELLING'])
-
 function isGatewayActive(gateway: BillingGateway, settings: Record<string, any>): boolean {
-  if (gateway === 'REVENUECAT') return REVENUECAT_ACTIVE_STATUSES.has(settings.revenuecatStatus)
-  if (gateway === 'CASHFREE') return settings.cashfreeSubscriptionStatus === 'ACTIVE'
+  if (gateway === 'DODO') return settings.dodoSubscriptionStatus === 'ACTIVE'
   return settings.stripeSubscriptionStatus === 'ACTIVE'
 }
 
 function isGatewayPastDue(gateway: BillingGateway, settings: Record<string, any>): boolean {
   if (gateway === 'STRIPE') return settings.stripeSubscriptionStatus === 'PAST_DUE'
-  if (gateway === 'CASHFREE') return settings.cashfreeSubscriptionStatus === 'PAST_DUE'
-  if (gateway === 'REVENUECAT') return settings.revenuecatStatus === 'BILLING_ISSUE'
+  if (gateway === 'DODO') return settings.dodoSubscriptionStatus === 'BILLING_ISSUE'
   return false
 }
 
@@ -49,13 +42,17 @@ export async function getRestaurantAccessStatus(restaurantId: string): Promise<R
     select: { createdAt: true, settings: true },
   })
   if (!restaurant) return null
+  return accessStatusFrom(restaurant.createdAt, restaurant.settings)
+}
 
-  const settings = (restaurant.settings as Record<string, any>) || {}
+/** The same rule as getRestaurantAccessStatus, for a restaurant row already in hand (HQ lists). */
+export function accessStatusFrom(createdAt: Date, rawSettings: unknown): RestaurantAccessStatus {
+  const settings = (rawSettings as Record<string, any>) || {}
   const gateway = resolveGateway(settings)
   const isActive = isGatewayActive(gateway, settings)
   const isPastDue = !isActive && isGatewayPastDue(gateway, settings)
 
-  const trialEndsAt = new Date(restaurant.createdAt.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000)
+  const trialEndsAt = new Date(createdAt.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000)
   const daysLeftInTrial = Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
   const isTrialing = !isActive && daysLeftInTrial > 0
   const isExpired = !isActive && daysLeftInTrial === 0

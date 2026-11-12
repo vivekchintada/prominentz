@@ -10,7 +10,7 @@ This runbook documents the complete end-to-end procedure for deploying **Promine
 * **Product**: Cloud Restaurant Operating Platform (POS, KDS, Table QR Ordering, Inventory, Reporting)
 * **Subscription Price**: **$50 / month** (or **$500 / year**)
 * **Data Collected**: Business credentials, administrator and staff names, business emails, and phone numbers
-* **Payment Gateways**: Razorpay / Cashfree / Stripe
+* **Payment Gateways**: Dodo Payments (restaurant subscriptions) / Stripe Connect (diner payments)
 
 ---
 
@@ -26,10 +26,10 @@ All required code and legal modifications have been applied and verified in the 
 2. **Clickwrap Legal Consent on Sign-up**:
    - `src/app/(auth)/signup/page.tsx`: Added explicit legal agreement above registration buttons linking to `/terms` and `/privacy`, establishing binding B2B contracts.
 3. **Security Headers & CSP for Payment Gateways**:
-   - `next.config.ts`: Added origins for Razorpay (`https://checkout.razorpay.com`, `https://api.razorpay.com`, `https://lumberjack.razorpay.com`) and Cashfree (`https://sdk.cashfree.com`, `https://api.cashfree.com`) into `script-src`, `connect-src`, and `frame-src`.
+   - `next.config.ts`: Added origins for Dodo Payments (`https://checkout.dodopayments.com`, `https://test.dodopayments.com`, `https://live.dodopayments.com`) into `script-src`, `connect-src`, and `frame-src`.
 4. **Terms of Service & Privacy Policy Alignment**:
    - `src/app/terms/page.tsx`: Formally documented Prominentz (India), $50/mo subscription terms, arbitration and limitation of liability.
-   - `src/app/privacy/page.tsx`: Updated to reflect Prominentz (India), data collection (email & phone number), payment processors (Razorpay / Cashfree / Stripe), and international transfer safeguards.
+   - `src/app/privacy/page.tsx`: Updated to reflect Prominentz (India), data collection (email & phone number), payment processors (Dodo Payments / Stripe), and international transfer safeguards.
 
 ---
 
@@ -37,20 +37,21 @@ All required code and legal modifications have been applied and verified in the 
 
 Because Prominentz is an Indian entity invoicing US customers in USD:
 
-### 1. Razorpay International Setup
-1. Log into your **Razorpay Dashboard** (`https://dashboard.razorpay.com`).
-2. Navigate to **Account & Settings > International Payments**.
-3. Submit business KYC to enable **International Card Acceptance (USD)**.
-4. For subscriptions: Under **Subscriptions**, create your **$50/mo** plan in USD or configure your checkout to handle recurring card authorization.
-5. In your Razorpay Dashboard, generate **Live API Keys** (`RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`).
-6. Set Webhook URL to: `https://your-domain.com/api/ordering/payments/webhook`.
 
-### 2. Cashfree Alternative Setup
-1. Log into **Cashfree Merchant Dashboard** (`https://merchant.cashfree.com`).
-2. Enable International Payments under **Payment Gateway > International**.
-3. Obtain your `CASHFREE_APP_ID` and `CASHFREE_SECRET_KEY` from Developer Settings.
+### 1. Dodo Payments Setup (SaaS subscription billing — merchant of record)
+1. Complete KYC at the **Dodo Payments Dashboard** (`https://app.dodopayments.com`).
+2. Under **Products**, create one **Subscription** product per plan tier (monthly billing, no trial: the 14-day trial is handled in-app before checkout) and note each product ID (`DODO_PAYMENTS_PRODUCT_STARTER` / `_PRO` / `_ENTERPRISE`). The webhook maps the subscription's `product_id` back to the plan tier, so these env vars must match exactly.
+3. **India pricing**: Indian customers are sent to checkout with `billing_currency: INR` and UPI/card. This only takes effect if **Settings > Pricing > Adaptive Currency** is on. To charge exactly ₹3,999 instead of an FX conversion of $50, add an INR localized price on the Basic product.
+4. Under **Developer > API Keys**, generate a live API key (`DODO_PAYMENTS_API_KEY`) with read/write on Checkouts, Subscriptions and Customers.
+5. Under **Developer > Webhooks**, add an endpoint at `https://your-domain.com/api/webhooks/dodo` and copy its signing secret (`DODO_PAYMENTS_WEBHOOK_KEY`). Subscribe to all `subscription.*` events, plus `payment.succeeded`, `payment.failed`, `refund.succeeded` for billing history.
+6. Enable the **Customer Portal** (used by "Manage Subscription" for card updates, invoices and cancellation).
+7. Set `DODO_PAYMENTS_ENVIRONMENT=live_mode` once ready to go live.
 
-### 3. Indian Export of Software Compliance (0% GST)
+**Recurring lifecycle:** `subscription.active` unlocks the plan → `subscription.renewed` each month → a failed renewal sends `past_due`/`on_hold` (soft lock, shown as "Payment due") → owner-initiated cancel sets `cancel_at_next_billing_date` (access continues) → `subscription.cancelled` at period end reverts to trial-expired.
+
+**Verify in test mode before launch:** checkout `metadata.restaurantId` must appear on the subscription webhook payloads. Dodo's docs don't state this explicitly. If it is missing, the first `subscription.active` webhook can't be matched to a restaurant. The post-checkout sync also relies on it.
+
+### 2. Indian Export of Software Compliance (0% GST)
 * **Letter of Undertaking (LUT)**: File an LUT for Export of Services on the Indian GST Portal (`gst.gov.in`). This takes 10 minutes and ensures your SaaS exports to US customers are **Zero-Rated (0% GST)** without blocking working capital.
 * **FIRC / FIRA**: Ensure your receiving bank account provides Foreign Inward Remittance Certificates for international USD settlements.
 
@@ -83,11 +84,6 @@ Deploy an instant Redis instance to handle realtime KDS bump bar events and tabl
    NEXTAUTH_URL="https://prominentz.com"
    NEXT_PUBLIC_APP_URL="https://prominentz.com"
    REDIS_URL="rediss://..."
-   
-   # Razorpay Keys
-   RAZORPAY_KEY_ID="rzp_live_..."
-   RAZORPAY_KEY_SECRET="..."
-   NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_live_..."
    
    # Optional Email & SMS
    RESEND_API_KEY="re_..."

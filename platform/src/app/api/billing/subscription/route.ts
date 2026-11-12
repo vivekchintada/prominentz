@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { PRICING } from '@/lib/pricing'
-import { CASHFREE_PLAN_PRICING } from '@/lib/cashfree'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,17 +34,16 @@ export async function GET(req: NextRequest) {
     }
 
     const settings = (restaurant.settings as Record<string, any>) || {}
-    const activeGateway = settings.lastBillingGateway || (settings.cashfreeSubscriptionId ? 'CASHFREE' : 'STRIPE')
-    const isRevenueCat = activeGateway === 'REVENUECAT'
-    const subscriptionStatus = isRevenueCat
-      ? settings.revenuecatStatus || 'INACTIVE'
-      : settings.cashfreeSubscriptionStatus || (restaurant.stripeSubscriptionId ? 'ACTIVE' : 'INACTIVE')
-    const subscriptionId = isRevenueCat
-      ? settings.revenuecatProductId || null
-      : settings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId || null
+    const activeGateway = settings.lastBillingGateway || (settings.dodoSubscriptionId ? 'DODO' : 'STRIPE')
+    const isDodo = activeGateway === 'DODO'
+    const subscriptionStatus = isDodo
+      ? settings.dodoSubscriptionStatus || 'INACTIVE'
+      : restaurant.stripeSubscriptionId ? 'ACTIVE' : 'INACTIVE'
+    const subscriptionId = isDodo
+      ? settings.dodoSubscriptionId || null
+      : restaurant.stripeSubscriptionId || null
 
     const planInfo = PRICING[restaurant.planTier as keyof typeof PRICING] || PRICING.STARTER
-    const cashfreePricing = CASHFREE_PLAN_PRICING[restaurant.planTier as keyof typeof CASHFREE_PLAN_PRICING] || CASHFREE_PLAN_PRICING.STARTER
 
     // Fetch billing event logs for receipts / audit history
     const billingLogs = await prisma.stripeEventLog.findMany({
@@ -61,15 +59,16 @@ export async function GET(req: NextRequest) {
       planDetails: {
         label: planInfo.label,
         monthlyUSD: planInfo.monthly,
-        monthlyINR: cashfreePricing.amountINR,
         tagline: planInfo.tagline,
       },
       gateway: activeGateway,
       subscriptionId,
       status: subscriptionStatus,
       lastBilledAt: settings.lastBilledAt || null,
-      cancelledAt: settings.cashfreeCancelledAt || null,
-      currentPeriodEnd: isRevenueCat ? settings.revenuecatExpiresAt || null : null,
+      cancelledAt: settings.dodoCancelledAt || null,
+      currentPeriodEnd: isDodo ? settings.dodoNextBillingDate || null : null,
+      cancelAtPeriodEnd: isDodo ? Boolean(settings.dodoCancelAtPeriodEnd) : false,
+      currency: isDodo ? settings.dodoCurrency || null : 'USD',
       billingHistory: billingLogs.map((log) => ({
         id: log.id,
         eventId: log.eventId,

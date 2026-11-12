@@ -14,6 +14,7 @@ export interface PlanFeature {
 export const NAV_ITEMS: PlanFeature[] = [
   // ─── Core & Operations (STARTER) ───────────────────────────────────────────
   { href: '/dashboard',              icon: '📊', label: 'Dashboard',        tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
+  { href: '/dashboard/locations',    icon: '🏢', label: 'All Branches',     tier: 'STARTER', roles: ['OWNER', 'MANAGER'] },
   { href: '/pos',                    icon: '🛎️', label: 'POS Terminal',     tier: 'STARTER', roles: ['OWNER', 'MANAGER', 'SERVER'] },
   { href: '/server',                 icon: '📱', label: 'Server Floor',     tier: 'STARTER', roles: ['OWNER', 'MANAGER', 'SERVER'] },
   { href: '/kds',                    icon: '🍳', label: 'Kitchen (KDS)',    tier: 'STARTER', roles: ['OWNER', 'MANAGER', 'KITCHEN', 'SERVER'] },

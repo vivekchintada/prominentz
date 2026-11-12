@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { PlanTier } from '@/lib/plans'
 
+function formatBillingDate(iso: string): string {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
 interface PlanCardProps {
   tier: PlanTier
   title: string
@@ -30,8 +37,8 @@ function PlanCard({
   return (
     <div
       style={{
-        backgroundColor: '#09090b',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        backgroundColor: 'var(--color-bg-card)',
+        border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
         borderRadius: '12px',
         padding: '32px 28px',
         display: 'flex',
@@ -44,7 +51,7 @@ function PlanCard({
           <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
             {title}
           </h3>
-          <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.6)', margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>
             {description}
           </p>
         </div>
@@ -54,9 +61,9 @@ function PlanCard({
             fontFamily: 'var(--font-mono, monospace)',
             padding: '4px 10px',
             borderRadius: '999px',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            color: 'rgba(255, 255, 255, 0.85)',
+            border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 4%, transparent)',
+            color: 'var(--color-text-primary)',
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
           }}
@@ -69,17 +76,17 @@ function PlanCard({
         <span style={{ fontSize: '38px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em', fontFamily: 'var(--font-mono, monospace)' }}>
           ${price}
         </span>
-        <span style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.45)', fontWeight: 500 }}>/month</span>
+        <span style={{ fontSize: '13px', color: 'var(--color-text-tertiary)', fontWeight: 500 }}>/month</span>
       </div>
 
-      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '20px', marginBottom: '28px', flex: 1 }}>
-        <div style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.4)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <div style={{ borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)', paddingTop: '20px', marginBottom: '28px', flex: 1 }}>
+        <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-tertiary)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Included Features
         </div>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '11px' }}>
           {features.map((feat, i) => (
-            <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
-              <span style={{ color: 'rgba(255, 255, 255, 0.35)', fontSize: '12px' }}>—</span>
+            <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--color-text-primary)' }}>
+              <span style={{ color: 'var(--color-text-tertiary)', fontSize: '12px' }}>—</span>
               <span>{feat}</span>
             </li>
           ))}
@@ -96,14 +103,14 @@ function PlanCard({
           fontWeight: 600,
           fontSize: '13px',
           cursor: isPaidSubscription ? 'default' : isLoading ? 'wait' : 'pointer',
-          backgroundColor: isPaidSubscription ? 'rgba(255, 255, 255, 0.06)' : '#ffffff',
-          color: isPaidSubscription ? 'rgba(255, 255, 255, 0.65)' : '#000000',
-          border: isPaidSubscription ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
+          backgroundColor: isPaidSubscription ? 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)' : 'var(--color-bg-card)',
+          color: isPaidSubscription ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+          border: isPaidSubscription ? '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)' : 'none',
           transition: 'all 150ms ease',
         }}
       >
         {isLoading
-          ? 'Connecting Cashfree...'
+          ? 'Connecting...'
           : isPaidSubscription
           ? '✓ Active Subscription ($50/mo)'
           : `Activate Subscription ($${price}/mo)`}
@@ -124,18 +131,23 @@ export function BillingManagerClient() {
   const [couponValidating, setCouponValidating] = useState(false)
   const [showThankYouModal, setShowThankYouModal] = useState(false)
   const [isPaidSubscription, setIsPaidSubscription] = useState(false)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('INACTIVE')
+  const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null)
+  const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false)
 
   const reloadPlanInfo = async () => {
     try {
-      const res = await fetch('/api/settings')
+      // Paid status comes from the recurring subscription itself, not the plan tier —
+      // Basic (STARTER) is both the trial tier and the paid $50/mo plan.
+      const res = await fetch('/api/billing/subscription')
       if (res.ok) {
         const data = await res.json()
-        const rName = data.name || data.restaurant?.name || data.settings?.store?.name || 'My Restaurant'
-        const rPlan = (data.planTier || data.restaurant?.planTier || 'STARTER') as PlanTier
-        setRestaurantName(rName)
-        setCurrentPlan(rPlan)
-        // Authoritative paid status derived strictly from server-side database
-        setIsPaidSubscription(rPlan !== 'STARTER')
+        setRestaurantName(data.restaurantName || 'My Restaurant')
+        setCurrentPlan((data.planTier || 'STARTER') as PlanTier)
+        setSubscriptionStatus(data.status || 'INACTIVE')
+        setIsPaidSubscription(data.status === 'ACTIVE' || data.status === 'BILLING_ISSUE' || data.status === 'PAUSED')
+        setCurrentPeriodEnd(data.currentPeriodEnd || null)
+        setCancelAtPeriodEnd(Boolean(data.cancelAtPeriodEnd))
       }
     } catch (err) {
       console.error('Failed to load restaurant settings', err)
@@ -150,12 +162,25 @@ export function BillingManagerClient() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       if (params.get('success') === 'true') {
-        const upgradedPlan = (params.get('plan') as PlanTier) || 'STARTER'
-        setShowThankYouModal(true)
-        setMessage(`Checkout completed. Verifying subscription status with gateway for ${restaurantName}...`)
-        // Ask the server to re-check RevenueCat now (the webhook may lag), then reload from DB
-        fetch('/api/billing/sync', { method: 'POST' })
-          .catch(() => {})
+        setMessage('Confirming your payment with Dodo Payments…')
+        // Ask the server to re-check Dodo now (the webhook may lag), then reload from DB.
+        // Dodo appends subscription_id to the return URL. The confirmation only shows once
+        // the server has actually seen an active subscription.
+        fetch('/api/billing/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscriptionId: params.get('subscription_id') || undefined }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data?.synced && data.status === 'active') {
+              setMessage(null)
+              setShowThankYouModal(true)
+            } else {
+              setMessage('Payment received. Confirmation can take a minute; refresh this page shortly.')
+            }
+          })
+          .catch(() => setMessage('Payment received. Confirmation can take a minute; refresh this page shortly.'))
           .finally(() => reloadPlanInfo())
         window.history.replaceState({}, '', window.location.pathname)
       }
@@ -205,7 +230,7 @@ export function BillingManagerClient() {
 
   return (
     <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', position: 'relative' }}>
-      {/* ── Midday Minimalist Confirmation Modal ────────────────────── */}
+      {/* ── Subscription confirmed modal ── */}
       {showThankYouModal && (
         <div
           style={{
@@ -225,8 +250,8 @@ export function BillingManagerClient() {
         >
           <div
             style={{
-              backgroundColor: '#09090b',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--color-bg-card)',
+              border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
               borderRadius: '12px',
               maxWidth: '560px',
               width: '100%',
@@ -242,7 +267,7 @@ export function BillingManagerClient() {
                   width: '6px',
                   height: '6px',
                   borderRadius: '50%',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--color-bg-card)',
                 }}
               />
               <span
@@ -251,7 +276,7 @@ export function BillingManagerClient() {
                   fontFamily: 'var(--font-mono, monospace)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
-                  color: 'rgba(255, 255, 255, 0.5)',
+                  color: 'var(--color-text-tertiary)',
                 }}
               >
                 Subscription Confirmed
@@ -262,21 +287,21 @@ export function BillingManagerClient() {
               Thank you, {restaurantName}
             </h2>
 
-            <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.65)', margin: '0 0 24px 0', lineHeight: 1.6 }}>
-              Your subscription is active and verified through Cashfree. All operational floor modules and POS terminals are unlocked.
+            <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 24px 0', lineHeight: 1.6 }}>
+              Your subscription is active and verified through Dodo Payments. All operational floor modules and POS terminals are unlocked.
             </p>
 
             {/* Unlocked Capabilities List */}
             <div
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
+                backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 2%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
                 borderRadius: '8px',
                 padding: '16px 18px',
                 marginBottom: '24px',
               }}
             >
-              <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>
                 Active Capabilities
               </div>
 
@@ -291,8 +316,8 @@ export function BillingManagerClient() {
                   'Staff Accounts & Clock',
                   'Floor Layout Visualizer',
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.85)' }}>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px' }}>✓</span>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--color-text-primary)' }}>
+                    <span style={{ color: 'var(--color-text-tertiary)', fontSize: '11px' }}>✓</span>
                     <span>{item}</span>
                   </div>
                 ))}
@@ -306,8 +331,8 @@ export function BillingManagerClient() {
                 style={{
                   flex: 1,
                   padding: '10px 16px',
-                  backgroundColor: '#ffffff',
-                  color: '#000000',
+                  backgroundColor: 'var(--color-bg-card)',
+                  color: 'var(--color-text-primary)',
                   borderRadius: '6px',
                   fontWeight: 600,
                   fontSize: '13px',
@@ -324,13 +349,13 @@ export function BillingManagerClient() {
                   flex: 1,
                   padding: '10px 16px',
                   backgroundColor: 'transparent',
-                  color: '#ffffff',
+                  color: 'var(--color-text-primary)',
                   borderRadius: '6px',
                   fontWeight: 500,
                   fontSize: '13px',
                   textAlign: 'center',
                   textDecoration: 'none',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
                 }}
               >
                 Kitchen KDS
@@ -341,11 +366,11 @@ export function BillingManagerClient() {
                 style={{
                   padding: '10px 16px',
                   backgroundColor: 'transparent',
-                  color: 'rgba(255, 255, 255, 0.5)',
+                  color: 'var(--color-text-tertiary)',
                   borderRadius: '6px',
                   fontWeight: 500,
                   fontSize: '13px',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                   cursor: 'pointer',
                 }}
               >
@@ -359,12 +384,12 @@ export function BillingManagerClient() {
       {message && (
         <div
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 4%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
             borderRadius: '8px',
             padding: '12px 16px',
             marginBottom: '24px',
-            color: 'rgba(255, 255, 255, 0.85)',
+            color: 'var(--color-text-primary)',
             fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
@@ -374,7 +399,7 @@ export function BillingManagerClient() {
           <span>{message}</span>
           <button
             onClick={() => setMessage(null)}
-            style={{ background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.4)', cursor: 'pointer', fontSize: '14px' }}
+            style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: '14px' }}
           >
             ✕
           </button>
@@ -384,8 +409,8 @@ export function BillingManagerClient() {
       {/* ── Midday Obsidian Overview Card ───────────────────────────── */}
       <div
         style={{
-          backgroundColor: '#09090b',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-bg-card)',
+          border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
           borderRadius: '12px',
           padding: '24px 28px',
           marginBottom: '32px',
@@ -401,7 +426,7 @@ export function BillingManagerClient() {
             style={{
               fontSize: '11px',
               fontFamily: 'var(--font-mono, monospace)',
-              color: 'rgba(255, 255, 255, 0.4)',
+              color: 'var(--color-text-tertiary)',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
               marginBottom: '6px',
@@ -419,29 +444,40 @@ export function BillingManagerClient() {
                 fontFamily: 'var(--font-mono, monospace)',
                 padding: '3px 8px',
                 borderRadius: '999px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                color: 'rgba(255, 255, 255, 0.8)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'color-mix(in srgb, var(--color-text-primary) 5%, transparent)',
+                color: 'var(--color-text-primary)',
+                border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
                 letterSpacing: '0.04em',
               }}
             >
-              ● {isPaidSubscription ? 'ACTIVE' : 'TRIAL'}
+              ● {subscriptionStatus === 'BILLING_ISSUE'
+                ? 'PAYMENT DUE'
+                : subscriptionStatus === 'PAUSED'
+                ? 'PAUSED'
+                : isPaidSubscription
+                ? cancelAtPeriodEnd ? 'ENDING' : 'ACTIVE'
+                : 'TRIAL'}
             </span>
           </div>
-          <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.55)', marginTop: '4px' }}>
-            {isPaidSubscription
-              ? `Subscribed and active for ${restaurantName}. All modules unlocked.`
-              : `14-day evaluation active for ${restaurantName}.`
-            }
+          <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
+            {subscriptionStatus === 'BILLING_ISSUE'
+              ? `Your last renewal payment failed. Update your card under "Manage Subscription" to keep ${restaurantName} running.`
+              : !isPaidSubscription
+              ? `14-day evaluation active for ${restaurantName}.`
+              : cancelAtPeriodEnd && currentPeriodEnd
+              ? `Cancelled — access continues until ${formatBillingDate(currentPeriodEnd)}, then won't renew.`
+              : currentPeriodEnd
+              ? `Renews monthly. Next charge on ${formatBillingDate(currentPeriodEnd)}.`
+              : `Subscribed and active for ${restaurantName}. All modules unlocked.`}
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'rgba(255, 255, 255, 0.4)' }}>Rate</div>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-tertiary)' }}>Rate</div>
             <div style={{ fontSize: '22px', fontWeight: 600, color: '#ffffff', fontFamily: 'var(--font-mono, monospace)' }}>
               $50
-              <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 400 }}>/mo</span>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', fontWeight: 400 }}>/mo</span>
             </div>
           </div>
 
@@ -453,8 +489,8 @@ export function BillingManagerClient() {
               fontSize: '12px',
               fontWeight: 500,
               backgroundColor: 'transparent',
-              color: '#ffffff',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
               borderRadius: '6px',
               cursor: 'pointer',
               display: 'flex',
@@ -462,7 +498,7 @@ export function BillingManagerClient() {
               gap: '6px',
             }}
           >
-            {portalLoading ? 'Opening...' : 'Receipts & Details ↗'}
+            {portalLoading ? 'Opening...' : isPaidSubscription ? 'Manage Subscription ↗' : 'Receipts & Details ↗'}
           </button>
         </div>
       </div>
@@ -487,6 +523,7 @@ export function BillingManagerClient() {
             'Staff Accounts & Clock-In/Clock-Out',
             'End-of-Day Z-Reports & Daily Analytics',
             'Reservations & Walk-In Waitlist',
+            'Delivery Aggregator Sync (DoorDash, UberEats, UrbanPiper)',
           ]}
         />
       </div>
@@ -497,7 +534,7 @@ export function BillingManagerClient() {
           <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', margin: 0, letterSpacing: '-0.01em' }}>
             Modular Extensions
           </h3>
-          <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)' }}>
+          <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
             Expand floor capabilities as your operations scale.
           </p>
         </div>
@@ -507,15 +544,15 @@ export function BillingManagerClient() {
             { name: 'RestoIQ Copilot', price: '$29/mo', desc: 'Continuous telemetry & inventory suggestions', active: true },
             { name: 'Offline Handhelds', price: '$19/mo', desc: 'IndexedDB mesh sync for low connectivity', active: true },
             { name: 'Extra KDS Screen', price: '$15/mo', desc: 'Secondary expo passes or bar monitors', active: false },
-            { name: 'Delivery Hub', price: '$39/mo', desc: 'Two-way integration for online orders', active: false },
+            { name: 'Delivery Hub', price: 'Included', desc: 'DoorDash, UberEats & UrbanPiper sync — already on your plan', active: true },
           ].map((addon) => (
             <div
               key={addon.name}
               style={{
                 padding: '16px 18px',
                 borderRadius: '8px',
-                background: '#09090b',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'var(--color-bg-card)',
+                border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -524,12 +561,12 @@ export function BillingManagerClient() {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <div style={{ fontWeight: 600, fontSize: '13px', color: '#ffffff' }}>{addon.name}</div>
-                  <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono, monospace)', color: 'rgba(255, 255, 255, 0.7)' }}>{addon.price}</span>
+                  <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-secondary)' }}>{addon.price}</span>
                 </div>
-                <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.45)', lineHeight: 1.4 }}>{addon.desc}</div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', lineHeight: 1.4 }}>{addon.desc}</div>
               </div>
-              <div style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono, monospace)', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase' }}>
+              <div style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 6%, transparent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
                   {addon.active ? 'Included' : 'Available'}
                 </span>
                 {!addon.active && (
@@ -539,9 +576,9 @@ export function BillingManagerClient() {
                       fontSize: '11px',
                       padding: '3px 8px',
                       borderRadius: '4px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#ffffff',
+                      background: 'color-mix(in srgb, var(--color-text-primary) 5%, transparent)',
+                      border: '1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent)',
+                      color: 'var(--color-text-primary)',
                       cursor: 'pointer',
                     }}
                   >
@@ -559,8 +596,8 @@ export function BillingManagerClient() {
         style={{
           padding: '18px 20px',
           borderRadius: '10px',
-          background: '#09090b',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'var(--color-bg-card)',
+          border: '1px solid color-mix(in srgb, var(--color-text-primary) 8%, transparent)',
           marginBottom: '32px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -573,7 +610,7 @@ export function BillingManagerClient() {
           <div style={{ fontWeight: 600, fontSize: '13px', color: '#ffffff' }}>
             Promotion Code
           </div>
-          <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.45)', marginTop: '2px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>
             Apply partner vouchers or early-access discounts.
           </div>
         </div>
@@ -587,9 +624,9 @@ export function BillingManagerClient() {
             style={{
               padding: '7px 10px',
               borderRadius: '6px',
-              background: '#000000',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              color: '#ffffff',
+              background: 'var(--color-bg)',
+              border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
+              color: 'var(--color-text-primary)',
               fontSize: '12px',
               fontFamily: 'var(--font-mono, monospace)',
               width: '120px',
@@ -623,9 +660,9 @@ export function BillingManagerClient() {
               fontSize: '12px',
               padding: '7px 12px',
               borderRadius: '6px',
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              color: '#ffffff',
+              background: 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)',
+              color: 'var(--color-text-primary)',
               cursor: 'pointer',
             }}
           >
@@ -633,7 +670,7 @@ export function BillingManagerClient() {
           </button>
         </div>
         {couponStatus && (
-          <div style={{ width: '100%', fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px' }}>
+          <div style={{ width: '100%', fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
             {couponStatus}
           </div>
         )}
@@ -642,19 +679,19 @@ export function BillingManagerClient() {
       {/* Footer Assurance */}
       <div
         style={{
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          borderTop: '1px solid color-mix(in srgb, var(--color-text-primary) 6%, transparent)',
           paddingTop: '20px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '12px',
-          color: 'rgba(255, 255, 255, 0.35)',
+          color: 'var(--color-text-tertiary)',
           fontSize: '11px',
           fontFamily: 'var(--font-mono, monospace)',
         }}
       >
-        <div>Encrypted via Cashfree PCI-DSS Level 1.</div>
+        <div>Card details are handled by Dodo Payments and never touch our servers.</div>
         <div>No locked contracts · Cancel anytime</div>
       </div>
     </div>

@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
+import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
-import { createBillingPortalSession } from '@/lib/cashfree'
 import { stripe } from '@/lib/stripe'
-import { billingProvider } from '@/lib/billing-provider'
-import { getRevenueCatSubscriber, planStateFromSubscriber } from '@/lib/revenuecat'
+import { createDodoCustomerPortalSession } from '@/lib/dodo-payments'
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const authCtx = await getAuthContext(session.user)
+    if (!authCtx || !canManageBilling(authCtx)) {
+      return NextResponse.json({ error: 'Only the restaurant owner can manage billing' }, { status: 403 })
     }
 
     const restaurantId = session.user.restaurantId
@@ -31,24 +34,9 @@ export async function POST(req: NextRequest) {
 
     const settings = (restaurant.settings as Record<string, any>) || {}
 
-    // RevenueCat subscribers manage card, plan and cancellation on RevenueCat's hosted page.
-    if (
-      settings.lastBillingGateway === 'REVENUECAT' ||
-      (billingProvider() === 'revenuecat' && !settings.cashfreeSubscriptionId)
-    ) {
-      const subscriber = await getRevenueCatSubscriber(restaurant.id)
-      const { managementUrl } = planStateFromSubscriber(subscriber)
-      if (!managementUrl) {
-        return NextResponse.json(
-          { error: 'No active subscription to manage yet. Choose a plan first.' },
-          { status: 404 }
-        )
-      }
-      return NextResponse.json({ url: managementUrl })
-    }
-
-    // USD subscribers manage cards and invoices in Stripe's hosted billing portal.
-    if (billingProvider() === 'stripe' && restaurant.stripeCustomerId && !settings.cashfreeSubscriptionId) {
+    // USD-direct Stripe subscribers (local-testing override only) manage cards/invoices
+    // in Stripe's hosted billing portal.
+    if (restaurant.stripeCustomerId && !settings.dodoSubscriptionId) {
       const portal = await stripe.billingPortal.sessions.create({
         customer: restaurant.stripeCustomerId,
         return_url: returnUrl,
@@ -56,17 +44,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: portal.url })
     }
 
-    const subscriptionId = settings.cashfreeSubscriptionId || restaurant.stripeSubscriptionId || `sub_mock_${restaurant.id.substring(0, 8)}`
+    // Dodo subscribers update their card, download invoices, and cancel on Dodo's hosted portal.
+    if (settings.dodoCustomerId) {
+      const link = await createDodoCustomerPortalSession(settings.dodoCustomerId, returnUrl)
+      return NextResponse.json({ url: link })
+    }
 
-    const portal = await createBillingPortalSession({
-      subscriptionId,
-      customerId: restaurant.stripeCustomerId || `cus_mock_${restaurant.id.substring(0, 8)}`,
-      returnUrl,
-    })
-
-    return NextResponse.json({
-      url: portal.url,
-    })
+    // No subscription yet (still on trial) — nothing to manage externally.
+    return NextResponse.json({ url: returnUrl })
   } catch (error: any) {
     console.error('[POST /api/billing/portal]', error)
     return NextResponse.json({ error: error.message || 'Failed to open customer portal' }, { status: 500 })

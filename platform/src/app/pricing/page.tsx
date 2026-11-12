@@ -10,17 +10,32 @@ export const metadata = {
   description: 'Simple, predictable restaurant operations system. Built for modern hospitality teams. Starting at $50/month.',
 }
 
+// Direction C · Across the Room palette (graphite, violet action color)
+const C = {
+  ground: '#0E1014',
+  lifted: '#13161B',
+  panel: '#171A20',
+  raised: '#262A33',
+  border: '#262A33',
+  text: '#F3F4F6',
+  muted: '#9BA3AF',
+  violet: '#6835F9',
+  ready: '#34D27B',
+}
+
+const CONDENSED = "'Barlow Condensed', 'Barlow', 'Inter', sans-serif"
+
 const CHECK = () => (
-  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="8" r="7.5" stroke="rgba(255,255,255,0.25)" fill="rgba(255,255,255,0.06)" />
-    <path d="M5 8l2 2 4-4" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  <svg width="22" height="22" viewBox="0 0 16 16" fill="none" role="img" aria-label="Included">
+    <rect width="16" height="16" rx="3" fill={C.ready} />
+    <path d="M4.5 8.2l2.3 2.3 4.7-4.7" stroke={C.ground} strokeWidth="1.8" strokeLinecap="square" />
   </svg>
 )
 
 const CROSS = () => (
-  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="8" r="7.5" stroke="rgba(255,255,255,0.1)" />
-    <path d="M6 6l4 4M10 6l-4 4" stroke="rgba(255,255,255,0.3)" strokeWidth="1.2" strokeLinecap="round"/>
+  <svg width="22" height="22" viewBox="0 0 16 16" fill="none" role="img" aria-label="Not included">
+    <rect width="16" height="16" rx="3" fill={C.raised} />
+    <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke={C.muted} strokeWidth="1.6" strokeLinecap="square" />
   </svg>
 )
 
@@ -44,20 +59,20 @@ export default function PricingPage() {
   return (
     <div className={styles.page} id="main-content">
       <PublicHeader />
-      <main style={{ minHeight: '100vh', backgroundColor: '#000000', fontFamily: 'var(--font-sans)', color: '#ffffff', letterSpacing: '-0.01em' }}>
+      <main style={{ minHeight: '100vh', backgroundColor: C.ground, fontFamily: 'var(--font-sans)', color: C.text }}>
 
       {/* Hero */}
-      <div style={{ textAlign: 'center', padding: '80px 24px 48px', maxWidth: '780px', margin: '0 auto' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '24px' }}>
-          ✦ Predictable Pricing
+      <div style={{ textAlign: 'center', padding: '88px 24px 56px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ fontFamily: CONDENSED, fontSize: '16px', fontWeight: 600, color: C.muted, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '20px' }}>
+          ✦ Predictable pricing
         </div>
-        <h1 style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 600, letterSpacing: '-0.03em', margin: '0 0 20px', lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: CONDENSED, fontSize: 'clamp(44px, 7vw, 88px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.01em', margin: '0 0 24px', lineHeight: 0.92 }}>
           Everything your restaurant needs. <br />
-          <span style={{ fontFamily: 'var(--font-serif, "Newsreader", Georgia, serif)', fontStyle: 'italic', fontWeight: 400, color: 'rgba(255,255,255,0.85)' }}>
-            Clear, transparent, and simple.
+          <span style={{ color: C.muted }}>
+            One flat price.
           </span>
         </h1>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.6)', maxWidth: '520px', margin: '0 auto', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '19px', color: C.muted, maxWidth: '560px', margin: '0 auto', lineHeight: 1.55 }}>
           Run high-velocity floor operations with an all-inclusive operating system: POS, KDS, Floor tables, QR ordering, Staff, and Reports.
         </p>
       </div>
@@ -65,64 +80,65 @@ export default function PricingPage() {
       {/* Plan Card */}
       <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 24px 64px' }}>
         <div style={{
-          backgroundColor: '#0c0c0e',
-          borderRadius: '12px',
+          backgroundColor: C.panel,
+          borderRadius: '8px',
           padding: '40px 36px',
-          border: '1px solid rgba(255,255,255,0.14)',
+          border: `1px solid ${C.border}`,
           position: 'relative',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
         }}>
-          <div style={{ position: 'absolute', top: '-11px', left: '32px', backgroundColor: '#ffffff', color: '#000000', fontSize: '10px', fontWeight: 700, padding: '3px 12px', borderRadius: '999px', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ position: 'absolute', top: '-14px', left: '32px', backgroundColor: C.violet, color: '#FFFFFF', fontSize: '12px', fontWeight: 700, padding: '5px 12px', borderRadius: '4px', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             {plan.badge}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
             <div>
-              <div style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em', marginBottom: '4px' }}>
+              <div style={{ fontFamily: CONDENSED, fontSize: '32px', fontWeight: 800, textTransform: 'uppercase', color: C.text, lineHeight: 1, marginBottom: '8px' }}>
                 {plan.label}
               </div>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', margin: 0, maxWidth: '380px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '16px', color: C.muted, margin: 0, maxWidth: '380px', lineHeight: 1.5 }}>
                 {plan.tagline}
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', justifyContent: 'flex-end' }}>
-                <span style={{ fontSize: '48px', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1, fontFamily: 'var(--font-mono, monospace)' }}>${plan.monthly}</span>
-                <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '6px' }}>/mo</span>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', justifyContent: 'flex-end' }}>
+                <span style={{ fontFamily: CONDENSED, fontSize: '88px', fontWeight: 800, lineHeight: 0.9 }}>${plan.monthly}</span>
+                <span style={{ fontSize: '16px', fontWeight: 600, color: C.muted, marginBottom: '8px' }}>/mo</span>
               </div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>Billed monthly · ${plan.annual}/yr</div>
+              <div style={{ fontSize: '14px', color: C.muted, marginTop: '6px' }}>Billed monthly · ${plan.annual}/yr</div>
             </div>
           </div>
 
           <Link
             href="/signup?plan=starter"
             style={{
-              display: 'block',
-              textAlign: 'center',
-              padding: '14px',
-              borderRadius: '8px',
-              backgroundColor: '#ffffff',
-              color: '#000000',
-              fontWeight: 600,
-              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '60px',
+              borderRadius: '4px',
+              backgroundColor: C.violet,
+              color: '#FFFFFF',
+              fontWeight: 800,
+              fontSize: '18px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
               textDecoration: 'none',
               marginBottom: '32px',
-              border: '1px solid rgba(255,255,255,0.2)',
               transition: 'background 150ms ease',
             }}
           >
-            Start 14-Day Free Trial →
+            Start 14-day free trial
           </Link>
 
           {/* Included Features */}
-          <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>
-            Included in Basic Plan:
+          <div style={{ fontFamily: CONDENSED, fontSize: '16px', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
+            Included in the Basic plan
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', marginBottom: '28px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
             {features.map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)' }}>✓</span>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)' }}>{f.label}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <span aria-hidden="true" style={{ flexShrink: 0, marginTop: '1px' }}><CHECK /></span>
+                <span style={{ fontSize: '15px', color: C.text, lineHeight: 1.45 }}>{f.label}</span>
               </div>
             ))}
           </div>
@@ -130,28 +146,28 @@ export default function PricingPage() {
       </div>
 
       {/* Feature Breakdown Table */}
-      <div style={{ maxWidth: '820px', margin: '0 auto 80px', padding: '0 24px' }}>
-        <h2 style={{ textAlign: 'center', fontSize: '24px', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '28px' }}>
-          Detailed Feature Availability
+      <div style={{ maxWidth: '820px', margin: '0 auto', padding: '0 24px 88px' }}>
+        <h2 style={{ fontFamily: CONDENSED, textAlign: 'center', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 0.95, margin: '0 0 28px' }}>
+          Detailed feature availability
         </h2>
-        <div style={{ backgroundColor: '#09090b', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <div style={{ backgroundColor: C.panel, borderRadius: '8px', overflow: 'hidden', border: `1px solid ${C.border}` }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#111114' }}>
-                <th style={{ padding: '14px 20px', textAlign: 'left', color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '12px' }}>Feature Capability</th>
-                <th style={{ padding: '14px 20px', textAlign: 'center', color: '#ffffff', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Basic Plan ($50/mo)
+              <tr style={{ borderBottom: `1px solid ${C.border}`, backgroundColor: C.lifted }}>
+                <th style={{ padding: '14px 20px', textAlign: 'left', color: C.muted, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</th>
+                <th style={{ padding: '14px 20px', textAlign: 'center', backgroundColor: C.violet, color: '#FFFFFF', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Basic plan ($50/mo)
                 </th>
               </tr>
             </thead>
             <tbody>
               {featureMatrix.map((row, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)' }}>
-                  <td style={{ padding: '13px 20px', color: 'rgba(255,255,255,0.85)' }}>
+                <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <td style={{ padding: '14px 20px', color: C.text }}>
                     <div>{row.label}</div>
-                    {row.note && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{row.note}</div>}
+                    {row.note && <div style={{ fontSize: '13px', color: C.muted, marginTop: '2px' }}>{row.note}</div>}
                   </td>
-                  <td style={{ padding: '13px 20px', textAlign: 'center' }}>
+                  <td style={{ padding: '14px 20px', textAlign: 'center', backgroundColor: 'rgba(104, 53, 249, 0.08)' }}>
                     {row.included ? <CHECK /> : <CROSS />}
                   </td>
                 </tr>
@@ -162,10 +178,10 @@ export default function PricingPage() {
       </div>
 
       {/* Footer */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '32px 40px', backgroundColor: '#000000' }}>
-        <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: '32px 40px', backgroundColor: C.lifted }}>
+        <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: C.muted }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: 600, color: '#ffffff' }}>Prominentz</span>
+            <span style={{ fontFamily: CONDENSED, fontWeight: 800, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '0.02em', color: C.text }}>Prominentz</span>
             <span>© 2026. All rights reserved.</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
@@ -173,7 +189,7 @@ export default function PricingPage() {
             <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
             <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
             <CookieSettingsButton />
-            <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600 }}>Sign In</Link>
+            <Link href="/login" style={{ color: C.text, textDecoration: 'none', fontWeight: 700 }}>Sign in</Link>
           </div>
         </div>
       </footer>
