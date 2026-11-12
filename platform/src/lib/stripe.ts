@@ -133,7 +133,7 @@ export async function createPaymentIntent(
  */
 export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInCents?: number, stripeAccount?: string) {
   try {
-    if (isMockStripe()) {
+    if (isMockStripe() || chargeIdOrPaymentIntentId.startsWith('pi_mock_')) {
       return {
         id: `re_mock_${Math.random().toString(36).substr(2, 9)}`,
         amount: amountInCents ?? 0,

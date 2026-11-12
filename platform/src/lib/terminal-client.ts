@@ -13,17 +13,22 @@ export async function collectCardOnReader(
   const cancelled = () => new Error('Card payment was cancelled')
   if (opts.signal?.aborted) throw cancelled()
 
+  // The signal is deliberately not passed to this fetch: aborting mid-POST could leave the reader
+  // armed while we never learn the PaymentIntent. We check the signal as soon as it resolves instead.
   const startRes = await fetch('/api/payments/terminal/process', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ orderId, amount: Math.round(amount * 100) / 100, attempt: opts.attempt }),
-    signal: opts.signal,
   })
   const start = await startRes.json().catch(() => ({}))
   if (!startRes.ok) {
     throw new Error(typeof start.error === 'string' ? start.error : 'Could not reach the card reader')
   }
   if (start.status === 'succeeded') return start.paymentIntentId as string
+  if (opts.signal?.aborted) {
+    await cancelReader()
+    throw cancelled()
+  }
 
   const paymentIntentId = start.paymentIntentId as string
   opts.onStatus?.('Waiting for the card on the reader…')
