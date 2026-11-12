@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { connectCountryNeedsState } from '@/lib/stripe-connect-countries'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { stripe, isMockStripe } from '@/lib/stripe'
@@ -47,7 +48,7 @@ const registerSchema = z.object({
   address: z.object({
     line1: z.string().min(3),
     city: z.string().min(2),
-    state: z.string().min(2),
+    state: z.string().max(60).optional().default(''),
     postalCode: z.string().min(3),
   }),
 })
@@ -72,15 +73,21 @@ export async function POST(req: NextRequest) {
 
     let terminalLocationId = ctx.location.stripeTerminalLocationId
     if (!terminalLocationId) {
+      // The reader's location must be in the same country as the restaurant's Stripe account.
+      const account = stripeAccount ? await stripe.accounts.retrieve(stripeAccount) : null
+      const country = account?.country || 'US'
+      if (connectCountryNeedsState(country) && address.state.trim().length < 2) {
+        return NextResponse.json({ error: 'Enter the state or province for the reader address' }, { status: 400 })
+      }
       const terminalLocation = await stripe.terminal.locations.create(
         {
           display_name: ctx.location.name,
           address: {
             line1: address.line1,
             city: address.city,
-            state: address.state,
+            ...(address.state.trim() ? { state: address.state.trim() } : {}),
             postal_code: address.postalCode,
-            country: 'US',
+            country,
           },
         },
         { stripeAccount },

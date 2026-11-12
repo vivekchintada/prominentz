@@ -6,6 +6,7 @@ import { BentoPos, type PosMenuItem, type PosTable, type PosTab } from '@/compon
 import { resolveLocationId } from '@/lib/bento/owner-overview'
 import { startOfDayInTimeZone } from '@/lib/dashboard-metrics'
 import { initials } from '@/lib/bento/time'
+import { SubscriptionReminder } from '@/components/billing/SubscriptionReminder'
 
 export const metadata = {
   title: 'POS',
@@ -112,6 +113,8 @@ export default async function PosPage({ searchParams }: { searchParams?: Promise
         initialOrderId={sp.orderId}
         initialPay={sp.pay === '1'}
       />
+      {/* Owners and managers on an unpaid plan get a nudge every 4–8 orders; the API decides eligibility. */}
+      {(user.role === 'OWNER' || user.role === 'MANAGER') && <SubscriptionReminder />}
     </RestaurantCurrency>
   )
 }

@@ -48,7 +48,7 @@ function PlanCard({
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
         <div>
-          <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-text-primary)', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
             {title}
           </h3>
           <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>
@@ -73,7 +73,7 @@ function PlanCard({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '24px' }}>
-        <span style={{ fontSize: '38px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em', fontFamily: 'var(--font-mono, monospace)' }}>
+        <span style={{ fontSize: '38px', fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.03em', fontFamily: 'var(--font-mono, monospace)' }}>
           ${price}
         </span>
         <span style={{ fontSize: '13px', color: 'var(--color-text-tertiary)', fontWeight: 500 }}>/month</span>
@@ -93,27 +93,25 @@ function PlanCard({
         </ul>
       </div>
 
+      {/* Primary call to action. It used the card's own background with no border, so it read as
+          plain text and owners couldn't find how to subscribe. */}
       <button
+        type="button"
         onClick={() => onSelect(tier)}
         disabled={isLoading || isPaidSubscription}
+        className={isPaidSubscription ? 'bz-btn bz-btn--block' : 'bz-btn bz-btn--lime bz-btn--block'}
         style={{
-          width: '100%',
-          padding: '12px 18px',
-          borderRadius: '8px',
-          fontWeight: 600,
-          fontSize: '13px',
+          padding: '14px 18px',
+          fontSize: '14px',
           cursor: isPaidSubscription ? 'default' : isLoading ? 'wait' : 'pointer',
-          backgroundColor: isPaidSubscription ? 'color-mix(in srgb, var(--color-text-primary) 6%, transparent)' : 'var(--color-bg-card)',
-          color: isPaidSubscription ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-          border: isPaidSubscription ? '1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent)' : 'none',
-          transition: 'all 150ms ease',
+          opacity: isLoading ? 0.7 : 1,
         }}
       >
         {isLoading
           ? 'Connecting...'
           : isPaidSubscription
           ? '✓ Active Subscription ($50/mo)'
-          : `Activate Subscription ($${price}/mo)`}
+          : `Start subscription · $${price}/mo`}
       </button>
     </div>
   )
@@ -283,7 +281,7 @@ export function BillingManagerClient() {
               </span>
             </div>
 
-            <h2 style={{ fontSize: '22px', fontWeight: 600, color: '#ffffff', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 600, color: 'var(--color-text-primary)', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>
               Thank you, {restaurantName}
             </h2>
 
@@ -435,7 +433,7 @@ export function BillingManagerClient() {
             Subscription
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '20px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>
+            <span style={{ fontSize: '20px', fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
               Basic Plan
             </span>
             <span
@@ -475,7 +473,7 @@ export function BillingManagerClient() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-tertiary)' }}>Rate</div>
-            <div style={{ fontSize: '22px', fontWeight: 600, color: '#ffffff', fontFamily: 'var(--font-mono, monospace)' }}>
+            <div style={{ fontSize: '22px', fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono, monospace)' }}>
               $50
               <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', fontWeight: 400 }}>/mo</span>
             </div>
@@ -531,7 +529,7 @@ export function BillingManagerClient() {
       {/* ── Modular Add-ons ─────────────────────────────────────────── */}
       <div style={{ marginBottom: '40px' }}>
         <div style={{ marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', margin: 0, letterSpacing: '-0.01em' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
             Modular Extensions
           </h3>
           <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
@@ -560,7 +558,7 @@ export function BillingManagerClient() {
             >
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '13px', color: '#ffffff' }}>{addon.name}</div>
+                  <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-text-primary)' }}>{addon.name}</div>
                   <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-text-secondary)' }}>{addon.price}</span>
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', lineHeight: 1.4 }}>{addon.desc}</div>
@@ -607,7 +605,7 @@ export function BillingManagerClient() {
         }}
       >
         <div>
-          <div style={{ fontWeight: 600, fontSize: '13px', color: '#ffffff' }}>
+          <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-text-primary)' }}>
             Promotion Code
           </div>
           <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>

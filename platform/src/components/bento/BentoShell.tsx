@@ -6,6 +6,7 @@ import { getAccessStatus, getRestaurantBasics } from '@/lib/bento/request-cache'
 import { isPlatformAdmin } from '@/lib/hq/platform-admin'
 import { OfflineBanner } from './OfflineBanner'
 import { SubscriptionBanner } from '@/components/dashboard/SubscriptionBanner'
+import { SubscriptionReminder } from '@/components/billing/SubscriptionReminder'
 import { BentoTopBar } from './BentoTopBar'
 
 /**
@@ -48,6 +49,7 @@ export async function BentoShell({ children }: { children: React.ReactNode }) {
           hqHref={isPlatformAdmin(user.email) ? '/hq' : null}
         />
         <OfflineBanner />
+        {access && !access.isActive && (user.role === 'OWNER' || user.role === 'MANAGER') && <SubscriptionReminder />}
         {access && (user.role === 'OWNER' || user.role === 'MANAGER') && (
           <SubscriptionBanner
             isTrialing={access.isTrialing}
