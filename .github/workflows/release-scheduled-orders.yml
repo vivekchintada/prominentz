@@ -1,0 +1,39 @@
+name: Release scheduled orders
+
+# Every 5 minutes, sends scheduled online orders to the kitchen when their lead time is reached
+# and expires abandoned unpaid drafts. Runs here rather than as a Vercel Cron because Vercel's
+# Hobby plan only allows once-a-day crons and rejects the whole deployment otherwise.
+# GitHub may delay scheduled runs by a few minutes under load.
+#
+# Setup: add repository secrets CRON_SECRET (same value as in Vercel) and, optionally,
+# APP_URL (defaults to https://www.prominentz.in).
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Call release endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::CRON_SECRET repository secret is not set; skipping."
+            exit 0
+          fi
+          url="${APP_URL:-https://www.prominentz.in}/api/ordering/release-scheduled"
+          code=$(curl -s -o response.json -w '%{http_code}' --max-time 60 \
+            -H "Authorization: Bearer $CRON_SECRET" "$url")
+          cat response.json; echo
+          if [ "$code" != "200" ]; then
+            echo "::error::release-scheduled returned HTTP $code"
+            exit 1
+          fi
