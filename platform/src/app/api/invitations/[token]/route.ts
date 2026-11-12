@@ -126,8 +126,9 @@ export async function POST(
       }
 
       // Check if user with this invited email already exists in User table
-      const existingUser = await prisma.user.findUnique({
-        where: { email: inviteEmail },
+      // Case-insensitive, matching login: older accounts were stored with the email as typed.
+      const existingUser = await prisma.user.findFirst({
+        where: { email: { equals: inviteEmail, mode: 'insensitive' } },
       })
 
       if (existingUser) {
@@ -161,7 +162,17 @@ export async function POST(
 
     // Process acceptance atomically
     await prisma.$transaction(async (tx) => {
-      // 1. Create or update OrganizationMembership
+      // 1. Create or update OrganizationMembership. Accepting an invitation can raise a member's role
+      // but never lower it: an OWNER who accepts a SERVER invite to their own email stays OWNER.
+      const RANK = { OWNER: 0, MANAGER: 1, SERVER: 2, KITCHEN: 3 } as const
+      const current = await tx.organizationMembership.findUnique({
+        where: { organizationId_userId: { organizationId: invitation.organizationId, userId: targetUserId! } },
+        select: { role: true },
+      })
+      const keptRole =
+        current && RANK[current.role as keyof typeof RANK] < RANK[invitation.role as keyof typeof RANK]
+          ? current.role
+          : invitation.role
       const membership = await tx.organizationMembership.upsert({
         where: {
           organizationId_userId: {
@@ -170,7 +181,7 @@ export async function POST(
           },
         },
         update: {
-          role: invitation.role,
+          role: keptRole,
           status: 'ACTIVE',
         },
         create: {

@@ -99,7 +99,8 @@ export async function POST(req: NextRequest) {
     if (isPlatformAdmin(email)) {
       return NextResponse.json({ error: 'This email cannot be used for a staff account' }, { status: 400 })
     }
-    const existing = await prisma.user.findFirst({ where: { email } })
+    // Case-insensitive, matching login: older accounts were stored with the email as typed.
+    const existing = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } })
     if (existing) {
       return NextResponse.json({ error: 'A user with this email already exists' }, { status: 409 })
     }

@@ -4,6 +4,10 @@ import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { issueMobileToken } from '@/lib/auth/mobile-token'
 import bcrypt from 'bcryptjs'
 
+// Compared against when the email is unknown or the account can't sign in, so every miss takes as
+// long as a wrong password and response timing doesn't reveal which emails have accounts.
+const TIMING_EQUALIZER_HASH = bcrypt.hashSync('prominentz-timing-equalizer', 10)
+
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown-ip'
@@ -12,7 +16,7 @@ export async function POST(req: NextRequest) {
       return rateLimitResponse(rl.retryAfterSec)
     }
 
-    const { email, password } = await req.json()
+    const { email, password } = await req.json().catch(() => ({}))
     if (!email || typeof email !== 'string') {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
@@ -45,11 +49,12 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    const isPasswordValid =
-      Boolean(user?.isActive && user.passwordHash && typeof password === 'string') &&
-      (await bcrypt.compare(password, user!.passwordHash).catch(() => false))
+    const canSignIn = Boolean(user?.isActive && user.passwordHash)
+    const passwordsMatch = await bcrypt
+      .compare(typeof password === 'string' ? password : '', canSignIn ? user!.passwordHash : TIMING_EQUALIZER_HASH)
+      .catch(() => false)
 
-    if (!user || !isPasswordValid) {
+    if (!user || !canSignIn || !passwordsMatch) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 

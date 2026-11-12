@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
           if (isPlatformAdmin(cleanEmail)) {
             return NextResponse.json({ error: `${cleanEmail} cannot be used for a staff account` }, { status: 400 })
           }
-          const taken = await prisma.user.findUnique({ where: { email: cleanEmail }, select: { id: true } })
+          const taken = await prisma.user.findFirst({ where: { email: { equals: cleanEmail, mode: 'insensitive' } }, select: { id: true } })
           if (taken) {
             return NextResponse.json({ error: `An account with ${cleanEmail} already exists` }, { status: 409 })
           }

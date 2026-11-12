@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'This email cannot be used to register a restaurant' }, { status: 400 })
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email: cleanEmail } })
+    // Case-insensitive, matching login: older accounts were stored with the email as typed.
+    const existingUser = await prisma.user.findFirst({ where: { email: { equals: cleanEmail, mode: 'insensitive' } } })
     if (existingUser) {
       return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
     }
