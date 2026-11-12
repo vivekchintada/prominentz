@@ -26,6 +26,10 @@ export async function POST(req: NextRequest) {
     if (!['STARTER', 'PRO', 'ENTERPRISE'].includes(planTier)) {
       return NextResponse.json({ error: 'Invalid plan tier' }, { status: 400 })
     }
+    const { isDodoProductConfigured, isMockDodo } = await import('@/lib/dodo-payments')
+    if (!isMockDodo() && !isDodoProductConfigured(planTier as PlanTier)) {
+      return NextResponse.json({ error: 'This plan is not available yet.' }, { status: 400 })
+    }
 
     const resolved = await resolveUserLocation(session.user)
     const restaurantId = resolved?.restaurantId || session.user.restaurantId

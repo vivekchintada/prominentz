@@ -72,13 +72,26 @@ export function dodoConfigProblems(): string[] {
   } else if (process.env.NODE_ENV === 'production' && envValue !== 'live_mode') {
     problems.push('DODO_PAYMENTS_ENVIRONMENT is test_mode in production')
   }
-  for (const [tier, name] of [['STARTER', 'DODO_PAYMENTS_PRODUCT_STARTER'], ['PRO', 'DODO_PAYMENTS_PRODUCT_PRO'], ['ENTERPRISE', 'DODO_PAYMENTS_PRODUCT_ENTERPRISE']] as const) {
-    const id = process.env[name]
-    if (!id || !id.startsWith('prod_') || id === `prod_${tier.toLowerCase()}_tier`) {
-      problems.push(`${name} is missing or still a placeholder`)
-    }
+  // Basic is the plan the billing page sells, so it must be set. Pro and Enterprise are optional
+  // until they're offered; checkout refuses a plan whose product isn't configured.
+  if (!isDodoProductConfigured('STARTER')) {
+    problems.push('DODO_PAYMENTS_PRODUCT_STARTER is missing or still a placeholder')
+  }
+  for (const tier of ['PRO', 'ENTERPRISE'] as const) {
+    const id = process.env[`DODO_PAYMENTS_PRODUCT_${tier}`]
+    if (id && !isDodoProductConfigured(tier)) problems.push(`DODO_PAYMENTS_PRODUCT_${tier} is still a placeholder`)
   }
   return problems
+}
+
+/**
+ * True when a real Dodo product ID is set for this plan. Dodo product IDs look like "pdt_…";
+ * the "prod_<tier>_tier" defaults and "..." templates are placeholders.
+ */
+export function isDodoProductConfigured(tier: PlanTier): boolean {
+  const id = process.env[`DODO_PAYMENTS_PRODUCT_${tier}`]?.trim()
+  if (!id || id.includes('...') || id.includes('REPLACE_ME') || id === `prod_${tier.toLowerCase()}_tier`) return false
+  return /^(pdt|prod)_[A-Za-z0-9]+$/.test(id)
 }
 
 /** Throws a clear, safe-to-show error in production when billing is misconfigured. */
