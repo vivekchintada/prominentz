@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T19:29:11Z",
+  "title": "Design System: Prominentz",
+  "extensions": {
+    "colorMeta": {
+      "prominentz-violet": { "role": "primary", "displayName": "Prominentz Violet", "canonical": "#6835F9", "tonalRamp": ["#1a0c38", "#2e1477", "#4019b8", "#5524e0", "#5b28ee", "#6835F9", "#a78bfa", "#ddd3fe"] },
+      "ledger-black": { "role": "neutral", "displayName": "Ledger Black", "canonical": "#0b0b0c", "tonalRamp": ["#0b0b0c", "#1a1a1b", "#2c2c2e", "#424244", "#5c5c5f", "#78787b", "#9a9a9d", "#c4c4c6"] },
+      "ledger-paper": { "role": "neutral", "displayName": "Ledger Paper", "canonical": "#ffffff", "tonalRamp": ["#d9d9d9", "#e3e3e3", "#ececec", "#f2f2f2", "#f7f7f7", "#fafafa", "#fdfdfd", "#ffffff"] },
+      "success-green": { "role": "secondary", "displayName": "Success Green", "canonical": "#24ab5c", "tonalRamp": ["#0c2e18", "#134527", "#1b6236", "#248a4a", "#2fb45e", "#4fd27f", "#7fe3a4", "#b8f2cd"] },
+      "operational-error": { "role": "secondary", "displayName": "Operational Error", "canonical": "#ef4444", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"] },
+      "operational-success": { "role": "secondary", "displayName": "Operational Success", "canonical": "#22c55e", "tonalRamp": ["#052e16", "#14532d", "#166534", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#bbf7d0"] },
+      "operational-warning": { "role": "secondary", "displayName": "Operational Warning", "canonical": "#f59e0b", "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#f59e0b", "#fbbf24", "#fcd34d", "#fde68a"] },
+      "operational-expo": { "role": "secondary", "displayName": "Operational Expo", "canonical": "#10b981", "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"] },
+      "operational-muted": { "role": "neutral", "displayName": "Operational Muted", "canonical": "#64748b", "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero/landing headlines only, 800 weight Space Grotesk." },
+      "body": { "displayName": "Body", "purpose": "Default UI copy, Inter." },
+      "label": { "displayName": "Label/Mono", "purpose": "Badges, eyebrow labels, tabular/numeric data, JetBrains Mono." },
+      "operational": { "displayName": "Operational Scale", "purpose": "Dense POS/KDS/dashboard screens: 10/12/13/14/16/18/20/22/24/26px, the real dominant scale on those surfaces — not the branded rem scale." }
+    },
+    "shadows": [
+      { "name": "sm-dark", "value": "0 1px 2px rgba(0,0,0,0.6)", "purpose": "Resting card elevation in dark mode." },
+      { "name": "md-dark", "value": "0 4px 16px rgba(0,0,0,0.7)", "purpose": "Hover/elevated card state, dropdowns, dark mode." },
+      { "name": "lg-dark", "value": "0 8px 32px rgba(0,0,0,0.85)", "purpose": "Popovers, larger overlays, dark mode." },
+      { "name": "xl-dark", "value": "0 20px 60px rgba(0,0,0,0.95)", "purpose": "Modals, dark mode." },
+      { "name": "sm-light", "value": "0 1px 2px rgba(11,11,12,0.04), 0 10px 30px rgba(11,11,12,0.07)", "purpose": "Resting card elevation in light mode." },
+      { "name": "md-light", "value": "0 4px 16px rgba(11,11,12,0.08), 0 0 0 1px rgba(11,11,12,0.08)", "purpose": "Hover/elevated card state, light mode." },
+      { "name": "brand-glow", "value": "0 0 24px rgba(104, 53, 249,0.08)", "purpose": "The one sanctioned glow — input focus rings on the violet accent only." }
+    ],
+    "motion": [
+      { "name": "transition-fast", "value": "120ms cubic-bezier(0.25, 0.46, 0.45, 0.94)", "purpose": "Default hover/state transitions." },
+      { "name": "transition-normal", "value": "200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)", "purpose": "Panel/modal open-close." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action per view. Violet background, midblack text, never white text on violet.",
+      "html": "<button class=\"ds-btn-primary\">Save changes</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 20px; border-radius: 6px; border: 1px solid #6835F9; background: #6835F9; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; transition: all 120ms cubic-bezier(0.25,0.46,0.45,0.94); } .ds-btn-primary:hover { background: #7a4dfa; border-color: #7a4dfa; box-shadow: 0 2px 12px rgba(104, 53, 249,0.35); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(104, 53, 249,0.35); } .ds-btn-primary:active { transform: scale(0.98); box-shadow: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting action next to a primary button.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 20px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #111114; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 120ms cubic-bezier(0.25,0.46,0.45,0.94); } .ds-btn-secondary:hover { background: #18181c; border-color: rgba(255,255,255,0.18); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.12); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Default content container, one step up from the page ground.",
+      "html": "<div class=\"ds-card\">Card content</div>",
+      "css": ".ds-card { background: #141414; color: #ffffff; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.6); transition: border-color 120ms, background 120ms; } .ds-card:hover { background: #1a1a1a; box-shadow: 0 4px 16px rgba(0,0,0,0.7); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input with the one sanctioned glow on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Enter a value\" />",
+      "css": ".ds-input { width: 100%; height: 36px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: #ffffff; transition: all 120ms; } .ds-input::placeholder { color: rgba(255,255,255,0.4); } .ds-input:focus { outline: none; background: rgba(255,255,255,0.07); box-shadow: 0 0 0 3px rgba(104, 53, 249,0.08), inset 0 0 0 0.5px #6835F9; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Status pill — success/warning/error/info/brand/neutral variants, never decorative.",
+      "html": "<span class=\"ds-badge ds-badge--success\">Active</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; } .ds-badge--success { background: rgba(36,171,92,0.16); color: #24ab5c; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Shift Ledger",
+    "overview": "Prominentz looks like a ledger book worked late on a busy floor: a mostly black-and-white operational surface — midblack (#0b0b0c, ~60% of any screen) and pure white (#ffffff, ~30%) — with one deliberate mark of violet (#6835F9, ~10%) reserved for the thing that's actually live or actionable right now. Nothing about it should read as decorative; every accent use is a signal, not a flourish. The system was built to be read correctly by someone mid-shift, not admired at rest — precise and unshakeable rather than warm or playful. The system explicitly rejects gradient text, glow effects, and multi-hue decoration. A prior pass had the primary accent faked via background-clip: text on hero copy even where the underlying value was a single flat color — that's been corrected to a plain color assignment; gradients-as-decoration have no place here.",
+    "keyCharacteristics": [
+      "Mostly monochrome (black/white), with a single reserved accent color used sparingly",
+      "Real, layered drop shadows for depth (not flat/tonal) — confirmed as the standard, not legacy",
+      "Crisp, unambiguous component states: color changes, not soft/ambiguous affordances",
+      "Dense, operational typography (Space Grotesk display, Inter body, JetBrains Mono for labels/mono contexts)",
+      "Same accent and ink pairing holds in both dark and light mode"
+    ],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "Violet is the only accent color in the system. It appears only on primary buttons, active/selected state, and focus rings — never as a secondary decorative color, never doubled up with another accent. Does not apply to the Operational palette, which is real product status color, not decoration.", "section": "colors" },
+      { "name": "The Weight-Over-Glow Rule", "body": "Depth comes from shadow weight and layering, never from a colored glow except as a deliberate, sparing focus-ring treatment on the violet accent itself. Don't add decorative glow to anything else.", "section": "elevation" },
+      { "name": "The Two-Scale Rule", "body": "Branded/marketing surfaces use the --text-* rem scale; operational/POS/KDS/dashboard surfaces use the px-based Operational Scale (10/12/13/14/16/18/20/22/24/26px). Don't mix them on the same screen, and don't convert one into the other.", "section": "typography" }
+    ],
+    "dos": [
+      "Do keep violet (#6835F9) reserved for primary actions and active/focus state only — never decorative.",
+      "Do use Ledger Black (#0b0b0c) as the dark-mode ground and the light-mode ink; don't introduce a second \"almost black.\"",
+      "Do keep real layered box-shadows for elevation in both themes — this system is not flat/tonal.",
+      "Do use midblack text on violet backgrounds, never white — it's a contrast requirement, not a preference."
+    ],
+    "donts": [
+      "Don't fake colored text with background-clip: text / gradient tricks — set color directly.",
+      "Don't add a second accent color alongside violet on the same screen.",
+      "Don't soften button/input radii below the md (6px) step.",
+      "Don't let sidebar/nav \"current\" states borrow the violet accent — that's reserved for actions, not location indicators.",
+      "Don't recolor the Operational palette (error/success/warning/expo/muted) to brand colors — they're real product status, not decoration.",
+      "Don't invent a third type scale or radius scale for new operational work — reuse the documented Operational Scale and Operational radius steps.",
+      "Don't use overshoot/bounce easing (cubic-bezier with a value above 1) anywhere — it contradicts the system's \"precise and unshakeable\" character."
+    ]
+  }
+}
