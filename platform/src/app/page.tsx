@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import SaaSLandingClient from '@/components/landing/SaaSLandingClient'
+import HomeLanding from '@/components/landing/HomeLanding'
+import { landingFontVars } from '@/components/landing/fonts'
 import { PRICING } from '@/lib/pricing'
 
 export const metadata: Metadata = {
@@ -29,9 +30,9 @@ const jsonLd = {
 
 export default function Home() {
   return (
-    <>
+    <div className={landingFontVars}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <SaaSLandingClient />
-    </>
+      <HomeLanding />
+    </div>
   )
 }

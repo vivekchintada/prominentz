@@ -1,199 +1,123 @@
-import Link from 'next/link'
-import { PRICING, PLAN_FEATURES } from '@/lib/pricing'
-import { CookieSettingsButton } from '@/components/ui/CookieSettingsButton'
-import { ProminentzLogo } from '@/components/ui/ProminentzLogo'
-import PublicHeader from '@/components/public/PublicHeader'
-import styles from '@/components/landing/MiddayMarketing.module.css'
+import { Check } from 'lucide-react'
+import { PublicShell, CloseBand } from '@/components/landing/SiteChrome'
+import { PlanBill, OtherTiers } from '@/components/landing/PlanBill'
+import { Faq } from '@/components/landing/FaqDemo'
+import { landingFontVars } from '@/components/landing/fonts'
+import { PRICING } from '@/lib/pricing'
+import s from '@/components/landing/Landing.module.css'
 
 export const metadata = {
-  title: 'Pricing | Prominentz — Transparent Restaurant Intelligence',
-  description: 'Simple, predictable restaurant operations system. Built for modern hospitality teams. Starting at $50/month.',
+  title: 'Pricing | Prominentz — $50/month restaurant POS & kitchen display',
+  description:
+    'One flat price for POS, kitchen display, QR and online ordering, inventory, staff and end-of-day reports. $50/month per restaurant, 0% of your sales, 14-day free trial.',
+  alternates: { canonical: '/pricing' },
 }
 
-// Direction C · Across the Room palette (graphite, violet action color)
-const C = {
-  ground: '#0E1014',
-  lifted: '#13161B',
-  panel: '#171A20',
-  raised: '#262A33',
-  border: '#262A33',
-  text: '#F3F4F6',
-  muted: '#9BA3AF',
-  violet: '#6835F9',
-  ready: '#34D27B',
-}
-
-const CONDENSED = "'Barlow Condensed', 'Barlow', 'Inter', sans-serif"
-
-const CHECK = () => (
-  <svg width="22" height="22" viewBox="0 0 16 16" fill="none" role="img" aria-label="Included">
-    <rect width="16" height="16" rx="3" fill={C.ready} />
-    <path d="M4.5 8.2l2.3 2.3 4.7-4.7" stroke={C.ground} strokeWidth="1.8" strokeLinecap="square" />
-  </svg>
-)
-
-const CROSS = () => (
-  <svg width="22" height="22" viewBox="0 0 16 16" fill="none" role="img" aria-label="Not included">
-    <rect width="16" height="16" rx="3" fill={C.raised} />
-    <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke={C.muted} strokeWidth="1.6" strokeLinecap="square" />
-  </svg>
-)
+// What the Basic plan includes vs. what is still in development (Pro).
+const MATRIX: { label: string; basic: boolean; pro: boolean }[] = [
+  { label: 'POS, table floor plan and order entry', basic: true, pro: true },
+  { label: 'Kitchen display with stations, timers and bump to pass', basic: true, pro: true },
+  { label: 'Table QR ordering and your own online ordering page', basic: true, pro: true },
+  { label: 'Split checks by seat, item or evenly; cash and card', basic: true, pro: true },
+  { label: 'Inventory counts and recipe depletion', basic: true, pro: true },
+  { label: 'Staff board and clock in / clock out', basic: true, pro: true },
+  { label: 'Reservations and walk-in waitlist', basic: true, pro: true },
+  { label: 'End-of-day Z-report and daily sales', basic: true, pro: true },
+  { label: 'Delivery aggregator sync', basic: true, pro: true },
+  { label: 'Guest CRM and loyalty rewards', basic: false, pro: true },
+  { label: 'AI operations agent', basic: false, pro: true },
+  { label: 'Multiple locations and labour scheduling', basic: false, pro: true },
+]
 
 export default function PricingPage() {
-  const plan = PRICING.STARTER
-  const features = PLAN_FEATURES.STARTER
-
-  const featureMatrix: { label: string; included: boolean; note?: string }[] = [
-    { label: 'Point of Sale (POS) & Order Entry', included: true },
-    { label: 'Real-Time Kitchen Display System (KDS)', included: true },
-    { label: 'Table & Food Menu QR Code Studio (Direct-to-KDS)', included: true },
-    { label: 'Table Status Quick Switcher & Action Sheets', included: true },
-    { label: 'Split Bill Calculator (Even N-Way & By Seat)', included: true },
-    { label: 'Table-Side Cash & Card Payment Settlement', included: true },
-    { label: 'Inventory Stock Count & Recipe Depletion', included: true },
-    { label: 'Staff Management & Clock-In/Clock-Out', included: true },
-    { label: 'Reservations & Walk-In Waitlist', included: true },
-    { label: 'End-of-Day Z-Reports & Daily Sales Analytics', included: true },
-  ]
-
   return (
-    <div className={styles.page} id="main-content">
-      <PublicHeader />
-      <main style={{ minHeight: '100vh', backgroundColor: C.ground, fontFamily: 'var(--font-sans)', color: C.text }}>
-
-      {/* Hero */}
-      <div style={{ textAlign: 'center', padding: '88px 24px 56px', maxWidth: '900px', margin: '0 auto' }}>
-        <div style={{ fontFamily: CONDENSED, fontSize: '16px', fontWeight: 600, color: C.muted, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '20px' }}>
-          ✦ Predictable pricing
-        </div>
-        <h1 style={{ fontFamily: CONDENSED, fontSize: 'clamp(44px, 7vw, 88px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.01em', margin: '0 0 24px', lineHeight: 0.92 }}>
-          Everything your restaurant needs. <br />
-          <span style={{ color: C.muted }}>
-            One flat price.
-          </span>
-        </h1>
-        <p style={{ fontSize: '19px', color: C.muted, maxWidth: '560px', margin: '0 auto', lineHeight: 1.55 }}>
-          Run high-velocity floor operations with an all-inclusive operating system: POS, KDS, Floor tables, QR ordering, Staff, and Reports.
-        </p>
-      </div>
-
-      {/* Plan Card */}
-      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 24px 64px' }}>
-        <div style={{
-          backgroundColor: C.panel,
-          borderRadius: '8px',
-          padding: '40px 36px',
-          border: `1px solid ${C.border}`,
-          position: 'relative',
-        }}>
-          <div style={{ position: 'absolute', top: '-14px', left: '32px', backgroundColor: C.violet, color: '#FFFFFF', fontSize: '12px', fontWeight: 700, padding: '5px 12px', borderRadius: '4px', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            {plan.badge}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
-            <div>
-              <div style={{ fontFamily: CONDENSED, fontSize: '32px', fontWeight: 800, textTransform: 'uppercase', color: C.text, lineHeight: 1, marginBottom: '8px' }}>
-                {plan.label}
-              </div>
-              <p style={{ fontSize: '16px', color: C.muted, margin: 0, maxWidth: '380px', lineHeight: 1.5 }}>
-                {plan.tagline}
+    <div className={landingFontVars}>
+      <PublicShell>
+        <main id="main-content">
+          <section className={`${s.paper}`} data-ground="light" aria-labelledby="pricing-title">
+            <div className={s.pricingHero}>
+              <h1 id="pricing-title" className={s.h1} style={{ maxWidth: '11em' }}>
+                One restaurant. One price. ${PRICING.STARTER.monthly} a month.
+              </h1>
+              <p className={s.lede}>
+                Everything it takes to run a service, from the first order to the Z-report, on the devices you already own.
+                No contract, no hardware to buy, and 0% of your sales.
               </p>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', justifyContent: 'flex-end' }}>
-                <span style={{ fontFamily: CONDENSED, fontSize: '88px', fontWeight: 800, lineHeight: 0.9 }}>${plan.monthly}</span>
-                <span style={{ fontSize: '16px', fontWeight: 600, color: C.muted, marginBottom: '8px' }}>/mo</span>
+            <div className={s.billSection} style={{ paddingTop: 0 }}>
+              <div className={s.billGrid}>
+                <div className={s.billIntro}>
+                  <h2 className={s.h2}>What&apos;s on the bill.</h2>
+                  <p className={s.body}>
+                    The Basic plan is the whole operating system for a single restaurant, cafe or bistro. Try every part of it
+                    free for 14 days.
+                  </p>
+                </div>
+                <PlanBill />
+                <div className={s.billTiers}>
+                  <OtherTiers />
+                </div>
               </div>
-              <div style={{ fontSize: '14px', color: C.muted, marginTop: '6px' }}>Billed monthly · ${plan.annual}/yr</div>
             </div>
-          </div>
+          </section>
 
-          <Link
-            href="/signup?plan=starter"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '60px',
-              borderRadius: '4px',
-              backgroundColor: C.violet,
-              color: '#FFFFFF',
-              fontWeight: 800,
-              fontSize: '18px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-              textDecoration: 'none',
-              marginBottom: '32px',
-              transition: 'background 150ms ease',
-            }}
-          >
-            Start 14-day free trial
-          </Link>
-
-          {/* Included Features */}
-          <div style={{ fontFamily: CONDENSED, fontSize: '16px', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
-            Included in the Basic plan
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
-            {features.map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <span aria-hidden="true" style={{ flexShrink: 0, marginTop: '1px' }}><CHECK /></span>
-                <span style={{ fontSize: '15px', color: C.text, lineHeight: 1.45 }}>{f.label}</span>
+          <section className={`${s.faq} ${s.light}`} data-ground="light" aria-labelledby="matrix-title">
+            <div className={s.faqGrid}>
+              <div>
+                <h2 id="matrix-title" className={s.h2}>
+                  Basic today, Pro when it&apos;s ready.
+                </h2>
+                <p className={s.body}>
+                  Pro is in development. It adds the guest and multi-location layer on top of everything in Basic.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              <div className={s.panel}>
+                <table className={s.matrix}>
+                  <thead>
+                    <tr>
+                      <th scope="col">Feature</th>
+                      <th scope="col">Basic</th>
+                      <th scope="col">Pro · soon</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MATRIX.map((r) => (
+                      <tr key={r.label}>
+                        <td>{r.label}</td>
+                        <td data-label="Basic">
+                          {r.basic ? (
+                            <Check className={s.yes} size={18} strokeWidth={2.25} aria-label="Included" />
+                          ) : (
+                            <span className={s.no}>No</span>
+                          )}
+                        </td>
+                        <td data-label="Pro · soon">
+                          {r.pro ? (
+                            <Check className={s.yes} size={18} strokeWidth={2.25} aria-label="Included" />
+                          ) : (
+                            <span className={s.no}>No</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
 
-      {/* Feature Breakdown Table */}
-      <div style={{ maxWidth: '820px', margin: '0 auto', padding: '0 24px 88px' }}>
-        <h2 style={{ fontFamily: CONDENSED, textAlign: 'center', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 0.95, margin: '0 0 28px' }}>
-          Detailed feature availability
-        </h2>
-        <div style={{ backgroundColor: C.panel, borderRadius: '8px', overflow: 'hidden', border: `1px solid ${C.border}` }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}`, backgroundColor: C.lifted }}>
-                <th style={{ padding: '14px 20px', textAlign: 'left', color: C.muted, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</th>
-                <th style={{ padding: '14px 20px', textAlign: 'center', backgroundColor: C.violet, color: '#FFFFFF', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Basic plan ($50/mo)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {featureMatrix.map((row, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '14px 20px', color: C.text }}>
-                    <div>{row.label}</div>
-                    {row.note && <div style={{ fontSize: '13px', color: C.muted, marginTop: '2px' }}>{row.note}</div>}
-                  </td>
-                  <td style={{ padding: '14px 20px', textAlign: 'center', backgroundColor: 'rgba(104, 53, 249, 0.08)' }}>
-                    {row.included ? <CHECK /> : <CROSS />}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+          <section className={`${s.faq} ${s.paper}`} data-ground="light" aria-labelledby="faq-title">
+            <div className={s.faqGrid}>
+              <h2 id="faq-title" className={s.h2}>
+                Questions about the bill.
+              </h2>
+              <Faq />
+            </div>
+          </section>
 
-      {/* Footer */}
-      <footer style={{ borderTop: `1px solid ${C.border}`, padding: '32px 40px', backgroundColor: C.lifted }}>
-        <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: C.muted }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontFamily: CONDENSED, fontWeight: 800, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '0.02em', color: C.text }}>Prominentz</span>
-            <span>© 2026. All rights reserved.</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link>
-            <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
-            <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
-            <CookieSettingsButton />
-            <Link href="/login" style={{ color: C.text, textDecoration: 'none', fontWeight: 700 }}>Sign in</Link>
-          </div>
-        </div>
-      </footer>
+          <CloseBand title="Start with tonight's service." />
         </main>
+      </PublicShell>
     </div>
   )
 }

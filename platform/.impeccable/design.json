@@ -1,48 +1,523 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T19:29:11Z",
+  "generatedAt": "2026-11-13T14:58:44Z",
   "title": "Design System: Prominentz",
   "extensions": {
     "colorMeta": {
-      "prominentz-violet": { "role": "primary", "displayName": "Prominentz Violet", "canonical": "#6835F9", "tonalRamp": ["#1a0c38", "#2e1477", "#4019b8", "#5524e0", "#5b28ee", "#6835F9", "#a78bfa", "#ddd3fe"] },
-      "ledger-black": { "role": "neutral", "displayName": "Ledger Black", "canonical": "#0b0b0c", "tonalRamp": ["#0b0b0c", "#1a1a1b", "#2c2c2e", "#424244", "#5c5c5f", "#78787b", "#9a9a9d", "#c4c4c6"] },
-      "ledger-paper": { "role": "neutral", "displayName": "Ledger Paper", "canonical": "#ffffff", "tonalRamp": ["#d9d9d9", "#e3e3e3", "#ececec", "#f2f2f2", "#f7f7f7", "#fafafa", "#fdfdfd", "#ffffff"] },
-      "success-green": { "role": "secondary", "displayName": "Success Green", "canonical": "#24ab5c", "tonalRamp": ["#0c2e18", "#134527", "#1b6236", "#248a4a", "#2fb45e", "#4fd27f", "#7fe3a4", "#b8f2cd"] },
-      "operational-error": { "role": "secondary", "displayName": "Operational Error", "canonical": "#ef4444", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"] },
-      "operational-success": { "role": "secondary", "displayName": "Operational Success", "canonical": "#22c55e", "tonalRamp": ["#052e16", "#14532d", "#166534", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#bbf7d0"] },
-      "operational-warning": { "role": "secondary", "displayName": "Operational Warning", "canonical": "#f59e0b", "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#f59e0b", "#fbbf24", "#fcd34d", "#fde68a"] },
-      "operational-expo": { "role": "secondary", "displayName": "Operational Expo", "canonical": "#10b981", "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"] },
-      "operational-muted": { "role": "neutral", "displayName": "Operational Muted", "canonical": "#64748b", "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"] }
+      "prominentz-violet": {
+        "role": "primary",
+        "displayName": "Prominentz Violet",
+        "canonical": "#6835F9",
+        "tonalRamp": [
+          "#1a0c38",
+          "#2e1477",
+          "#4019b8",
+          "#5524e0",
+          "#5b28ee",
+          "#6835F9",
+          "#a78bfa",
+          "#ddd3fe"
+        ]
+      },
+      "ledger-black": {
+        "role": "neutral",
+        "displayName": "Ledger Black",
+        "canonical": "#0b0b0c",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#1a1a1b",
+          "#2c2c2e",
+          "#424244",
+          "#5c5c5f",
+          "#78787b",
+          "#9a9a9d",
+          "#c4c4c6"
+        ]
+      },
+      "ledger-paper": {
+        "role": "neutral",
+        "displayName": "Ledger Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#d9d9d9",
+          "#e3e3e3",
+          "#ececec",
+          "#f2f2f2",
+          "#f7f7f7",
+          "#fafafa",
+          "#fdfdfd",
+          "#ffffff"
+        ]
+      },
+      "success-green": {
+        "role": "secondary",
+        "displayName": "Success Green",
+        "canonical": "#24ab5c",
+        "tonalRamp": [
+          "#0c2e18",
+          "#134527",
+          "#1b6236",
+          "#248a4a",
+          "#2fb45e",
+          "#4fd27f",
+          "#7fe3a4",
+          "#b8f2cd"
+        ]
+      },
+      "operational-error": {
+        "role": "secondary",
+        "displayName": "Operational Error",
+        "canonical": "#ef4444",
+        "tonalRamp": [
+          "#450a0a",
+          "#7f1d1d",
+          "#991b1b",
+          "#dc2626",
+          "#ef4444",
+          "#f87171",
+          "#fca5a5",
+          "#fecaca"
+        ]
+      },
+      "operational-success": {
+        "role": "secondary",
+        "displayName": "Operational Success",
+        "canonical": "#22c55e",
+        "tonalRamp": [
+          "#052e16",
+          "#14532d",
+          "#166534",
+          "#16a34a",
+          "#22c55e",
+          "#4ade80",
+          "#86efac",
+          "#bbf7d0"
+        ]
+      },
+      "operational-warning": {
+        "role": "secondary",
+        "displayName": "Operational Warning",
+        "canonical": "#f59e0b",
+        "tonalRamp": [
+          "#451a03",
+          "#78350f",
+          "#92400e",
+          "#b45309",
+          "#f59e0b",
+          "#fbbf24",
+          "#fcd34d",
+          "#fde68a"
+        ]
+      },
+      "operational-expo": {
+        "role": "secondary",
+        "displayName": "Operational Expo",
+        "canonical": "#10b981",
+        "tonalRamp": [
+          "#022c22",
+          "#064e3b",
+          "#065f46",
+          "#059669",
+          "#10b981",
+          "#34d399",
+          "#6ee7b7",
+          "#a7f3d0"
+        ]
+      },
+      "operational-muted": {
+        "role": "neutral",
+        "displayName": "Operational Muted",
+        "canonical": "#64748b",
+        "tonalRamp": [
+          "#0f172a",
+          "#1e293b",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0"
+        ]
+      },
+      "site-ground-dark": {
+        "role": "neutral",
+        "displayName": "Signage Graphite",
+        "canonical": "#0e1014",
+        "tonalRamp": [
+          "#040405",
+          "#07080a",
+          "#0b0c0f",
+          "#0d0e12",
+          "#0e1014",
+          "#56585b",
+          "#9f9fa1",
+          "#dbdbdc"
+        ],
+        "scope": "marketing"
+      },
+      "site-ground-light": {
+        "role": "neutral",
+        "displayName": "Back-office Grey",
+        "canonical": "#f4f5f7",
+        "tonalRamp": [
+          "#3d3d3e",
+          "#7a7b7c",
+          "#b7b8b9",
+          "#dcddde",
+          "#f4f5f7",
+          "#f7f8f9",
+          "#fbfbfc",
+          "#fdfefe"
+        ],
+        "scope": "marketing"
+      },
+      "site-paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#404040",
+          "#808080",
+          "#bfbfbf",
+          "#e6e6e6",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ],
+        "scope": "marketing"
+      },
+      "site-ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0e1014",
+        "tonalRamp": [
+          "#040405",
+          "#07080a",
+          "#0b0c0f",
+          "#0d0e12",
+          "#0e1014",
+          "#56585b",
+          "#9f9fa1",
+          "#dbdbdc"
+        ],
+        "scope": "marketing"
+      },
+      "site-live": {
+        "role": "primary",
+        "displayName": "Prominentz Violet",
+        "canonical": "#6835f9",
+        "tonalRamp": [
+          "#1a0d3e",
+          "#341b7d",
+          "#4e28bb",
+          "#5e30e0",
+          "#6835f9",
+          "#9572fb",
+          "#c3aefd",
+          "#e8e1fe"
+        ],
+        "scope": "marketing"
+      },
+      "site-good": {
+        "role": "secondary",
+        "displayName": "Ready Green",
+        "canonical": "#34d278",
+        "tonalRamp": [
+          "#0d351e",
+          "#1a693c",
+          "#279e5a",
+          "#2fbd6c",
+          "#34d278",
+          "#71e0a1",
+          "#aeedc9",
+          "#e1f8eb"
+        ],
+        "scope": "marketing"
+      },
+      "site-late": {
+        "role": "tertiary",
+        "displayName": "Late Red",
+        "canonical": "#d92020",
+        "tonalRamp": [
+          "#360808",
+          "#6d1010",
+          "#a31818",
+          "#c31d1d",
+          "#d92020",
+          "#e46363",
+          "#f0a6a6",
+          "#f9dede"
+        ],
+        "scope": "marketing"
+      },
+      "site-live-text": {
+        "role": "derived",
+        "displayName": "Violet Text",
+        "canonical": "#5b28ee",
+        "scope": "marketing",
+        "purpose": "Text-legible shade of a signal; use instead of the full-strength signal when it is read as text."
+      },
+      "site-live-emphasis": {
+        "role": "derived",
+        "displayName": "Violet Text",
+        "canonical": "#5b28ee",
+        "scope": "marketing",
+        "purpose": "Text-legible shade of a signal; use instead of the full-strength signal when it is read as text."
+      },
+      "site-good-text": {
+        "role": "derived",
+        "displayName": "Ready Text",
+        "canonical": "#1a8a4e",
+        "scope": "marketing",
+        "purpose": "Text-legible shade of a signal; use instead of the full-strength signal when it is read as text."
+      },
+      "site-late-text": {
+        "role": "derived",
+        "displayName": "Late Text",
+        "canonical": "#b91c1c",
+        "scope": "marketing",
+        "purpose": "Text-legible shade of a signal; use instead of the full-strength signal when it is read as text."
+      },
+      "site-live-text-dark": {
+        "role": "derived",
+        "displayName": "Violet Text on Dark",
+        "canonical": "#a98bff",
+        "scope": "marketing",
+        "purpose": "Text-legible shade of a signal; use instead of the full-strength signal when it is read as text."
+      },
+      "site-alpha-ramps": {
+        "role": "neutral",
+        "displayName": "Ground alpha ramps",
+        "scope": "marketing",
+        "purpose": "Per-ground roles mut/dim/line/line-strong/card/cardline/tint. Dark: white at b3/8f/29/52/0d/21/0a. Light and paper: #0e1014 at b3/9e/24/47/(card #fff)/1c/08. Frontmatter keys site-dark-* and site-light-*."
+      },
+      "site-aging": {
+        "role": "secondary",
+        "displayName": "Aging Amber",
+        "canonical": "#ffb029",
+        "tonalRamp": [
+          "#402c0a",
+          "#805815",
+          "#bf841f",
+          "#e69e25",
+          "#ffb029",
+          "#ffc869",
+          "#ffdfa9",
+          "#fff3df"
+        ],
+        "scope": "marketing"
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Hero/landing headlines only, 800 weight Space Grotesk." },
-      "body": { "displayName": "Body", "purpose": "Default UI copy, Inter." },
-      "label": { "displayName": "Label/Mono", "purpose": "Badges, eyebrow labels, tabular/numeric data, JetBrains Mono." },
-      "operational": { "displayName": "Operational Scale", "purpose": "Dense POS/KDS/dashboard screens: 10/12/13/14/16/18/20/22/24/26px, the real dominant scale on those surfaces — not the branded rem scale." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero/landing headlines only, 800 weight Space Grotesk."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default UI copy, Inter."
+      },
+      "label": {
+        "displayName": "Label/Mono",
+        "purpose": "Badges, eyebrow labels, tabular/numeric data, JetBrains Mono."
+      },
+      "operational": {
+        "displayName": "Operational Scale",
+        "purpose": "Dense POS/KDS/dashboard screens: 10/12/13/14/16/18/20/22/24/26px, the real dominant scale on those surfaces — not the branded rem scale."
+      },
+      "site-display": {
+        "displayName": "Site Display",
+        "purpose": "Hero and closing headlines only; Funnel Display 700, sentence case.",
+        "scope": "marketing"
+      },
+      "site-statement": {
+        "displayName": "Site Statement",
+        "purpose": "The flip line between hero and story; emphasis in Live Emphasis.",
+        "scope": "marketing"
+      },
+      "site-headline": {
+        "displayName": "Site Headline",
+        "purpose": "Section headlines.",
+        "scope": "marketing"
+      },
+      "site-price": {
+        "displayName": "Site Price",
+        "purpose": "The plan price on the bill only.",
+        "scope": "marketing"
+      },
+      "site-title": {
+        "displayName": "Site Title",
+        "purpose": "Chapter captions, tier names, sent state.",
+        "scope": "marketing"
+      },
+      "site-question": {
+        "displayName": "Site Question",
+        "purpose": "FAQ summaries.",
+        "scope": "marketing"
+      },
+      "site-lede": {
+        "displayName": "Site Lede",
+        "purpose": "Paragraph under a display or headline, in mut, max 34em.",
+        "scope": "marketing"
+      },
+      "site-body": {
+        "displayName": "Site Body",
+        "purpose": "Running copy, 17px (16px under 720px).",
+        "scope": "marketing"
+      },
+      "site-button": {
+        "displayName": "Site Button",
+        "purpose": "Button labels.",
+        "scope": "marketing"
+      },
+      "site-label": {
+        "displayName": "Site Label",
+        "purpose": "Mono uppercase panel-head, stat and matrix labels; inside panels only, never a section kicker.",
+        "scope": "marketing"
+      },
+      "site-data": {
+        "displayName": "Site Data",
+        "purpose": "Mono tabular prices, totals, times, seats.",
+        "scope": "marketing"
+      }
     },
     "shadows": [
-      { "name": "sm-dark", "value": "0 1px 2px rgba(0,0,0,0.6)", "purpose": "Resting card elevation in dark mode." },
-      { "name": "md-dark", "value": "0 4px 16px rgba(0,0,0,0.7)", "purpose": "Hover/elevated card state, dropdowns, dark mode." },
-      { "name": "lg-dark", "value": "0 8px 32px rgba(0,0,0,0.85)", "purpose": "Popovers, larger overlays, dark mode." },
-      { "name": "xl-dark", "value": "0 20px 60px rgba(0,0,0,0.95)", "purpose": "Modals, dark mode." },
-      { "name": "sm-light", "value": "0 1px 2px rgba(11,11,12,0.04), 0 10px 30px rgba(11,11,12,0.07)", "purpose": "Resting card elevation in light mode." },
-      { "name": "md-light", "value": "0 4px 16px rgba(11,11,12,0.08), 0 0 0 1px rgba(11,11,12,0.08)", "purpose": "Hover/elevated card state, light mode." },
-      { "name": "brand-glow", "value": "0 0 24px rgba(104, 53, 249,0.08)", "purpose": "The one sanctioned glow — input focus rings on the violet accent only." }
+      {
+        "name": "sm-dark",
+        "value": "0 1px 2px rgba(0,0,0,0.6)",
+        "purpose": "Resting card elevation in dark mode."
+      },
+      {
+        "name": "md-dark",
+        "value": "0 4px 16px rgba(0,0,0,0.7)",
+        "purpose": "Hover/elevated card state, dropdowns, dark mode."
+      },
+      {
+        "name": "lg-dark",
+        "value": "0 8px 32px rgba(0,0,0,0.85)",
+        "purpose": "Popovers, larger overlays, dark mode."
+      },
+      {
+        "name": "xl-dark",
+        "value": "0 20px 60px rgba(0,0,0,0.95)",
+        "purpose": "Modals, dark mode."
+      },
+      {
+        "name": "sm-light",
+        "value": "0 1px 2px rgba(11,11,12,0.04), 0 10px 30px rgba(11,11,12,0.07)",
+        "purpose": "Resting card elevation in light mode."
+      },
+      {
+        "name": "md-light",
+        "value": "0 4px 16px rgba(11,11,12,0.08), 0 0 0 1px rgba(11,11,12,0.08)",
+        "purpose": "Hover/elevated card state, light mode."
+      },
+      {
+        "name": "brand-glow",
+        "value": "0 0 24px rgba(104, 53, 249,0.08)",
+        "purpose": "The one sanctioned glow — input focus rings on the violet accent only."
+      },
+      {
+        "name": "site-panel",
+        "value": "0 1px 2px #0e10140a, 0 10px 30px #0e101412",
+        "purpose": "Marketing: product panels and bill on grey or white grounds. On graphite, 0 4px 16px rgba(0,0,0,.6)."
+      },
+      {
+        "name": "site-segment",
+        "value": "0 1px 2px #0e101414",
+        "purpose": "Marketing: selected segment in a segmented control."
+      },
+      {
+        "name": "site-state-ring",
+        "value": "0 0 0 3px color-mix(in srgb, #6835f9 22%, transparent)",
+        "purpose": "Marketing: focused field ring. The current tracker step takes a 3px violet bar instead. State, not glow."
+      }
     ],
     "motion": [
-      { "name": "transition-fast", "value": "120ms cubic-bezier(0.25, 0.46, 0.45, 0.94)", "purpose": "Default hover/state transitions." },
-      { "name": "transition-normal", "value": "200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)", "purpose": "Panel/modal open-close." }
+      {
+        "name": "transition-fast",
+        "value": "120ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "purpose": "Default hover/state transitions."
+      },
+      {
+        "name": "transition-normal",
+        "value": "200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "purpose": "Panel/modal open-close."
+      },
+      {
+        "name": "site-ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Marketing: the single easing for all transitions (no overshoot)."
+      },
+      {
+        "name": "site-control",
+        "value": "0.2s",
+        "purpose": "Marketing: button, link and field state changes."
+      },
+      {
+        "name": "site-ground-flip",
+        "value": "0.35s",
+        "purpose": "Marketing: topbar following the ground; FAQ icon rotation."
+      },
+      {
+        "name": "site-beat",
+        "value": "0.55s–0.7s",
+        "purpose": "Marketing: caption crossfade (opacity, 14px rise, 6px blur) and panel state changes per beat."
+      },
+      {
+        "name": "site-theatre",
+        "value": "(min-width: 900px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)",
+        "purpose": "Marketing: scroll theatre on; otherwise the static stacked story. Reduced motion also disables all animations and transitions under the site root."
+      }
     ],
-    "breakpoints": []
+    "breakpoints": [
+      {
+        "name": "tracker-hidden",
+        "value": "1180px",
+        "scope": "marketing"
+      },
+      {
+        "name": "theatre-min",
+        "value": "900px x 560px",
+        "scope": "marketing"
+      },
+      {
+        "name": "beat-stack",
+        "value": "960px",
+        "scope": "marketing"
+      },
+      {
+        "name": "faq-stack",
+        "value": "900px",
+        "scope": "marketing"
+      },
+      {
+        "name": "menu-sheet",
+        "value": "760px",
+        "scope": "marketing"
+      },
+      {
+        "name": "panel-tighten",
+        "value": "720px",
+        "scope": "marketing"
+      },
+      {
+        "name": "cards-stack",
+        "value": "560px",
+        "scope": "marketing"
+      }
+    ]
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one primary action per view. Violet background, midblack text, never white text on violet.",
+      "description": "App: the one primary action per view. Violet background, white text, never dark text on violet.",
       "html": "<button class=\"ds-btn-primary\">Save changes</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 20px; border-radius: 6px; border: 1px solid #6835F9; background: #6835F9; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; transition: all 120ms cubic-bezier(0.25,0.46,0.45,0.94); } .ds-btn-primary:hover { background: #7a4dfa; border-color: #7a4dfa; box-shadow: 0 2px 12px rgba(104, 53, 249,0.35); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(104, 53, 249,0.35); } .ds-btn-primary:active { transform: scale(0.98); box-shadow: none; }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 20px; border-radius: 6px; border: 1px solid #6835F9; background: #6835F9; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; transition: all 120ms cubic-bezier(0.25,0.46,0.45,0.94); } .ds-btn-primary:hover { background: #7a4dfa; border-color: #7a4dfa; box-shadow: 0 2px 12px rgba(104, 53, 249,0.35); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(104, 53, 249,0.35); } .ds-btn-primary:active { transform: scale(0.98); box-shadow: none; }",
+      "scope": "app"
     },
     {
       "name": "Secondary Button",
@@ -50,7 +525,8 @@
       "refersTo": "button-secondary",
       "description": "Supporting action next to a primary button.",
       "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 20px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #111114; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 120ms cubic-bezier(0.25,0.46,0.45,0.94); } .ds-btn-secondary:hover { background: #18181c; border-color: rgba(255,255,255,0.18); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.12); }"
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 20px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #111114; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 120ms cubic-bezier(0.25,0.46,0.45,0.94); } .ds-btn-secondary:hover { background: #18181c; border-color: rgba(255,255,255,0.18); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.12); }",
+      "scope": "app"
     },
     {
       "name": "Card",
@@ -58,7 +534,8 @@
       "refersTo": "card",
       "description": "Default content container, one step up from the page ground.",
       "html": "<div class=\"ds-card\">Card content</div>",
-      "css": ".ds-card { background: #141414; color: #ffffff; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.6); transition: border-color 120ms, background 120ms; } .ds-card:hover { background: #1a1a1a; box-shadow: 0 4px 16px rgba(0,0,0,0.7); }"
+      "css": ".ds-card { background: #141414; color: #ffffff; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.6); transition: border-color 120ms, background 120ms; } .ds-card:hover { background: #1a1a1a; box-shadow: 0 4px 16px rgba(0,0,0,0.7); }",
+      "scope": "app"
     },
     {
       "name": "Input Field",
@@ -66,7 +543,8 @@
       "refersTo": "input",
       "description": "Standard text input with the one sanctioned glow on focus.",
       "html": "<input class=\"ds-input\" placeholder=\"Enter a value\" />",
-      "css": ".ds-input { width: 100%; height: 36px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: #ffffff; transition: all 120ms; } .ds-input::placeholder { color: rgba(255,255,255,0.4); } .ds-input:focus { outline: none; background: rgba(255,255,255,0.07); box-shadow: 0 0 0 3px rgba(104, 53, 249,0.08), inset 0 0 0 0.5px #6835F9; }"
+      "css": ".ds-input { width: 100%; height: 36px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: #ffffff; transition: all 120ms; } .ds-input::placeholder { color: rgba(255,255,255,0.4); } .ds-input:focus { outline: none; background: rgba(255,255,255,0.07); box-shadow: 0 0 0 3px rgba(104, 53, 249,0.08), inset 0 0 0 0.5px #6835F9; }",
+      "scope": "app"
     },
     {
       "name": "Badge",
@@ -74,7 +552,80 @@
       "refersTo": "badge",
       "description": "Status pill — success/warning/error/info/brand/neutral variants, never decorative.",
       "html": "<span class=\"ds-badge ds-badge--success\">Active</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; } .ds-badge--success { background: rgba(36,171,92,0.16); color: #24ab5c; }"
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; } .ds-badge--success { background: rgba(36,171,92,0.16); color: #24ab5c; }",
+      "scope": "app"
+    },
+    {
+      "name": "Site Solid Button",
+      "kind": "button",
+      "refersTo": "site-button-solid-on-light",
+      "scope": "marketing",
+      "description": "Marketing primary CTA: violet block with white uppercase text on every ground.",
+      "html": "<button class=\"ds-site-btn-solid\">Start free trial</button>",
+      "css": ".ds-site-btn-solid { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:48px; padding:0 22px; border-radius:4px; border:1px solid transparent; background:#0e1014; color:#fff; font-family: var(--lp-body), Inter, system-ui, sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.005em; cursor:pointer; transition: background-color .2s cubic-bezier(0.16,1,0.3,1), transform .2s cubic-bezier(0.16,1,0.3,1); } .ds-site-btn-solid:hover { background: color-mix(in srgb, #0e1014 86%, #6835f9); } .ds-site-btn-solid:focus-visible { outline:2px solid #6835f9; outline-offset:3px; } .ds-site-btn-solid:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Site Line Button",
+      "kind": "button",
+      "refersTo": "site-button-line-on-light",
+      "scope": "marketing",
+      "description": "Marketing secondary CTA, equal size beside the solid one.",
+      "html": "<button class=\"ds-site-btn-line\">Book a demo</button>",
+      "css": ".ds-site-btn-line { display:inline-flex; align-items:center; justify-content:center; height:48px; padding:0 22px; border-radius:4px; border:1px solid #0e101447; background:transparent; color:#0e1014; font-family: var(--lp-body), Inter, system-ui, sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition: border-color .2s cubic-bezier(0.16,1,0.3,1), background-color .2s cubic-bezier(0.16,1,0.3,1), transform .2s cubic-bezier(0.16,1,0.3,1); } .ds-site-btn-line:hover { border-color:#0e1014; background:#0e101408; } .ds-site-btn-line:focus-visible { outline:2px solid #6835f9; outline-offset:3px; } .ds-site-btn-line:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Site Stage Tracker",
+      "kind": "nav",
+      "refersTo": "site-tracker-step",
+      "scope": "marketing",
+      "description": "Topbar tracker of the order's chapters: done (green dot), now (live dot with ring), to-do.",
+      "html": "<ol class=\"ds-site-tracker\"><li><button class=\"ds-site-step\" data-state=\"done\"><i></i>Order</button></li><li><button class=\"ds-site-step\" data-state=\"now\"><i></i>Kitchen</button></li><li><button class=\"ds-site-step\"><i></i>Online</button></li></ol>",
+      "css": ".ds-site-tracker { display:flex; gap:4px; list-style:none; margin:0; padding:0; background:#fff; } .ds-site-step { display:inline-flex; align-items:center; gap:7px; padding:6px 9px; border-radius:4px; border:0; background:none; font-family: var(--lp-mono), 'Roboto Mono', ui-monospace, monospace; font-size:11.5px; letter-spacing:0.04em; color:#0e10149e; cursor:pointer; transition: color .3s cubic-bezier(0.16,1,0.3,1), background-color .3s cubic-bezier(0.16,1,0.3,1); } .ds-site-step:hover { color:#0e1014; } .ds-site-step i { width:6px; height:6px; border-radius:50%; background:#0e101447; } .ds-site-step[data-state='done'] i { background:#34d278; } .ds-site-step[data-state='now'] { color:#0e1014; background:#0e101408; } .ds-site-step[data-state='now'] i { background:#6835f9; box-shadow:0 0 0 3px color-mix(in srgb,#6835f9 28%,transparent); } .ds-site-step:focus-visible { outline:2px solid #6835f9; outline-offset:3px; }"
+    },
+    {
+      "name": "Site Panel",
+      "kind": "card",
+      "refersTo": "site-panel",
+      "scope": "marketing",
+      "description": "Product demo panel: white card on grey (graphite panel on dark), ink hairlines, 8px corners, the app card shadow, mono label head with a violet demo-tag block.",
+      "html": "<figure class=\"ds-site-panel\"><div class=\"ds-site-panel-head\"><span class=\"ds-site-label ds-site-tag\">POS · Table 12</span><span class=\"ds-site-label\">7:42 PM</span></div><div class=\"ds-site-panel-body\">Burrata · 2 · $28.00</div></figure>",
+      "css": ".ds-site-panel { margin:0; background:#fff; color:#0e1014; border:1px solid #0e10141f; border-radius:4px; box-shadow:0 1px 2px #0e10140a, 0 10px 30px #0e101412; overflow:hidden; font-family: var(--lp-body), Inter, system-ui, sans-serif; } .ds-site-panel-head { display:flex; justify-content:space-between; gap:12px; padding:11px 16px; border-bottom:1px solid #0e10141f; } .ds-site-panel-body { padding:16px; font-size:15px; } .ds-site-label { font-family: var(--lp-mono), 'Roboto Mono', ui-monospace, monospace; font-size:11px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:#0e10149e; } .ds-site-tag { display:inline-flex; align-items:center; gap:6px; } .ds-site-tag::before { content:''; width:6px; height:6px; border-radius:50%; background:#6835f9; }"
+    },
+    {
+      "name": "Site Chips",
+      "kind": "chip",
+      "refersTo": "site-chip-live",
+      "scope": "marketing",
+      "description": "Mono status chips; live, good, late take a 45% signal border, 9% fill and the signal's text shade.",
+      "html": "<span class=\"ds-site-chip ds-site-chip--live\">Fired</span> <span class=\"ds-site-chip ds-site-chip--good\">Ready</span> <span class=\"ds-site-chip ds-site-chip--late\">Late</span>",
+      "css": ".ds-site-chip { display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:3px; font-family: var(--lp-mono), 'Roboto Mono', ui-monospace, monospace; font-size:10.5px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; border:1px solid #0e10141f; color:#0e1014b3; } .ds-site-chip--live { border-color:color-mix(in srgb,#6835f9 45%,transparent); background:color-mix(in srgb,#6835f9 9%,transparent); color:#5b28ee; } .ds-site-chip--good { border-color:color-mix(in srgb,#34d278 45%,transparent); background:color-mix(in srgb,#34d278 9%,transparent); color:#1a8a4e; } .ds-site-chip--late { border-color:color-mix(in srgb,#d92020 45%,transparent); background:color-mix(in srgb,#d92020 9%,transparent); color:#b91c1c; }"
+    },
+    {
+      "name": "Site Bill",
+      "kind": "custom",
+      "refersTo": "site-panel",
+      "scope": "marketing",
+      "description": "The plan as a receipt: mono label, display price, dashed line items marked Included, tinted totals.",
+      "html": "<div class=\"ds-site-bill\"><div class=\"ds-site-bill-top\"><span class=\"ds-site-bill-label\">Prominentz · Basic</span><div class=\"ds-site-bill-price\">$50<small>per month, per restaurant</small></div></div><ul class=\"ds-site-bill-lines\"><li><span>POS and kitchen display</span><span>Included</span></li><li><span>Online ordering</span><span>Included</span></li></ul><div class=\"ds-site-bill-total\"><span>Take-rate</span><b>0%</b></div></div>",
+      "css": ".ds-site-bill { background:#fff; color:#0e1014; border:1px solid #0e10141f; border-radius:4px; box-shadow:0 1px 2px #0e10140a, 0 10px 30px #0e101412; overflow:hidden; font-family: var(--lp-body), Inter, system-ui, sans-serif; } .ds-site-bill-top { padding:22px 22px 18px; border-bottom:1px solid #0e10141f; } .ds-site-bill-label { font-family: var(--lp-mono), 'Roboto Mono', ui-monospace, monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#0e10149e; } .ds-site-bill-price { margin-top:14px; font-family: var(--lp-display), 'Funnel Display', system-ui, sans-serif; font-size:72px; font-weight:560; letter-spacing:-0.05em; line-height:0.85; } .ds-site-bill-price small { font-family: var(--lp-body), Inter, system-ui, sans-serif; font-size:16px; font-weight:500; letter-spacing:0; color:#0e1014b3; margin-left:6px; } .ds-site-bill-lines { list-style:none; margin:0; padding:6px 22px; } .ds-site-bill-lines li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed #0e10141f; font-size:15px; } .ds-site-bill-lines li:last-child { border-bottom:0; } .ds-site-bill-lines li span:last-child { font-family: var(--lp-mono), 'Roboto Mono', ui-monospace, monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#1a8a4e; } .ds-site-bill-total { display:flex; justify-content:space-between; padding:14px 22px 20px; border-top:1px solid #0e10141f; background:#0e101408; color:#0e1014b3; } .ds-site-bill-total b { color:#0e1014; font-weight:600; }"
+    },
+    {
+      "name": "Site Field",
+      "kind": "input",
+      "refersTo": "site-field",
+      "scope": "marketing",
+      "description": "Demo form field: label above, 44px field, live-blue focus border and 3px ring.",
+      "html": "<label class=\"ds-site-field\">Restaurant name<input placeholder=\"Harbor Bistro\" /></label>",
+      "css": ".ds-site-field { display:grid; gap:7px; font-family: var(--lp-body), Inter, system-ui, sans-serif; font-size:13.5px; font-weight:500; color:#0e1014b3; } .ds-site-field input { font:inherit; font-size:15px; font-weight:400; color:#0e1014; background:#fff; border:1px solid #0e101447; border-radius:4px; padding:0 12px; height:44px; caret-color:#6835f9; transition: border-color .2s cubic-bezier(0.16,1,0.3,1), box-shadow .2s cubic-bezier(0.16,1,0.3,1); } .ds-site-field input:hover { border-color:#0e1014; } .ds-site-field input:focus { outline:none; border-color:#6835f9; box-shadow:0 0 0 3px color-mix(in srgb,#6835f9 22%,transparent); }"
+    },
+    {
+      "name": "Site FAQ Item",
+      "kind": "custom",
+      "refersTo": "site-question",
+      "scope": "marketing",
+      "description": "Native details row between hairlines; plus icon rotates 45 degrees when open.",
+      "html": "<details class=\"ds-site-faq\"><summary>Does it run on my iPad?<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M5 12h14M12 5v14\"/></svg></summary><p>Yes, and on Android tablets and any modern browser.</p></details>",
+      "css": ".ds-site-faq { border-top:1px solid #0e101424; border-bottom:1px solid #0e101424; color:#0e1014; font-family: var(--lp-body), Inter, system-ui, sans-serif; } .ds-site-faq summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:22px 0; font-family: var(--lp-display), 'Funnel Display', system-ui, sans-serif; font-size:20px; font-weight:500; letter-spacing:-0.015em; line-height:1.25; } .ds-site-faq summary::-webkit-details-marker { display:none; } .ds-site-faq svg { flex-shrink:0; color:#0e10149e; transition: transform .35s cubic-bezier(0.16,1,0.3,1); } .ds-site-faq[open] svg { transform: rotate(45deg); } .ds-site-faq p { margin:0 0 24px; color:#0e1014b3; max-width:62ch; } .ds-site-faq summary:focus-visible { outline:2px solid #6835f9; outline-offset:3px; }"
     }
   ],
   "narrative": {
@@ -88,24 +639,100 @@
       "Same accent and ink pairing holds in both dark and light mode"
     ],
     "rules": [
-      { "name": "The One Signal Rule", "body": "Violet is the only accent color in the system. It appears only on primary buttons, active/selected state, and focus rings — never as a secondary decorative color, never doubled up with another accent. Does not apply to the Operational palette, which is real product status color, not decoration.", "section": "colors" },
-      { "name": "The Weight-Over-Glow Rule", "body": "Depth comes from shadow weight and layering, never from a colored glow except as a deliberate, sparing focus-ring treatment on the violet accent itself. Don't add decorative glow to anything else.", "section": "elevation" },
-      { "name": "The Two-Scale Rule", "body": "Branded/marketing surfaces use the --text-* rem scale; operational/POS/KDS/dashboard surfaces use the px-based Operational Scale (10/12/13/14/16/18/20/22/24/26px). Don't mix them on the same screen, and don't convert one into the other.", "section": "typography" }
+      {
+        "name": "The One Signal Rule",
+        "body": "Violet is the only accent color in the system. It appears only on primary buttons, active/selected state, and focus rings — never as a secondary decorative color, never doubled up with another accent. Does not apply to the Operational palette, which is real product status color, not decoration. Governs the app world only; the marketing world has no brand accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight-Over-Glow Rule",
+        "body": "Depth comes from shadow weight and layering, never from a colored glow except as a deliberate, sparing focus-ring treatment on the violet accent itself. Don't add decorative glow to anything else.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Two-Scale Rule",
+        "body": "Inside the app, branded surfaces use the --text-* rem scale; operational/POS/KDS/dashboard surfaces use the px-based Operational Scale. Don't mix them on the same screen, and don't \"fix\" one by converting it to the other. The public site uses neither; it has its own marketing scale below.",
+        "section": "typography"
+      },
+      {
+        "name": "The Three Signals Rule",
+        "body": "On the public site, color means state: blue is now, green is done, orange is late. There is no decorative accent and no violet. If a color does not answer \"what state is this in?\", it is ink or a ground.",
+        "section": "colors",
+        "scope": "marketing"
+      },
+      {
+        "name": "The Text Shade Rule",
+        "body": "A signal color at full strength is a fill, dot, border or ring. When the signal has to be read as text on white or paper, use its derived text shade (site-live-text, site-good-text, site-late-text, site-live-emphasis), which clear 4.5:1.",
+        "section": "colors",
+        "scope": "marketing"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Marketing headings are sentence case. src/app/globals.css sets every h1–h6 to Barlow Condensed 800 uppercase for the app; every marketing heading class must re-declare font-family, font-weight and text-transform: none (as .h1, .h2, .h3 do). Never use a bare h1–h6 on a marketing page without one of the site's type classes.",
+        "section": "typography",
+        "scope": "marketing"
+      },
+      {
+        "name": "The Label Lives In The Panel Rule",
+        "body": "The mono uppercase label is product chrome: it appears inside panels, bills, tables and the tracker, describing the data beside it. It never sits above a section headline as a kicker or eyebrow.",
+        "section": "typography",
+        "scope": "marketing"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "Only product panels are lifted. Tier cards, seat cards, tickets and fields sit flat with a hairline.",
+        "section": "elevation",
+        "scope": "marketing"
+      }
     ],
     "dos": [
       "Do keep violet (#6835F9) reserved for primary actions and active/focus state only — never decorative.",
       "Do use Ledger Black (#0b0b0c) as the dark-mode ground and the light-mode ink; don't introduce a second \"almost black.\"",
       "Do keep real layered box-shadows for elevation in both themes — this system is not flat/tonal.",
-      "Do use midblack text on violet backgrounds, never white — it's a contrast requirement, not a preference."
+      "Do use white text on violet backgrounds, and --brand-text (not --brand) when violet is the text color itself — it switches to #a78bfa in dark mode for contrast.",
+      "Do (marketing) take every color on the public site from a ground class (.dark, .light, .paper) and the site-* tokens, so components work on any ground.",
+      "Do (marketing) show the product through demo panels in site tokens, with a mono label in the panel head.",
+      "Do (marketing) use the signal text shades (#5b28ee, #1a8a4e, #b91c1c, #5b28ee) whenever a signal color is read as text on white or paper.",
+      "Do (marketing) give every marketing heading a site type class that resets the global uppercase Barlow rule.",
+      "Do (marketing) keep the static fallback complete: anything shown in the theatre must also render in the stacked story."
     ],
     "donts": [
-      "Don't fake colored text with background-clip: text / gradient tricks — set color directly.",
-      "Don't add a second accent color alongside violet on the same screen.",
-      "Don't soften button/input radii below the md (6px) step.",
+      "Don't fake colored text with background-clip: text / gradient tricks — set color directly. (Already corrected once this session; don't reintroduce it.)",
+      "Don't add a second accent color alongside violet on the same app screen.",
+      "Don't soften button/input radii below the md (6px) step — it reads as off-brand \"soft SaaS,\" not this system's operational character.",
       "Don't let sidebar/nav \"current\" states borrow the violet accent — that's reserved for actions, not location indicators.",
-      "Don't recolor the Operational palette (error/success/warning/expo/muted) to brand colors — they're real product status, not decoration.",
-      "Don't invent a third type scale or radius scale for new operational work — reuse the documented Operational Scale and Operational radius steps.",
-      "Don't use overshoot/bounce easing (cubic-bezier with a value above 1) anywhere — it contradicts the system's \"precise and unshakeable\" character."
-    ]
+      "Don't import app CSS classes or --brand/--color-* variables into the site, or site-* tokens into the app; the values match since 2026-11-14, the composition does not.",
+      "Don't (marketing) use live, good or late as decoration; each means a state.",
+      "Don't (marketing) put the mono label above a section headline as a kicker or eyebrow.",
+      "Don't (marketing) set ink text on violet or white text on green or amber; white goes on violet and red, ink goes on green and amber."
+    ],
+    "worlds": {
+      "marketing": {
+        "northStar": "One Order, Seat to Close",
+        "overview": "The public site tells one dinner order, Table 12's, from the seat to the close of day, in the app's own clothes (Direction C). Graphite signage (site-ground-dark) opens and closes the story; the service in between happens on back-office grey (site-ground-light, with white site-paper for alternating bands). Violet (site-live) is the only action color and marks what is happening now; status is a solid block with a word: green ready, amber cooking, red late. The product is the illustration: every visual is a working demo panel rendered in the same tokens the app uses, a white card with hairlines, 8px corners, a soft shadow and a mono label on top. On wide screens with motion allowed, the story plays as a scroll theatre; everywhere else it reads as a stacked sequence with the same content.",
+        "keyCharacteristics": [
+          "Graphite stage, grey back-office scenes, one ink; the topbar flips with the ground under it",
+          "Three meaningful signals (live, good, late); no brand accent color on the site",
+          "Funnel Display headlines in sentence case, Inter body, Roboto Mono for tickets, times, prices and panel labels",
+          "Product panels instead of illustration, mockup or feature-card grids",
+          "Scroll theatre with a static fallback that loses nothing"
+        ]
+      }
+    }
+  },
+  "scopes": {
+    "app": {
+      "name": "App world (Operate)",
+      "surfaces": "POS, KDS, dashboard, inventory, staff, settings, HQ",
+      "activeTheme": "Direction C · Across the Room (globals.css), over the superseded Night Shift Ledger base",
+      "tokenPrefix": "none (unprefixed and operational-*)"
+    },
+    "marketing": {
+      "name": "Marketing world (Persuade)",
+      "surfaces": "/ (HomeLanding) and /pricing",
+      "source": "src/components/landing/Landing.module.css",
+      "tokenPrefix": "site-*",
+      "fonts": "next/font variables --lp-display (Funnel Display), --lp-body (Inter), --lp-mono (Roboto Mono) via landingFontVars"
+    }
   }
 }
