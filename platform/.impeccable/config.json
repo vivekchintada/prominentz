@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/components/landing/Landing.module.css"
+        ],
+        "createdAt": "2026-11-14T13:50:33.328Z",
+        "reason": "DESIGN.md (KDS ticket spec) defines a 4px left edge in the status color; the landing KDS mock mirrors the product's ticket, so the edge carries status, not decoration"
+      }
+    ]
+  }
+}

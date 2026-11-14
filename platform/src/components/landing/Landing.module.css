@@ -8,10 +8,15 @@
   --ink: #0e1014;
   --live: #6835f9;
   --live-hover: #7a4dfa;
-  --good: #34d278;
-  --aging: #ffb029;
-  --late: #d92020;
+  --good: #34d27b;
+  --aging: #ffb020;
+  --late: #d92d20;
   --topbar: 60px;
+  /* One column for the whole site: 1240px wide, with the page gutter outside it.
+     --edge is the distance from the viewport edge to that column, for full-bleed
+     elements (topbar, collage, stage scenes) that can't use max-width + margin auto. */
+  --gutter: clamp(20px, 5vw, 64px);
+  --edge: max(var(--gutter), calc((100% - 1240px) / 2));
   --display: var(--lp-display), 'Funnel Display', system-ui, sans-serif;
   --body: var(--lp-body), Inter, system-ui, sans-serif;
   --mono: var(--lp-mono), 'Roboto Mono', ui-monospace, monospace;
@@ -55,13 +60,13 @@
   --dim: #9ba3afb8;
   --line: #ffffff14;
   --line-strong: #ffffff26;
-  --card: #171a28;
+  --card: #171a20;
   --cardline: #ffffff14;
   --tint: #ffffff08;
-  --input: #262a33;
+  --input: #13161b;
   --live-t: #a98bff;
-  --good-t: #34d278;
-  --late-t: #f87171;
+  --good-t: #34d27b;
+  --late-t: #d92d20;
   --shd: 0 4px 16px rgba(0, 0, 0, 0.6);
   background: var(--bg);
   color: var(--fg);
@@ -80,9 +85,9 @@
   --cardline: #0e10141f;
   --tint: #0e101408;
   --input: #fff;
-  --live-t: #5b28ee;
-  --good-t: #1a8a4e;
-  --late-t: #b91c1c;
+  --live-t: #6835f9;
+  --good-t: #15803d;
+  --late-t: #d92d20;
   --shd: 0 1px 2px #0e10140a, 0 10px 30px #0e101412;
   background: var(--bg);
   color: var(--fg);
@@ -243,7 +248,8 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 0 clamp(16px, 2vw, 24px) 0 clamp(20px, 5vw, 72px);
+  /* Same edges as every section below: a 1240px column with the page gutter outside it. */
+  padding: 0 var(--edge);
   border-bottom: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg) 86%, transparent);
   -webkit-backdrop-filter: blur(14px);
@@ -516,6 +522,19 @@
   );
 }
 
+/* Closing band of the scroll story: a halo behind the buttons that is transparent at the
+   band's bottom edge, so nothing is cut off when the stage scrolls away. */
+[data-e='close'] .heroGlow {
+  height: 56vh;
+  opacity: 0.6;
+  background: radial-gradient(
+    ellipse 46% 58% at 50% 46%,
+    rgba(104, 53, 249, 0.42) 0%,
+    rgba(104, 53, 249, 0.14) 46%,
+    rgba(14, 16, 20, 0) 72%
+  );
+}
+
 .heroCue {
   position: absolute;
   bottom: 26px;
@@ -557,13 +576,13 @@
 .tHead {
   position: absolute;
   top: 110px;
-  left: max(48px, 6vw);
+  left: var(--edge);
   max-width: 560px;
 }
 
 .collage {
   position: absolute;
-  inset: max(24%, 155px + 2.2 * clamp(32px, 3.2vw, 50px)) 4% max(11%, 84px);
+  inset: max(24%, 155px + 2.2 * clamp(32px, 3.2vw, 50px)) var(--edge) max(11%, 84px);
 }
 
 .collageItem {
@@ -603,44 +622,44 @@
 .frag_paper {
   font-family: var(--mono);
   font-size: 13px;
-  background: #fffdf5;
-  color: #4a4a44;
+  background: #ffffff;
+  color: #4b5563;
   border-color: transparent;
 }
 
 .frag_paper b {
-  color: #111;
+  color: #0e1014;
 }
 
 .frag_paper small {
-  color: #8a8a80;
+  color: #6b7280;
 }
 
 .frag_tablet {
-  background: #121417;
-  border-color: #ffffff24;
+  background: #171a20;
+  border-color: #262a33;
 }
 
 .frag_chat {
-  background: #1b2a3a;
-  border-color: #6835f955;
+  background: #171a20;
+  border-color: rgba(104, 53, 249, 0.35);
   border-radius: 16px 16px 16px 4px;
 }
 
 .frag_sheet {
   font-family: var(--mono);
   font-size: 13px;
-  background: #f3f6f3;
-  color: #2c3a2c;
-  border-color: #c9d6c9;
+  background: #f4f5f7;
+  color: #4b5563;
+  border-color: #e5e7eb;
 }
 
 .frag_sheet b {
-  color: #1b5e20;
+  color: #15803d;
 }
 
 .frag_sheet small {
-  color: #6b806b;
+  color: #6b7280;
 }
 
 .collageChip {
@@ -710,11 +729,12 @@
 .scene {
   transition: opacity 0.4s;
   display: grid;
-  grid-template-columns: minmax(300px, 420px) 48px minmax(0, 860px);
-  justify-content: center;
+  grid-template-columns: minmax(280px, 400px) 48px minmax(0, 860px);
+  justify-content: space-between;
   align-items: start;
-  inset: var(--topbar) 0 0 76px;
-  padding: 0 52px 0 36px;
+  inset: var(--topbar) 0 0 0;
+  /* Caption starts on the page edge (never inside the 76px rail); the demo ends on it. */
+  padding: 0 var(--edge) 0 max(100px, var(--edge));
 }
 
 .sceneCaption {
@@ -734,8 +754,48 @@
   grid-column: 3;
   width: 100%;
   max-width: 720px;
-  justify-self: center;
+  justify-self: end;
   padding-top: var(--dpt, 0);
+}
+
+/* The bill is the tallest demo; on a 900px screen its buttons fell below the fold. */
+.sceneDemo .billTop {
+  padding: 16px 22px 14px;
+}
+
+.sceneDemo .billPrice {
+  font-size: clamp(52px, 5vw, 72px);
+}
+
+.sceneDemo .billLines {
+  padding: 2px 22px;
+}
+
+.sceneDemo .billLine {
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+.sceneDemo .billTotals {
+  padding: 10px 22px 12px;
+  gap: 5px;
+}
+
+.sceneDemo .billTotal {
+  font-size: 14px;
+}
+
+.sceneDemo .billCta {
+  padding: 0 22px 16px;
+}
+
+@media (max-height: 800px) {
+  .sceneDemo .billLine {
+    padding: 5px 0;
+  }
+  .sceneDemo .billPrice {
+    font-size: 48px;
+  }
 }
 
 .sceneDemoWide {
@@ -817,7 +877,7 @@
   bottom: 0;
   height: 30vh;
   opacity: 0.16;
-  background: radial-gradient(ellipse 52% 9000% at 50% 50%, #fff 0%, #e9e4ff 52%, #6835f9 100%);
+  background: radial-gradient(ellipse 52% 9000% at 50% 50%, #fff 0%, color-mix(in srgb, #6835f9 15%, #fff) 52%, #6835f9 100%);
   -webkit-mask-image: linear-gradient(to top, #0e1014, transparent);
   mask-image: linear-gradient(to top, #0e1014, transparent);
 }
@@ -1041,8 +1101,8 @@
   gap: clamp(36px, 6vw, 96px);
   align-items: center;
   justify-content: center;
-  padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px);
-  max-width: 1440px;
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  max-width: calc(1240px + 2 * var(--gutter));
   margin: 0 auto;
 }
 
@@ -1113,10 +1173,10 @@
 @keyframes lpDotG {
   0%,
   to {
-    box-shadow: 0 0 0 3px #34d27833;
+    box-shadow: 0 0 0 3px #34d27b33;
   }
   50% {
-    box-shadow: 0 0 0 6px #34d2780f;
+    box-shadow: 0 0 0 6px #34d27b0f;
   }
 }
 
@@ -1144,6 +1204,17 @@
   background: var(--tint);
 }
 
+/* Narrow screens: the meta ("Target 12 min") drops to its own line instead of breaking mid-phrase. */
+@media (max-width: 560px) {
+  .panelHead {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .panelHead > span:last-child {
+    white-space: nowrap;
+  }
+}
+
 .panelHead .label:last-child:not(:first-child) {
   min-width: 0;
   text-align: right;
@@ -1169,7 +1240,7 @@
 }
 
 .panelBody {
-  padding: 0 16px;
+  padding: 0 16px 10px;
 }
 
 /* POS ticket */
@@ -1603,6 +1674,10 @@
   color: var(--mut);
 }
 
+.ledgerRow:last-child {
+  border-bottom: 0;
+}
+
 .ledgerRow b {
   font-family: var(--mono);
   font-weight: 500;
@@ -1990,10 +2065,96 @@
 
 /* Facts strip ---------------------------------------------------------------- */
 
-.facts {
-  max-width: 1240px;
+/* ── Also in the plan: the rest of the restaurant ── */
+.extras {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.extrasInner {
+  max-width: calc(1240px + 2 * var(--gutter));
   margin: 0 auto;
-  padding: clamp(80px, 11vh, 120px) clamp(20px, 5vw, 64px) 0;
+  padding: clamp(80px, 11vh, 120px) var(--gutter) 0;
+}
+
+.extrasHead {
+  max-width: 40rem;
+  margin-bottom: 40px;
+}
+
+.extrasHead .body {
+  margin-top: 14px;
+}
+
+.extrasGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.extra {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--cardline);
+  border-radius: 8px;
+}
+
+.extra .h3 {
+  font-size: 22px;
+}
+
+.extra p {
+  margin: 0;
+  color: var(--mut);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.extraWhere {
+  margin-top: auto;
+  padding-top: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* The upsell card sits on the ground, not on a panel, so it reads as a different kind of item. */
+.extraMore {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--line-strong);
+}
+
+.extraMore .tierLink {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+@media (max-width: 960px) {
+  .extrasGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .extrasGrid {
+    grid-template-columns: 1fr;
+  }
+  .extra {
+    padding: 20px;
+  }
+}
+
+.facts {
+  max-width: calc(1240px + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: clamp(80px, 11vh, 120px) var(--gutter) 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -2262,7 +2423,7 @@
 }
 
 .footerInner {
-  max-width: 1440px;
+  max-width: 1240px;
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;

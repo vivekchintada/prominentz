@@ -34,7 +34,7 @@ const WHITE = [255, 255, 255]
 const INK = [14, 16, 20]
 const GRAPHITE = [14, 16, 20]
 const GREY = [244, 245, 247]
-const PANEL = [23, 26, 40]
+const PANEL = [23, 26, 32]
 const DARK_TEXT = [243, 244, 246]
 const DARK_MUT = [155, 163, 175]
 const LIGHT_MUT = [75, 85, 99]
@@ -183,9 +183,9 @@ export class Theatre {
       '--cardline': rgba(WHITE, 0.08, INK, 0.12),
       '--card': rgb(PANEL, WHITE),
       '--tint': rgba(WHITE, 0.03, INK, 0.035),
-      '--live-t': t > 0.5 ? '#5b28ee' : '#a98bff',
-      '--good-t': t > 0.5 ? '#1a8a4e' : '#34d278',
-      '--late-t': t > 0.5 ? '#b91c1c' : '#f87171',
+      '--live-t': t > 0.5 ? '#6835f9' : '#a98bff',
+      '--good-t': t > 0.5 ? '#15803d' : '#34d27b',
+      '--late-t': '#d92d20',
       '--shd': t > 0.5 ? '0 1px 2px rgba(14,16,20,.04), 0 10px 30px rgba(14,16,20,.07)' : '0 4px 16px rgba(0,0,0,.6)',
       '--lw': String(1 - Math.round(t)),
       '--lb': String(Math.round(t)),

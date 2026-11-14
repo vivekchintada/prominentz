@@ -9,6 +9,7 @@ import { BgLight, HeroBand, TodayBand, FlipBand, Scene, CloseBandStage, Rail, Pr
 import { PosPanel, KdsPanel, QueuePanel, PayPanel, StockPanel, StaffPanel, ZPanel, type PanelMode } from './theatre/panels'
 import { PlanBill, OtherTiers } from './PlanBill'
 import { Faq, DemoForm, DemoPoints } from './FaqDemo'
+import { PRICING } from '@/lib/pricing'
 import s from './Landing.module.css'
 
 type Chapter = {
@@ -147,6 +148,35 @@ const BILL_CAPTION: Caption = {
   h: 'Everything Table 12 touched is one plan.',
   p: 'POS, kitchen display, QR and online ordering, payments, stock, staff and the Z-report. One price for the restaurant, not per device or per seat.',
 }
+
+/** Beyond the one-table story: parts of the Basic plan the scroll doesn't reach. Each is a live screen in the app. */
+const EXTRAS: { h: string; p: string; where: string }[] = [
+  {
+    h: 'Delivery payouts, checked.',
+    p: 'Upload a delivery app’s payout statement and Prominentz matches it against your orders. Anything missing or paid short is flagged for you to chase.',
+    where: 'Back office · Reconciliation',
+  },
+  {
+    h: 'Bookings and the walk-in line.',
+    p: 'Take reservations, keep a waitlist for walk-ins, and know who’s next before a table frees up.',
+    where: 'Back office · Reservations, Waitlist',
+  },
+  {
+    h: 'The week’s rota, sorted.',
+    p: 'Build schedules, approve leave requests, and pull timesheets from real clock-ins when payroll is due.',
+    where: 'Back office · Schedule, Approvals, Labor',
+  },
+  {
+    h: 'Every void on record.',
+    p: 'See who voided a payment, comped an item or changed a price, and when. Nothing disappears quietly.',
+    where: 'Back office · Audit log',
+  },
+  {
+    h: 'Guests who come back.',
+    p: 'Each guest gets a profile with their visits and spend. Loyalty points add up on every order and turn into rewards.',
+    where: 'Back office · Guest CRM, Loyalty',
+  },
+]
 
 const FACTS = [
   ['Your own devices', 'iPad, Android tablet, Windows PC, Mac or phone, in the browser. Nothing to install.'],
@@ -319,6 +349,33 @@ export default function HomeLanding() {
             </section>
           </>
         )}
+
+        <section id="more" className={`${s.extras} ${s.dark}`} data-ground="dark" aria-labelledby="extras-title">
+          <div className={s.extrasInner}>
+            <div className={s.extrasHead}>
+              <h2 id="extras-title" className={s.h2}>
+                Also in the ${PRICING.STARTER.monthly} plan.
+              </h2>
+              <p className={s.body}>The rest of the restaurant, after the last table has gone home.</p>
+            </div>
+            <ul className={s.extrasGrid}>
+              {EXTRAS.map((x) => (
+                <li key={x.h} className={s.extra}>
+                  <h3 className={s.h3}>{x.h}</h3>
+                  <p>{x.p}</p>
+                  <span className={s.extraWhere}>{x.where}</span>
+                </li>
+              ))}
+              <li className={`${s.extra} ${s.extraMore}`}>
+                <h3 className={s.h3}>Opening a second outlet?</h3>
+                <p>Enterprise puts every branch under one HQ, with pricing set with you.</p>
+                <a href="#demo" className={s.tierLink}>
+                  Contact us
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
 
         <section className={s.dark} data-ground="dark" aria-label="What it runs on">
           <div className={s.facts}>

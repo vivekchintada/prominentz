@@ -325,7 +325,7 @@ export function PayPanel({ final }: PanelMode) {
           </div>
           <div className={s.ledgerRow} data-tone="good" data-e="pL3">
             Prominentz fee on this check{' '}
-            <b data-e="pFee" className={s.stampText}>
+            <b data-e="pFee" className={s.stampText} style={final ? { opacity: 1 } : undefined}>
               $0.00
             </b>
           </div>
@@ -523,7 +523,7 @@ export function ZPanel({ final }: PanelMode) {
                   {final ? '$1,282.10' : ''}
                 </span>
                 {!final && <span className={s.caret} data-e="zCaret" aria-hidden="true" />}{' '}
-                <span data-e="zBal" className={s.stampText}>
+                <span data-e="zBal" className={s.stampText} style={final ? { opacity: 1 } : undefined}>
                   · balanced
                 </span>
               </b>
