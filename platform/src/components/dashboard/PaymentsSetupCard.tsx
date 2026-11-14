@@ -5,18 +5,18 @@ import React, { useCallback, useEffect, useState } from 'react'
 type ConnectStatus = {
   connected: boolean
   chargesEnabled: boolean
-  payoutsEnabled?: boolean
-  detailsSubmitted?: boolean
-  mock?: boolean
+  simulated?: boolean
+  mode?: 'live' | 'test'
+  keyLast4?: string
+  accountName?: string | null
   country?: string | null
-  countries?: { code: string; name: string }[]
-  suggestedCountry?: string | null
+  onlineOrdersReady?: boolean
 }
 type Reader = { id: string; label: string | null; status: string | null } | null
 
 /**
  * Owner-facing setup for taking card payments:
- *   1. Connect the restaurant's own Stripe account (payouts go to their bank).
+ *   1. Save the restaurant's own Stripe secret key (payments and payouts stay in their account).
  *   2. Pair a Stripe card reader for in-person payments at this location.
  */
 export function PaymentsSetupCard() {
@@ -24,13 +24,13 @@ export function PaymentsSetupCard() {
   const [reader, setReader] = useState<Reader>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [country, setCountry] = useState('')
+  const [secretKey, setSecretKey] = useState('')
+  const [replacing, setReplacing] = useState(false)
   const [form, setForm] = useState({ registrationCode: '', label: 'Front counter', line1: '', city: '', state: '', postalCode: '' })
 
   const load = useCallback(async () => {
     const s = await fetch('/api/payments/connect').then((r) => r.json()).catch(() => null)
     setStatus(s)
-    setCountry((current) => current || s?.country || s?.suggestedCountry || '')
     if (s?.chargesEnabled) {
       const r = await fetch('/api/payments/terminal/readers').then((x) => x.json()).catch(() => null)
       setReader(r?.reader ?? null)
@@ -41,22 +41,38 @@ export function PaymentsSetupCard() {
     load()
   }, [load])
 
-  const connect = async () => {
+  const saveKey = async (e: React.FormEvent) => {
+    e.preventDefault()
     setBusy(true)
     setError('')
     try {
       const res = await fetch('/api/payments/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ country: country || undefined }),
+        body: JSON.stringify({ secretKey: secretKey.trim() }),
       })
       const body = await res.json()
-      if (!res.ok) throw new Error(body.error || 'Could not start Stripe onboarding')
-      window.location.href = body.url
+      if (!res.ok) throw new Error(body.error || 'Could not save the Stripe key')
+      setSecretKey('')
+      setReplacing(false)
+      setStatus(body)
+      await load()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
+    } finally {
       setBusy(false)
     }
+  }
+
+  const disconnect = async () => {
+    if (!window.confirm('Stop taking card payments and remove your Stripe key from Prominentz?')) return
+    setBusy(true)
+    setError('')
+    const res = await fetch('/api/payments/connect', { method: 'DELETE' }).catch(() => null)
+    if (!res?.ok) setError('Could not remove the key. Try again.')
+    setReader(null)
+    await load()
+    setBusy(false)
   }
 
   const pairReader = async (e: React.FormEvent) => {
@@ -90,6 +106,8 @@ export function PaymentsSetupCard() {
     setBusy(false)
   }
 
+  const showKeyForm = status && (!status.connected || replacing)
+
   return (
     <section className="card" style={{ padding: 'var(--space-6, 24px)', marginBottom: 'var(--space-6, 24px)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -100,8 +118,8 @@ export function PaymentsSetupCard() {
           </p>
         </div>
         {status && (
-          <span className={`badge ${status.chargesEnabled ? 'badge--success' : status.connected ? 'badge--pending' : 'badge--neutral'}`}>
-            {status.chargesEnabled ? 'Accepting cards' : status.connected ? 'Finish Stripe setup' : 'Not connected'}
+          <span className={`badge ${!status.connected ? 'badge--neutral' : status.mode === 'test' ? 'badge--pending' : 'badge--success'}`}>
+            {!status.connected ? 'Not connected' : status.mode === 'test' ? 'Test mode' : 'Accepting cards'}
           </span>
         )}
       </div>
@@ -112,38 +130,75 @@ export function PaymentsSetupCard() {
         </p>
       )}
 
-      {status && !status.chargesEnabled && (
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
-          {/* Stripe fixes an account's country when it's opened, so this is only editable before
-              the owner has submitted their business details. */}
-          {!status.detailsSubmitted && status.countries && status.countries.length > 0 && (
-            <label className="label" style={{ margin: 0, minWidth: 240 }}>
-              Country your bank account is in
-              <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} disabled={busy}>
-                <option value="" disabled>
-                  Choose a country
-                </option>
-                {status.countries.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+      {status?.connected && !replacing && (
+        <div style={{ marginTop: 16, display: 'grid', gap: 8 }}>
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-primary)' }}>
+            {status.accountName ? <strong>{status.accountName}</strong> : 'Your Stripe account'}
+            {status.country ? ` · ${status.country}` : ''} · key ending <code>{status.keyLast4}</code>
+          </p>
+          {status.mode === 'test' && (
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+              This is a test key: no real money moves. Use Stripe test cards, then switch to your live key when you&apos;re ready.
+            </p>
           )}
-          <button
-            className="btn btn--primary"
-            onClick={connect}
-            disabled={busy || (!status.connected && !country)}
-          >
-            {busy ? 'Opening Stripe…' : status.connected ? 'Continue Stripe setup' : 'Connect Stripe'}
-          </button>
+          {!status.onlineOrdersReady && (
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+              Online order payments aren&apos;t confirmed automatically yet. Save the key again from the live site to finish setup.
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn btn--secondary btn--sm" onClick={() => setReplacing(true)} disabled={busy}>
+              Replace key
+            </button>
+            <button className="btn btn--secondary btn--sm" onClick={disconnect} disabled={busy}>
+              Disconnect
+            </button>
+          </div>
         </div>
       )}
-      {status && !status.chargesEnabled && (
-        <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
-          Payouts go to a bank account in the country you choose, in its local currency.
-        </p>
+
+      {showKeyForm && (
+        <form onSubmit={saveKey} style={{ display: 'grid', gap: 10, marginTop: 16, maxWidth: 560 }}>
+          <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--color-text-secondary)', display: 'grid', gap: 4 }}>
+            <li>
+              Sign in to your Stripe account (or create one at{' '}
+              <a href="https://dashboard.stripe.com/register" target="_blank" rel="noreferrer">stripe.com</a>) and finish activating it.
+            </li>
+            <li>
+              Open <strong>Developers → API keys</strong> and copy the <strong>Secret key</strong> (starts with <code>sk_live_</code>).
+              A restricted key (<code>rk_live_</code>) works too.
+            </li>
+            <li>Paste it below. We store it encrypted and set up the online-order webhook in your account for you.</li>
+          </ol>
+          <label className="label">
+            Stripe secret key
+            <input
+              className="input"
+              type="password"
+              autoComplete="off"
+              spellCheck={false}
+              required
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
+              placeholder="sk_live_…"
+            />
+          </label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn btn--primary" type="submit" disabled={busy || secretKey.trim().length < 20}>
+              {busy ? 'Checking with Stripe…' : 'Save and connect'}
+            </button>
+            {replacing && (
+              <button className="btn btn--secondary" type="button" onClick={() => setReplacing(false)} disabled={busy}>
+                Cancel
+              </button>
+            )}
+          </div>
+          {status?.simulated && !status.connected && (
+            <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-secondary)' }}>
+              Development: until a key is saved, card payments are simulated.
+            </p>
+          )}
+        </form>
       )}
 
       {status?.chargesEnabled && (

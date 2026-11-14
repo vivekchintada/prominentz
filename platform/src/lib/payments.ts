@@ -26,22 +26,23 @@ export async function verifyStripeIntent({
   intentId,
   orderId,
   expectedAmount,
-  stripeAccount,
+  client,
   currency = 'USD',
 }: {
   intentId: string
   orderId: string
   expectedAmount: number
-  /** Restaurant's connected Stripe account the charge was made on. */
-  stripeAccount?: string
+  /** The restaurant's own Stripe client (lib/restaurant-stripe); null only for simulated payments. */
+  client: import('stripe').default | null
   /** Restaurant's currency; the card charge must be in the same one. */
   currency?: string
 }) {
-  const { stripe, isMockStripe } = await import('@/lib/stripe')
   const { formatMoney, fromMinorUnits, toMinorUnits, minorUnitTolerance } = await import('@/lib/money')
-  // In non‑mock environments we enforce real Stripe verification.
-  if (!isMockStripe() || process.env.NODE_ENV === 'production') {
-    const intent = await stripe.paymentIntents.retrieve(intentId, {}, stripeAccount ? { stripeAccount } : undefined)
+  // Simulated payments (development, restaurant without a Stripe key) have nothing to verify.
+  if (!client && process.env.NODE_ENV !== 'production') return
+  if (!client) throw new Error('Card payments are not set up for this restaurant')
+  {
+    const intent = await client.paymentIntents.retrieve(intentId)
 
     if (intent.status !== 'succeeded') {
       throw new Error(`PaymentIntent has not succeeded (status: ${intent.status})`)

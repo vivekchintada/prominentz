@@ -194,13 +194,13 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-          const { findConnectedAccount } = await import('@/lib/stripe-connect')
+          const { findRestaurantStripe } = await import('@/lib/restaurant-stripe')
           await verifyStripeIntent({
           currency: currencyCode ?? (currencyCode = (await getRestaurantMoneySettings(restaurantId)).currency),
             intentId: stripePaymentIntentId,
             orderId,
             expectedAmount: expectedTotal,
-            stripeAccount: await findConnectedAccount(restaurantId),
+            client: await findRestaurantStripe(restaurantId),
           })
         } catch (stripeErr: any) {
           console.error('[Payment Gateway Error]', stripeErr)

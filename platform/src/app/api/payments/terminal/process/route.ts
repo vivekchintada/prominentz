@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { stripe, isMockStripe, createPaymentIntent } from '@/lib/stripe'
-import { requireConnectedAccount, findConnectedAccount, paymentErrorStatus } from '@/lib/stripe-connect'
+import { createPaymentIntent } from '@/lib/stripe'
+import { requireRestaurantStripe, findRestaurantStripe, paymentErrorStatus } from '@/lib/restaurant-stripe'
 import { resolveUserLocation } from '@/lib/location-resolver'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { toMinorUnits } from '@/lib/money'
@@ -64,13 +64,13 @@ export async function POST(req: NextRequest) {
   try {
     // Charge in the restaurant's currency (₹ restaurants were being sent to the reader in dollars).
     const { currency } = await getRestaurantMoneySettings(ctx.restaurantId)
-    if (isMockStripe()) {
-      // Local development: behave like an instant approved tap.
-      const intent = await createPaymentIntent(toMinorUnits(amount, currency), orderId, { currency })
+    const client = await requireRestaurantStripe(ctx.restaurantId)
+    if (!client) {
+      // Local development without a Stripe key: behave like an instant approved tap.
+      const intent = await createPaymentIntent(null, toMinorUnits(amount, currency), orderId, { currency })
       return NextResponse.json({ paymentIntentId: intent.id, status: 'succeeded', mock: true })
     }
 
-    const stripeAccount = await requireConnectedAccount(ctx.restaurantId)
     const location = ctx.locationId
       ? await prisma.location.findFirst({
           where: { id: ctx.locationId, restaurantId: ctx.restaurantId },
@@ -84,18 +84,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const intent = await createPaymentIntent(toMinorUnits(amount, currency), orderId, {
+    const intent = await createPaymentIntent(client, toMinorUnits(amount, currency), orderId, {
       currency,
-      stripeAccount,
       paymentMethodTypes: ['card_present'],
       idempotencySuffix: attempt || `${Date.now()}`,
     })
 
-    await stripe.terminal.readers.processPaymentIntent(
-      location.stripeReaderId,
-      { payment_intent: intent.id },
-      { stripeAccount },
-    )
+    await client.terminal.readers.processPaymentIntent(location.stripeReaderId, { payment_intent: intent.id })
 
     return NextResponse.json({ paymentIntentId: intent.id, status: 'waiting_for_card' })
   } catch (error: any) {
@@ -110,13 +105,14 @@ export async function GET(req: NextRequest) {
   const paymentIntentId = req.nextUrl.searchParams.get('paymentIntentId')
   if (!paymentIntentId) return NextResponse.json({ error: 'paymentIntentId is required' }, { status: 400 })
 
-  if (isMockStripe()) {
+  if (paymentIntentId.startsWith('pi_mock_')) {
     return NextResponse.json({ status: 'succeeded' })
   }
 
   try {
-    const stripeAccount = await findConnectedAccount(ctx.restaurantId)
-    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, {}, stripeAccount ? { stripeAccount } : undefined)
+    const client = await findRestaurantStripe(ctx.restaurantId)
+    if (!client) return NextResponse.json({ error: 'Card payments are not set up' }, { status: 409 })
+    const intent = await client.paymentIntents.retrieve(paymentIntentId)
     return NextResponse.json({
       status: intent.status,
       error: intent.last_payment_error?.message ?? null,
@@ -129,10 +125,9 @@ export async function GET(req: NextRequest) {
 export async function DELETE() {
   const ctx = await context()
   if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (isMockStripe()) return NextResponse.json({ ok: true })
-
   try {
-    const stripeAccount = await requireConnectedAccount(ctx.restaurantId)
+    const client = await findRestaurantStripe(ctx.restaurantId)
+    if (!client) return NextResponse.json({ ok: true })
     const location = ctx.locationId
       ? await prisma.location.findFirst({
           where: { id: ctx.locationId, restaurantId: ctx.restaurantId },
@@ -140,7 +135,7 @@ export async function DELETE() {
         })
       : null
     if (location?.stripeReaderId) {
-      await stripe.terminal.readers.cancelAction(location.stripeReaderId, {}, { stripeAccount })
+      await client.terminal.readers.cancelAction(location.stripeReaderId)
     }
     return NextResponse.json({ ok: true })
   } catch (error: any) {

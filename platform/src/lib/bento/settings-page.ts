@@ -28,7 +28,7 @@ export async function getSettingsBoard(restaurantId: string, locationId: string 
   const [restaurant, location, taxRate, print, access, users, stations, providers, online] = await Promise.all([
     prisma.restaurant.findUnique({
       where: { id: restaurantId },
-      select: { name: true, planTier: true, settings: true, stripeConnectAccountId: true, stripeChargesEnabled: true },
+      select: { name: true, planTier: true, settings: true, stripeChargesEnabled: true, stripeKeys: { select: { mode: true } } },
     }),
     locationId
       ? prisma.location.findUnique({ where: { id: locationId }, select: { name: true, address: true, phone: true, stripeReaderId: true } })
@@ -104,8 +104,8 @@ export async function getSettingsBoard(restaurantId: string, locationId: string 
   const apps: SettingsBoard['apps'] = [
     {
       name: 'Stripe payments',
-      detail: restaurant?.stripeChargesEnabled ? 'Card payments to your account' : restaurant?.stripeConnectAccountId ? 'Finish Stripe setup' : 'Not connected',
-      on: Boolean(restaurant?.stripeChargesEnabled),
+      detail: !restaurant?.stripeKeys ? 'Not connected' : restaurant.stripeKeys.mode === 'test' ? 'Test mode: no real money moves' : 'Card payments to your account',
+      on: Boolean(restaurant?.stripeKeys),
     },
     ...providers.map((p) => ({ name: p.name, detail: 'Menu and orders', on: p.isActive })),
     {

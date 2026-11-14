@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { connectCountryNeedsState } from '@/lib/stripe-connect-countries'
+import { connectCountryNeedsState, suggestedConnectCountry } from '@/lib/stripe-connect-countries'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { stripe, isMockStripe } from '@/lib/stripe'
-import { requireConnectedAccount, paymentErrorStatus } from '@/lib/stripe-connect'
+import { requireRestaurantStripe, restaurantStripeCountry, paymentErrorStatus } from '@/lib/restaurant-stripe'
+import { getRestaurantMoneySettings } from '@/lib/settings-helpers'
 import { resolveUserLocation } from '@/lib/location-resolver'
 
 export const dynamic = 'force-dynamic'
@@ -27,12 +27,11 @@ async function context() {
 export async function GET() {
   const ctx = await context()
   if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (isMockStripe()) return NextResponse.json({ reader: { id: 'tmr_mock', label: 'Simulated reader', status: 'online' }, mock: true })
-  if (!ctx.location.stripeReaderId) return NextResponse.json({ reader: null })
-
   try {
-    const stripeAccount = await requireConnectedAccount(ctx.restaurantId)
-    const reader = await stripe.terminal.readers.retrieve(ctx.location.stripeReaderId, {}, { stripeAccount })
+    const client = await requireRestaurantStripe(ctx.restaurantId)
+    if (!client) return NextResponse.json({ reader: { id: 'tmr_mock', label: 'Simulated reader', status: 'online' }, mock: true })
+    if (!ctx.location.stripeReaderId) return NextResponse.json({ reader: null })
+    const reader = await client.terminal.readers.retrieve(ctx.location.stripeReaderId)
     if ('deleted' in reader && reader.deleted) return NextResponse.json({ reader: null })
     return NextResponse.json({
       reader: { id: reader.id, label: reader.label, status: reader.status, deviceType: reader.device_type },
@@ -60,26 +59,25 @@ export async function POST(req: NextRequest) {
   if (!['OWNER', 'MANAGER'].includes(ctx.session.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
-  if (isMockStripe()) {
-    return NextResponse.json({ error: 'Stripe keys are not configured in this environment.' }, { status: 400 })
-  }
-
   const parsed = registerSchema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   const { registrationCode, label, address } = parsed.data
 
   try {
-    const stripeAccount = await requireConnectedAccount(ctx.restaurantId)
+    const client = await requireRestaurantStripe(ctx.restaurantId)
+    if (!client) {
+      return NextResponse.json({ error: 'Add your Stripe key in Settings → Payments before pairing a reader.' }, { status: 400 })
+    }
 
     let terminalLocationId = ctx.location.stripeTerminalLocationId
     if (!terminalLocationId) {
       // The reader's location must be in the same country as the restaurant's Stripe account.
-      const account = stripeAccount ? await stripe.accounts.retrieve(stripeAccount) : null
-      const country = account?.country || 'US'
+      const { currency } = await getRestaurantMoneySettings(ctx.restaurantId)
+      const country = (await restaurantStripeCountry(ctx.restaurantId)) || suggestedConnectCountry(currency) || 'US'
       if (connectCountryNeedsState(country) && address.state.trim().length < 2) {
         return NextResponse.json({ error: 'Enter the state or province for the reader address' }, { status: 400 })
       }
-      const terminalLocation = await stripe.terminal.locations.create(
+      const terminalLocation = await client.terminal.locations.create(
         {
           display_name: ctx.location.name,
           address: {
@@ -90,15 +88,11 @@ export async function POST(req: NextRequest) {
             country,
           },
         },
-        { stripeAccount },
       )
       terminalLocationId = terminalLocation.id
     }
 
-    const reader = await stripe.terminal.readers.create(
-      { registration_code: registrationCode, label, location: terminalLocationId },
-      { stripeAccount },
-    )
+    const reader = await client.terminal.readers.create({ registration_code: registrationCode, label, location: terminalLocationId })
 
     await prisma.location.update({
       where: { id: ctx.location.id },

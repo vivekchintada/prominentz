@@ -41,18 +41,17 @@ export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; pric
 }
 
 /**
- * Creates a PaymentIntent in Stripe to initiate card checkout for dining checks.
- * Supports auto-confirm for POS terminal swipes / test cards.
+ * Creates a PaymentIntent on the restaurant's own Stripe account (see lib/restaurant-stripe).
+ * `client` null means simulated payments, which only development allows.
  */
 export async function createPaymentIntent(
+  client: Stripe | null,
   amountInCents: number,
   orderId: string,
   options?: {
     confirm?: boolean
     paymentMethod?: string
     idempotencySuffix?: string
-    /** Restaurant's connected Stripe account (direct charge). */
-    stripeAccount?: string
     /** e.g. ['card_present'] for Stripe Terminal readers. */
     paymentMethodTypes?: string[]
     /** ISO currency of the restaurant (amount is already in its minor units). Defaults to USD. */
@@ -60,10 +59,10 @@ export async function createPaymentIntent(
   }
 ) {
   try {
-    if (process.env.NODE_ENV === 'production' && isTestOrMockKey) {
-      throw new Error('Stripe is not configured for production environment. Missing STRIPE_SECRET_KEY.')
-    }
-    if (isMockStripe()) {
+    if (!client) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Card payments are not set up for this restaurant.')
+      }
       return {
         id: `pi_mock_${Math.random().toString(36).substr(2, 9)}`,
         client_secret: `pi_mock_secret_${Math.random().toString(36).substr(2, 9)}`,
@@ -71,17 +70,15 @@ export async function createPaymentIntent(
       }
     }
 
-    const isLive = process.env.NODE_ENV === 'production' || (!isTestOrMockKey && rawStripeSecret.startsWith('sk_live_'))
     const shouldConfirm = options?.confirm ?? true
 
-    if (shouldConfirm && !options?.paymentMethod && !options?.paymentMethodTypes && isLive) {
-      throw new Error(
-        'A genuine customer or terminal payment method is required to confirm card transactions in production. ' +
-        'Mock/test tokens (pm_card_visa) are forbidden.'
-      )
+    // Server-side confirmation needs a real payment method from a guest or a reader. Test cards
+    // like pm_card_visa only work with a test key, and Stripe rejects them on a live key anyway.
+    if (shouldConfirm && !options?.paymentMethod && !options?.paymentMethodTypes) {
+      throw new Error('A customer or card-reader payment method is required to confirm a card payment.')
     }
 
-    const paymentMethod = options?.paymentMethod || (isTestOrMockKey ? 'pm_card_visa' : undefined)
+    const paymentMethod = options?.paymentMethod
 
     const createParams: Stripe.PaymentIntentCreateParams = options?.paymentMethodTypes
       ? {
@@ -109,13 +106,7 @@ export async function createPaymentIntent(
       ? `pi_${orderId}_${amountInCents}_${options.idempotencySuffix}`
       : `pi_${orderId}_${amountInCents}`
 
-    const intent = await stripe.paymentIntents.create(
-      createParams,
-      {
-        idempotencyKey,
-        ...(options?.stripeAccount ? { stripeAccount: options.stripeAccount } : {}),
-      }
-    )
+    const intent = await client.paymentIntents.create(createParams, { idempotencyKey })
 
     return {
       id: intent.id,
@@ -129,21 +120,25 @@ export async function createPaymentIntent(
 }
 
 /**
- * Refunds a processed Stripe charge or PaymentIntent.
+ * Refunds a PaymentIntent on the restaurant's own Stripe account.
+ * Simulated (pi_mock_) payments refund instantly; a real one needs the restaurant's client.
  */
-export async function refundPayment(chargeIdOrPaymentIntentId: string, amountInCents?: number, stripeAccount?: string) {
+export async function refundPayment(client: Stripe | null, paymentIntentId: string, amountInCents?: number) {
   try {
-    if (isMockStripe() || chargeIdOrPaymentIntentId.startsWith('pi_mock_')) {
+    if (paymentIntentId.startsWith('pi_mock_')) {
       return {
         id: `re_mock_${Math.random().toString(36).substr(2, 9)}`,
         amount: amountInCents ?? 0,
       }
     }
+    if (!client) {
+      throw new Error('This restaurant has no Stripe key saved, so the card payment cannot be refunded here.')
+    }
 
-    const refund = await stripe.refunds.create({
-      payment_intent: chargeIdOrPaymentIntentId,
+    const refund = await client.refunds.create({
+      payment_intent: paymentIntentId,
       ...(amountInCents ? { amount: amountInCents } : {}),
-    }, stripeAccount ? { stripeAccount } : undefined)
+    })
 
     return {
       id: refund.id,

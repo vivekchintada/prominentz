@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { quoteOnlineOrder } from '@/lib/online-ordering'
 import { fireOnlineOrder } from '@/lib/online-order-orchestration'
-import { stripe, isMockStripe } from '@/lib/stripe'
-import { requireConnectedAccount, paymentErrorStatus } from '@/lib/stripe-connect'
+import { requireRestaurantStripe, paymentErrorStatus } from '@/lib/restaurant-stripe'
 import { sendOrderConfirmationNotification } from '@/lib/order-notifications'
 import { getRestaurantAccessStatus } from '@/lib/subscription-status'
 import { randomBytes } from 'crypto'
@@ -247,8 +246,9 @@ export async function POST(req: NextRequest) {
     if (d.paymentMethod === 'CARD') {
       const origin = req.nextUrl.origin
       const trackingUrl = `${origin}/order/track/${token}`
-      if (isMockStripe()) {
-        // Local development without Stripe keys: treat the card as paid immediately.
+      const client = await requireRestaurantStripe(order.table.location.restaurantId)
+      if (!client) {
+        // Local development without a Stripe key: treat the card as paid immediately.
         const autoAccept = q.config.acceptanceMode === 'AUTOMATIC'
         await prisma.order.update({
           where: { id: order.id },
@@ -262,9 +262,8 @@ export async function POST(req: NextRequest) {
         if (autoAccept && !d.scheduledFor) await fireOnlineOrder(order.id, 'AUTO_ACCEPT')
         checkoutUrl = `${trackingUrl}?paid=mock`
       } else {
-        const stripeAccount = await requireConnectedAccount(order.table.location.restaurantId)
         const { currency } = await getRestaurantMoneySettings(order.table.location.restaurantId)
-        const session = await stripe.checkout.sessions.create(
+        const session = await client.checkout.sessions.create(
           {
             mode: 'payment',
             line_items: [
@@ -286,7 +285,7 @@ export async function POST(req: NextRequest) {
             cancel_url: `${origin}/order/${d.locationId}?cancelled=1`,
             expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
           },
-          { stripeAccount, idempotencyKey: `online_checkout_${order.id}` },
+          { idempotencyKey: `online_checkout_${order.id}` },
         )
         checkoutUrl = session.url
       }

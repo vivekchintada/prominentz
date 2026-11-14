@@ -62,11 +62,10 @@ export async function POST(
     // If order was prepaid with card, initiate refund
     if (order.stripePaymentIntentId && (order.paymentStatus === 'PAID' || order.paymentStatus === 'PENDING')) {
       try {
-        const { findConnectedAccount } = await import('@/lib/stripe-connect')
+        const { findRestaurantStripe } = await import('@/lib/restaurant-stripe')
         const refund = await refundPayment(
+          await findRestaurantStripe(session.user.restaurantId),
           order.stripePaymentIntentId,
-          undefined,
-          await findConnectedAccount(session.user.restaurantId),
         )
         data.paymentStatus = 'REFUNDED'
         data.refundId = refund.id

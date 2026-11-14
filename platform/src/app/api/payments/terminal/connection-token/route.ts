@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { stripe } from '@/lib/stripe'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,9 +16,10 @@ export async function POST() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { requireConnectedAccount, onAccount } = await import('@/lib/stripe-connect')
-    const stripeAccount = await requireConnectedAccount(session.user.restaurantId)
-    const connectionToken = await stripe.terminal.connectionTokens.create({}, onAccount(stripeAccount))
+    const { requireRestaurantStripe } = await import('@/lib/restaurant-stripe')
+    const client = await requireRestaurantStripe(session.user.restaurantId)
+    if (!client) return NextResponse.json({ secret: 'pst_mock_connection_token', mock: true })
+    const connectionToken = await client.terminal.connectionTokens.create({})
 
     return NextResponse.json({ secret: connectionToken.secret })
   } catch (error) {

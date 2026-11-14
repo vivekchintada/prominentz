@@ -156,13 +156,13 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-          const { findConnectedAccount } = await import('@/lib/stripe-connect')
+          const { findRestaurantStripe } = await import('@/lib/restaurant-stripe')
           await verifyStripeIntent({
           currency: currencyCode ?? (currencyCode = (await getRestaurantMoneySettings(restaurantId)).currency),
             intentId: s.stripePaymentIntentId,
             orderId,
             expectedAmount: s.total,
-            stripeAccount: await findConnectedAccount(restaurantId),
+            client: await findRestaurantStripe(restaurantId),
           })
         } catch (stripeErr: any) {
           console.error('[Split Payment] Gateway verification failed:', stripeErr)

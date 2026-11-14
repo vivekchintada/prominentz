@@ -171,9 +171,11 @@ model Restaurant {
   planTier             PlanTier @default(STARTER)
   stripeCustomerId     String?
   stripeSubscriptionId String?
-  // Restaurant's own Stripe account (Stripe Connect). Diner payments go here, never to the platform.
+  // Legacy Stripe Connect account id (no longer used: restaurants now save their own Stripe key).
   stripeConnectAccountId String?  @unique
+  // True once the restaurant's own Stripe key is saved and its webhook is in place.
   stripeChargesEnabled   Boolean  @default(false)
+  stripeKeys             RestaurantStripeKeys?
   onboardingStep       Int      @default(0) // 0=new, 5=complete
   settings             Json?    @default("{}")
   createdAt            DateTime @default(now())
@@ -192,6 +194,24 @@ model Restaurant {
   memberships        OrganizationMembership[]
   staffInvitations   StaffInvitation[]
   auditLogs          AuditLog[]
+}
+
+// The restaurant's own Stripe secret key, for charging diners into the restaurant's account.
+// Kept in its own table so `include: { restaurant: true }` never carries it. Secrets are sealed
+// with lib/secret-box (AES-256-GCM, PAYMENT_KEYS_ENCRYPTION_KEY) and never sent to the browser.
+model RestaurantStripeKeys {
+  restaurantId      String     @id
+  restaurant        Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  secretKeyEnc      String
+  keyLast4          String
+  mode              String // "live" | "test"
+  accountId         String?
+  accountName       String?
+  country           String?
+  webhookEndpointId String?
+  webhookSecretEnc  String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 }
 
 model Location {

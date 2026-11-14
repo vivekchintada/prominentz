@@ -72,21 +72,19 @@ export async function POST(req: NextRequest) {
     const { currency } = await getRestaurantMoneySettings(restaurantId)
     const amountInCents = toMinorUnits(amount, currency)
 
-    const { requireConnectedAccount } = await import('@/lib/stripe-connect')
-    const stripeAccount = await requireConnectedAccount(restaurantId)
+    const { requireRestaurantStripe } = await import('@/lib/restaurant-stripe')
+    const client = await requireRestaurantStripe(restaurantId)
 
-    const intent = await createPaymentIntent(amountInCents, orderId, {
+    const intent = await createPaymentIntent(client, amountInCents, orderId, {
       currency,
       confirm,
       paymentMethod,
-      stripeAccount,
     })
 
     return NextResponse.json({
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
       status: intent.status,
-      stripeAccount: stripeAccount ?? null,
     })
   } catch (error: any) {
     console.error('[POST /api/payments/create-intent]', error)
