@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
-import { getDodoSubscription, isMockDodo } from '@/lib/dodo-payments'
+import { getDodoSubscription, isDodoSettingsFromCurrentMode, isMockDodo } from '@/lib/dodo-payments'
 import { applyDodoSubscriptionState, lockRestaurantForBilling } from '@/lib/dodo-subscription-sync'
 
 export const dynamic = 'force-dynamic'
@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
   }
 
   const settings = (restaurant.settings as Record<string, any>) || {}
-  const subscriptionId: string | undefined = returnedId || settings.dodoSubscriptionId
+  // A stored test-mode ID would 404 against the live API, so only fall back to it in the same mode.
+  const storedId: string | undefined = isDodoSettingsFromCurrentMode(settings) ? settings.dodoSubscriptionId : undefined
+  const subscriptionId: string | undefined = returnedId || storedId
   if (!subscriptionId) {
     return NextResponse.json({ synced: false })
   }

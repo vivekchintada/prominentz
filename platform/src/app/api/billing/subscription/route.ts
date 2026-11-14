@@ -43,11 +43,14 @@ export async function GET(req: NextRequest) {
     const settings = (restaurant.settings as Record<string, any>) || {}
     const activeGateway = settings.lastBillingGateway || (settings.dodoSubscriptionId ? 'DODO' : 'STRIPE')
     const isDodo = activeGateway === 'DODO'
+    const { isDodoTestModeInProduction, isDodoSettingsFromCurrentMode } = await import('@/lib/dodo-payments')
+    // A subscription made in Dodo test mode isn't real once the site runs live: show it as none.
+    const dodoCurrent = isDodoSettingsFromCurrentMode(settings)
     const subscriptionStatus = isDodo
-      ? settings.dodoSubscriptionStatus || 'INACTIVE'
+      ? (dodoCurrent && settings.dodoSubscriptionStatus) || 'INACTIVE'
       : restaurant.stripeSubscriptionId ? 'ACTIVE' : 'INACTIVE'
     const subscriptionId = isDodo
-      ? settings.dodoSubscriptionId || null
+      ? (dodoCurrent && settings.dodoSubscriptionId) || null
       : restaurant.stripeSubscriptionId || null
 
     const planInfo = PRICING[restaurant.planTier as keyof typeof PRICING] || PRICING.STARTER
@@ -59,7 +62,6 @@ export async function GET(req: NextRequest) {
       take: 10,
     })
 
-    const { isDodoTestModeInProduction } = await import('@/lib/dodo-payments')
     return NextResponse.json({
       testMode: isDodoTestModeInProduction(),
       restaurantId: restaurant.id,
@@ -75,8 +77,8 @@ export async function GET(req: NextRequest) {
       status: subscriptionStatus,
       lastBilledAt: settings.lastBilledAt || null,
       cancelledAt: settings.dodoCancelledAt || null,
-      currentPeriodEnd: isDodo ? settings.dodoNextBillingDate || null : null,
-      cancelAtPeriodEnd: isDodo ? Boolean(settings.dodoCancelAtPeriodEnd) : false,
+      currentPeriodEnd: isDodo && dodoCurrent ? settings.dodoNextBillingDate || null : null,
+      cancelAtPeriodEnd: isDodo && dodoCurrent ? Boolean(settings.dodoCancelAtPeriodEnd) : false,
       currency: isDodo ? settings.dodoCurrency || null : 'USD',
       billingHistory: billingLogs.map((log) => ({
         id: log.id,

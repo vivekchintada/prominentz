@@ -5,6 +5,7 @@ import {
   DodoInternalStatus,
   DodoSubscription,
   dodoMode,
+  isDodoSettingsFromCurrentMode,
   mapDodoStatus,
   parsePlanTier,
   planTierForProductId,
@@ -70,7 +71,9 @@ export async function applyDodoSubscriptionState(
   }
 
   // A cancelled/expired *old* subscription must not knock out the restaurant's current one.
-  const currentId: string | undefined = settings.dodoSubscriptionId
+  // One left over from the other Dodo mode (test before going live) is not current.
+  const fromCurrentMode = isDodoSettingsFromCurrentMode(settings)
+  const currentId: string | undefined = fromCurrentMode ? settings.dodoSubscriptionId : undefined
   const isDifferentSub = currentId && currentId !== sub.subscription_id
   if (isDifferentSub && status !== 'ACTIVE' && PLAN_RETAINING.includes(settings.dodoSubscriptionStatus)) {
     return { applied: false, reason: 'superseded_subscription' }

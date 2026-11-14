@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
 import { stripe } from '@/lib/stripe'
-import { createDodoCustomerPortalSession } from '@/lib/dodo-payments'
+import { createDodoCustomerPortalSession, isDodoSettingsFromCurrentMode } from '@/lib/dodo-payments'
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Dodo subscribers update their card, download invoices, and cancel on Dodo's hosted portal.
-    if (settings.dodoCustomerId) {
+    // A customer left over from test mode doesn't exist in the live account.
+    if (settings.dodoCustomerId && isDodoSettingsFromCurrentMode(settings)) {
       const link = await createDodoCustomerPortalSession(settings.dodoCustomerId, returnUrl)
       return NextResponse.json({ url: link })
     }

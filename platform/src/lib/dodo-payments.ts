@@ -5,7 +5,7 @@ import { PRICING } from './pricing'
 /**
  * Dodo Payments handles the restaurant's Prominentz subscription (what restaurants pay us),
  * as a merchant of record covering both US and India customers through one gateway.
- * Diner card payments (online orders, card readers) still run on Stripe Connect.
+ * Diner card payments (online orders, card readers) run on each restaurant's own Stripe key (lib/restaurant-stripe).
  *
  * Recurring billing lifecycle (see https://docs.dodopayments.com/developer-resources/subscription-integration-guide):
  *   checkout → subscription.active → subscription.renewed (each cycle)
@@ -40,6 +40,16 @@ export function dodoMode(): 'test_mode' | 'live_mode' {
  */
 export function isDodoTestModeInProduction(): boolean {
   return process.env.NODE_ENV === 'production' && dodoEnvironment === 'test_mode'
+}
+
+/**
+ * True when the Dodo IDs stored on a restaurant (subscription, customer) belong to the Dodo
+ * environment this deployment talks to. IDs made in test mode don't exist in live mode, so after
+ * the switch they must be ignored rather than sent to the live API. Rows saved before the
+ * environment was recorded count as current.
+ */
+export function isDodoSettingsFromCurrentMode(settings: Record<string, any>): boolean {
+  return typeof settings.dodoEnvironment !== 'string' || settings.dodoEnvironment === dodoEnvironment
 }
 
 function testModeAllowedInProduction(): boolean {

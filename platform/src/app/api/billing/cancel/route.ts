@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
-import { cancelDodoSubscription, resumeDodoSubscription } from '@/lib/dodo-payments'
+import { cancelDodoSubscription, isDodoSettingsFromCurrentMode, resumeDodoSubscription } from '@/lib/dodo-payments'
 import { stripe, isMockStripe } from '@/lib/stripe'
 import { logAuditEvent } from '@/lib/audit'
 
@@ -41,6 +41,11 @@ export async function POST(req: NextRequest) {
 
     const currentSettings = (restaurant.settings as Record<string, any>) || {}
     const dodoSubscriptionId: string | undefined = currentSettings.dodoSubscriptionId
+
+    // A subscription left over from Dodo test mode doesn't exist in live mode: nothing to cancel.
+    if (dodoSubscriptionId && !isDodoSettingsFromCurrentMode(currentSettings)) {
+      return NextResponse.json({ error: 'There is no active subscription to change.' }, { status: 400 })
+    }
 
     if (dodoSubscriptionId) {
       try {

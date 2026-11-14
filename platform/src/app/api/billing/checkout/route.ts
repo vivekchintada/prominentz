@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { canManageBilling, getAuthContext } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/prisma'
-import { changeDodoSubscriptionPlan, createSubscriptionCheckoutSession } from '@/lib/dodo-payments'
+import {
+  changeDodoSubscriptionPlan,
+  createSubscriptionCheckoutSession,
+  isDodoSettingsFromCurrentMode,
+} from '@/lib/dodo-payments'
 import { PlanTier } from '@/lib/plans'
 import { resolveUserLocation } from '@/lib/location-resolver'
 import { billingProviderForCountry, resolveCountryFromRequest } from '@/lib/billing-provider'
@@ -48,10 +52,13 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin || 'http://localhost:3000'
     const returnUrl = `${origin}/dashboard/settings/billing`
     const settings = (restaurant.settings as Record<string, any>) || {}
+    // A test-mode subscription/customer left over from before the switch to live doesn't exist
+    // in the live Dodo account: start a fresh checkout instead of reusing it.
+    const dodoIdsUsable = isDodoSettingsFromCurrentMode(settings)
 
     // A restaurant must only ever have one recurring subscription. If one is live, change
     // its plan in place rather than opening a second checkout that would double-bill.
-    if (settings.dodoSubscriptionId && LIVE_DODO_STATUSES.has(settings.dodoSubscriptionStatus)) {
+    if (dodoIdsUsable && settings.dodoSubscriptionId && LIVE_DODO_STATUSES.has(settings.dodoSubscriptionStatus)) {
       if (restaurant.planTier === planTier) {
         return NextResponse.json({ error: 'You are already subscribed to this plan.' }, { status: 409 })
       }
@@ -87,7 +94,7 @@ export async function POST(req: NextRequest) {
             planTier: planTier as PlanTier,
             returnUrl,
             countryCode,
-            dodoCustomerId: settings.dodoCustomerId || null,
+            dodoCustomerId: (dodoIdsUsable && settings.dodoCustomerId) || null,
           })
 
     return NextResponse.json({
