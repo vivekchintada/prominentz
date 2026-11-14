@@ -12,8 +12,8 @@ const STORAGE_KEY = 'prominentz:subscription-reminder'
 const POLL_MS = 30_000
 const BILLING_PATH = '/dashboard/settings/billing'
 
-/** A fresh gap of 4–8 orders, so the reminder never lands on a predictable beat. */
-const nextThreshold = () => 4 + Math.floor(Math.random() * 5)
+/** A fresh gap of 5–10 orders, so the reminder never lands on a predictable beat. */
+const nextThreshold = () => 5 + Math.floor(Math.random() * 6)
 const freshCadence = (): Cadence => ({ since: new Date().toISOString(), threshold: nextThreshold() })
 
 function readCadence(): Cadence | null {
@@ -54,7 +54,7 @@ const COPY: Record<ReminderState, { title: string; body: (days: number) => strin
 
 /**
  * Subscription reminder for owners and managers of a restaurant that isn't on a working paid
- * plan. It shows one message after every 4–8 new orders, then waits for the next gap. The server
+ * plan. It shows one message after every 5–10 new orders, then waits for the next gap. The server
  * decides who is eligible and counts the orders; this only tracks when the viewer last saw it.
  */
 export function SubscriptionReminder() {
@@ -108,7 +108,7 @@ export function SubscriptionReminder() {
     if (!open && dialog.open) dialog.close()
   }, [open])
 
-  // Start counting the next 4–8 orders from now.
+  // Start counting the next 5–10 orders from now.
   const dismiss = useCallback(() => {
     cadenceRef.current = freshCadence()
     writeCadence(cadenceRef.current)

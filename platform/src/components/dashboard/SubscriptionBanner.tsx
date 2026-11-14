@@ -7,8 +7,10 @@ interface SubscriptionBannerProps {
   daysLeftInTrial: number
 }
 
-export function SubscriptionBanner({ isTrialing, isExpired, isPastDue, daysLeftInTrial }: SubscriptionBannerProps) {
-  if (!isTrialing && !isExpired && !isPastDue) return null
+export function SubscriptionBanner({ isExpired, isPastDue, daysLeftInTrial }: SubscriptionBannerProps) {
+  // A running trial is announced by the order-based popup (SubscriptionReminder), not a
+  // banner on every page. Only blocking states (trial over, payment failed) stay pinned.
+  if (!isExpired && !isPastDue) return null
 
   const tone = isExpired || isPastDue ? 'urgent' : 'notice'
   const message = isExpired
