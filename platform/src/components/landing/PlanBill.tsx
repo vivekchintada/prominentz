@@ -9,21 +9,15 @@ const lines = [
   'Table and menu QR codes, straight to the kitchen',
   'Menu editor and item modifiers',
   'Cash, card, table-side and split payments',
-  'Live table status and seat-by-seat splits',
+  'Guest CRM and loyalty points',
   'Inventory counts and recipe depletion',
-  'Staff shifts and clock in / clock out',
+  'Staff schedules, clock-in and leave',
   'Reservations and walk-in waitlist',
   'End-of-day Z-report and daily sales',
   'Delivery app sync (DoorDash, Uber Eats, Zomato, Swiggy)',
 ]
 
-const PRO_LINES = [
-  'Guest CRM and VIP profiles',
-  'Loyalty points and rewards',
-  'AI operations agent',
-  'Multiple locations',
-  'Shift scheduling and labour cost',
-]
+const PRO_LINES = ['AI operations agent', 'Multiple locations']
 
 const TOTALS: [string, string][] = [
   ['Share of your sales we take', '0%'],

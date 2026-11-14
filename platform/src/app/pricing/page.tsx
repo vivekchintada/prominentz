@@ -20,13 +20,15 @@ const MATRIX: { label: string; basic: boolean; pro: boolean }[] = [
   { label: 'Table QR ordering and your own online ordering page', basic: true, pro: true },
   { label: 'Split checks by seat, item or evenly; cash and card', basic: true, pro: true },
   { label: 'Inventory counts and recipe depletion', basic: true, pro: true },
-  { label: 'Staff board and clock in / clock out', basic: true, pro: true },
+  { label: 'Staff schedules, clock in / clock out and leave approvals', basic: true, pro: true },
   { label: 'Reservations and walk-in waitlist', basic: true, pro: true },
   { label: 'End-of-day Z-report and daily sales', basic: true, pro: true },
   { label: 'Delivery aggregator sync', basic: true, pro: true },
-  { label: 'Guest CRM and loyalty rewards', basic: false, pro: true },
+  { label: 'Delivery payout reconciliation', basic: true, pro: true },
+  { label: 'Guest CRM and loyalty rewards', basic: true, pro: true },
+  { label: 'Audit log of voids, comps and price changes', basic: true, pro: true },
   { label: 'AI operations agent', basic: false, pro: true },
-  { label: 'Multiple locations and labour scheduling', basic: false, pro: true },
+  { label: 'Multiple locations', basic: false, pro: true },
 ]
 
 export default function PricingPage() {
@@ -68,7 +70,7 @@ export default function PricingPage() {
                   Basic today, Pro when it&apos;s ready.
                 </h2>
                 <p className={s.body}>
-                  Pro is in development. It adds the guest and multi-location layer on top of everything in Basic.
+                  Pro is in development. It adds the AI agent and multiple locations on top of everything in Basic.
                 </p>
               </div>
               <div className={s.panel}>

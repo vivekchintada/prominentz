@@ -65,13 +65,13 @@ export const DODO_PLAN_PRICING: Record<PlanTier, { name: string; amount: number;
     name: PRICING.STARTER.label,
     amount: PRICING.STARTER.monthly,
     productId: process.env.DODO_PAYMENTS_PRODUCT_STARTER || 'prod_starter_tier',
-    description: 'Core POS & KDS, Table Floor Management, Digital Menu & QR Studio, Staff Accounts, End-of-Day Reports',
+    description: 'Core POS & KDS, Table Floor Management, Digital Menu & QR Studio, Guest CRM & Loyalty, Staff Accounts, End-of-Day Reports',
   },
   PRO: {
     name: PRICING.PRO.label,
     amount: PRICING.PRO.monthly,
     productId: process.env.DODO_PAYMENTS_PRODUCT_PRO || 'prod_pro_tier',
-    description: 'Advanced AI Intelligence, Guest CRM & Loyalty Engine',
+    description: 'Advanced AI Intelligence and Multi-Location',
   },
   ENTERPRISE: {
     name: PRICING.ENTERPRISE.label,

@@ -21,7 +21,7 @@ export const PRICING = {
     annualINR:  99990,
     label:   'Pro Plan (In Development)',
     color:   '#8b5cf6',
-    tagline: 'Advanced AI intelligence, guest CRM, loyalty rewards, and multi-location (coming soon).',
+    tagline: 'Advanced AI intelligence and multi-location (coming soon).',
     badge:   'Coming Soon',
   },
   ENTERPRISE: {
@@ -37,7 +37,8 @@ export const PRICING = {
 } as const
 
 // All features by tier
-// NOTE: Intelligence (Prominentz AI), Guest CRM, and Loyalty Rewards are strictly EXCLUDED from the Basic Plan.
+// NOTE: Prominentz AI is excluded from the Basic Plan. Guest CRM and Loyalty are included (decision 2026-11-14).
+// STARTER is printed line for line on the landing bill (components/landing/PlanBill.tsx); keep 11 entries.
 export const PLAN_FEATURES = {
   STARTER: [
     { icon: '🛎️', label: 'Point of Sale (POS) & Table Floor Management' },
@@ -45,24 +46,19 @@ export const PLAN_FEATURES = {
     { icon: '📱', label: 'Table & Food Menu QR Code Studio (Direct-to-KDS)' },
     { icon: '🧩', label: 'Menu Editor & Custom Item Modifiers' },
     { icon: '💳', label: 'Cash, Card, Table-Side & Split Bill Payments' },
-    { icon: '🪑', label: 'Live Table Status Switcher & Seat-by-Seat Splitting' },
+    { icon: '👥', label: 'Guest CRM, Dining History & Loyalty Rewards' },
     { icon: '📦', label: 'Inventory Stock Count & Recipe Depletion Tracking' },
-    { icon: '👷', label: 'Staff Shift Management & Clock-In/Clock-Out' },
+    { icon: '👷', label: 'Staff Schedules, Clock-In/Clock-Out & Leave Approvals' },
     { icon: '📅', label: 'Table Reservations & Walk-In Waitlist' },
     { icon: '📈', label: 'End-of-Day Z-Reports & Daily Sales Analytics' },
     { icon: '🛵', label: 'Delivery Aggregator Sync (Zomato / Swiggy / DoorDash / UberEats)' },
   ],
   NOT_INCLUDED_IN_BASIC: [
     { icon: '🧠', label: 'Prominentz AI Operations Agent & Intelligence' },
-    { icon: '👥', label: 'Guest CRM, Dining History & VIP Profiles' },
-    { icon: '⭐', label: 'Automatic Loyalty Points & Customer Rewards Engine' },
   ],
   PRO: [
     { icon: '🧠', label: 'Prominentz AI Conversational Analytics & Intelligence' },
-    { icon: '👥', label: 'Guest CRM & VIP Guest Intelligence' },
-    { icon: '⭐', label: 'Automatic Loyalty Points & Rewards Engine' },
     { icon: '🏢', label: 'Multi-Location Switching & Outlets' },
-    { icon: '⏰', label: 'Deputy HR Shift Scheduling & Labor Cost %' },
   ],
   ENTERPRISE: [
     { icon: '🏢', label: 'Unlimited Outlets & Multi-Location HQ Hierarchy' },

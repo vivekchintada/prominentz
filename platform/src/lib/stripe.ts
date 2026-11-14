@@ -30,7 +30,7 @@ export const PLAN_PRICING: Record<PlanTier, { name: string; amount: number; pric
     name: 'Professional Plan (In Development)',
     amount: 129,
     priceId: process.env.STRIPE_PRICE_PRO || 'price_pro_tier',
-    description: 'Advanced AI Intelligence, Guest CRM & Loyalty Engine (Coming Soon)',
+    description: 'Advanced AI Intelligence and Multi-Location (Coming Soon)',
   },
   ENTERPRISE: {
     name: 'Enterprise',
